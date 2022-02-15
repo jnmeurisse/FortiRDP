@@ -73,7 +73,7 @@
 *
 * Uncomment if the CPU supports SSE2 (IA-32 specific).
 */
-//#define MBEDTLS_HAVE_SSE2
+#define MBEDTLS_HAVE_SSE2
 
 /**
 * \def MBEDTLS_HAVE_TIME
@@ -153,7 +153,7 @@
 * Uncomment to enable validation of application-controlled parameters.
 */
 #ifdef _DEBUG
-#define MBEDTLS_CHECK_PARAMS
+//#define MBEDTLS_CHECK_PARAMS
 #endif // DEBUG
 
 
