@@ -1,0 +1,439 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="sources">
+      <UniqueIdentifier>{7c882d8b-fc1d-480c-a0b5-9341a147e7be}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sources\ui">
+      <UniqueIdentifier>{aefac82a-9ca3-4ffe-a9be-ac646b0b986a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sources\fw">
+      <UniqueIdentifier>{aacb8a34-2a7d-44c1-a162-fef5fa0b7036}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sources\http">
+      <UniqueIdentifier>{9e74ad4d-ebf1-4126-8c14-28cc57c44d49}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sources\net">
+      <UniqueIdentifier>{654908b8-496f-4303-bc44-10ce5953e808}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sources\toos">
+      <UniqueIdentifier>{83133963-3525-430b-90be-0ad5ad076025}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="resources">
+      <UniqueIdentifier>{6cb09527-312f-4fe8-b653-a45a73de7fbf}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\src\ui\AboutDialog.cpp">
+      <Filter>sources\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ui\AskCodeDialog.cpp">
+      <Filter>sources\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ui\AsyncController.cpp">
+      <Filter>sources\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ui\AsyncMessage.cpp">
+      <Filter>sources\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ui\CmdlineParams.cpp">
+      <Filter>sources\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ui\ConnectDialog.cpp">
+      <Filter>sources\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ui\CredentialDialog.cpp">
+      <Filter>sources\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ui\Dialog.cpp">
+      <Filter>sources\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ui\fortirdp.cpp">
+      <Filter>sources\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ui\InfoLogWriter.cpp">
+      <Filter>sources\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ui\ModalDialog.cpp">
+      <Filter>sources\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ui\ModelessDialog.cpp">
+      <Filter>sources\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ui\OptionsDialog.cpp">
+      <Filter>sources\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ui\RdpFile.cpp">
+      <Filter>sources\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ui\RegistrySettings.cpp">
+      <Filter>sources\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ui\SyncConnect.cpp">
+      <Filter>sources\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ui\SyncDisconnect.cpp">
+      <Filter>sources\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ui\SyncProc.cpp">
+      <Filter>sources\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ui\SyncWaitTask.cpp">
+      <Filter>sources\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ui\SyncWaitTunnel.cpp">
+      <Filter>sources\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\fw\CrtThumbprint.cpp">
+      <Filter>sources\fw</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\fw\PortalClient.cpp">
+      <Filter>sources\fw</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\http\Answer.cpp">
+      <Filter>sources\http</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\http\Cookie.cpp">
+      <Filter>sources\http</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\http\CookieError.cpp">
+      <Filter>sources\http</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\http\Cookies.cpp">
+      <Filter>sources\http</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\http\Headers.cpp">
+      <Filter>sources\http</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\http\HttpsClient.cpp">
+      <Filter>sources\http</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\http\Request.cpp">
+      <Filter>sources\http</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\http\Url.cpp">
+      <Filter>sources\http</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\net\Endpoint.cpp">
+      <Filter>sources\net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\net\Listener.cpp">
+      <Filter>sources\net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\net\LwipOutputQueue.cpp">
+      <Filter>sources\net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\net\PortForwarder.cpp">
+      <Filter>sources\net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\net\PortForwarders.cpp">
+      <Filter>sources\net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\net\PPInterface.cpp">
+      <Filter>sources\net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\net\pppossl.c">
+      <Filter>sources\net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\net\Socket.cpp">
+      <Filter>sources\net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\net\TlsSocket.cpp">
+      <Filter>sources\net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\net\Tunneler.cpp">
+      <Filter>sources\net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\net\WinsOutputQueue.cpp">
+      <Filter>sources\net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\tools\ByteBuffer.cpp">
+      <Filter>sources\toos</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\tools\Counters.cpp">
+      <Filter>sources\toos</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\tools\ErrUtil.cpp">
+      <Filter>sources\toos</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\tools\Event.cpp">
+      <Filter>sources\toos</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\tools\Json11.cpp">
+      <Filter>sources\toos</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\tools\Logger.cpp">
+      <Filter>sources\toos</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\tools\Mutex.cpp">
+      <Filter>sources\toos</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\tools\ObfuscatedString.cpp">
+      <Filter>sources\toos</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\tools\OutputQueue.cpp">
+      <Filter>sources\toos</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\tools\Path.cpp">
+      <Filter>sources\toos</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\tools\PBufChain.cpp">
+      <Filter>sources\toos</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\tools\pugixml.cpp">
+      <Filter>sources\toos</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\tools\RegKey.cpp">
+      <Filter>sources\toos</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\tools\StringMap.cpp">
+      <Filter>sources\toos</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\tools\StrUtil.cpp">
+      <Filter>sources\toos</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\tools\SysUtil.cpp">
+      <Filter>sources\toos</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\tools\Task.cpp">
+      <Filter>sources\toos</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\tools\TaskInfo.cpp">
+      <Filter>sources\toos</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\tools\Thread.cpp">
+      <Filter>sources\toos</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\tools\Timer.cpp">
+      <Filter>sources\toos</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\tools\XGetopt.cpp">
+      <Filter>sources\toos</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\src\ui\AboutDialog.h">
+      <Filter>sources\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\ui\AskCodeDialog.h">
+      <Filter>sources\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\ui\AsyncController.h">
+      <Filter>sources\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\ui\AsyncMessage.h">
+      <Filter>sources\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\ui\CmdlineParams.h">
+      <Filter>sources\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\ui\ConnectDialog.h">
+      <Filter>sources\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\ui\CredentialDialog.h">
+      <Filter>sources\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\ui\Dialog.h">
+      <Filter>sources\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\ui\fortirdp.h">
+      <Filter>sources\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\ui\InfoLogWriter.h">
+      <Filter>sources\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\ui\ModalDialog.h">
+      <Filter>sources\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\ui\ModelessDialog.h">
+      <Filter>sources\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\ui\OptionsDialog.h">
+      <Filter>sources\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\ui\RdpFile.h">
+      <Filter>sources\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\ui\RegistrySettings.h">
+      <Filter>sources\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\ui\SyncConnect.h">
+      <Filter>sources\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\ui\SyncDisconnect.h">
+      <Filter>sources\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\ui\SyncProc.h">
+      <Filter>sources\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\ui\SyncWaitTask.h">
+      <Filter>sources\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\ui\SyncWaitTunnel.h">
+      <Filter>sources\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\fw\CrtThumbprint.h">
+      <Filter>sources\fw</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\fw\PortalClient.h">
+      <Filter>sources\fw</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\http\Answer.h">
+      <Filter>sources\http</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\http\Cookie.h">
+      <Filter>sources\http</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\http\CookieError.h">
+      <Filter>sources\http</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\http\Cookies.h">
+      <Filter>sources\http</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\http\Headers.h">
+      <Filter>sources\http</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\http\HttpsClient.h">
+      <Filter>sources\http</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\http\Request.h">
+      <Filter>sources\http</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\http\Url.h">
+      <Filter>sources\http</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\net\Endpoint.h">
+      <Filter>sources\net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\net\Listener.h">
+      <Filter>sources\net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\net\LwipOutputQueue.h">
+      <Filter>sources\net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\net\PortForwarder.h">
+      <Filter>sources\net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\net\PortForwarders.h">
+      <Filter>sources\net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\net\PPInterface.h">
+      <Filter>sources\net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\net\pppossl.h">
+      <Filter>sources\net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\net\Socket.h">
+      <Filter>sources\net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\net\TlsSocket.h">
+      <Filter>sources\net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\net\Tunneler.h">
+      <Filter>sources\net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\net\WinsOutputQueue.h">
+      <Filter>sources\net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\tools\ByteBuffer.h">
+      <Filter>sources\toos</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\tools\Counters.h">
+      <Filter>sources\toos</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\tools\ErrUtil.h">
+      <Filter>sources\toos</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\tools\Event.h">
+      <Filter>sources\toos</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\tools\Json11.h">
+      <Filter>sources\toos</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\tools\Logger.h">
+      <Filter>sources\toos</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\tools\Mutex.h">
+      <Filter>sources\toos</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\tools\ObfuscatedString.h">
+      <Filter>sources\toos</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\tools\OutputQueue.h">
+      <Filter>sources\toos</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\tools\Path.h">
+      <Filter>sources\toos</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\tools\PBufChain.h">
+      <Filter>sources\toos</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\tools\pugiconfig.hpp">
+      <Filter>sources\toos</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\tools\pugixml.hpp">
+      <Filter>sources\toos</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\tools\RegKey.h">
+      <Filter>sources\toos</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\tools\StringMap.h">
+      <Filter>sources\toos</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\tools\StrUtil.h">
+      <Filter>sources\toos</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\tools\SysUtil.h">
+      <Filter>sources\toos</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\tools\Task.h">
+      <Filter>sources\toos</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\tools\TaskInfo.h">
+      <Filter>sources\toos</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\tools\Thread.h">
+      <Filter>sources\toos</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\tools\Timer.h">
+      <Filter>sources\toos</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\tools\XGetopt.h">
+      <Filter>sources\toos</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\resources\resource.h">
+      <Filter>resources</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\..\src\resources\avatar.png">
+      <Filter>resources</Filter>
+    </Image>
+    <Image Include="..\..\src\resources\fortirdp.bmp">
+      <Filter>resources</Filter>
+    </Image>
+    <Image Include="..\..\src\resources\fortirdp.ico">
+      <Filter>resources</Filter>
+    </Image>
+    <Image Include="..\..\src\resources\fortirdp_about.bmp">
+      <Filter>resources</Filter>
+    </Image>
+    <Image Include="..\..\src\resources\fortirdp_header.bmp">
+      <Filter>resources</Filter>
+    </Image>
+    <Image Include="..\..\src\resources\password.bmp">
+      <Filter>resources</Filter>
+    </Image>
+    <Image Include="..\..\src\resources\settings.bmp">
+      <Filter>resources</Filter>
+    </Image>
+    <Image Include="..\..\src\resources\settings.png">
+      <Filter>resources</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\..\src\resources\fortirdp.rc">
+      <Filter>resources</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>

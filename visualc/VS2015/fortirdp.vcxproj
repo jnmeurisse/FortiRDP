@@ -1,0 +1,314 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\src\fw\CrtThumbprint.cpp" />
+    <ClCompile Include="..\..\src\fw\PortalClient.cpp" />
+    <ClCompile Include="..\..\src\http\Answer.cpp" />
+    <ClCompile Include="..\..\src\http\Cookie.cpp" />
+    <ClCompile Include="..\..\src\http\CookieError.cpp" />
+    <ClCompile Include="..\..\src\http\Cookies.cpp" />
+    <ClCompile Include="..\..\src\http\Headers.cpp" />
+    <ClCompile Include="..\..\src\http\HttpsClient.cpp" />
+    <ClCompile Include="..\..\src\http\Request.cpp" />
+    <ClCompile Include="..\..\src\http\Url.cpp" />
+    <ClCompile Include="..\..\src\net\Endpoint.cpp" />
+    <ClCompile Include="..\..\src\net\Listener.cpp" />
+    <ClCompile Include="..\..\src\net\LwipOutputQueue.cpp" />
+    <ClCompile Include="..\..\src\net\PortForwarder.cpp" />
+    <ClCompile Include="..\..\src\net\PortForwarders.cpp" />
+    <ClCompile Include="..\..\src\net\PPInterface.cpp" />
+    <ClCompile Include="..\..\src\net\pppossl.c" />
+    <ClCompile Include="..\..\src\net\Socket.cpp" />
+    <ClCompile Include="..\..\src\net\TlsSocket.cpp" />
+    <ClCompile Include="..\..\src\net\Tunneler.cpp" />
+    <ClCompile Include="..\..\src\net\WinsOutputQueue.cpp" />
+    <ClCompile Include="..\..\src\tools\ByteBuffer.cpp" />
+    <ClCompile Include="..\..\src\tools\Counters.cpp" />
+    <ClCompile Include="..\..\src\tools\ErrUtil.cpp" />
+    <ClCompile Include="..\..\src\tools\Event.cpp" />
+    <ClCompile Include="..\..\src\tools\Json11.cpp" />
+    <ClCompile Include="..\..\src\tools\Logger.cpp" />
+    <ClCompile Include="..\..\src\tools\Mutex.cpp" />
+    <ClCompile Include="..\..\src\tools\ObfuscatedString.cpp" />
+    <ClCompile Include="..\..\src\tools\OutputQueue.cpp" />
+    <ClCompile Include="..\..\src\tools\Path.cpp" />
+    <ClCompile Include="..\..\src\tools\PBufChain.cpp" />
+    <ClCompile Include="..\..\src\tools\pugixml.cpp" />
+    <ClCompile Include="..\..\src\tools\RegKey.cpp" />
+    <ClCompile Include="..\..\src\tools\StringMap.cpp" />
+    <ClCompile Include="..\..\src\tools\StrUtil.cpp" />
+    <ClCompile Include="..\..\src\tools\SysUtil.cpp" />
+    <ClCompile Include="..\..\src\tools\Task.cpp" />
+    <ClCompile Include="..\..\src\tools\TaskInfo.cpp" />
+    <ClCompile Include="..\..\src\tools\Thread.cpp" />
+    <ClCompile Include="..\..\src\tools\Timer.cpp" />
+    <ClCompile Include="..\..\src\tools\XGetopt.cpp" />
+    <ClCompile Include="..\..\src\ui\AboutDialog.cpp" />
+    <ClCompile Include="..\..\src\ui\AskCodeDialog.cpp" />
+    <ClCompile Include="..\..\src\ui\AsyncController.cpp" />
+    <ClCompile Include="..\..\src\ui\AsyncMessage.cpp" />
+    <ClCompile Include="..\..\src\ui\CmdlineParams.cpp" />
+    <ClCompile Include="..\..\src\ui\ConnectDialog.cpp" />
+    <ClCompile Include="..\..\src\ui\CredentialDialog.cpp" />
+    <ClCompile Include="..\..\src\ui\Dialog.cpp" />
+    <ClCompile Include="..\..\src\ui\fortirdp.cpp" />
+    <ClCompile Include="..\..\src\ui\InfoLogWriter.cpp" />
+    <ClCompile Include="..\..\src\ui\ModalDialog.cpp" />
+    <ClCompile Include="..\..\src\ui\ModelessDialog.cpp" />
+    <ClCompile Include="..\..\src\ui\OptionsDialog.cpp" />
+    <ClCompile Include="..\..\src\ui\RdpFile.cpp" />
+    <ClCompile Include="..\..\src\ui\RegistrySettings.cpp" />
+    <ClCompile Include="..\..\src\ui\SyncConnect.cpp" />
+    <ClCompile Include="..\..\src\ui\SyncDisconnect.cpp" />
+    <ClCompile Include="..\..\src\ui\SyncProc.cpp" />
+    <ClCompile Include="..\..\src\ui\SyncWaitTask.cpp" />
+    <ClCompile Include="..\..\src\ui\SyncWaitTunnel.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\src\fw\CrtThumbprint.h" />
+    <ClInclude Include="..\..\src\fw\PortalClient.h" />
+    <ClInclude Include="..\..\src\http\Answer.h" />
+    <ClInclude Include="..\..\src\http\Cookie.h" />
+    <ClInclude Include="..\..\src\http\CookieError.h" />
+    <ClInclude Include="..\..\src\http\Cookies.h" />
+    <ClInclude Include="..\..\src\http\Headers.h" />
+    <ClInclude Include="..\..\src\http\HttpsClient.h" />
+    <ClInclude Include="..\..\src\http\Request.h" />
+    <ClInclude Include="..\..\src\http\Url.h" />
+    <ClInclude Include="..\..\src\net\Endpoint.h" />
+    <ClInclude Include="..\..\src\net\Listener.h" />
+    <ClInclude Include="..\..\src\net\LwipOutputQueue.h" />
+    <ClInclude Include="..\..\src\net\PortForwarder.h" />
+    <ClInclude Include="..\..\src\net\PortForwarders.h" />
+    <ClInclude Include="..\..\src\net\PPInterface.h" />
+    <ClInclude Include="..\..\src\net\pppossl.h" />
+    <ClInclude Include="..\..\src\net\Socket.h" />
+    <ClInclude Include="..\..\src\net\TlsSocket.h" />
+    <ClInclude Include="..\..\src\net\Tunneler.h" />
+    <ClInclude Include="..\..\src\net\WinsOutputQueue.h" />
+    <ClInclude Include="..\..\src\resources\resource.h" />
+    <ClInclude Include="..\..\src\tools\ByteBuffer.h" />
+    <ClInclude Include="..\..\src\tools\Counters.h" />
+    <ClInclude Include="..\..\src\tools\ErrUtil.h" />
+    <ClInclude Include="..\..\src\tools\Event.h" />
+    <ClInclude Include="..\..\src\tools\Json11.h" />
+    <ClInclude Include="..\..\src\tools\Logger.h" />
+    <ClInclude Include="..\..\src\tools\Mutex.h" />
+    <ClInclude Include="..\..\src\tools\ObfuscatedString.h" />
+    <ClInclude Include="..\..\src\tools\OutputQueue.h" />
+    <ClInclude Include="..\..\src\tools\Path.h" />
+    <ClInclude Include="..\..\src\tools\PBufChain.h" />
+    <ClInclude Include="..\..\src\tools\pugiconfig.hpp" />
+    <ClInclude Include="..\..\src\tools\pugixml.hpp" />
+    <ClInclude Include="..\..\src\tools\RegKey.h" />
+    <ClInclude Include="..\..\src\tools\StringMap.h" />
+    <ClInclude Include="..\..\src\tools\StrUtil.h" />
+    <ClInclude Include="..\..\src\tools\SysUtil.h" />
+    <ClInclude Include="..\..\src\tools\Task.h" />
+    <ClInclude Include="..\..\src\tools\TaskInfo.h" />
+    <ClInclude Include="..\..\src\tools\Thread.h" />
+    <ClInclude Include="..\..\src\tools\Timer.h" />
+    <ClInclude Include="..\..\src\tools\XGetopt.h" />
+    <ClInclude Include="..\..\src\ui\AboutDialog.h" />
+    <ClInclude Include="..\..\src\ui\AskCodeDialog.h" />
+    <ClInclude Include="..\..\src\ui\AsyncController.h" />
+    <ClInclude Include="..\..\src\ui\AsyncMessage.h" />
+    <ClInclude Include="..\..\src\ui\CmdlineParams.h" />
+    <ClInclude Include="..\..\src\ui\ConnectDialog.h" />
+    <ClInclude Include="..\..\src\ui\CredentialDialog.h" />
+    <ClInclude Include="..\..\src\ui\Dialog.h" />
+    <ClInclude Include="..\..\src\ui\fortirdp.h" />
+    <ClInclude Include="..\..\src\ui\InfoLogWriter.h" />
+    <ClInclude Include="..\..\src\ui\ModalDialog.h" />
+    <ClInclude Include="..\..\src\ui\ModelessDialog.h" />
+    <ClInclude Include="..\..\src\ui\OptionsDialog.h" />
+    <ClInclude Include="..\..\src\ui\RdpFile.h" />
+    <ClInclude Include="..\..\src\ui\RegistrySettings.h" />
+    <ClInclude Include="..\..\src\ui\SyncConnect.h" />
+    <ClInclude Include="..\..\src\ui\SyncDisconnect.h" />
+    <ClInclude Include="..\..\src\ui\SyncProc.h" />
+    <ClInclude Include="..\..\src\ui\SyncWaitTask.h" />
+    <ClInclude Include="..\..\src\ui\SyncWaitTunnel.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\..\src\resources\avatar.png" />
+    <Image Include="..\..\src\resources\fortirdp.bmp" />
+    <Image Include="..\..\src\resources\fortirdp.ico" />
+    <Image Include="..\..\src\resources\fortirdp_about.bmp" />
+    <Image Include="..\..\src\resources\fortirdp_header.bmp" />
+    <Image Include="..\..\src\resources\password.bmp" />
+    <Image Include="..\..\src\resources\settings.bmp" />
+    <Image Include="..\..\src\resources\settings.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\..\src\resources\fortirdp.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\lib\lwip\visualc\VS2015\lwIP.vcxproj">
+      <Project>{5b48a97c-2217-49f4-84de-0a69f6e15b75}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\lib\mbedtls\visualc\VS2015\mbedTLS.vcxproj">
+      <Project>{46cf2d25-6a36-4189-b59c-e4815388e554}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{F734AC9A-37F3-4ABD-8FF6-A9D08BCD2678}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>fortirdp</RootNamespace>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <IntDir>$(ProjectDir)$(Platform)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+    <IntDir>$(ProjectDir)$(Platform)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <IntDir>$(ProjectDir)$(Platform)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+    <IntDir>$(ProjectDir)$(Platform)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\..\src;$(ProjectDir)..\..\lib\lwip\src\include;$(ProjectDir)..\..\lib\mbedtls\include</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>shlwapi.lib;version.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\..\src;$(ProjectDir)..\..\lib\lwip\src\include;$(ProjectDir)..\..\lib\mbedtls\include</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>shlwapi.lib;version.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\..\src;$(ProjectDir)..\..\lib\lwip\src\include;$(ProjectDir)..\..\lib\mbedtls\include</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>shlwapi.lib;version.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\..\src;$(ProjectDir)..\..\lib\lwip\src\include;$(ProjectDir)..\..\lib\mbedtls\include</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>shlwapi.lib;version.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
