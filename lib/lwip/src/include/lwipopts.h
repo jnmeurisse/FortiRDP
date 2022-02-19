@@ -110,6 +110,5 @@
 #define PPP_DEBUG				0
 
 
-
 #endif /* __LWIPOPTS_H__ */
 
