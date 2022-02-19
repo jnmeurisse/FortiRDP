@@ -14,7 +14,6 @@
 #include "http/Cookies.h"
 
 #include "fw/CrtThumbprint.h"
-#include "fw/TunnelListener.h"
 
 #include "net/Endpoint.h"
 #include "net/Tunneler.h"
