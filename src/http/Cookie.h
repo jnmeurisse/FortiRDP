@@ -14,7 +14,7 @@
 namespace http {
 
 	/**
-	* Stores an HTTP Cookie and Set-Cookie header fields.
+	* Stores an HTTP Cookie.
 	* (See rfc6265)
 	*/
 	class Cookie
