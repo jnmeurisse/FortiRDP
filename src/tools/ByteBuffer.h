@@ -5,23 +5,6 @@
 * SPDX-License-Identifier: Apache-2.0
 *
 */
-/*!
- * 
- *   __           _   _         _       
- *  / _|         | | (_)       | |      
- * | |_ ___  _ __| |_ _ _ __ __| |_ __  
- * |  _/ _ \| '__| __| | '__/ _` | '_ \ 
- * | || (_) | |  | |_| | | | (_| | |_) |
- * |_| \___/|_|   \__|_|_|  \__,_| .__/ 
- *                             | |    
- *                             |_|    
- *
- * @class   ByteBuffer
- *
- * A byte buffer holds a sequence of bytes. This class provides
- * methods to append bytes at the end of the buffer. 
- *
-*/
 #pragma once
 #include <string>
 #include "tools/ObfuscatedString.h"
