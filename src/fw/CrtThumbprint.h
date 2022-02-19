@@ -31,7 +31,7 @@ namespace fw {
 		/* Compares for equality this thumbprint with another.
 		 *
 		 * @param other The other thumbprint to compare
-		 * @return true if both thumbprints are equall
+		 * @return true if both thumbprints are equal
 		 */
 		bool operator== (const CrtThumbprint& other) const;
 
