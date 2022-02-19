@@ -7,7 +7,6 @@
 */
 #include "tools/Path.h"
 #include "tools/SysUtil.h"
-#include "tools/FortiError.h"
 
 #include "ui/SyncConnect.h"
 
