@@ -16,7 +16,7 @@ namespace tools {
 	class Mutex
 	{
 	public:
-		explicit Mutex();
+		Mutex();
 		~Mutex();
 
 		/**

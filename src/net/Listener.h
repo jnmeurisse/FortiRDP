@@ -25,7 +25,7 @@ namespace net {
 	class Listener
 	{
 	public:
-		explicit Listener();
+		Listener();
 		~Listener();
 
 		/* Binds this listener to the specified end point. The function

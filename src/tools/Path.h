@@ -18,7 +18,7 @@ namespace tools {
 	*/
 	class Path {
 	public:
-		explicit Path();
+		Path();
 		explicit Path(const std::wstring& path);
 		explicit Path(const std::wstring& folder, const std::wstring& filename);
 		~Path();

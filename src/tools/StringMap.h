@@ -14,7 +14,7 @@
 namespace tools {
 
 	/**
-	* A non case sensitive string to string map
+	* A case insensitive string to string map
 	*/
 	class StringMap
 	{
@@ -23,7 +23,7 @@ namespace tools {
 
 		/* Allocates an empty string map
 		*/
-		explicit StringMap();
+		StringMap();
 
 		/* Allocates a string map from a named value pairs list.
 		 * The named value pairs list must have the following syntax

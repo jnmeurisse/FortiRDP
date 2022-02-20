@@ -25,9 +25,9 @@ namespace http {
 		using cookiemap = std::map<const std::string, Cookie> ;
 		using const_iterator = cookiemap::const_iterator ;
 
-		/* Allocates a cookies collection
+		/* Allocates an empty cookies collection
 		*/
-		explicit Cookies();
+		Cookies();
 
 		/* Clones a cookies collection associated with a given url. 
 		*/

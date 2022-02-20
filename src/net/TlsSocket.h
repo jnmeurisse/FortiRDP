@@ -26,7 +26,7 @@ namespace net {
 	class TlsSocket : public Socket
 	{
 	public:
-		explicit TlsSocket();
+		TlsSocket();
 		virtual ~TlsSocket();
 
 		/* Types of cipher used to encrypt TLS

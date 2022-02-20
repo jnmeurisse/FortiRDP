@@ -88,7 +88,7 @@ namespace tools {
 		static Logger* get_logger();
 
 	private:
-		explicit Logger();
+		Logger();
 		~Logger();
 
 		/* Writes a message to the log writers

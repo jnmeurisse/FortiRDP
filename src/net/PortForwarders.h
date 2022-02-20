@@ -18,7 +18,7 @@ namespace net {
 	class PortForwarders : public std::list<PortForwarder*>
 	{
 	public:
-		explicit PortForwarders();
+		PortForwarders();
 		~PortForwarders();
 
 		/* Delete all port forwarders from the list in the given state.

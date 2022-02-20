@@ -20,7 +20,7 @@ namespace fw {
 	public:
 		/* Creates an undefined thumbprint
 		*/
-		explicit CrtThumbprint();
+		CrtThumbprint();
 
 		/* Creates the thumbprint of the specified certificate.
 		 *

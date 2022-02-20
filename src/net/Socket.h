@@ -22,7 +22,7 @@ namespace net {
 	class Socket
 	{
 	public:
-		explicit Socket();
+		Socket();
 		virtual ~Socket();
 
 		/* Connects this socket to the specified end point
