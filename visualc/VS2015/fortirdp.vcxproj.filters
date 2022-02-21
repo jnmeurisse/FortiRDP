@@ -16,11 +16,11 @@
     <Filter Include="sources\net">
       <UniqueIdentifier>{654908b8-496f-4303-bc44-10ce5953e808}</UniqueIdentifier>
     </Filter>
-    <Filter Include="sources\toos">
-      <UniqueIdentifier>{83133963-3525-430b-90be-0ad5ad076025}</UniqueIdentifier>
-    </Filter>
     <Filter Include="resources">
       <UniqueIdentifier>{6cb09527-312f-4fe8-b653-a45a73de7fbf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sources\tools">
+      <UniqueIdentifier>{83133963-3525-430b-90be-0ad5ad076025}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -148,67 +148,67 @@
       <Filter>sources\net</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\tools\ByteBuffer.cpp">
-      <Filter>sources\toos</Filter>
+      <Filter>sources\tools</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\tools\Counters.cpp">
-      <Filter>sources\toos</Filter>
+      <Filter>sources\tools</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\tools\ErrUtil.cpp">
-      <Filter>sources\toos</Filter>
+      <Filter>sources\tools</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\tools\Event.cpp">
-      <Filter>sources\toos</Filter>
+      <Filter>sources\tools</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\tools\Json11.cpp">
-      <Filter>sources\toos</Filter>
+      <Filter>sources\tools</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\tools\Logger.cpp">
-      <Filter>sources\toos</Filter>
+      <Filter>sources\tools</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\tools\Mutex.cpp">
-      <Filter>sources\toos</Filter>
+      <Filter>sources\tools</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\tools\ObfuscatedString.cpp">
-      <Filter>sources\toos</Filter>
+      <Filter>sources\tools</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\tools\OutputQueue.cpp">
-      <Filter>sources\toos</Filter>
+      <Filter>sources\tools</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\tools\Path.cpp">
-      <Filter>sources\toos</Filter>
+      <Filter>sources\tools</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\tools\PBufChain.cpp">
-      <Filter>sources\toos</Filter>
+      <Filter>sources\tools</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\tools\pugixml.cpp">
-      <Filter>sources\toos</Filter>
+      <Filter>sources\tools</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\tools\RegKey.cpp">
-      <Filter>sources\toos</Filter>
+      <Filter>sources\tools</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\tools\StringMap.cpp">
-      <Filter>sources\toos</Filter>
+      <Filter>sources\tools</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\tools\StrUtil.cpp">
-      <Filter>sources\toos</Filter>
+      <Filter>sources\tools</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\tools\SysUtil.cpp">
-      <Filter>sources\toos</Filter>
+      <Filter>sources\tools</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\tools\Task.cpp">
-      <Filter>sources\toos</Filter>
+      <Filter>sources\tools</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\tools\TaskInfo.cpp">
-      <Filter>sources\toos</Filter>
+      <Filter>sources\tools</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\tools\Thread.cpp">
-      <Filter>sources\toos</Filter>
+      <Filter>sources\tools</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\tools\Timer.cpp">
-      <Filter>sources\toos</Filter>
+      <Filter>sources\tools</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\tools\XGetopt.cpp">
-      <Filter>sources\toos</Filter>
+      <Filter>sources\tools</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -287,9 +287,6 @@
     <ClInclude Include="..\..\src\http\CookieError.h">
       <Filter>sources\http</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\http\Cookies.h">
-      <Filter>sources\http</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\http\Headers.h">
       <Filter>sources\http</Filter>
     </ClInclude>
@@ -336,73 +333,76 @@
       <Filter>sources\net</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\tools\ByteBuffer.h">
-      <Filter>sources\toos</Filter>
+      <Filter>sources\tools</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\tools\Counters.h">
-      <Filter>sources\toos</Filter>
+      <Filter>sources\tools</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\tools\ErrUtil.h">
-      <Filter>sources\toos</Filter>
+      <Filter>sources\tools</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\tools\Event.h">
-      <Filter>sources\toos</Filter>
+      <Filter>sources\tools</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\tools\Json11.h">
-      <Filter>sources\toos</Filter>
+      <Filter>sources\tools</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\tools\Logger.h">
-      <Filter>sources\toos</Filter>
+      <Filter>sources\tools</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\tools\Mutex.h">
-      <Filter>sources\toos</Filter>
+      <Filter>sources\tools</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\tools\ObfuscatedString.h">
-      <Filter>sources\toos</Filter>
+      <Filter>sources\tools</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\tools\OutputQueue.h">
-      <Filter>sources\toos</Filter>
+      <Filter>sources\tools</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\tools\Path.h">
-      <Filter>sources\toos</Filter>
+      <Filter>sources\tools</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\tools\PBufChain.h">
-      <Filter>sources\toos</Filter>
+      <Filter>sources\tools</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\tools\pugiconfig.hpp">
-      <Filter>sources\toos</Filter>
+      <Filter>sources\tools</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\tools\pugixml.hpp">
-      <Filter>sources\toos</Filter>
+      <Filter>sources\tools</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\tools\RegKey.h">
-      <Filter>sources\toos</Filter>
+      <Filter>sources\tools</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\tools\StringMap.h">
-      <Filter>sources\toos</Filter>
+      <Filter>sources\tools</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\tools\StrUtil.h">
-      <Filter>sources\toos</Filter>
+      <Filter>sources\tools</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\tools\SysUtil.h">
-      <Filter>sources\toos</Filter>
+      <Filter>sources\tools</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\tools\Task.h">
-      <Filter>sources\toos</Filter>
+      <Filter>sources\tools</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\tools\TaskInfo.h">
-      <Filter>sources\toos</Filter>
+      <Filter>sources\tools</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\tools\Thread.h">
-      <Filter>sources\toos</Filter>
+      <Filter>sources\tools</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\tools\Timer.h">
-      <Filter>sources\toos</Filter>
+      <Filter>sources\tools</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\tools\XGetopt.h">
-      <Filter>sources\toos</Filter>
+      <Filter>sources\tools</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\resources\resource.h">
       <Filter>resources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\http\Cookies.h">
+      <Filter>sources\http</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
