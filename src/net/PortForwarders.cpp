@@ -18,17 +18,19 @@ namespace net {
 	PortForwarders::~PortForwarders()
 	{
 		DEBUG_DTOR(_logger, "PortForwarders");
+
+		delete_having_state([](PortForwarder* pf) {return true; });
 	}
 
 
-	int PortForwarders::delete_having_state(state_check_cb check)
+	int PortForwarders::delete_having_state(state_check_cb check_cb)
 	{
 		int count = 0;
 
 		for (auto it = begin(); it != end();) {
 			PortForwarder* const pf = (*it);
 
-			if (check(pf)) {
+			if (check_cb(pf)) {
 				// delete this port forwarder
 				delete pf;
 
@@ -71,6 +73,7 @@ namespace net {
 
 		for (auto it = cbegin(); !found && it != end(); it++) {
 			const PortForwarder* const pf = (*it);
+
 			found = pf->connecting();
 		}
 
