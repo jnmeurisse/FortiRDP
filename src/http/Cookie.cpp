@@ -10,16 +10,11 @@
 
 namespace http {
 
-	Cookie::Cookie(const tools::obfstring value)
+	Cookie::Cookie(const tools::obfstring& value)
 	{
 		if (!parse(value)) {
 			throw new CookieError("Invalid cookie value:" + value.uncrypt());
 		}
-	}
-
-
-	Cookie::~Cookie()
-	{
 	}
 
 
@@ -56,10 +51,10 @@ namespace http {
 		//    cookie-pair *( ";" SP cookie-av )
 		//    cookie-pair       = cookie-name "=" cookie-value
 		if (tools::split(value, ';', parts) > 0) {
-			const tools::obfstring cookie_pair = parts[0];
+			const tools::obfstring cookie_pair(parts[0]);
 
 			// split cookie-pair 
-			std::string::size_type pos = cookie_pair.find('=');
+			const std::string::size_type pos = cookie_pair.find('=');
 			if (pos != std::string::npos) {
 				_name = cookie_pair.substr(0, pos).uncrypt();
 				_value = tools::obfstring(cookie_pair.substr(pos + 1, std::string::npos));
@@ -77,7 +72,7 @@ namespace http {
 					const std::string cookie_av = tools::trimleft(parts[idx].uncrypt());
 					if (cookie_av.size() > 0) {
 						// extract attribute name and value
-						std::string::size_type pos = cookie_av.find('=');
+						const std::string::size_type pos = cookie_av.find('=');
 
 						if (pos != std::string::npos) {
 							const std::string attribute_name = cookie_av.substr(0, pos);

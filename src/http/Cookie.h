@@ -24,11 +24,10 @@ namespace http {
 		 * a CookieError exception if the cookie can not be decoded according
 		 * to rfc6265.
 		*/
-		explicit Cookie(const tools::obfstring value);
+		explicit Cookie(const tools::obfstring& value);
 
-		/* Destroys this cookie
-		*/
-		~Cookie();
+		/* Empty cookie is not accepted */
+		Cookie() = delete;
 
 		/* Assigns this cookie
 		*/
