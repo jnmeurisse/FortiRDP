@@ -29,10 +29,11 @@ namespace http {
 	class Answer
 	{
 	public:
-		explicit Answer();
-		~Answer();
+		/* Allocates an HTTP answer
+		*/
+		Answer();
 
-		/* Resets this HttpAnswer
+		/* Clears this HTTP Answer
 		*/
 		void clear();
 
