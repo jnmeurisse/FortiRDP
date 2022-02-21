@@ -15,17 +15,13 @@ namespace http {
 	const std::string default_reason = "Bad Request";
 
 	Answer::Answer() :
+		_version(),
+		_status_code(default_code),
+		_reason_phrase(default_reason),
 		_headers(),
 		_cookies(),
-		_body(1024)
+		_body(4096)
 	{
-		clear();
-	}
-
-
-	Answer::~Answer()
-	{
-		clear();
 	}
 
 
@@ -35,7 +31,7 @@ namespace http {
 		_status_code = default_code;
 		_reason_phrase = default_reason;
 		_body.clear();
-		_headers.clear();
+		_headers.serase();
 		_cookies.clear();
 	}
 
@@ -174,7 +170,7 @@ namespace http {
 			std::string::size_type pos = line.find(':');
 			if (pos > 0 && pos != std::string::npos) {
 				const std::string field_name = line.substr(0, pos).uncrypt();
-				const tools::obfstring field_value = tools::trim(line.substr(pos + 1, std::string::npos));
+				const tools::obfstring field_value(tools::trim(line.substr(pos + 1, std::string::npos)));
 
 				if (tools::iequal(field_name, "Set-Cookie")) {
 					// it should be a cookie definition
