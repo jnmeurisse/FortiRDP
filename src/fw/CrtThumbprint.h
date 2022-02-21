@@ -22,7 +22,7 @@ namespace fw {
 		*/
 		CrtThumbprint();
 
-		/* Creates the thumbprint of the specified certificate.
+		/* Creates the thumbprint from the specified certificate.
 		 *
 		 * @param crt The certificate from which we determine the thumbprint
 		 */
