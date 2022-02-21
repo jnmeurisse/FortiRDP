@@ -221,9 +221,6 @@ pppossl_connect(ppp_pcb *ppp, void *ctx)
 static void
 pppossl_disconnect(ppp_pcb *ppp, void *ctx)
 {
-	pppossl_pcb *pppossl = (pppossl_pcb *)ctx;
-
-	pppossl_input_free_current_packet(pppossl);
 	ppp_link_end(ppp); /* notify upper layers */
 }
 
