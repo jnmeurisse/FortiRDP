@@ -17,15 +17,10 @@ namespace http {
 	/** 
 	* A collection of HTTP headers
 	*/
-	class Headers
+	class Headers : tools::StringMap
 	{
 	public:
-		explicit Headers();
-		~Headers();
-
-		/* Clears this collection
-		*/
-		void clear();
+		using tools::StringMap::serase;
 
 		/* Copies all headers from the specified collection to this collection.
 		 * Existing headers could be replaced during this operation.
@@ -67,9 +62,6 @@ namespace http {
 		*  @buffer: destination buffer
 		*/
 		void write(tools::ByteBuffer& buffer) const;
-
-	private:
-		tools::StringMap _headers;
 	};
 
 }

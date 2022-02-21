@@ -14,29 +14,12 @@
 #include "http/Headers.h"
 
 namespace http {
-
-	Headers::Headers() :
-		_headers()
-	{
-	}
-
-
-	Headers::~Headers()
-	{
-		clear();
-	}
-
-
-	void Headers::clear()
-	{
-		_headers.clear();
-	}
-
+	using namespace tools;
 
 	Headers& Headers::add(const Headers& headers)
 	{
-		for (auto iter = headers._headers.cbegin(); iter != headers._headers.cend(); iter++) {
-			set(iter->first, iter->second);
+		for (auto iter = cbegin(); iter != cend(); iter++) {
+			StringMap::set(iter->first, iter->second);
 		}
 
 		return *this;
@@ -45,7 +28,7 @@ namespace http {
 
 	Headers& Headers::set(const std::string& name, const std::string& value)
 	{
-		_headers.set(name, value);
+		StringMap::set(name, value);
 		
 		return *this;
 	}
@@ -65,13 +48,13 @@ namespace http {
 
 	bool Headers::get(const std::string& name, std::string& value) const
 	{
-		return _headers.get_str(name, value);
+		return StringMap::get_str(name, value);
 	}
 
 
 	void Headers::write(tools::ByteBuffer& buffer) const
 	{
-		for (auto iter = _headers.cbegin(); iter != _headers.cend(); iter++) {
+		for (auto iter = cbegin(); iter != cend(); iter++) {
 			buffer.append(iter->first).append(": ").append(iter->second).append("\r\n");
 		}
 	}
