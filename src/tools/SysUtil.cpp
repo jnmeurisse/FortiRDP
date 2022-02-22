@@ -12,7 +12,6 @@
 
 #include "tools/SysUtil.h"
 #include "tools/StrUtil.h"
-#include "tools/FortiError.h"
 
 #include "mbedtls/error.h"
 
