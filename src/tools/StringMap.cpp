@@ -25,11 +25,19 @@ namespace tools {
 	}
 
 
-	void StringMap::clear()
+	StringMap::~StringMap()
+	{
+		serase();
+	}
+
+
+
+	void StringMap::serase()
 	{
 		if (_strmap.size() > 0) {
 			// Clear all values in the map 
 			strimap::iterator iter;
+
 			for (iter = _strmap.begin(); iter != _strmap.end(); iter++) {
 				tools::serase(iter->second);
 			}
@@ -45,7 +53,7 @@ namespace tools {
 
 		if (tools::split(line.c_str(), delim, tokens)) {
 			for (size_t idx = 0; idx < tokens.size(); idx++) {
-				std::string item = tokens.at(idx);
+				const std::string item{ tokens.at(idx) };
 
 				// skip empty item
 				if (item.size() == 0)
@@ -87,7 +95,7 @@ namespace tools {
 	bool StringMap::get_str(const std::string& name, std::string& value) const
 	{
 		bool found = false;
-		tools::strimap::const_iterator it = _strmap.find(name);
+		tools::strimap::const_iterator it{ _strmap.find(name) };
 
 		if (it != _strmap.end()) {
 			value = it->second;
@@ -112,6 +120,7 @@ namespace tools {
 
 		if (_strmap.size() > 0) {
 			StringMap::const_iterator iter;
+
 			for (iter = cbegin(); iter != cend(); iter++) {
 				buffer.append(iter->first).append("=").append(iter->second).append(delim);
 			}
