@@ -31,9 +31,13 @@ namespace tools {
 		*/
 		explicit StringMap(const std::string& line, const char delim);
 
-		/* Clears the string map
+		/* Disposes this string map
 		*/
-		void clear();
+		~StringMap();
+
+		/* Erase the string map
+		*/
+		void serase();
 
 		/* Adds a collection of named value pairs initialized from a named value pairs list.
 		 * The named value pairs list must have the following syntax
