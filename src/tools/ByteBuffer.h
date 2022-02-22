@@ -20,14 +20,21 @@ namespace tools {
 	public:
 		using byte = unsigned char;
 
-		/* Allocates a new byte buffer having the specified capacity
+		/* Avoid allocating zero capacity buffer
+		*/
+		ByteBuffer() = delete;
+
+		/* Allocates a new byte buffer having the specified initial capacity.
 		 *
 		 * @param capacity The new buffer's capacity, in bytes
 		*/
-		explicit ByteBuffer(size_t capacity = 0);
+		explicit ByteBuffer(size_t capacity);
+
+		/* Avoid copying the buffer.
+		*/
+		ByteBuffer(const ByteBuffer& buffer) = delete;
 
 		/* Destroy this buffer
-		 *
 		*/
 		~ByteBuffer();
 
