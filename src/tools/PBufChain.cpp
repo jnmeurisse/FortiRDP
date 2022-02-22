@@ -8,6 +8,12 @@
 #include "tools/PBufChain.h"
 
 namespace tools {
+	PBufChain::PBufChain() :
+		_buffer(nullptr),
+		_tot_len(0)
+	{
+	}
+
 
 	PBufChain::PBufChain(struct pbuf* data) :
 		_buffer(data),
@@ -26,6 +32,7 @@ namespace tools {
 		}
 	}
 
+
 	PBufChain::~PBufChain()
 	{
 		if (_buffer) {
@@ -33,6 +40,7 @@ namespace tools {
 		}
 	}
 
+	
 	bool PBufChain::move(int len) noexcept
 	{
 		if (_tot_len - len < 0)
@@ -43,8 +51,14 @@ namespace tools {
 
 		// move our pointer into the payload
 		_current.len -= len;
-		_current.payload = ((byte *)_current.payload + len);
 
+		// it is not allowed to move over multiple pbuf
+		if (_current.len < 0)
+			return false;
+
+		// move inside the pbuf
+		_current.payload = ((byte *)_current.payload + len);
+		
 		// when at end of the payload, move to the next in the chain
 		if (_current.len == 0 && _tot_len > 0) {
 			_current.pbuf = _current.pbuf->next;
