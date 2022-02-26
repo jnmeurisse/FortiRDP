@@ -16,7 +16,7 @@ namespace net {
 	 * An Endpoint identifies a network address. It is defined by the combination
 	 * of a hostname and a port identifier.
 	*/
-	class Endpoint
+	class Endpoint final
 	{
 	public:
 		/* Allocates a default endpoint mapped to 0.0.0.0:0
