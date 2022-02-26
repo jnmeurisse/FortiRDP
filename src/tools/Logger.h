@@ -39,7 +39,7 @@ namespace tools {
 	/**
 	* The application Logger.
 	*/
-	class Logger
+	class Logger final
 	{
 	public:
 		typedef enum Level { LL_TRACE = 1, LL_DEBUG = 2, LL_INFO = 3, LL_ERROR = 4 } Level;
@@ -132,7 +132,7 @@ namespace tools {
 	/**
 	 * A file log writer
 	*/
-	class FileLogWriter: public LogWriter
+	class FileLogWriter final: public LogWriter
 	{
 	public:
 		explicit FileLogWriter();

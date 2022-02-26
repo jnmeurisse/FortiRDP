@@ -16,7 +16,7 @@
 * A synchronous procedure that disconnects this client from the firewall and terminates the tunnel
 * listeners. The procedure posts a DisconnectedEvent to the window when done.
 */
-class SyncDisconnect : public SyncProc
+class SyncDisconnect final : public SyncProc
 {
 public:
 	explicit SyncDisconnect(HWND hwnd, fw::PortalClient* portal, net::Tunneler* tunnel);

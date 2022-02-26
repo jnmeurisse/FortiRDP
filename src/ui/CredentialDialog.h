@@ -11,7 +11,7 @@
 #include <Windows.h>
 #include "ui/ModalDialog.h"
 
-class CredentialDialog : public ModalDialog
+class CredentialDialog final : public ModalDialog
 {
 public:
 	explicit CredentialDialog(HINSTANCE hInstance, HWND hParent);

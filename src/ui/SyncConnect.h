@@ -16,11 +16,11 @@
 * A synchronous procedure that connects this client to the firewall. The procedure
 * posts a ConnectedEvent to the window when done.
 */
-class SyncConnect : public SyncProc
+class SyncConnect final : public SyncProc
 {
 public:
 	explicit SyncConnect(HWND hwnd, const std::wstring& ca_filename, fw::PortalClient* portal);
-	virtual ~SyncConnect();
+	~SyncConnect();
 
 private:
 	const std::wstring _ca_filename;

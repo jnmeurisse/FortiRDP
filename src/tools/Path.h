@@ -16,7 +16,8 @@ namespace tools {
 	 * A Path object represents a location of a file or a folder on a disk.
 	 * A folder must finish by a \
 	*/
-	class Path {
+	class Path final 
+	{
 	public:
 		Path();
 		explicit Path(const std::wstring& path);
@@ -31,7 +32,7 @@ namespace tools {
 		*/
 		inline const std::wstring& folder() const noexcept { return _folder; }
 
-		/* returns the name of file
+		/* returns the file name
 		*/
 		inline const std::wstring& filename() const noexcept { return _fname; }
 		

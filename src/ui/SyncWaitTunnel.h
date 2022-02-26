@@ -15,11 +15,11 @@
 * A synchronous procedure that waits the listener to be active. The procedure
 * sends TunnelListeningEvent when the listener is active.
 */
-class SyncWaitTunnel : public SyncProc
+class SyncWaitTunnel final : public SyncProc
 {
 public:
 	explicit SyncWaitTunnel(HWND hwnd, net::Tunneler* tunneler);
-	virtual ~SyncWaitTunnel();
+	~SyncWaitTunnel();
 
 private:
 	// The tunneler

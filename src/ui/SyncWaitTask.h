@@ -16,11 +16,11 @@
 * separate Windows process). The procedure posts a DisconnectFromFirewallRequest
 * to the window when done.
 */
-class SyncWaitTask : public SyncProc
+class SyncWaitTask final : public SyncProc
 {
 public:
 	explicit SyncWaitTask(HWND hwnd, tools::Task* task);
-	virtual ~SyncWaitTask();
+	~SyncWaitTask();
 
 private:
 	//- the task to wait to complete

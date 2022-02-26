@@ -19,7 +19,7 @@ struct RdpOption
 };
 
 
-class RdpFile 
+class RdpFile final
 {
 public:
 	explicit RdpFile(const tools::Path& path);

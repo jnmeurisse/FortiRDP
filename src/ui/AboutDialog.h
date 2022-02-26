@@ -13,7 +13,7 @@
 /**
 * The FortiRDP about dialog
 */
-class AboutDialog : public ModalDialog
+class AboutDialog final : public ModalDialog
 {
 public:
 	explicit AboutDialog(HINSTANCE hInstance, HWND hParent);

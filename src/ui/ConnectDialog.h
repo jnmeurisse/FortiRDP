@@ -27,7 +27,7 @@ namespace chrono = std::chrono;
 #define MAX_ADDR_LENGTH 128
 #define MAX_TITLE_LENGTH 128
 
-class ConnectDialog: public ModelessDialog
+class ConnectDialog final : public ModelessDialog
 {
 public:
 	explicit ConnectDialog(HINSTANCE hInstance, const CmdlineParams& cmdlineParams);

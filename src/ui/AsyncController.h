@@ -23,7 +23,7 @@
 * the hwnd parameter when the blocking operation is finished. A blocking operation is
 * implemented in a SyncProcedure sub class.
 */
-class AsyncController : public tools::Thread
+class AsyncController final : public tools::Thread
 {
 public:
 	explicit AsyncController(HWND hwnd, const std::wstring& ca_filename);

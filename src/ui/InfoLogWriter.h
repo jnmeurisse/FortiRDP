@@ -10,7 +10,7 @@
 #include "tools/Logger.h"
 
 
-class InfoLogWriter: public tools::LogWriter
+class InfoLogWriter final : public tools::LogWriter
 {
 public:
 	explicit InfoLogWriter(HWND hWnd);

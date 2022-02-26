@@ -11,7 +11,7 @@
 #include "ModalDialog.h"
 
 
-class OptionsDialog : public ModalDialog
+class OptionsDialog final : public ModalDialog
 {
 public:
 	explicit OptionsDialog(HINSTANCE hInstance, HWND hParent);

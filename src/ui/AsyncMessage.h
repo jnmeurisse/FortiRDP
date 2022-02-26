@@ -21,7 +21,7 @@
 * As a deadlock could occurs if SendMessage is sent while processing another message, we
 * use PostMessage which are executed asynchronously by the main loop.
 */
-class AsyncMessage
+class AsyncMessage final
 {
 public:
 	LRESULT send(HWND hWnd, void* lParam) const;

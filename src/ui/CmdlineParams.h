@@ -10,7 +10,7 @@
 #include <string>
 #include <vector>
 
-class CmdlineParams
+class CmdlineParams final
 {
 public:
 	explicit CmdlineParams();

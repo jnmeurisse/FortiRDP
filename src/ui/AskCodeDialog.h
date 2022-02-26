@@ -11,7 +11,7 @@
 #include "ModalDialog.h"
 
 
-class AskCodeDialog : public ModalDialog
+class AskCodeDialog final : public ModalDialog
 {
 public:
 	explicit AskCodeDialog(HINSTANCE hInstance, HWND hParent);
