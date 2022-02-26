@@ -33,7 +33,7 @@ namespace tools {
 
 		/* Disposes this string map
 		*/
-		~StringMap();
+		virtual ~StringMap();
 
 		/* Erase the string map
 		*/
