@@ -17,7 +17,7 @@ namespace http {
 	* Stores an HTTP Cookie.
 	* (See rfc6265)
 	*/
-	class Cookie
+	class Cookie final
 	{
 	public:
 		/* Allocates a cookie from a raw value. This constructor throws
