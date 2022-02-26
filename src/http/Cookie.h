@@ -26,9 +26,6 @@ namespace http {
 		*/
 		explicit Cookie(const tools::obfstring& value);
 
-		/* Empty cookie is not accepted */
-		Cookie() = delete;
-
 		/* Assigns this cookie
 		*/
 		Cookie& operator= (const Cookie& other);

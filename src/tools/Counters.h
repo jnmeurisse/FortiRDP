@@ -6,13 +6,13 @@
 *
 */
 #pragma once
-#include <atomic>
+#include <cstdint>
 
 namespace tools {
 	/*
 	* Holds transmitted bytes
 	*/
-	class Counters
+	class Counters final
 	{
 	public:
 		volatile uint64_t sent;
@@ -20,7 +20,7 @@ namespace tools {
 
 		/* Default constructor
 		*/
-		Counters() = default;
+		Counters();
 
 		/* Resets counters to 0
 		*/
