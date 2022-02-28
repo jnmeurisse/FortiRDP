@@ -171,14 +171,14 @@ namespace http {
 		unsigned int i = 0;
 
 		while (i < str.length() - 2) {
-			char c = str.at(i);
+			const char c = str.at(i);
 
 			if (c == '%') {
-				int c1 = (int)str.at(i + 1);
-				int c2 = (int)str.at(i + 2);
+				const int c1 = (int)str.at(i + 1);
+				const int c2 = (int)str.at(i + 2);
 
 				if (isxdigit(c1) && isxdigit(c2)) {
-					char dc = ((c1 - '0') << 4) + (c2 - '0');
+					const char dc = ((c1 - '0') << 4) + (c2 - '0');
 					unescaped.append(&dc, 1);
 				}
 
