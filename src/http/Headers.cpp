@@ -58,5 +58,4 @@ namespace http {
 			buffer.append(iter->first).append(": ").append(iter->second).append("\r\n");
 		}
 	}
-
 }
