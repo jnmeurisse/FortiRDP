@@ -26,20 +26,14 @@ namespace http {
 		_url(url),
 		_cookies(cookies),
 		_headers(),
-		_body()
+		_body(2048)
 	{
-	}
-
-
-	Request::~Request()
-	{
-		clear();
 	}
 
 
 	void Request::clear()
 	{
-		_headers.clear();
+		_headers.serase();
 		_body.clear();
 	}
 
@@ -73,7 +67,7 @@ namespace http {
 		_headers.write(buffer);
 
 		// add cookies, cookies are still obfuscated at this stage
-		tools::obfstring cookie_header = _cookies.to_header();
+		tools::obfstring cookie_header{ _cookies.to_header() };
 		if (cookie_header.size() > 0) {
 			// cookies are appended decrypted in the buffer
 			buffer
