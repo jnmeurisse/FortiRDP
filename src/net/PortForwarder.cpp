@@ -129,10 +129,8 @@ namespace net {
 	{
 		DEBUG_ENTER(_logger, "PortForwarder", "disconnect");
 
-		if (_state != State::CONNECTED) {
-			_logger->error("ERROR: PortForwarder %x - not in CONNECTED state", this);
+		if (_state != State::CONNECTED)
 			return;
-		}
 
 		// Start the disconnection phase.  During this phase we will continue
 		// to forward what is in the forward queue. 
@@ -178,10 +176,8 @@ namespace net {
 	{
 		TRACE_ENTER(_logger, "PortForwarder", "recv");
 
-		if (_state != State::CONNECTED) {
-			_logger->error("ERROR: PortForwarder %x - not in connected state", this);
+		if (_state != State::CONNECTED)
 			return false;
-		}
 
 		byte buffer[2048];
 		int rc = _local_server.recv(buffer, sizeof(buffer));
@@ -207,12 +203,10 @@ namespace net {
 	{
 		TRACE_ENTER(_logger, "PortForwarder", "forward");
 
-		if (_state != State::CONNECTED) {
-			_logger->error("ERROR: PortForwarder %x - not in connected state", this);
+		if (_state != State::CONNECTED) 
 			return false;
-		}
 
-		int written = 0;
+		size_t written = 0;
 		lwip_err rc = _forward_queue.write(_local_client, written);
 		if (rc) {
 			_logger->error("ERROR: forward - %s", lwip_errmsg(rc).c_str());
@@ -230,12 +224,10 @@ namespace net {
 	{
 		TRACE_ENTER(_logger, "PortForwarder", "reply");
 
-		if (_state != State::CONNECTED) {
-			_logger->error("ERROR: PortForwarder %x - not in connected state", this);
+		if (_state != State::CONNECTED) 
 			return false;
-		}
 
-		int written;
+		size_t written;
 		return _reply_queue.write(_local_server, written) == 0;
 	}
 
@@ -248,7 +240,7 @@ namespace net {
 		}
 
 		// send what we can
-		int written;
+		size_t written;
 		lwip_err rc = _forward_queue.write(_local_client, written);
 
 		// Stop to forward data 
@@ -285,7 +277,7 @@ namespace net {
 		}
 
 		// send what we can
-		int written;
+		size_t written;
 		mbed_err rc = _reply_queue.write(_local_server, written);
 
 		// Stop to reply 
