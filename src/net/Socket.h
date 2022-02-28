@@ -96,11 +96,11 @@ namespace net {
 
 		/* Returns true if the socket is connected
 		*/
-		bool connected() const;
+		bool connected() const noexcept;
 
 		/* Returns the socket descriptor
 		*/
-		inline int get_fd() const { return _netctx.fd; };
+		inline int get_fd() const noexcept { return _netctx.fd; };
 
 	protected:
 		virtual mbed_err do_connect(const Endpoint& ep);

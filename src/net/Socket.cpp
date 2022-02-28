@@ -155,7 +155,7 @@ namespace net {
 	}
 
 
-	bool Socket::connected() const
+	bool Socket::connected() const noexcept
 	{
 		return _netctx.fd != -1;
 	}

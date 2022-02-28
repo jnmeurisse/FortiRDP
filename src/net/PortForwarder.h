@@ -37,32 +37,32 @@ namespace net {
 
 		/*
 		*/
-		inline bool connected() const { return _state == State::CONNECTED; }
+		inline bool connected() const noexcept { return _state == State::CONNECTED; }
 
 		/*
 		*/
-		inline bool connecting() const { return _state == State::CONNECTING; }
+		inline bool connecting() const noexcept { return _state == State::CONNECTING; }
 
 		/*
 		*/
-		inline bool ctimeout() const { return _state == State::CONNECTING && _connect_timeout; }
+		inline bool ctimeout() const noexcept { return _state == State::CONNECTING && _connect_timeout; }
 
 
 		/*
 		*/
-		inline bool disconnecting() const { return _state == State::DISCONNECTING; }
+		inline bool disconnecting() const noexcept { return _state == State::DISCONNECTING; }
 
 		/*
 		*/
-		inline bool failed() const { return _state == State::FAILED; }
+		inline bool failed() const noexcept { return _state == State::FAILED; }
 
 		/*
 		*/
-		inline bool disconnected() const { return _state == State::DISCONNECTED; }
+		inline bool disconnected() const noexcept { return _state == State::DISCONNECTED; }
 
 		/*
 		*/
-		inline bool can_receive() const { return !_forward_queue.full(); }
+		inline bool can_receive() const noexcept { return !_forward_queue.full(); }
 
 		/*
 		*/
@@ -70,19 +70,19 @@ namespace net {
 
 		/*
 		*/
-		inline bool must_reply() const { return _reply_queue.len() > 0; }
+		inline bool must_reply() const noexcept { return _reply_queue.len() > 0; }
 
 		/*
 		*/
-		inline bool can_rflush() const { return  _local_server.connected(); }
+		inline bool can_rflush() const noexcept { return  _local_server.connected(); }
 
 		/*
 		*/
-		inline bool can_fflush() const { return _local_client != nullptr; }
+		inline bool can_fflush() const noexcept { return _local_client != nullptr; }
 
 		/*
 		*/
-		inline int get_fd() const { return _local_server.get_fd(); }
+		inline int get_fd() const noexcept { return _local_server.get_fd(); }
 		
 
 		/*
