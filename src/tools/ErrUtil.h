@@ -28,8 +28,9 @@ namespace tools {
 
 	class tnl_error : public std::exception {
 	public:
-		tnl_error(int errnum) : _errnum(errnum) {};
-		inline int errnum() const { return _errnum; }
+		explicit tnl_error(int errnum) : _errnum(errnum) {};
+		
+		inline int errnum() const noexcept { return _errnum; }
 		virtual std::string message() const = 0;
 
 	protected:
@@ -37,26 +38,29 @@ namespace tools {
 	};
 
 	
-	class mbed_error : public tnl_error {
+	class mbed_error final : public tnl_error {
 	public:
-		mbed_error(int errnum): tnl_error(errnum >= 0 ? 0 : errnum) {};
+		explicit mbed_error(int errnum): tnl_error(errnum >= 0 ? 0 : errnum) {};
+		
 		std::string message() const override;
 	};
 
 
-	class lwip_error : public tnl_error {
+	class lwip_error final : public tnl_error {
 	public:
-		lwip_error(int errnum) : tnl_error(errnum) {};
+		explicit lwip_error(int errnum) : tnl_error(errnum) {};
+		
 		std::string message() const override;
 	};
 
 
-	class http_error : public tnl_error {
+	class http_error final : public tnl_error {
 	public:
 		static const int CHUNK_SIZE = -1;
 		static const int BODY_SIZE = -2;
 
-		http_error(int errnum) : tnl_error(errnum) {};
+		explicit http_error(int errnum) : tnl_error(errnum) {};
+		
 		std::string message() const override;
 	};
 
