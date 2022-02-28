@@ -18,7 +18,7 @@
 
 namespace net {
 
-	class PortForwarder {
+	class PortForwarder final {
 	public:
 		explicit PortForwarder(bool tcp_nodelay, int keepalive);
 		~PortForwarder();
@@ -157,7 +157,7 @@ namespace net {
 		
 
 		// bytes in transit
-		int _forwarded_bytes;
+		size_t _forwarded_bytes;
 	};
 
 }
