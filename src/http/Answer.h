@@ -111,8 +111,8 @@ namespace http {
 		 *
 		 * @param socket The socket connected to the server
 		 * @param maxlen The maximum number of bytes this client accept when reading
-		 *               the line. If the effective value of this parameter is 0,
-		 *               the functions does not check for a limit.
+		 *		the line. If the effective value of this parameter is 0,
+		 *		the functions does not check for a limit.
 		 * @param line The string read from the socket
 		 * @return false if the socket has been closed.
 		 *
