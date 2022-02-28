@@ -20,19 +20,17 @@
 namespace http {
 	using namespace tools;
 
-	class Request
+	class Request final
 	{
 	public:
 		/* Allocates a HTTP request message
+		 *
 		 * @param verb The HTTP verb
 		 * @param url  The url
 		 * @param cookies the cookies store
 		 * @param version The HTTP version of this request
 		*/
 		explicit Request(const std::string& verb, const std::string& url, const Cookies& cookies, int version = 1);
-
-		/* Destroys this request */
-		~Request();
 
 		/* Clears the request */
 		void clear();
@@ -73,7 +71,7 @@ namespace http {
 		const std::string _url;
 		const Cookies _cookies;
 		Headers _headers;
-		tools::ByteBuffer _body;
+		ByteBuffer _body;
 	};
 
 }
