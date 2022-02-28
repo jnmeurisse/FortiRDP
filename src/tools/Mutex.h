@@ -13,11 +13,16 @@ namespace tools {
 	/**
 	* A mutex provides a synchronization mechanism.
 	*/
-	class Mutex
+	class Mutex final
 	{
 	public:
 		Mutex();
 		~Mutex();
+
+		/* Forbid mutex copy
+		*/
+		Mutex(const Mutex& mutex) = delete;
+		Mutex& operator=(const Mutex& mutex) = delete;
 
 		/**
 		 * A Lock object provides a scoped lock on the mutex. The lock is
