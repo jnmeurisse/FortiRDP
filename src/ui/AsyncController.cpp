@@ -63,10 +63,11 @@ bool AsyncController::create_tunnel(const net::Endpoint& host_endpoint, int loca
 		/* Define the local end point as localhost which force to use an IPv4 address.
 		When local port is 0, the system automatically find a valid value. */
 		const std::string localhost = "127.0.0.1";
-		net::Endpoint local_endpoint(localhost, local_port);
+		const net::Endpoint local_endpoint(localhost, local_port);
+		const net::tunneler_config config = { tcp_nodelay, multi_clients ? 32 : 1 };
 
 		// Create a ssl tunnel from this host to the firewall and assign it to local pointer
-		_tunnel.reset(_portal->create_tunnel(local_endpoint, host_endpoint, multi_clients, tcp_nodelay));
+		_tunnel.reset(_portal->create_tunnel(local_endpoint, host_endpoint, config));
 		request_action(AsyncController::TUNNEL);
 	}
 
@@ -175,7 +176,7 @@ unsigned int AsyncController::run()
 	while (!terminated) {
 		std::unique_ptr<SyncProc> procedure;
 
-		// We are ready to accept a new even
+		// We are ready to accept a new event
 		if (!_readyEvent.set()) {
 			_logger->error("ERROR: %x AsyncController::run set event error=%x", 
 				this, 
@@ -265,4 +266,3 @@ unsigned int AsyncController::run()
 
 	return 0;
 }
-
