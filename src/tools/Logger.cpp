@@ -21,11 +21,6 @@ namespace tools {
 	}
 
 
-	Logger::~Logger()
-	{
-	}
-
-
 	void Logger::set_level(Level level)
 	{
 		_level = level;
@@ -171,7 +166,7 @@ namespace tools {
 		localtime_s(&local_time, &now);
 
 		// output as a string
-		char buffer[128] = { 0 };
+		char buffer[128] { 0 };
 		strftime(buffer, sizeof(buffer), "%F %T", &local_time);
 
 		return std::string(buffer);
