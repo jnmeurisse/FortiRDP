@@ -22,7 +22,6 @@ namespace tools {
 		Path();
 		explicit Path(const std::wstring& path);
 		explicit Path(const std::wstring& folder, const std::wstring& filename);
-		~Path();
 
 		/* assigns this path
 		*/
