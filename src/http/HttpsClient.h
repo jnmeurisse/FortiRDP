@@ -22,9 +22,6 @@
 
 namespace http {
 
-	using namespace tools;
-
-
 	class HttpsClient : public net::TlsSocket
 	{
 	public:
