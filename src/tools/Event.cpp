@@ -10,6 +10,12 @@
 
 namespace tools {
 
+	Event::Event() :
+		Event(true)
+	{
+	}
+
+
 	Event::Event(bool manual_reset) :
 		_logger(Logger::get_logger())
 	{
@@ -37,7 +43,7 @@ namespace tools {
 			FALSE,
 			DUPLICATE_SAME_ACCESS);
 
-		if (rc == 0)
+		if (!rc)
 			throw_winapi_error(::GetLastError(), "DuplicateHandle error");
 
 		if (_logger->is_debug_enabled())
@@ -66,9 +72,9 @@ namespace tools {
 	}
 
 
-	bool Event::is_set() const noexcept
+	bool Event::is_set() const
 	{
-		return ::WaitForSingleObject(_handle, 0) == WAIT_OBJECT_0;
+		return wait(0);
 	}
 
 
