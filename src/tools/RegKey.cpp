@@ -32,11 +32,13 @@ namespace tools
 			throw_winapi_error(rc, "RegCreateKey error");
 	}
 
+
 	RegKey::~RegKey()
 	{
 		::RegCloseKey(_key);
 	}
 
+	
 	DWORD RegKey::get_word(const std::wstring& value_name) const
 	{
 		DWORD data = 0;
@@ -57,6 +59,7 @@ namespace tools
 		return data;
 	}
 
+
 	DWORD RegKey::get_word(const std::wstring& value_name, DWORD default_value) const
 	{
 		try {
@@ -65,6 +68,7 @@ namespace tools
 			return default_value;
 		}
 	}
+
 
 	void RegKey::set_word(const std::wstring & value_name, DWORD value)
 	{
@@ -79,6 +83,7 @@ namespace tools
 		if (rc != ERROR_SUCCESS)
 			throw_winapi_error(rc, "RegSetValue error");
 	}
+
 
 	std::wstring RegKey::get_string(const std::wstring& value_name) const
 	{
@@ -117,6 +122,7 @@ namespace tools
 		return std::wstring(&buffer[0], (len / sizeof(wchar_t)) - 1);
 	}
 
+
 	std::wstring RegKey::get_string(const std::wstring & value_name, const std::wstring& default_value) const
 	{
 		try {
@@ -125,6 +131,7 @@ namespace tools
 			return default_value;
 		}
 	}
+
 	
 	void RegKey::set_string(const std::wstring& value_name, const std::wstring& value)
 	{
@@ -141,6 +148,7 @@ namespace tools
 			throw_winapi_error(rc, "RegSetValueEx error");
 	}
 
+
 	void RegKey::del(const std::wstring& key_name)
 	{
 		LSTATUS rc = ::RegDeleteKey(
@@ -149,6 +157,7 @@ namespace tools
 		if (rc != ERROR_SUCCESS)
 			throw_winapi_error(rc, "RegDeleteKey error");
 	}
+
 
 	void RegKey::del_value(const std::wstring& value_name)
 	{
