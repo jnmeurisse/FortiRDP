@@ -19,7 +19,7 @@ namespace http {
 	/**
 	* A collection of cookies.
 	*/
-	class Cookies
+	class Cookies final
 	{
 	public:
 		using cookiemap = std::map<const std::string, Cookie> ;
@@ -27,15 +27,11 @@ namespace http {
 
 		/* Allocates an empty cookies collection
 		*/
-		Cookies();
+		Cookies() = default;
 
-		/* Clones a cookies collection associated with a given url. 
+		/* Clones a cookies collection. Only copy cookies associated with a given url. 
 		*/
 		explicit Cookies(const Cookies& cookies, const http::Url& url);
-
-		/* Destroys this cookies collection
-		*/
-		~Cookies();
 
 		/* Clears this cookies collection
 		*/
