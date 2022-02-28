@@ -43,6 +43,7 @@ namespace tools {
 		else
 		{
 			PBufChain* const chain = new PBufChain(data);
+
 			if (chain) {
 				len = chain->len();
 				_chain_list.push_back(chain);
