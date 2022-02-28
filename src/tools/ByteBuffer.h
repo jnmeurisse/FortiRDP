@@ -7,6 +7,9 @@
 */
 #pragma once
 #include <string>
+#include <vector>
+#include <cstdint>
+
 #include "tools/ObfuscatedString.h"
 
 namespace tools {
@@ -15,14 +18,10 @@ namespace tools {
 	* methods to append bytes at the end of the buffer.
 	*
 	*/
-	class ByteBuffer
+	class ByteBuffer final
 	{
 	public:
-		using byte = unsigned char;
-
-		/* Avoid allocating zero capacity buffer
-		*/
-		ByteBuffer() = delete;
+		using byte = uint8_t;
 
 		/* Allocates a new byte buffer having the specified initial capacity.
 		 *
@@ -30,9 +29,10 @@ namespace tools {
 		*/
 		explicit ByteBuffer(size_t capacity);
 
-		/* Avoid copying the buffer.
+		/* Forbid copying the buffer.
 		*/
 		ByteBuffer(const ByteBuffer& buffer) = delete;
+		ByteBuffer& operator=(const ByteBuffer&) = delete;
 
 		/* Destroy this buffer
 		*/
@@ -52,7 +52,7 @@ namespace tools {
 		 * This method can only be used to increase the capacity of the buffer.
 		 * Trying to set a smaller capacity has no effect on the existing buffer.
 		 */
-		void resize(size_t capacity);
+		void reserve(size_t capacity);
 
 		/* Appends the given data buffer to the end of this buffer
 		 *
@@ -61,7 +61,7 @@ namespace tools {
 		 *
 		 * @return this ByteBuffer
 		*/
-		ByteBuffer& append(const void* data, size_t size);
+		ByteBuffer& append(const byte* data, size_t size);
 
 		/* Appends the string to the end of this buffer
 		 *
@@ -81,28 +81,22 @@ namespace tools {
 
 		/* Returns true if the data buffer is empty
 		*/
-		inline bool empty() const noexcept { return _used == 0; }
+		inline bool empty() const noexcept { return size() == 0; }
 
 		/* Returns the number of used bytes in the buffer
 		*/
-		inline size_t size() const noexcept { return _used; }
+		inline size_t size() const noexcept { return _buffer.size(); }
 
 		/* Returns the pointer to the first byte in the buffer
 		*/
-		inline const byte* cbegin() const noexcept { return _data; }
+		inline const byte* cbegin() const noexcept { return _buffer.data(); }
 
 		/* Returns the pointer to the next-to-the-last byte in the buffer
 		*/
-		inline const byte* cend() const noexcept { return _data + _used; }
+		inline const byte* cend() const noexcept { return _buffer.data() + size(); }
 
 	private:
-		// A pointer to the buffer
-		byte* _data;
-
-		// Size of the allocated memory
-		size_t _capacity;
-
-		// Size of the used memory (always <= _capacity)
-		size_t _used;
+		// the buffer
+		std::vector<byte> _buffer;
 	};
 }
