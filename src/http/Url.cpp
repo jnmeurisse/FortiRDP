@@ -10,17 +10,17 @@
 
 namespace http {
 
-	Url::Url(const std::string& url_path)
+	Url::Url(const std::string& url)
 	{
-		size_t pos = url_path.find('?');
+		size_t pos = url.find('?');
 
 		if (pos != std::string::npos) {
-			_path = url_path.substr(0, pos);
-			_query.add(url_path.substr(pos + 1, std::string::npos), '&');
+			_path = url.substr(0, pos);
+			_query.add(url.substr(pos + 1, std::string::npos), '&');
 
 		}
 		else {
-			_path = url_path;
+			_path = url;
 		}
 	}
 
