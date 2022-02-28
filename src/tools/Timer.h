@@ -11,10 +11,11 @@
 #include "tools/Logger.h"
 
 namespace tools {
-	class Timer
+	class Timer final
 	{
 	public:
-		explicit Timer(int ms = 0);
+		Timer();
+		explicit Timer(int ms);
 		explicit Timer(const Timer& timer);
 		~Timer();
 

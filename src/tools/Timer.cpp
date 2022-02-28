@@ -12,6 +12,12 @@
 
 namespace tools {
 
+	Timer::Timer() :
+		Timer(0)
+	{
+	}
+
+
 	Timer::Timer(int ms) :
 		_logger(Logger::get_logger())
 	{
