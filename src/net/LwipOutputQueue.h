@@ -17,14 +17,13 @@
 namespace net {
 	using namespace tools;
 
-	class LwipOutputQueue : public OutputQueue 
+	class LwipOutputQueue final : public OutputQueue 
 	{
 	public:
 		explicit LwipOutputQueue(int capacity);
 		~LwipOutputQueue();
 
-
-		lwip_err write(::tcp_pcb* socket, int& written);
+		lwip_err write(::tcp_pcb* socket, size_t& written);
 
 	private:
 		// a reference to the application logger

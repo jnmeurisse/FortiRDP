@@ -26,7 +26,7 @@ namespace net {
 	}
 
 
-	lwip_err LwipOutputQueue::write(::tcp_pcb* socket, int& written)
+	lwip_err LwipOutputQueue::write(::tcp_pcb* socket, size_t& written)
 	{
 		if (_logger->is_trace_enabled())
 			_logger->trace(
