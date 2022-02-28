@@ -8,6 +8,8 @@
 #pragma once
 
 #include <list>
+#include <cstdint>
+
 #include "lwip/pbuf.h"
 
 namespace tools {
@@ -25,17 +27,17 @@ namespace tools {
 	*
 	* The typical usage is
 	*		while len() > 0
-	*           // Do something on a pbuf and returns the number of bytes processed
-	*           len = do_something(cbegin(), cend());
+	*			// Do something on a pbuf and returns the number of bytes processed
+	*			len = do_something(cbegin(), cend());
 	*
-	*           // move cbegin inside the same pbuf or to the next pbuf
+	*			// move cbegin inside the same pbuf or to the next pbuf
 	*			move(len);
 	*
 	*  The pbuf chain structures remain untouched. 
 	*/
-	class PBufChain
+	class PBufChain final
 	{
-		typedef unsigned char byte;
+		using byte = uint8_t;
 
 	public:
 		/* Allocates an empty pbuf chain
