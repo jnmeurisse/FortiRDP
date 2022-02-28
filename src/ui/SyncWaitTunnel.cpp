@@ -30,7 +30,7 @@ bool SyncWaitTunnel::procedure()
 		// Launch the listener thread 
 		if (_tunneler->start()) {
 			// Wait until the listener is in LISTENING state.
-			started = _tunneler->wait_listening(5000);
+			started = _tunneler->wait_listening(7000);
 		}
 	}
 
