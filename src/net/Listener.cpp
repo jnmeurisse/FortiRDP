@@ -20,8 +20,8 @@ namespace net {
 
 	Listener::~Listener()
 	{
-		close();
 		DEBUG_DTOR(_logger, "Listener");
+		close();
 	}
 
 
