@@ -16,12 +16,11 @@
 namespace net {
 	using namespace tools;
 
-	class WinsOutputQueue: public OutputQueue
+	class WinsOutputQueue final : public OutputQueue
 	{
 	public:
 		explicit WinsOutputQueue(int capacity);
 		~WinsOutputQueue();
-
 
 		/* Writes next chunk of data available in this output queue.
 		*
@@ -29,7 +28,7 @@ namespace net {
 		* than the used space in the queue. If an error has occurred, the 
 		* function returns a negative error code. 
 		*/
-		mbed_err write(Socket& socket, int& written);
+		mbed_err write(Socket& socket, size_t& written);
 
 	private:
 		// a reference to the application logger

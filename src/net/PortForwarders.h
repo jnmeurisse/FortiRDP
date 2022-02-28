@@ -15,26 +15,26 @@
 namespace net {
 	using state_check_cb = std::function<bool(PortForwarder *)>;
 
-	class PortForwarders : public std::list<PortForwarder*>
+	class PortForwarders final : public std::list<PortForwarder*>
 	{
 	public:
 		/* Allocates an empty forwarder list.
 		*/
 		PortForwarders();
 
-		/* Delete all existing forwarders in that list.
+		/* Deletes all existing forwarders in that list.
 		*/
 		~PortForwarders();
 
-		/* Delete all port forwarders from the list in the given state.
+		/* Deletes all port forwarders from the list having the given state.
 		*  Returns the number of deleted forwarders.
 		*/
-		int delete_having_state(state_check_cb check_cb);
+		size_t delete_having_state(state_check_cb check_cb);
 
 		/* Disconnects all port forwarders.
 		*  Returns the number of disconnected forwarders.
 		*/
-		int abort_all();
+		size_t abort_all();
 
 		/* Returns true if at least one port forwarder is trying to connect.
 		*/

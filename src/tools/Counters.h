@@ -15,20 +15,12 @@ namespace tools {
 	class Counters final
 	{
 	public:
-		volatile uint64_t sent;
-		volatile uint64_t received;
-
-		/* Default constructor
-		*/
-		Counters();
+		volatile size_t sent{ 0 };
+		volatile size_t  received{ 0 };
 
 		/* Resets counters to 0
 		*/
 		void clear() noexcept;
-
-		/* Assign
-		*/
-		void operator=(const Counters& other) noexcept;
 
 		/* Returns true if counters values are equal
 		*/

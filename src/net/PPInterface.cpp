@@ -117,7 +117,7 @@ namespace net {
 		TRACE_ENTER(_logger, "PPInterface", "send");
 
 		if (!_output_queue.empty()) {
-			int written;
+			size_t written;
 			const int rc = _output_queue.write(_tunnel, written);
 
 			if (rc == MBEDTLS_ERR_SSL_WANT_READ || rc == MBEDTLS_ERR_SSL_WANT_WRITE)
