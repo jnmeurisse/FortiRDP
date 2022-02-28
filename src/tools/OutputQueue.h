@@ -24,6 +24,11 @@ namespace tools {
 		*/
 		virtual ~OutputQueue();
 
+		/* Forbid copying the output queue
+		*/
+		OutputQueue(const OutputQueue&) = delete;
+		OutputQueue& operator=(const OutputQueue&) = delete;
+
 		/* Clears the content of the queue.
 		*/
 		void clear();
