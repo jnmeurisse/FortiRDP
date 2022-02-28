@@ -18,22 +18,6 @@ namespace http {
 	}
 
 
-	Cookie& Cookie::operator= (const Cookie& other)
-	{
-		if (this != &other) {
-			_name = other.get_name();
-			_value = other.get_value();
-			_domain = other.get_domain();
-			_path = other.get_path();
-			_expires = other.get_expires();
-			_secure = other.is_secure();
-			_http_only = other.is_http_only();
-		}
-
-		return *this;
-	}
-
-
 	tools::obfstring Cookie::to_header() const
 	{
 		return tools::obfstring(_name + "=").append(_value);
