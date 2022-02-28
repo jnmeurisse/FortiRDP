@@ -71,7 +71,7 @@ namespace fw {
 	/**
 	 * A fortigate sslvpn web portal client
 	 */
-	class PortalClient : public http::HttpsClient
+	class PortalClient final : public http::HttpsClient
 	{
 	public:
 		explicit PortalClient(const net::Endpoint& ep);
@@ -116,7 +116,7 @@ namespace fw {
 		/* Creates the tunneler from the local end point to the remote end point.
 		 * The remote end point is located behind the firewall.
 		*/
-		net::Tunneler* create_tunnel(const net::Endpoint& local, const net::Endpoint& remote, bool multi_clients, bool tcp_nodelay);
+		net::Tunneler* create_tunnel(const net::Endpoint& local, const net::Endpoint& remote, const net::tunneler_config& config);
 
 		/* Returns true if we are authenticated in the portal
 		*/

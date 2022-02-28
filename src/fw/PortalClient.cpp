@@ -26,7 +26,9 @@ namespace fw {
 		_connected(false),
 		_authenticated(false),
 		_peer_crt_thumbprint(),
-		_mutex()
+		_mutex(),
+		_ca_file(),
+		_cookies()
 	{
 		DEBUG_CTOR(_logger, "PortalClient");
 
@@ -55,10 +57,10 @@ namespace fw {
 		_ca_file = ca_file;
 
 		// get full filename
-		const std::wstring filename = ca_file.to_string();
+		const std::wstring filename(ca_file.to_string());
 
 		if (tools::file_exists(filename)) {
-			const std::string compacted = tools::wstr2str(ca_file.compact(50));
+			const std::string compacted(tools::wstr2str(ca_file.compact(50)));
 
 			rc = mbedtls_x509_crt_parse_file(&_ca_crt, tools::wstr2str(filename).c_str());
 			if (rc != 0) {
@@ -229,7 +231,7 @@ namespace fw {
 				case 0: {
 					// Access denied,
 					// show the error message received from the firewall
-					http::Url url(url_decode(redir_url));
+					const http::Url url(url_decode(redir_url));
 					std::string msg;
 					if (url.get_query().get_str("err", msg)) {
 						_logger->error("ERROR: %s", msg.c_str());
@@ -282,7 +284,7 @@ namespace fw {
 
 					// check if the return code is present
 					retcode = 0;
-					params_result.clear();
+					params_result.serase();
 					params_result.add(std::string(answer.body().cbegin(), answer.body().cend()), ',');
 					params_result.get_int("ret", retcode);
 				}
@@ -336,7 +338,7 @@ namespace fw {
 
 						// check if the return code is present
 						retcode = 0;
-						params_result.clear();
+						params_result.serase();
 						params_result.add(std::string(answer.body().cbegin(), answer.body().cend()), ',');
 						params_result.get_int("ret", retcode);
 					}
@@ -492,11 +494,10 @@ namespace fw {
 
 
 	net::Tunneler* PortalClient::create_tunnel(
-		const net::Endpoint& local, const net::Endpoint& remote, bool multi_clients, bool tcp_nodelay)
+		const net::Endpoint& local, const net::Endpoint& remote, const net::tunneler_config& config)
 	{
 		DEBUG_ENTER(_logger, "PortalClient", "create_tunnel");
 
-		net::tunneler_config config = { multi_clients, tcp_nodelay };
 		return new net::Tunneler(*this, local, remote, config);
 	}
 
