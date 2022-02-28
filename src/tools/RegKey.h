@@ -14,11 +14,11 @@ namespace tools
 	/**
 	 * A RegKey object represents a registry key in the windows registry
 	*/
-	class RegKey
+	class RegKey final
 	{
 	public:
 		explicit RegKey(HKEY root_key, const std::wstring& key_name);
-		virtual ~RegKey();
+		~RegKey();
 
 		/* Returns the value as a dword. The method raises a system_error exception
 		 * if the key does not exist or is not a dword.

@@ -15,12 +15,12 @@ namespace http {
 	/**
 	* A simplified URL dissector
 	*/
-	class Url
+	class Url final
 	{
 	public:
 		/* Creates an URL from the specified value.
 		*/
-		explicit Url(const std::string& url_path);
+		explicit Url(const std::string& url);
 
 		/* Returns the path (in fact everything before the query) from an URL
 		*/

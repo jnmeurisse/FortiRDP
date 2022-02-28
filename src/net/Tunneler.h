@@ -30,11 +30,21 @@ namespace net {
 		int  connect_timeout;
 	};
 
-	class Tunneler : public tools::Thread
+	class Tunneler final : public tools::Thread
 	{
 	public:
+		/*
+		*/
 		explicit Tunneler(TlsSocket& tunnel, const net::Endpoint& local, const net::Endpoint& remote, const tunneler_config& config);
+		
+		/*
+		*/
 		~Tunneler();
+
+		/* Forbid copying
+		*/
+		Tunneler(const Tunneler& tunneler) = delete;
+
 
 		// Valid states of the tunneler
 		enum State { 

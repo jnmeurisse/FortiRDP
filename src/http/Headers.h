@@ -17,7 +17,7 @@ namespace http {
 	/** 
 	* A collection of HTTP headers
 	*/
-	class Headers : tools::StringMap
+	class Headers final : tools::StringMap
 	{
 	public:
 		using tools::StringMap::serase;

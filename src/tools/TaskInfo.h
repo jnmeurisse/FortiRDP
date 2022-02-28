@@ -11,7 +11,7 @@
 #include <vector>
 
 namespace tools {
-	class TaskInfo
+	class TaskInfo final
 	{
 	public:
 		explicit TaskInfo(const std::wstring& path, const std::vector<std::wstring>& params);

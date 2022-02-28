@@ -22,7 +22,7 @@ namespace net {
 	/**
 	* A socket listener
 	*/
-	class Listener
+	class Listener final
 	{
 	public:
 		Listener();

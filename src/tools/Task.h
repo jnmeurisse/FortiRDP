@@ -12,7 +12,7 @@
 
 namespace tools {
 
-	class Task
+	class Task final
 	{
 	public:
 		explicit Task(const std::wstring& path);
