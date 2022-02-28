@@ -235,7 +235,7 @@ namespace http {
 
 				if (size > 0) {
 					// define the capacity of the buffer
-					_body.resize(size);
+					_body.reserve(size);
 
 					// read the whole body
 					if (!read_body(socket, size))
