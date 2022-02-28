@@ -23,9 +23,9 @@ namespace net {
 	}
 
 
-	int PortForwarders::delete_having_state(state_check_cb check_cb)
+	size_t PortForwarders::delete_having_state(state_check_cb check_cb)
 	{
-		int count = 0;
+		size_t count = 0;
 
 		for (auto it = begin(); it != end();) {
 			PortForwarder* const pf = (*it);
@@ -49,9 +49,9 @@ namespace net {
 	}
 
 
-	int PortForwarders::abort_all()
+	size_t PortForwarders::abort_all()
 	{
-		int count = 0;
+		size_t count = 0;
 
 		for (auto it = begin(); it != end(); it++) {
 			PortForwarder* const pf = (*it);
