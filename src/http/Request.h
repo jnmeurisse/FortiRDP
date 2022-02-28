@@ -18,7 +18,6 @@
 #include "tools/ErrUtil.h"
 
 namespace http {
-	using namespace tools;
 
 	class Request final
 	{
@@ -71,7 +70,7 @@ namespace http {
 		const std::string _url;
 		const Cookies _cookies;
 		Headers _headers;
-		ByteBuffer _body;
+		tools::ByteBuffer _body;
 	};
 
 }

@@ -10,6 +10,8 @@
 
 namespace http {
 
+	using namespace tools;
+
 	/* Initialization of common HTTP Verbs */
 	const std::string Request::GET_VERB = "GET";
 	const std::string Request::POST_VERB = "POST";
