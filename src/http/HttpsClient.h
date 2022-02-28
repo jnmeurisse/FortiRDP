@@ -31,9 +31,9 @@ namespace http {
 		explicit HttpsClient(const net::Endpoint& ep);
 		virtual ~HttpsClient();
 		
-		/* Returns the endpoint of this client
+		/* Returns the endpoint to which this client is connected.
 		*/
-		inline const net::Endpoint& host() const { return _host_ep; }
+		inline const net::Endpoint& host() const noexcept { return _host_ep; }
 
 		/* Returns true if we must reconnect the socket
 		 *
@@ -64,7 +64,7 @@ namespace http {
 		*/
 		bool recv_answer(Answer& answer);
 
-		/* Encodes a string to be used in a query part of a URL
+		/* Encodes a string that can be used in a query part of a URL
 		*/
 		static std::string url_encode(const std::wstring& str);
 
@@ -72,7 +72,7 @@ namespace http {
 		*/
 		static std::string url_decode(const std::string& str);
 
-		/* Most useful status code */
+		/* Most useful status codes */
 		static const int STATUS_OK;
 		static const int STATUS_MOVED_PERMANENTLY;
 		static const int STATUS_FOUND;
@@ -82,7 +82,7 @@ namespace http {
 		static const int STATUS_FORBIDDEN;
 
 	private:
-		// The https server endpoint
+		// The endpoint
 		const net::Endpoint _host_ep;
 
 		// Connection keep alive timer
