@@ -16,13 +16,6 @@ namespace tools {
 	}
 
 
-	void Counters::operator=(const Counters & other) noexcept
-	{
-		this->sent = other.sent;
-		this->received = other.received;
-	}
-
-
 	bool Counters::operator==(const Counters& other) const noexcept
 	{
 		return (this->sent == other.sent) && (this->received == other.received);

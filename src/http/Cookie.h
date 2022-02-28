@@ -26,10 +26,6 @@ namespace http {
 		*/
 		explicit Cookie(const tools::obfstring& value);
 
-		/* Assigns this cookie
-		*/
-		Cookie& operator= (const Cookie& other);
-
 		/* Returns an obfuscated string representation of this cookie.
 		 * The string format is compatible with Netscape specification.
 		*/

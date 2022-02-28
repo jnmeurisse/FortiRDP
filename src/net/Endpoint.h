@@ -35,14 +35,6 @@ namespace net {
 		*/
 		explicit Endpoint(const std::string& address, const int default_port);
 
-		/* Copy constructor
-		*/
-		explicit Endpoint(const Endpoint& ep);
-
-		/* Copy operator
-		*/
-		Endpoint& operator= (const Endpoint& other);
-
 		/* Converts this Endpoint to a printable string
 		*/
 		std::string to_string() const;

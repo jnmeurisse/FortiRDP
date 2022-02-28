@@ -26,24 +26,6 @@ namespace net {
 	}
 
 
-	Endpoint::Endpoint(const Endpoint& ep) :
-		_hostname(ep.hostname()),
-		_port(ep.port())
-	{
-	}
-
-
-	Endpoint& Endpoint::operator= (const Endpoint& other)
-	{
-		if (this != &other) {
-			_hostname = other.hostname();
-			_port = other.port();
-		}
-
-		return *this;
-	}
-
-
 	std::string Endpoint::to_string() const
 	{
 		return _hostname + ":" + std::to_string(_port);
