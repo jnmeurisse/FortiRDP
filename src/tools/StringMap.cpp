@@ -12,12 +12,6 @@
 
 namespace tools {
 
-	StringMap::StringMap() :
-		_strmap()
-	{
-	}
-
-
 	StringMap::StringMap(const std::string& line, const char delim) :
 		_strmap()
 	{

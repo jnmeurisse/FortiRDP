@@ -23,7 +23,7 @@ namespace tools {
 
 		/* Allocates an empty string map
 		*/
-		StringMap();
+		StringMap() = default;
 
 		/* Allocates a string map from a named value pairs list.
 		 * The named value pairs list must have the following syntax
