@@ -19,13 +19,9 @@ namespace tools {
 	class Path final 
 	{
 	public:
-		Path();
+		Path() = default;
 		explicit Path(const std::wstring& path);
 		explicit Path(const std::wstring& folder, const std::wstring& filename);
-
-		/* assigns this path
-		*/
-		Path& operator= (const Path& other);
 
 		/* returns the folder name, including the last backslash
 		*/

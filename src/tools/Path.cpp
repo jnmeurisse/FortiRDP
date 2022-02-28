@@ -13,10 +13,6 @@
 
 
 namespace tools {
-	Path::Path()
-	{
-	}
-
 
 	Path::Path(const std::wstring& path)
 	{
@@ -31,29 +27,20 @@ namespace tools {
 		}
 	}
 
+
 	Path::Path(const std::wstring& folder, const std::wstring& filename):
 		_folder(folder),
 		_fname(filename)
 	{
 	}
 
-	tools::Path::~Path()
-	{
-	}
-
-	Path& Path::operator=(const Path& other)
-	{
-		_folder = other.folder();
-		_fname = other.filename();
-
-		return *this;
-	}
-
+	
 	std::wstring Path::to_string() const
 	{
 		return _folder + _fname;
 	}
 
+	
 	std::wstring Path::compact(int max_char) const
 	{
 		std::vector<wchar_t> buffer(max_char + 1);
@@ -63,6 +50,7 @@ namespace tools {
 			return to_string();
 	}
 
+	
 	Path Path::get_module_path(HMODULE hModule)
 	{
 		wchar_t filename[4096];
@@ -71,9 +59,10 @@ namespace tools {
 		return Path(filename);
 	}
 
+	
 	Path Path::get_desktop_path()
 	{
-		wchar_t path[_MAX_PATH + 1] = { 0 };
+		wchar_t path[_MAX_PATH + 1]{ 0 };
 		::SHGetSpecialFolderPath(NULL, &path[0], CSIDL_DESKTOP, FALSE);
 		wcscat_s(path, L"\\");
 		
