@@ -12,7 +12,7 @@
 namespace http {
 
 	/* Exception raised when the syntax of an HTTP cookie is incorrect. */
-	class CookieError : public std::logic_error
+	class CookieError final : public std::logic_error
 	{
 	public:
 		explicit CookieError(const std::string msg);
