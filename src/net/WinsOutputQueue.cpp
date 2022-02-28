@@ -22,7 +22,7 @@ namespace net {
 	}
 
 
-	mbed_err WinsOutputQueue::write(Socket& socket, int& written)
+	mbed_err WinsOutputQueue::write(Socket& socket, size_t& written)
 	{
 		if (_logger->is_trace_enabled())
 			_logger->trace(
