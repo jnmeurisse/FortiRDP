@@ -89,7 +89,6 @@ namespace tools {
 
 	private:
 		Logger();
-		~Logger();
 
 		/* Writes a message to the log writers
 		*/
