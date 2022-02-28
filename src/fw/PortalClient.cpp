@@ -231,7 +231,7 @@ namespace fw {
 				case 0: {
 					// Access denied,
 					// show the error message received from the firewall
-					const http::Url url(url_decode(redir_url));
+					const http::Url url{ url_decode(redir_url) };
 					std::string msg;
 					if (url.get_query().get_str("err", msg)) {
 						_logger->error("ERROR: %s", msg.c_str());
