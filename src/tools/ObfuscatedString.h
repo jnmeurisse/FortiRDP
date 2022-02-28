@@ -18,7 +18,7 @@ namespace tools {
 	* some string operations (take a substring, find a character occurrence, ...) without
 	* having to de-obfuscate the string in a temporary buffer.
 	*/
-	class obfstring
+	class obfstring final
 	{
 	public:
 		/* Allocates an empty obfuscated string
@@ -27,15 +27,20 @@ namespace tools {
 
 		/* Allocates a copy of the obfuscated string
 		*/
-		obfstring(const obfstring& other);
+		obfstring(const obfstring& other) = default;
 		
 		/* Allocates an obfuscated string initialized from the other string
 		*/
-		obfstring(const std::string& other);
+		explicit obfstring(const std::string& other);
 
-		/* Destroy this obfuscated string
+		/*
 		*/
-		~obfstring();
+		explicit obfstring(obfstring&& other);
+
+		/*
+		*/
+		obfstring& operator= (const obfstring& other) = default;
+
 
 		/* Appends a copy of str
 		*/
@@ -97,17 +102,17 @@ namespace tools {
 
 		/* Fills the buffer with the de-obfuscated string.
 		*/
-		void uncrypt(char* buffer, size_t size, size_t offset=0) const;
+		void uncrypt(char* buffer, size_t size, size_t offset=0) const noexcept;
 
 	private:
 		// Generates a random key
-		static char create_obfuscation_key();
+		static char create_obfuscation_key() noexcept;
 
 		// Obfuscate a character (assuming 1 <= k <= 7)
-		inline static char encode(char c, int k) { return _rotl8(c, k); }
+		inline static char encode(char c, int k) noexcept { return _rotl8(c, k); }
 
 		// De-obfuscated a character (assuming 1 <= k <= 7)
-		inline static char decode(char c, int k) { return _rotr8(c, k); }
+		inline static char decode(char c, int k) noexcept { return _rotr8(c, k); }
 
 		// Allocates a copy of the key and the obfuscated string
 		obfstring(char key, const char* secstr);

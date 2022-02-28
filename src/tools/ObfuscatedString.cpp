@@ -19,13 +19,6 @@ namespace tools {
 	}
 
 
-	obfstring::obfstring(const obfstring& other) :
-		_key(other._key),
-		_obfuscated_text(other._obfuscated_text.c_str())
-	{
-	}
-
-
 	obfstring::obfstring(char key, const char* secstr) :
 		_key(key),
 		_obfuscated_text(secstr)
@@ -41,7 +34,9 @@ namespace tools {
 	}
 
 
-	obfstring::~obfstring()
+	obfstring::obfstring(obfstring&& other) :
+		_key(other._key),
+		_obfuscated_text(other._obfuscated_text)
 	{
 	}
 
@@ -140,14 +135,14 @@ namespace tools {
 	}
 
 
-	void obfstring::uncrypt(char* buffer, size_t size, size_t offset) const
+	void obfstring::uncrypt(char* buffer, size_t size, size_t offset) const noexcept
 	{
 		for (int index = 0; (index < _obfuscated_text.size()) && (index + offset < size); index++)
 			buffer[offset + index] = decode(_obfuscated_text[index], _key);
 	}
 
 
-	char obfstring::create_obfuscation_key()
+	char obfstring::create_obfuscation_key() noexcept
 	{
 		clock_t value = std::clock();
 		return (value % 7) + 1;
