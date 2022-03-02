@@ -215,7 +215,6 @@ namespace net {
 			_forwarded_bytes += written;
 		}
 
-
 		return rc == 0;
 	}
 
