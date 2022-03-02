@@ -17,8 +17,9 @@
 
 namespace net {
 
-	Tunneler::Tunneler(TlsSocket& tunnel, const net::Endpoint& local, const net::Endpoint& remote, const tunneler_config& info) :
+	Tunneler::Tunneler(TlsSocket& tunnel, const net::Endpoint& local, const net::Endpoint& remote, const tunneler_config& config) :
 		_logger(Logger::get_logger()),
+		_config(config),
 		_state(State::READY),
 		_terminate(false),
 		_tunnel(tunnel),
@@ -122,9 +123,11 @@ namespace net {
 				// always check if data is available from the tunnel.
 				FD_SET(_tunnel.get_fd(), &read_set);
 
-				if (_pp_interface.if4_up() && !connecting) {
+				if (_pp_interface.if4_up() && !connecting && 
+					active_port_forwarders.connected_count() < _config.max_clients) {
 					// We are ready to accept a new connection only if the pp interface
-					// is up and if we are not currently accepting a connection.
+					// is up, if we are not currently accepting a connection and the 
+					// max number of connected forwarders is not reached.
 					FD_SET(_listener.get_fd(), &read_set);
 				}
 

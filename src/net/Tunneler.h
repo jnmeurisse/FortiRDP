@@ -89,6 +89,9 @@ namespace net {
 		// a reference to the application logger
 		tools::Logger* const _logger;
 
+		// Tunneler configuration
+		const tunneler_config _config;
+
 		// The current state of this tunnel listener
 		volatile State _state;
 
