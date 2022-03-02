@@ -79,4 +79,20 @@ namespace net {
 
 		return found;
 	}
+
+
+	size_t PortForwarders::connected_count() const noexcept
+	{
+		size_t counter = 0;
+
+		for (auto it = cbegin();  it != end(); it++) {
+			const PortForwarder* const pf = (*it);
+
+			if (pf->connected()) {
+				counter++;
+			}
+		}
+
+		return counter;
+	}
 }

@@ -40,6 +40,10 @@ namespace net {
 		*/
 		bool has_connecting_forwarders() const;
 
+		/* Returns the number of connected forwarders
+		*/
+		size_t connected_count() const noexcept;
+
 	private:
 		// a reference to the application logger
 		tools::Logger* const _logger;
