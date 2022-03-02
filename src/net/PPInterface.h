@@ -23,29 +23,39 @@ namespace net {
 		~PPInterface();
 
 		/*
-		* Opens a PPP interface.   
-		* PPP traffic is ???? into the tunnel. 
+		* Opens a PPP interface.
 		*/
 		bool open();
 
 		/*
 		* Initiates the end of the PPP over SSL interface.
-		* 
 		*/
 		void close();
 
+		/* Releases all resources.
+		*/
 		void release();
 
+		/* Returns true if the ppp interface is up
+		*/
 		inline bool if4_up() const noexcept { return  _pcb && _pcb->if4_up; }
+
+		/* Returns true if the ppp interface is dead
+		*/
+		inline bool dead() const noexcept { return !_pcb || _pcb->phase == PPP_PHASE_DEAD; }
 
 		/* True when data is available in the output queue and must be transmitted
 		*  to the peer.
 		*/
 		inline bool must_transmit() const noexcept { return _output_queue.len() > 0; }
 
-		inline bool dead() const noexcept { return !_pcb || _pcb->phase == PPP_PHASE_DEAD; }
+		/* Returns the IP address assigned to this interface 
+		*/
+		std::string addr() const;
 
-//		inline char* addr() const { return ipaddr_ntoa_r(_pcb->netif->ip_addr); }
+		/* Returns the gateway IP address assigned to this interface
+		*/
+		std::string gateway() const;
 
 		/* Writes PPP data available in the output queue to the tunnel. The counter is updated
 		*  with the amount of bytes written to the socket. The function returns false if the socket
@@ -63,7 +73,6 @@ namespace net {
 		*  A LCP Discard request is sent to the fortigate.
 		*/
 		void send_keep_alive();
-
 
 	private:
 		friend u32_t ppp_output_cb(ppp_pcb *pcb, struct pbuf* pbuf, void *ctx);

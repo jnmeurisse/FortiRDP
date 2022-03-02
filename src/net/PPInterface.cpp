@@ -111,6 +111,17 @@ namespace net {
 	}
 
 
+	std::string PPInterface::addr() const
+	{
+		 return std::string(ip4addr_ntoa(&_pcb->netif->ip_addr));
+	}
+
+
+	std::string PPInterface::gateway() const
+	{
+		return std::string(ip4addr_ntoa(&_pcb->netif->gw));
+	}
+
 
 	bool PPInterface::send()
 	{

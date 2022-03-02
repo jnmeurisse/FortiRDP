@@ -258,10 +258,11 @@ namespace net {
 					_listening.set();
 
 					_state = State::RUNNING;
-					_logger->info(">> tunnel is up: IP=%s GW=%s, listening on %s",
-						"",
-						"",
+					_logger->info(">> tunnel is up, listening on %s",
 						_listener.endpoint().to_string().c_str());
+					_logger->info("   IP=%s GW=%s, listening on %s",
+						_pp_interface.addr().c_str(),
+						_pp_interface.gateway().c_str());
 				}
 				break;
 
