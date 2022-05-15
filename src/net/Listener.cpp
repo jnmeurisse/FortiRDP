@@ -30,8 +30,8 @@ namespace net {
 		DEBUG_ENTER(_logger, "Listener", "bind");
 
 		mbed_err rc;
-		std::string host = endpoint.hostname();
-		std::string port = std::to_string(endpoint.port());
+		std::string host{ endpoint.hostname() };
+		std::string port{ std::to_string(endpoint.port()) };
 
 		rc = mbedtls_net_bind(&_netctx, host.c_str(), port.c_str(), MBEDTLS_NET_PROTO_TCP);
 		if (rc == 0) {

@@ -32,20 +32,20 @@ INT_PTR AboutDialog::onCreateDialogMessage(WPARAM wParam, LPARAM lParam)
 	using namespace tools;
 
 	// Retrieve major/minor version from .exe
-	Path app_path = Path::get_module_path();
-	std::string version = get_file_ver(app_path.to_string());
+	Path app_path{ Path::get_module_path() };
+	std::string version{ get_file_ver(app_path.to_string()) };
 
 	// prepare about text
-	std::string about_version = tools::string_format(
-		"FortiRDP %s (%s)\n", 
+	std::string about_version{ tools::string_format(
+		"FortiRDP %s (%s)\n",
 		version.c_str(),
-		get_plaform().c_str());
+		get_plaform().c_str()) };
 	about_version.append("Developed by Jean-Noel Meurisse");
 
 	set_control_font(IDC_ABOUT_VERSION, _hFont);
 	set_control_text(IDC_ABOUT_VERSION, tools::str2wstr(about_version));
 	
-	char mbedtls_ver[10] = { 0 };
+	char mbedtls_ver[10]{ 0 };
 	mbedtls_version_get_string(mbedtls_ver);
 
 	std::string about_info;

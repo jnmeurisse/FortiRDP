@@ -24,11 +24,11 @@ namespace net {
 
 		if (logger && strlen(str) > 1) {
 			// remove \n from str
-			std::string message = str;
+			std::string message{ str };
 			message[message.size() - 1] = '\0';
 
 			// get filename from whole path
-			std::string path = file;
+			std::string path{ file };
 			std::string filename;
 			const size_t last_delim = path.find_last_of('\\');
 

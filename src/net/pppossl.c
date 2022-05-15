@@ -85,7 +85,7 @@ pppossl_create(struct netif *pppif, pppossl_output_cb_fn output_cb,
 static err_t
 pppossl_write(ppp_pcb *ppp, void *ctx, struct pbuf *pbuf)
 {
-	pppossl_pcb *pppos = (pppossl_pcb *)ctx;
+	pppossl_pcb* const pppos = (pppossl_pcb *)ctx;
 	int err = ERR_OK;
 
 	/* Send buffer into a PPP frame */
@@ -150,7 +150,7 @@ pppossl_netif_output(ppp_pcb *ppp, void *ctx, struct pbuf *pb, u16_t protocol)
 	const u8_t header[4] = { PPP_ALLSTATIONS, PPP_UI, (protocol >> 8) & 0xFF, protocol & 0xFF };
 
 	// prepare a network buffer to hold the header and the payload
-	struct pbuf* nb = pbuf_alloc(PBUF_RAW, sizeof(header), PBUF_RAM);
+	struct pbuf* const nb = pbuf_alloc(PBUF_RAW, sizeof(header), PBUF_RAM);
 	if (nb == NULL) {
 		PPPDEBUG(LOG_WARNING, ("pppos_netif_output[%d]: alloc fail\n", ppp->netif->num));
 		LINK_STATS_INC(link.memerr);
@@ -200,7 +200,7 @@ void ppossl_send_ka(ppp_pcb *pcb)
 static void
 pppossl_connect(ppp_pcb *ppp, void *ctx)
 {
-	pppossl_pcb *pppossl = (pppossl_pcb *)ctx;
+	pppossl_pcb* const pppossl = (pppossl_pcb *)ctx;
 
 	/* reset PPPoSsl control block to its initial state */
 	memset(&pppossl->last_xmit, 0, sizeof(pppossl_pcb) - offsetof(pppossl_pcb, last_xmit));
@@ -228,7 +228,7 @@ pppossl_disconnect(ppp_pcb *ppp, void *ctx)
 static err_t
 pppossl_destroy(ppp_pcb *ppp, void *ctx)
 {
-	pppossl_pcb *pppossl = (pppossl_pcb *)ctx;
+	pppossl_pcb* const pppossl = (pppossl_pcb *)ctx;
 	LWIP_UNUSED_ARG(ppp);
 
 	pppossl_input_free_current_packet(pppossl);
@@ -247,7 +247,7 @@ int
 pppossl_input(ppp_pcb *ppp, u8_t* s, int l)
 {
 	err_t err = PPPERR_NONE;
-	pppossl_pcb *pppossl = (pppossl_pcb *)ppp->link_ctx_cb;
+	pppossl_pcb*const pppossl = (pppossl_pcb *)ppp->link_ctx_cb;
 
 	PPPDEBUG(LOG_DEBUG, ("pppossl_input[%d]: got %d bytes\n", ppp->netif->num, l));
 	
@@ -320,7 +320,7 @@ exit:
 static void
 pppossl_send_config(ppp_pcb *ppp, void *ctx, u32_t accm, int pcomp, int accomp)
 {
-	pppossl_pcb *pppos = (pppossl_pcb *)ctx;
+	pppossl_pcb* const pppos = (pppossl_pcb *)ctx;
 	LWIP_UNUSED_ARG(ppp);
 	LWIP_UNUSED_ARG(pcomp);
 	LWIP_UNUSED_ARG(accomp);
@@ -330,7 +330,7 @@ pppossl_send_config(ppp_pcb *ppp, void *ctx, u32_t accm, int pcomp, int accomp)
 static void
 pppossl_recv_config(ppp_pcb *ppp, void *ctx, u32_t accm, int pcomp, int accomp)
 {
-	pppossl_pcb *pppos = (pppossl_pcb *)ctx;
+	pppossl_pcb* const pppos = (pppossl_pcb *)ctx;
 	LWIP_UNUSED_ARG(ppp);
 	LWIP_UNUSED_ARG(pcomp);
 	LWIP_UNUSED_ARG(accomp);

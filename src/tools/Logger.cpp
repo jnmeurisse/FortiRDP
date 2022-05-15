@@ -29,7 +29,7 @@ namespace tools {
 
 	void Logger::add_writer(LogWriter* writer)
 	{
-		Mutex::Lock lock(_mutex);
+		Mutex::Lock lock{ _mutex };
 
 		_writers.push_back(writer);
 		_writers.unique();
@@ -38,7 +38,7 @@ namespace tools {
 
 	void Logger::remove_writer(LogWriter* writer)
 	{
-		Mutex::Lock lock(_mutex);
+		Mutex::Lock lock{ _mutex };
 
 		_writers.remove(writer);
 	}
@@ -56,7 +56,7 @@ namespace tools {
 
 	void Logger::write(Logger::Level level, const char* text)
 	{
-		Mutex::Lock lock(_mutex);
+		Mutex::Lock lock{ _mutex };
 
 		for (auto writer : _writers) {
 			writer->write(level, text);
@@ -169,7 +169,7 @@ namespace tools {
 		char buffer[128] { 0 };
 		strftime(buffer, sizeof(buffer), "%F %T", &local_time);
 
-		return std::string(buffer);
+		return std::string{ buffer };
 	}
 
 
@@ -197,7 +197,7 @@ namespace tools {
 
 	void FileLogWriter::write(Logger::Level level, const char * text)
 	{
-		if (_ofs.is_open()) {			
+		if (_ofs.is_open()) {
 			_ofs << datetime() << " > " << text << std::endl;
 		}
 	}

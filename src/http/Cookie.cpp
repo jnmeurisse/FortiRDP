@@ -13,14 +13,14 @@ namespace http {
 	Cookie::Cookie(const tools::obfstring& value)
 	{
 		if (!parse(value)) {
-			throw new CookieError("Invalid cookie value:" + value.uncrypt());
+			throw new CookieError{ "Invalid cookie value:" + value.uncrypt() };
 		}
 	}
 
 
 	tools::obfstring Cookie::to_header() const
 	{
-		return tools::obfstring(_name + "=").append(_value);
+		return tools::obfstring{ _name + "=" }.append(_value);
 	}
 
 
@@ -41,7 +41,7 @@ namespace http {
 			const std::string::size_type pos = cookie_pair.find('=');
 			if (pos != std::string::npos) {
 				_name = cookie_pair.substr(0, pos).uncrypt();
-				_value = tools::obfstring(cookie_pair.substr(pos + 1, std::string::npos));
+				_value = tools::obfstring{ cookie_pair.substr(pos + 1, std::string::npos) };
 
 				rc = true;
 			}
@@ -53,14 +53,14 @@ namespace http {
 			if (rc && parts.size() > 1) {
 				for (size_t idx = 1; idx < parts.size(); idx++) {
 					// get next attribute-value
-					const std::string cookie_av = tools::trimleft(parts[idx].uncrypt());
+					const std::string cookie_av{ tools::trimleft(parts[idx].uncrypt()) };
 					if (cookie_av.size() > 0) {
 						// extract attribute name and value
 						const std::string::size_type pos = cookie_av.find('=');
 
 						if (pos != std::string::npos) {
-							const std::string attribute_name = cookie_av.substr(0, pos);
-							const std::string attribute_value = cookie_av.substr(pos + 1, std::string::npos);
+							const std::string attribute_name{ cookie_av.substr(0, pos) };
+							const std::string attribute_value{ cookie_av.substr(pos + 1, std::string::npos) };
 
 							if (tools::iequal(attribute_name, "domain")) {
 								_domain = attribute_value;
@@ -87,5 +87,3 @@ namespace http {
 	}
 
 }
-
-

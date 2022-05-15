@@ -261,7 +261,6 @@ unsigned int AsyncController::run()
 		}
 	}
 
-
 	_logger->debug("... %x leave AsyncController::run", this);
 
 	return 0;

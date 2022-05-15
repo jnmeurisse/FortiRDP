@@ -18,7 +18,7 @@ CmdlineParams::CmdlineParams()
 {
 }
 
-	
+
 CmdlineParams::~CmdlineParams()
 {
 }
@@ -166,8 +166,8 @@ bool CmdlineParams::initialize(int argc, LPWSTR argv[])
 void CmdlineParams::print_usage()
 {
 	// Retrieve major/minor version from .exe
-	const tools::Path app_path = tools::Path::get_module_path();
-	const std::string version = tools::get_file_ver(app_path.to_string());
+	const tools::Path app_path{ tools::Path::get_module_path() };
+	const std::string version{ tools::get_file_ver(app_path.to_string()) };
 
 	// show program parameters
 	std::cout << tools::string_format("fortirdp %s (jn.meurisse@gmail.com)\n\n", version.c_str());
@@ -206,5 +206,3 @@ void CmdlineParams::print_usage()
 	std::cout << "\t               allows to specify another port number on the terminal server.\n";
 	std::cout << "\n";
 }
-
-

@@ -114,7 +114,7 @@ namespace http {
 			std::string keep_alive;
 
 			if (answer.headers().get("Keep-Alive", keep_alive)) {
-				StringMap keep_alive_params(keep_alive, ',');
+				StringMap keep_alive_params{ keep_alive, ',' };
 
 				keep_alive_params.get_int("timeout", timeout);
 				keep_alive_params.get_int("max", max_requests);
@@ -141,13 +141,13 @@ namespace http {
 
 		// convert input string to utf-8
 		std::wstring_convert<std::codecvt_utf8<wchar_t>> utf8_conv;
-		std::string utf8_str = utf8_conv.to_bytes(str);
+		const std::string utf8_str{ utf8_conv.to_bytes(str) };
 
 		// allocate output buffer
 		std::stringstream escaped;
 
 		for (unsigned int i = 0; i < utf8_str.length(); i++) {
-			char c = utf8_str.at(i);
+			const char c = utf8_str.at(i);
 			if ((48 <= c && c <= 57) ||   // 0-9
 				(65 <= c && c <= 90) ||   // ABC...XYZ
 				(97 <= c && c <= 122) ||  // abc...xyz

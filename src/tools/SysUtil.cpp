@@ -29,7 +29,7 @@ namespace tools {
 
 	std::wstring get_windows_username()
 	{
-		wchar_t username[UNLEN + 1] = { 0 };
+		wchar_t username[UNLEN + 1]{ 0 };
 		DWORD username_len = UNLEN + 1;
 
 		if (::GetUserName(username, &username_len)) {
@@ -84,7 +84,7 @@ namespace tools {
 
 	void throw_winapi_error(DWORD error_code, const std::string& func_name)
 	{
-		throw std::system_error(error_code, std::system_category(), func_name);
+		throw std::system_error{ error_code, std::system_category(), func_name };
 	}
 
 }

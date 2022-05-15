@@ -134,7 +134,7 @@ void ConnectDialog::setHostAddress(const std::wstring& addr)
 
 void ConnectDialog::clearInfo()
 {
-	tools::Mutex::Lock lock(_msg_mutex);
+	tools::Mutex::Lock lock{ _msg_mutex };
 
 	_msg_buffer.clear();
 	set_control_text(IDC_STATUSTEXT, L"");
@@ -143,7 +143,7 @@ void ConnectDialog::clearInfo()
 
 void ConnectDialog::writeInfo(const std::wstring& message)
 {
-	tools::Mutex::Lock lock(_msg_mutex);
+	tools::Mutex::Lock lock{ _msg_mutex };
 
 	// add the new message and remove old one, we keep only the last 10 messages
 	_msg_buffer.push_back(message);
@@ -166,7 +166,7 @@ void ConnectDialog::connect()
 {
 	// Check if fw and host addresses are valid
 	try {
-		std::string fw_addr = tools::trim(tools::wstr2str(getFirewallAddress()));
+		std::string fw_addr{ tools::trim(tools::wstr2str(getFirewallAddress())) };
 		_firewall_endpoint = net::Endpoint(fw_addr, DEFAULT_FW_PORT);
 
 	} catch (const std::invalid_argument) {
@@ -176,7 +176,7 @@ void ConnectDialog::connect()
 	}
 
 	try {
-		std::string host_addr = tools::trim(tools::wstr2str(getHostAddress()));
+		std::string host_addr{ tools::trim(tools::wstr2str(getHostAddress())) };
 		_host_endpoint = net::Endpoint(host_addr, DEFAULT_RDP_PORT);
 
 	} catch (const std::invalid_argument) {
@@ -225,14 +225,14 @@ void ConnectDialog::connect()
 
 	// Check if the app executable exists
 	if (!task_name.empty() && !tools::file_exists(task_name)) {
-		std::string message = "Application not found : " + tools::wstr2str(task_name);
+		std::string message{ "Application not found : " + tools::wstr2str(task_name) };
 		showErrorMessageDialog(message.c_str());
 		return;
 	}
 
 	// Check if the rdp file exists
 	if (!_params.rdp_filename().empty() && !tools::file_exists(_params.rdp_filename())) {
-		std::string message = "RDP file not found : " + tools::wstr2str(_task_info->path());
+		std::string message{ "RDP file not found : " + tools::wstr2str(_task_info->path()) };
 		showErrorMessageDialog(message.c_str());
 		return;
 	}
@@ -266,7 +266,7 @@ void ConnectDialog::showAskCredentialDialog(fw::Credential* pCredential)
 	bool modal_result;
 
 	CredentialDialog credentialDialog(instance_handle(), window_handle());
-	std::string message = "Enter user name and password to access firewall " + _controller->portal()->host().hostname();
+	std::string message{ "Enter user name and password to access firewall " + _controller->portal()->host().hostname() };
 	credentialDialog.setText(tools::str2wstr(message));
 	credentialDialog.setUsername(_username);
 
@@ -288,7 +288,7 @@ void ConnectDialog::showAskCredentialDialog(fw::Credential* pCredential)
 
 void ConnectDialog::showAskCodeDialog(fw::Code2FA* pCode)
 {
-	AskCodeDialog codeDialog(instance_handle(), window_handle());
+	AskCodeDialog codeDialog{ instance_handle(), window_handle() };
 	std::string message = (!pCode)
 		? "Enter code to access firewall " + _controller->portal()->host().hostname()
 		: pCode->info;
@@ -479,7 +479,7 @@ void ConnectDialog::showAboutDialog()
 
 void ConnectDialog::showOptionsDialog()
 {
-	OptionsDialog optionsDialog(instance_handle(), window_handle());
+	OptionsDialog optionsDialog{ instance_handle(), window_handle() };
 
 	// options are not updatable in the gui when specified on the command line
 	optionsDialog.full_screen = _params.full_screen() || _settings.get_full_screen();
@@ -567,9 +567,11 @@ void ConnectDialog::startTask()
 	// to this window
 	if (!_task_info->path().empty()) {
 		if (_params.is_mstsc() && (_params.clear_rdp_username() || _settings.get_clear_rdp_username())) {
-			tools::RegKey rdp_key(
+			tools::RegKey rdp_key{
 				HKEY_CURRENT_USER,
-				L"Software\\Microsoft\\Terminal Server Client\\Servers\\127.0.0.1");
+				L"Software\\Microsoft\\Terminal Server Client\\Servers\\127.0.0.1" 
+			};
+			
 			try {
 				rdp_key.del_value(L"UsernameHint");
 			} catch (std::system_error& err) {

@@ -81,7 +81,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	}
 
 	// Get the application path
-	tools::Path desktop_path = tools::Path::get_desktop_path();
+	tools::Path desktop_path{ tools::Path::get_desktop_path() };
 
 	// Should we write to a log file ?
 	if (cmdline_params.verbose()) {

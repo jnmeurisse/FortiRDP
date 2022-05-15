@@ -149,9 +149,6 @@ namespace net {
 					this,
 					_tunnel.get_fd(),
 					rc);
-
-//			if (written > 0)
-//				_tunnel.flush();
 		}
 
 		return true;

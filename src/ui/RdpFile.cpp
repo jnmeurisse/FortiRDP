@@ -56,7 +56,7 @@ bool RdpFile::read()
 bool RdpFile::write()
 {
 	bool rc = false;
-	std::ofstream ofs(_path.to_string(), std::ostream::out);
+	std::ofstream ofs{ _path.to_string(), std::ostream::out };
 
 	if (ofs.is_open() && !empty()) {
 		for (auto const& opt : _options_list) {
@@ -85,7 +85,7 @@ void RdpFile::set(const std::string& name, const std::string& value)
 
 bool RdpFile::get(const std::string& name, std::string& type, std::string& value) 
 {
-	RdpOption* option = find(name);
+	RdpOption* const option = find(name);
 
 	if (option) {
 		value = option->option_value;

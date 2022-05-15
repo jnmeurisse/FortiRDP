@@ -57,10 +57,10 @@ namespace fw {
 		_ca_file = ca_file;
 
 		// get full filename
-		const std::wstring filename(ca_file.to_string());
+		const std::wstring filename{ ca_file.to_string() };
 
 		if (tools::file_exists(filename)) {
-			const std::string compacted(tools::wstr2str(ca_file.compact(50)));
+			const std::string compacted{ tools::wstr2str(ca_file.compact(50)) };
 
 			rc = mbedtls_x509_crt_parse_file(&_ca_crt, tools::wstr2str(filename).c_str());
 			if (rc != 0) {
@@ -86,7 +86,7 @@ namespace fw {
 	portal_err PortalClient::open(confirm_crt_fn confirm_crt)
 	{
 		DEBUG_ENTER(_logger, "PortalClient", "open");
-		tools::Mutex::Lock lock(_mutex);
+		tools::Mutex::Lock lock{ _mutex };
 		tools::mbed_err rc = 0;
 		http::Answer answer;
 
@@ -162,7 +162,7 @@ namespace fw {
 	portal_err PortalClient::login(ask_credential_fn ask_credential, ask_code_fn ask_code)
 	{
 		DEBUG_ENTER(_logger, "PortalClient", "login");
-		tools::Mutex::Lock lock(_mutex);
+		tools::Mutex::Lock lock{ _mutex };
 
 		// misc initializations
 		int retcode = 0;
@@ -390,7 +390,7 @@ namespace fw {
 	void PortalClient::logoff()
 	{
 		DEBUG_ENTER(_logger, "PortalClient", "logoff");
-		tools::Mutex::Lock lock(_mutex);
+		tools::Mutex::Lock lock{ _mutex };
 
 		if (_authenticated) {
 			_authenticated = false;
@@ -402,7 +402,7 @@ namespace fw {
 	bool PortalClient::get_info(PortalInfo& portal_info)
 	{
 		DEBUG_ENTER(_logger, "PortalClient", "get_info");
-		tools::Mutex::Lock lock(_mutex);
+		tools::Mutex::Lock lock{ _mutex };
 		bool ok = false;
 
 		if (_authenticated) {
@@ -412,7 +412,7 @@ namespace fw {
 			ok = request(http::Request::GET_VERB, "/remote/portal?access", "", headers, answer);
 			if (ok && answer.get_status_code() == HttpsClient::STATUS_OK) {
 				const tools::ByteBuffer& body = answer.body();
-				const std::string data(body.cbegin(), body.cend());
+				const std::string data{ body.cbegin(), body.cend() };
 				_logger->debug("... portal_info : %s...", data.substr(0, 80).c_str());
 
 				std::string parser_error;
@@ -438,7 +438,7 @@ namespace fw {
 	bool PortalClient::get_config(SslvpnConfig& sslvpn_config)
 	{
 		DEBUG_ENTER(_logger, "PortalClient", "get_config");
-		tools::Mutex::Lock lock(_mutex);
+		tools::Mutex::Lock lock{ _mutex };
 		bool ok = false;
 
 		if (_authenticated) {
@@ -477,7 +477,7 @@ namespace fw {
 		tools::Mutex::Lock lock(_mutex);
 
 		http::Answer answer;
-		http::Request request(http::Request::GET_VERB, "/remote/sslvpn-tunnel", _cookies, 1);
+		http::Request request{ http::Request::GET_VERB, "/remote/sslvpn-tunnel", _cookies, 1 };
 		request.headers().set("Host", "sslvpn");
 
 		try {
@@ -508,7 +508,7 @@ namespace fw {
 		DEBUG_ENTER(_logger, "PortalClient", "request");
 		
 		// Prepare the request
-		http::Request request(verb, url, _cookies);
+		http::Request request{ verb, url, _cookies };
 
 		request.headers()
 			.set("Host", host().to_string())

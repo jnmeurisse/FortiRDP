@@ -36,7 +36,7 @@ namespace net {
 	{
 		if (_logger->is_debug_enabled())
 			_logger->debug("... %x enter Socket::attach fd=%d", this, netctx.fd);
-		Mutex::Lock lock(_mutex);
+		Mutex::Lock lock{ _mutex };
 		_netctx = netctx;
 
 		apply_opt();
@@ -46,7 +46,7 @@ namespace net {
 	mbed_err Socket::connect(const Endpoint& ep)
 	{
 		DEBUG_ENTER(_logger, "Socket", "connect");
-		Mutex::Lock lock(_mutex);
+		Mutex::Lock lock{ _mutex };
 		return do_connect(ep);
 	}
 
@@ -54,7 +54,7 @@ namespace net {
 	void Socket::close()
 	{
 		DEBUG_ENTER(_logger, "Socket", "close");
-		Mutex::Lock lock(_mutex);
+		Mutex::Lock lock{ _mutex };
 		do_close();
 	}
 
@@ -167,7 +167,7 @@ namespace net {
 			_logger->debug("... %x enter Socket::do_connect ep=%s", this, ep.to_string().c_str());
 
 		const std::string& host = ep.hostname();
-		const std::string port(std::to_string(ep.port()));
+		const std::string port{ std::to_string(ep.port()) };
 		int rc;
 
 		rc = mbedtls_net_connect(&_netctx, host.c_str(), port.c_str(), MBEDTLS_NET_PROTO_TCP);

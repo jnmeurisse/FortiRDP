@@ -169,13 +169,13 @@ namespace http {
 
 			std::string::size_type pos = line.find(':');
 			if (pos > 0 && pos != std::string::npos) {
-				const std::string field_name = line.substr(0, pos).uncrypt();
-				const tools::obfstring field_value(tools::trim(line.substr(pos + 1, std::string::npos)));
+				const std::string field_name{ line.substr(0, pos).uncrypt() };
+				const tools::obfstring field_value{ tools::trim(line.substr(pos + 1, std::string::npos)) };
 
 				if (tools::iequal(field_name, "Set-Cookie")) {
 					// it should be a cookie definition
 					try {
-						const Cookie cookie(field_value);
+						const Cookie cookie{ field_value };
 						_cookies.set(cookie.get_name(), cookie);
 					}
 					catch (CookieError e) {
@@ -207,7 +207,7 @@ namespace http {
 				// decode chunk size
 				if (!tools::str2num(line.uncrypt(), 16, 0, MAX_CHUNCK_SIZE, chunck_size)) {
 					// Chunk size error
-					throw new http_error(http_error::CHUNK_SIZE);
+					throw new http_error{ http_error::CHUNK_SIZE };
 				}
 
 				if (chunck_size > 0) {
@@ -230,7 +230,7 @@ namespace http {
 
 				if (!tools::str2num(length, 10, 0, MAX_BODY_SIZE, size)) {
 					// Invalid body size, too large
-					throw new http_error(http_error::BODY_SIZE);
+					throw new http_error{ http_error::BODY_SIZE };
 				}
 
 				if (size > 0) {
