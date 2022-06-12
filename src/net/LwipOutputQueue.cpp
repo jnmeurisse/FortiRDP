@@ -54,12 +54,12 @@ namespace net {
 			// is this pbuf exhausted ?
 			u8_t flags = TCP_WRITE_FLAG_COPY | ((available > len) ? TCP_WRITE_FLAG_MORE : 0);
 
-			// send 
+			// send
 			rc = tcp_write(socket, pbuf->cbegin(), len, flags);
 			if (rc) 
 				goto write_error;
 
-			// reports the number of sent bytes.
+			// report the number of sent bytes.
 			written += len;
 
 			// move our pointer into the payload if bytes have been sent
