@@ -89,10 +89,6 @@ public:
 	*/
 	inline bool clear_rdp_username() const { return _clear_lastuser; }
 
-	/*! returns true if keep alive message is must be sent to the portal
-	*/
-	inline bool keep_alive() const { return _keep_alive; }
-
 	/*! is verbose mode required 
 	*/
 	inline bool verbose() const { return _verbose; }
@@ -120,7 +116,6 @@ private:
 	bool _multimon_mode = false;
 	bool _clear_lastuser = false;
 	bool _tcp_nodelay = false;
-	bool _keep_alive = false;
 
 	bool _verbose = false;
 	bool _trace = false;
