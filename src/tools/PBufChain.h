@@ -63,7 +63,11 @@ namespace tools {
 		*/
 		inline u16_t len() const noexcept { return _tot_len; }
 
-		/* Returns the pointer to the next bytes in one pbuf
+		/* Returns true if the chain is empty
+		*/
+		inline bool empty() const noexcept { return _tot_len == 0; }
+
+		/* Returns the pointer to the next bytes in the pbuf
 		*/
 		inline const byte* cbegin() const noexcept { return _current.payload; }
 
