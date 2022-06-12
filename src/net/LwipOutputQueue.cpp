@@ -36,7 +36,7 @@ namespace net {
 		int rc = 0;
 		written = 0;
 
-		if (!empty()) {
+		while (!empty()) {
 			PBufChain* const pbuf = front();
 
 			// Compute the length of the next chunk of data. The length of
@@ -47,29 +47,35 @@ namespace net {
 			// Determine how many bytes we can effectively send
 			uint16_t len = min(tcp_sndbuf(socket), available);
 
-			// Is this pbuf exhausted ?
+			// stop writing if no more space available
+			if (len == 0)
+				break;
+
+			// is this pbuf exhausted ?
 			u8_t flags = TCP_WRITE_FLAG_COPY | ((available > len) ? TCP_WRITE_FLAG_MORE : 0);
 
-			// Send 
+			// send 
 			rc = tcp_write(socket, pbuf->cbegin(), len, flags);
 			if (rc) 
 				goto write_error;
 
-			rc = tcp_output(socket);
-			if (rc)
-				goto write_error;
-
 			// reports the number of sent bytes.
-			written = len;
+			written += len;
 
 			// move our pointer into the payload if bytes have been sent
 			pbuf->move(len);
 
 			// unlink the first chain if no more data
-			if (pbuf->len() == 0) {
+			if (pbuf->empty()) {
 				pop_front();
 				delete pbuf;
 			}
+		}
+
+		if (written > 0) {
+			rc = tcp_output(socket);
+			if (rc)
+				goto write_error;
 		}
 
 	write_error:
