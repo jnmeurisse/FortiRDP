@@ -205,6 +205,9 @@ pppossl_connect(ppp_pcb *ppp, void *ctx)
 	/* reset PPPoSsl control block to its initial state */
 	memset(&pppossl->last_xmit, 0, sizeof(pppossl_pcb) - offsetof(pppossl_pcb, last_xmit));
 
+	/* ask DNS  */
+	ppp_set_usepeerdns(ppp, 1);
+
 	/* disable unsupported Fortigate LCP negotiation */
 	ppp->lcp_wantoptions.neg_accompression = 0;
 	ppp->lcp_wantoptions.neg_pcompression = 0;
