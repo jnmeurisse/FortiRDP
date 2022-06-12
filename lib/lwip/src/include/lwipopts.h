@@ -15,7 +15,7 @@
 #define MEMP_MEM_INIT			1
 
 /* MEM_ALIGNMENT: set to 4 byte alignment */
-#define MEM_ALIGNMENT           4
+#define MEM_ALIGNMENT			4
 
 
 /*>> Internal Memory Pool Sizes ---------- */
@@ -24,16 +24,16 @@
 #define MEMP_NUM_RAW_PCB		0          
 
 /* MEMP_NUM_TCP_PCB: the number of simultaneously active TCP connections. */
-#define MEMP_NUM_TCP_PCB        64
+#define MEMP_NUM_TCP_PCB		64
 
 /* MEMP_NUM_TCP_PCB_LISTEN: the number of listening TCP connections. */
-#define MEMP_NUM_TCP_PCB_LISTEN 0
+#define MEMP_NUM_TCP_PCB_LISTEN	0
 
 /* MEMP_NUM_TCP_SEG: the number of simultaneously queued TCP segments. */
-#define MEMP_NUM_TCP_SEG        255
+#define MEMP_NUM_TCP_SEG		255
 
 /* PBUF_POOL_SIZE: the number of buffers in the pbuf pool. */
-#define PBUF_POOL_SIZE          512
+#define PBUF_POOL_SIZE			512
 
 /*>> ARP options */
 
@@ -43,26 +43,27 @@
 /*>> DHCP options */
 
 /* LWIP_DHCP==1: Enable DHCP functionality. */
-#define LWIP_DHCP               0
+#define LWIP_DHCP				0
 
 /*>> DNS options */
+#define LWIP_DNS				1
 
 
 /*>> UPD options */
 
 /* LWIP_UDP==1: Turn on UDP. */
-#define LWIP_UDP                0
+#define LWIP_UDP				1
 
 /*>> TCP options */
 
 /* LWIP_TCP==1: Turn on TCP. */
-#define LWIP_TCP                1
+#define LWIP_TCP				1
 
 /* TCP Maximum segment size, default value was 1476 */
-#define TCP_MSS                 1476
+#define TCP_MSS					1476
 
 /* TCP sender buffer space (bytes). */
-#define TCP_SND_BUF             32 * 1024
+#define TCP_SND_BUF				32 * 1024
 
 /* LWIP_TCP_KEEPALIVE==1: Enable TCP_KEEPIDLE, TCP_KEEPINTVL and TCP_KEEPCNT */
 #define LWIP_TCP_KEEPALIVE		1
@@ -70,7 +71,7 @@
 /*>> Pbuf options */
 
 /* PBUF_LINK_HLEN: the number of bytes that should be allocated for a link level header. */
-#define PBUF_LINK_HLEN          16
+#define PBUF_LINK_HLEN			16
 
 /*>> Sequential layer options */
 
