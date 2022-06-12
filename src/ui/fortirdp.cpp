@@ -18,6 +18,7 @@
 #include "tools\Logger.h"
 #include "tools\Path.h"
 #include "lwip\init.h"
+#include "lwip\dns.h"
 
 
 #pragma comment(linker,"\"/manifestdependency:type='win32' \
@@ -96,6 +97,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
 	// Initialize lwip stack
 	lwip_init();
+	dns_init();
 	sys_set_logger(lwip_log_cb, logger);
 
 	ConnectDialog main_dialog(hInstance, cmdline_params);
