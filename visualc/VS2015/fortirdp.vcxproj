@@ -29,6 +29,7 @@
     <ClCompile Include="..\..\src\http\HttpsClient.cpp" />
     <ClCompile Include="..\..\src\http\Request.cpp" />
     <ClCompile Include="..\..\src\http\Url.cpp" />
+    <ClCompile Include="..\..\src\net\DnsClient.cpp" />
     <ClCompile Include="..\..\src\net\Endpoint.cpp" />
     <ClCompile Include="..\..\src\net\Listener.cpp" />
     <ClCompile Include="..\..\src\net\LwipOutputQueue.cpp" />
@@ -93,6 +94,7 @@
     <ClInclude Include="..\..\src\http\HttpsClient.h" />
     <ClInclude Include="..\..\src\http\Request.h" />
     <ClInclude Include="..\..\src\http\Url.h" />
+    <ClInclude Include="..\..\src\net\DnsClient.h" />
     <ClInclude Include="..\..\src\net\Endpoint.h" />
     <ClInclude Include="..\..\src\net\Listener.h" />
     <ClInclude Include="..\..\src\net\LwipOutputQueue.h" />
@@ -105,6 +107,7 @@
     <ClInclude Include="..\..\src\net\Tunneler.h" />
     <ClInclude Include="..\..\src\net\WinsOutputQueue.h" />
     <ClInclude Include="..\..\src\resources\resource.h" />
+    <ClInclude Include="..\..\src\resources\targetver.h" />
     <ClInclude Include="..\..\src\tools\ByteBuffer.h" />
     <ClInclude Include="..\..\src\tools\Counters.h" />
     <ClInclude Include="..\..\src\tools\ErrUtil.h" />
