@@ -29,5 +29,9 @@ namespace tools {
 		/* Returns true if counters values are not equal
 		*/
 		bool operator!=(const Counters& other) const noexcept;
+
+		/* Returns the transmitted total
+		*/
+		size_t total() const noexcept { return sent + received; }
 	};
 }
