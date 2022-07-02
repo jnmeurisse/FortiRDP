@@ -60,7 +60,7 @@ bool AsyncController::create_tunnel(const net::Endpoint& host_endpoint, int loca
 	_tunnel.reset();
 
 	if (_portal != nullptr) {
-		/* Define the local end point as localhost which force to use an IPv4 address.
+		/* Define the local end point as localhost which force using an IPv4 address.
 		When local port is 0, the system automatically find a valid value. */
 		const std::string localhost = "127.0.0.1";
 		const net::Endpoint local_endpoint(localhost, local_port);
