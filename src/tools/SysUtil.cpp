@@ -84,7 +84,7 @@ namespace tools {
 
 	void throw_winapi_error(DWORD error_code, const std::string& func_name)
 	{
-		throw std::system_error{ error_code, std::system_category(), func_name };
+		throw std::system_error{ (int) error_code, std::system_category(), func_name };
 	}
 
 }
