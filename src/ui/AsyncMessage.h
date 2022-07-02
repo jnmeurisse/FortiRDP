@@ -79,10 +79,6 @@ public:
 	*/
 	static AsyncMessage TunnelListeningEvent;
 
-	/* informs that a ping was done
-	*/
-	static AsyncMessage PingEvent;
-
 
 private:
 	explicit AsyncMessage(UINT eventNumber);
