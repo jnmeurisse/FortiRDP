@@ -36,11 +36,4 @@ namespace net {
 	{
 		return dns_gethostbyname_addrtype(hostname.c_str(), &addr, found_callback, callback_arg, LWIP_DNS_ADDRTYPE_IPV4);
 	}
-
-
-	std::string DnsClient::dns(int numdns)
-	{
-		const ip_addr_t *addr = dns_getserver(numdns);
-		return ip4_addr_isany_val(*addr) ? std::string() : ip4addr_ntoa(addr);
-	}
 }
