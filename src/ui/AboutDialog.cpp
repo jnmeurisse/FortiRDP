@@ -49,7 +49,7 @@ INT_PTR AboutDialog::onCreateDialogMessage(WPARAM wParam, LPARAM lParam)
 	mbedtls_version_get_string(mbedtls_ver);
 
 	std::string about_info;
-    about_info.append("A Fortigate SSLVPN Web portal client\n");
+	about_info.append("A Fortigate SSLVPN client\n");
 	about_info.append("\nThis program uses mbed TLS ");
 	about_info.append(mbedtls_ver);
 	about_info.append(" library (tls.mbed.org).");
