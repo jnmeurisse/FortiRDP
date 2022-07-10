@@ -65,7 +65,6 @@ INT_PTR AboutDialog::onCreateDialogMessage(WPARAM wParam, LPARAM lParam)
 	}
 
 	return TRUE;
-
 }
 
 INT_PTR AboutDialog::onButtonClick(int cid, LPARAM lParam)
