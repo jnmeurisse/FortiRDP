@@ -31,7 +31,7 @@ namespace net {
 
 		/* Attaches the net context to this socket
 		*/
-		void attach(const mbedtls_net_context& netctx);
+		bool attach(const mbedtls_net_context& netctx);
 
 		/* Closes gracefully the socket
 		*/
@@ -40,15 +40,15 @@ namespace net {
 		/* Sets time-outs involved in send and receive operations.
 		 * Time-out values are expressed in milliseconds. 
 		*/
-		void set_timeout(DWORD send_timeout, DWORD recv_timeout);
+		bool set_timeout(DWORD send_timeout, DWORD recv_timeout);
 
 		/* Sets no delay option (disable Nagle algorithm)
 		*/
-		void set_nodelay(bool no_delay);
+		bool set_nodelay(bool no_delay);
 
 		/* Sets the socket blocking mode
 		*/
-		mbed_err set_blocking(bool blocking);
+		bool set_blocking(bool blocking);
 
 		/* Receives data from the socket. The buffer pointed to by the
 		 * buf parameter will contain the data received. The maximum amount
@@ -121,10 +121,22 @@ namespace net {
 		DWORD _send_timeout;
 		DWORD _recv_timeout;
 
-		// Disable Naggle algorithm
-		BOOL _no_delay;
+		// Disable Naggle algorithm if true
+		bool _no_delay;
 
-		void apply_opt();
+		// Blocking mode
+		bool _blocking;
+
+		// Apply configured option to this socket
+		enum SocketOptions
+		{
+			all,
+			nodelay,
+			blocking,
+			timeout
+		};
+
+		bool apply_opt(enum SocketOptions option);
 	};
 
 }

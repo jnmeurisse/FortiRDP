@@ -18,7 +18,8 @@ namespace net {
 		_logger(Logger::get_logger()),
 		_send_timeout(0),
 		_recv_timeout(0),
-		_no_delay(0)
+		_no_delay(false),
+		_blocking(true)
 	{
 		DEBUG_CTOR(_logger, "Socket");
 		mbedtls_net_init(&_netctx);
@@ -32,14 +33,14 @@ namespace net {
 	}
 
 
-	void Socket::attach(const mbedtls_net_context& netctx)
+	bool Socket::attach(const mbedtls_net_context& netctx)
 	{
 		if (_logger->is_debug_enabled())
 			_logger->debug("... %x enter Socket::attach fd=%d", this, netctx.fd);
 		Mutex::Lock lock{ _mutex };
 		_netctx = netctx;
 
-		apply_opt();
+		return apply_opt(SocketOptions::all);
 	}
 
 
@@ -47,6 +48,7 @@ namespace net {
 	{
 		DEBUG_ENTER(_logger, "Socket", "connect");
 		Mutex::Lock lock{ _mutex };
+
 		return do_connect(ep);
 	}
 
@@ -55,38 +57,59 @@ namespace net {
 	{
 		DEBUG_ENTER(_logger, "Socket", "close");
 		Mutex::Lock lock{ _mutex };
+		
 		do_close();
 	}
 
 
-	void Socket::set_timeout(DWORD send_timeout, DWORD recv_timeout)
+	bool Socket::set_timeout(DWORD send_timeout, DWORD recv_timeout)
 	{
+		bool rc = true;
+
 		if (_logger->is_debug_enabled())
 			_logger->debug("... %x enter Socket::set_timeout s=%d r=%d", this, send_timeout, recv_timeout);
-		_send_timeout = send_timeout;
-		_recv_timeout = recv_timeout;
 
-		apply_opt();
+		if (send_timeout != _send_timeout || recv_timeout != _recv_timeout) {
+			_send_timeout = send_timeout;
+			_recv_timeout = recv_timeout;
+
+			rc = apply_opt(SocketOptions::timeout);
+		}
+
+		return rc;
 	}
 
 
-	void Socket::set_nodelay(bool no_delay)
+	bool Socket::set_nodelay(bool no_delay)
 	{
+		bool rc = true;
+
 		if (_logger->is_debug_enabled())
 			_logger->debug("... %x enter Socket::set_nodelay=%d", this, no_delay);
-		_no_delay = no_delay ? 1 : 0;
+		
+		if (no_delay != _no_delay) {
+			_no_delay = no_delay;
 
-		apply_opt();
+			rc = apply_opt(SocketOptions::nodelay);
+		}
+
+		return rc;
 	}
 
 
-	mbed_err Socket::set_blocking(bool blocking)
+	bool Socket::set_blocking(bool blocking)
 	{
+		bool rc = true;
+
 		if (_logger->is_debug_enabled())
 			_logger->debug("... %x enter Socket::set_noblocking=%d", this, blocking);
-		int rc = (blocking)
-					? mbedtls_net_set_block(&_netctx)
-					: mbedtls_net_set_nonblock(&_netctx);
+
+		if (blocking != _blocking) {
+			_blocking = blocking;
+
+			rc = apply_opt(SocketOptions::blocking);
+		}
+
 		return rc;
 	}
 
@@ -174,17 +197,11 @@ namespace net {
 		if (rc)
 			goto terminate;
 
-		rc = mbedtls_net_set_block(&_netctx);
-		if (rc)
+		// configure all options
+		if (!apply_opt(SocketOptions::all)) {
+			rc = MBEDTLS_ERR_NET_CONNECT_FAILED;
 			goto terminate;
-
-		// configure timeout and delay
-		apply_opt();
-
-		//int bufsize = 2048;
-		//setsockopt(_netctx.fd, SOL_SOCKET, SO_SNDBUF, (char *) &bufsize, sizeof(bufsize));
-		//setsockopt(_netctx.fd, SOL_SOCKET, SO_RCVBUF, (char *) &bufsize, sizeof(bufsize));
-
+		}
 
 	terminate:
 		if (_logger->is_debug_enabled())
@@ -198,37 +215,66 @@ namespace net {
 	{
 		if (_logger->is_debug_enabled())
 			_logger->debug("... %x enter Socket::do_close fd=%d", this, _netctx.fd);
+
 		mbedtls_net_free(&_netctx);
 	}
 
 
-	void Socket::apply_opt()
+	bool Socket::apply_opt(enum SocketOptions option)
 	{
+		bool rc = true;
+
 		if (connected()) {
 			if (_logger->is_debug_enabled())
 				_logger->debug("... %x enter Socket::apply_opt fd=%d", this, _netctx.fd);
 
-			if (setsockopt(_netctx.fd, IPPROTO_TCP, TCP_NODELAY, (char *)&_no_delay, sizeof(_no_delay)) != 0) {
-				_logger->error("ERROR : set nodelay error %x on socket %x, fd=%d",
-					::WSAGetLastError(),
-					this,
-					_netctx.fd);
+			if (option == SocketOptions::all || option == SocketOptions::nodelay) {
+				const int tcp_nodelay = _no_delay ? 1 : 0;
+				if (setsockopt(_netctx.fd, IPPROTO_TCP, TCP_NODELAY, (const char *)&tcp_nodelay, sizeof(tcp_nodelay)) != 0) {
+					_logger->error("ERROR : set nodelay error %x on socket %x, fd=%d",
+						::WSAGetLastError(),
+						this,
+						_netctx.fd);
+
+					rc = false;
+				}
 			}
 
-			if (setsockopt(_netctx.fd, SOL_SOCKET, SO_RCVTIMEO, (char *)&_recv_timeout, sizeof(_recv_timeout)) != 0) {
-				_logger->error("ERROR : set receive time-out error %x on socket %x, fd=%d",
-					::WSAGetLastError(),
-					this,
-					_netctx.fd);
-			}
+			if (option == SocketOptions::all || option == SocketOptions::timeout) {
+				if (setsockopt(_netctx.fd, SOL_SOCKET, SO_RCVTIMEO, (const char *)&_recv_timeout, sizeof(_recv_timeout)) != 0) {
+					_logger->error("ERROR : set receive time-out error %x on socket %x, fd=%d",
+						::WSAGetLastError(),
+						this,
+						_netctx.fd);
 
-			if (setsockopt(_netctx.fd, SOL_SOCKET, SO_SNDTIMEO, (char *)&_send_timeout, sizeof(_send_timeout)) != 0) {
-				_logger->error("ERROR : set send time-out error %x on socket %x, fd=%d",
-					::WSAGetLastError(),
-					this,
-					_netctx.fd);
+					rc = false;
+				}
+
+				if (setsockopt(_netctx.fd, SOL_SOCKET, SO_SNDTIMEO, (const char *)&_send_timeout, sizeof(_send_timeout)) != 0) {
+					_logger->error("ERROR : set send time-out error %x on socket %x, fd=%d",
+						::WSAGetLastError(),
+						this,
+						_netctx.fd);
+
+					rc = false;
+				}
 			}
 		}
-	}
 
+		if (option == SocketOptions::all || option == SocketOptions::blocking) {
+			int rc = _blocking
+				? mbedtls_net_set_block(&_netctx)
+				: mbedtls_net_set_nonblock(&_netctx);
+			if (rc) {
+				_logger->error("ERROR: set socket blocking mode error %x on socket %x, fd=%d",
+					::WSAGetLastError(),
+					this,
+					_netctx.fd);
+
+				rc = false;
+			}
+		}
+		
+		return rc;
+	}
 }
