@@ -80,15 +80,14 @@ private:
 	// - Running controller
 	std::unique_ptr<AsyncController> _controller;
 
-	// brush to fill the debug window
-	HBRUSH _bg_brush;
-
-	// used to show the activity animation
+	// - Activity animation
+	HFONT _anim_font;
 	int _activity_loop = 0;
-	net::Counters _previous_counters;
+	size_t _previous_counters;
 	chrono::steady_clock::time_point _last_activity;
 
-	// 
+	// - Output window
+	HBRUSH _bg_brush;
 	HFONT _msg_font;
 	std::list<std::wstring> _msg_buffer;
 	tools::Mutex _msg_mutex;
@@ -96,6 +95,7 @@ private:
 	void connect();
 	void disconnect();
 	void startTask();
+	void clearRdpHistory();
 
 	// Event handlers
 	virtual INT_PTR onDestroyDialogMessage(WPARAM wParam, LPARAM lParam) override;

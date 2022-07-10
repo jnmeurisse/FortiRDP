@@ -41,6 +41,10 @@ ConnectDialog::ConnectDialog(HINSTANCE hInstance, const CmdlineParams& params):
 	// create a black brush used to fill the IDC_STATUSTEXT control
 	_bg_brush = CreateSolidBrush(RGB(0, 0, 0));
 
+	_anim_font = create_font(10, L"Consolas");
+	if (!_anim_font)
+		_anim_font = create_font(10, L"Arial");
+	set_control_font(IDC_ACTIVITY, _anim_font);
 
 	// Add menu : about, options and launch submenu (and associated hot keys)
 	HMENU hMenu = get_sys_menu(false);
@@ -99,6 +103,7 @@ ConnectDialog::~ConnectDialog()
 	// delete all objects we created
 	DeleteObject(_bg_brush);
 	DeleteObject(_msg_font);
+	DeleteObject(_anim_font);
 
 	_controller->terminate();
 	_controller->wait(1000);
@@ -407,9 +412,9 @@ INT_PTR ConnectDialog::onTimerMessage(WPARAM wParam, LPARAM lParam)
 		if (tunneler) {
 			const tools::Counters& counters = tunneler->counters();
 			const std::string message = tools::string_format(
-					"Bytes sent/received : %lli/%lli",
-					counters.sent,
-					counters.received);
+					"KBytes sent/received : %.1f/%.1f",
+					counters.sent / 1024.0,
+					counters.received / 1024.0);
 			set_control_text(IDC_BYTES_SENT, tools::str2wstr(message));
 		}
 		break;
@@ -418,10 +423,10 @@ INT_PTR ConnectDialog::onTimerMessage(WPARAM wParam, LPARAM lParam)
 		if (tunneler) {
 			const tools::Counters& counters = tunneler->counters();
 			const chrono::steady_clock::time_point now = chrono::steady_clock::now();
-			if (counters != _previous_counters) {
+			if (counters.total() > _previous_counters) {
 				// show network activity
-				const wchar_t activity_symbol[] = L"\u2591\u2592\u2593\u2592";
-				_previous_counters = counters;
+				const wchar_t activity_symbol[] = L"\u2190\u2191\u2192\u2193";
+				_previous_counters = counters.total();
 				_activity_loop = (_activity_loop + 1) % 4;
 				_last_activity = now;
 
@@ -566,20 +571,48 @@ void ConnectDialog::startTask()
 	// responsible to detect the end of the local application and post a message
 	// to this window
 	if (!_task_info->path().empty()) {
-		if (_params.is_mstsc() && (_params.clear_rdp_username() || _settings.get_clear_rdp_username())) {
-			tools::RegKey rdp_key{
-				HKEY_CURRENT_USER,
-				L"Software\\Microsoft\\Terminal Server Client\\Servers\\127.0.0.1" 
-			};
-			
+		_controller->start_task(*_task_info, !_params.multi_clients());
+	}
+}
+
+
+void ConnectDialog::clearRdpHistory()
+{
+	if (_params.is_mstsc() && (_params.clear_rdp_username() || _settings.get_clear_rdp_username())) {
+		// see http://woshub.com/how-to-clear-rdp-connections-history/
+
+		net::Endpoint endpoint{ "127.0.0.1", 0 };
+		if (_controller && _controller->tunnel()) {
+			endpoint = _controller->tunnel()->local_endpoint();
+		}
+
+		// Clear saved username
+		std::string key = "Software\\Microsoft\\Terminal Server Client\\Servers\\" + endpoint.hostname();
+		tools::RegKey rdp_server{ HKEY_CURRENT_USER, tools::str2wstr(key) };
+
+		try {
+			rdp_server.del_value(L"UsernameHint");
+		}
+		catch (std::system_error& err) {
+			_logger->debug("ERROR : %s", err.what());
+		}
+
+		tools::RegKey rdp_default{
+			HKEY_CURRENT_USER,
+			L"Software\\Microsoft\\Terminal Server Client\\Default"
+		};
+
+		for (int i = 0; i < 10; i++) {
 			try {
-				rdp_key.del_value(L"UsernameHint");
-			} catch (std::system_error& err) {
+				std::wstring value = rdp_default.get_string(L"xx");
+				if (value.compare(L"xx")) {
+					rdp_default.del_value(L"");
+				}
+			}
+			catch (std::system_error& err) {
 				_logger->debug("ERROR : %s", err.what());
 			}
 		}
-
-		_controller->start_task(*_task_info, !_params.multi_clients());
 	}
 }
 
@@ -606,12 +639,12 @@ void ConnectDialog::onConnectedEvent(bool success)
 			_params.tcp_nodelay());
 
 		// start network activity tracking
-		_previous_counters.clear();
+		_previous_counters = 0;
 		_activity_loop = 0;
 
 		// enable timers (in ms)
 		::SetTimer(window_handle(), TIMER_COUNTERS, 500, nullptr);
-		::SetTimer(window_handle(), TIMER_ACTIVITY, 100, nullptr);
+		::SetTimer(window_handle(), TIMER_ACTIVITY, 250, nullptr);
 
 		// show activity controls
 		set_control_text(IDC_BYTES_SENT, L"");
@@ -623,6 +656,10 @@ void ConnectDialog::onConnectedEvent(bool success)
 
 void ConnectDialog::onDisconnectedEvent(bool success)
 {
+	if (!_task_info->path().empty()) {
+		clearRdpHistory();
+	}
+
 	// Hide activity controls
 	set_control_text(IDC_BYTES_SENT, L"");
 	set_control_visible(IDC_BYTES_SENT, false);
