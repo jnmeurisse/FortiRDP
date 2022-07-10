@@ -47,7 +47,7 @@ namespace net {
 				pbuf->move(rc);
 
 				// unlink the first chain if no more data
-				if (pbuf->len() == 0) {
+				if (pbuf->empty()) {
 					pop_front();
 					delete pbuf;
 				}
