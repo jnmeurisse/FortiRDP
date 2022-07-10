@@ -6,6 +6,7 @@
 *
 */
 #include "net/PPInterface.h"
+#include "lwip/dns.h"
 
 #include "tools/ErrUtil.h"
 #include "tools/SysUtil.h"
@@ -113,13 +114,36 @@ namespace net {
 
 	std::string PPInterface::addr() const
 	{
-		 return std::string(ip4addr_ntoa(&_pcb->netif->ip_addr));
+		return std::string(ip4addr_ntoa(netif_ip4_addr(_pcb->netif)));
+	}
+
+
+	int PPInterface::netmask() const
+	{
+		const ip4_addr_t *mask = netif_ip4_netmask(_pcb->netif);
+		int mask_size = 0;
+		u32_t mask_test = 0x8000;
+
+		for (int i = 0; i < 32; i++) {
+			if (mask->addr & mask_test)
+				mask_size++;
+
+			mask_test = mask_test >> 1;
+		}
+		
+		return mask_size;
 	}
 
 
 	std::string PPInterface::gateway() const
 	{
-		return std::string(ip4addr_ntoa(&_pcb->netif->gw));
+		return std::string(ip4addr_ntoa(netif_ip4_gw(_pcb->netif)));
+	}
+
+
+	int PPInterface::mtu() const
+	{
+		return _pcb->netif->mtu;
 	}
 
 

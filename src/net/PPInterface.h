@@ -53,9 +53,17 @@ namespace net {
 		*/
 		std::string addr() const;
 
+		/* Returns the subnet mask
+		*/
+		int netmask() const;
+
 		/* Returns the gateway IP address assigned to this interface
 		*/
 		std::string gateway() const;
+
+		/* Returns the network mtu
+		*/
+		int mtu() const;
 
 		/* Writes PPP data available in the output queue to the tunnel. The counter is updated
 		*  with the amount of bytes written to the socket. The function returns false if the socket
