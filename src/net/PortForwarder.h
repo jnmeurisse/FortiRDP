@@ -12,6 +12,7 @@
 #include "net/Endpoint.h"
 #include "net/WinsOutputQueue.h"
 #include "net/LwipOutputQueue.h"
+#include "net/DnsClient.h"
 #include "tools/Logger.h"
 #include "lwip/tcp.h"
 
@@ -20,12 +21,12 @@ namespace net {
 
 	class PortForwarder final {
 	public:
-		explicit PortForwarder(bool tcp_nodelay, int keepalive);
+		explicit PortForwarder(const Endpoint& endpoint, bool tcp_nodelay, int keepalive);
 		~PortForwarder();
 
 		/*
 		*/
-		bool connect(Listener& listener, const Endpoint& remote_endpoint);
+		bool connect(Listener& listener);
 		
 		/*
 		*/
@@ -43,7 +44,7 @@ namespace net {
 		*/
 		inline bool connecting() const noexcept { return _state == State::CONNECTING; }
 
-		/* Returns true if this forwarder if the connection has timed out
+		/* Returns true if the connection has timed out
 		*/
 		inline bool ctimeout() const noexcept { return _state == State::CONNECTING && _connect_timeout; }
 
@@ -116,6 +117,7 @@ namespace net {
 			DISCONNECTED			// The forwarder is disconnected
 		};
 
+		friend void  dns_found_cb(const char *name, const ip_addr_t *ipaddr, void *callback_arg);
 		friend err_t tcp_connected_cb(void *arg, struct tcp_pcb *tpcb, err_t err);
 		friend void  tcp_err_cb(void *arg, err_t err);
 		friend err_t tcp_sent_cb(void *arg, struct tcp_pcb *tpcb, u16_t len);
@@ -127,6 +129,9 @@ namespace net {
 
 		// current state of the forwarder
 		State _state;
+
+		// 
+		const Endpoint _endpoint;
 
 		// tcp no delay mode is enabled
 		const bool _tcp_nodelay;
@@ -146,13 +151,12 @@ namespace net {
 		// forward flush timeout
 		bool _fflush_timeout;
 
-		// reply flush timer
+		// reply flush timeout
 		bool _rflush_timeout;
 
 		// reply and forward queues
 		WinsOutputQueue _reply_queue;
 		LwipOutputQueue _forward_queue;
-		
 
 		// bytes in transit
 		size_t _forwarded_bytes;

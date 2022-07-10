@@ -14,8 +14,9 @@
 namespace net {
 	using namespace tools;
 
-	PortForwarder::PortForwarder(bool tcp_nodelay, int keepalive) :
+	PortForwarder::PortForwarder(const Endpoint& endpoint, bool tcp_nodelay, int keepalive) :
 		_logger(Logger::get_logger()),
+		_endpoint(endpoint),
 		_local_server(),
 		_local_client(nullptr),
 		_tcp_nodelay(tcp_nodelay),
@@ -25,7 +26,8 @@ namespace net {
 		_forward_queue(16),
 		_forwarded_bytes(0),
 		_fflush_timeout(false),
-		_rflush_timeout(false)
+		_rflush_timeout(false),
+		_connect_timeout(false)
 	{
 		DEBUG_CTOR(_logger, "PortForwarder");
 	}
@@ -42,7 +44,7 @@ namespace net {
 	}
 
 
-	bool PortForwarder::connect(Listener& listener, const Endpoint& remote_endpoint)
+	bool PortForwarder::connect(Listener& listener)
 	{
 		DEBUG_ENTER(_logger, "PortForwarder", "connect");
 
@@ -51,17 +53,8 @@ namespace net {
 			return false;
 		}
 
-		ip_addr_t addr;
-		if (!remote_endpoint.is_ipaddr(addr)) {
-			_logger->error("ERROR: %s is not a valid IP address, unable to forward traffic.",
-				remote_endpoint.to_string().c_str());
-
-			_state = State::FAILED;
-			return false;
-		}
-
 		// Accept the connection from the local client
-		mbed_err rc_accept = listener.accept(_local_server);
+		const mbed_err rc_accept = listener.accept(_local_server);
 		if (rc_accept != 0) {
 			_logger->error("ERROR: PortForwarder %x - accept error %s.",
 				this,
@@ -70,6 +63,30 @@ namespace net {
 			_state = State::FAILED;
 			return false;
 		}
+
+		// Resolve the end point host name to an ip address
+		ip_addr_t addr;
+		const mbed_err rc_query = DnsClient::query(_endpoint.hostname(), addr, dns_found_cb, this);
+		if (rc_query == ERR_OK || rc_query == ERR_INPROGRESS) {
+			// Name is resolved or not yet resolved
+			_state = State::CONNECTING;
+		}
+		else if (rc_query == ERR_VAL) {
+			// DNS server not configured
+			_state = State::FAILED;
+			_logger->error("ERROR: DNS server not configured, can not resolve %s",
+				_endpoint.hostname().c_str());
+		}
+		else {
+			// Error during name resolution
+			_state = State::FAILED;
+			_logger->error("ERROR: PortForwarder %x - DNS error - %s",
+				this,
+				lwip_errmsg(rc_query).c_str());
+		}
+
+		if (_state == State::FAILED)
+			return false;
 
 		// Allocate the TCP client
 		_local_client = tcp_new();
@@ -93,35 +110,12 @@ namespace net {
 			_local_client->keep_intvl = _keepalive;
 		}
 
-		lwip_err rc_con = tcp_connect(_local_client, &addr, remote_endpoint.port(), tcp_connected_cb);
-		if (rc_con == ERR_OK) {
-			_state = State::CONNECTING;
-
-			// start a connection timer
-			_connect_timeout = false;
-			sys_timeout(10 * 1000, timeout_cb, &_connect_timeout);
-
-			// configure the callbacks
-			tcp_arg(_local_client, this);
-			tcp_err(_local_client, tcp_err_cb);
-			tcp_sent(_local_client, tcp_sent_cb);
-			tcp_recv(_local_client, tcp_recv_cb);
-		}
-		else {
-			_state = State::FAILED;
-
-			_logger->error("ERROR: forward - %s",
-				this,
-				lwip_errmsg(rc_con).c_str());
-
-			// delete the protocol control block
-			tcp_close(_local_client);
-
-			// close the local server socket
-			_local_server.close();
+		if (rc_query == ERR_OK) {
+			// Host name is resolved
+			dns_found_cb(_endpoint.hostname().c_str(), &addr, this);
 		}
 
-		return (rc_accept == 0) && (rc_con == 0);
+		return true;
 	}
 
 
@@ -142,7 +136,7 @@ namespace net {
 		// It is not possible to reply to the server anymore, we can clear the reply queue.
 		_reply_queue.clear();
 
-		// Start a timer.  
+		// Start a timer.
 		sys_timeout(10 * 1000, timeout_cb, &_fflush_timeout);
 
 		return;
@@ -159,9 +153,9 @@ namespace net {
 		}
 		_state = State::DISCONNECTING;
 
-		// Abort the connection by sending a RST (reset) segment to the remote.
+		// Abort the connection by sending a RST (reset) segment to the remote host.
 		// The pcb is deallocated, the function tcp_err_cb is called which
-		// finally set the current state to DISCONNECTED
+		// finally set the current state to DISCONNECTED.
 		tcp_abort(_local_client);
 		_local_client = nullptr;
 
@@ -169,7 +163,6 @@ namespace net {
 		_forward_queue.clear();
 		_reply_queue.clear();
 	}
-
 
 
 	bool PortForwarder::recv()
@@ -291,6 +284,54 @@ namespace net {
 	}
 
 
+	static void dns_found_cb(const char *name, const ip_addr_t *ipaddr, void *callback_arg)
+	{
+		PortForwarder* const pf = (PortForwarder*)callback_arg;
+
+		if (pf->_endpoint.hostname().compare(name) != 0) {
+			pf->_state = PortForwarder::State::FAILED;
+			pf->_logger->error(
+				"ERROR: DNS response for wrong host name %s",
+				name);
+
+			return;
+		}
+
+		if (ipaddr == nullptr) {
+			pf->_state = PortForwarder::State::FAILED;
+			pf->_logger->error(
+				"ERROR: can not resolve host %s, dns query failed",
+				name);
+
+			return;
+		}
+
+		lwip_err rc_con = tcp_connect(pf->_local_client, ipaddr, pf->_endpoint.port(), tcp_connected_cb);
+		if (rc_con == ERR_OK) {
+			// start a connection timer
+			sys_timeout(10 * 1000, timeout_cb, &pf->_connect_timeout);
+
+			// configure the callbacks
+			tcp_arg(pf->_local_client, pf);
+			tcp_err(pf->_local_client, tcp_err_cb);
+			tcp_sent(pf->_local_client, tcp_sent_cb);
+			tcp_recv(pf->_local_client, tcp_recv_cb);
+		}
+		else {
+			pf->_state = PortForwarder::State::FAILED;
+
+			pf->_logger->error("ERROR: forward - %s",
+				pf,
+				lwip_errmsg(rc_con).c_str());
+
+			// delete the protocol control block
+			tcp_close(pf->_local_client);
+
+			// close the local server socket
+			pf->_local_server.close();
+		}
+	}
+
 
 	err_t tcp_connected_cb(void *arg, struct tcp_pcb *tpcb, err_t err)
 	{
@@ -301,10 +342,10 @@ namespace net {
 			logger->debug(".... %x PortForwarder tcp connected err=%d", pf, err);
 		}
 
-		// We are now connected
+		// We are now connected.
 		pf->_state = PortForwarder::State::CONNECTED;
 
-		// Cancel the timeout. 
+		// Cancel the timeout.
 		sys_untimeout(timeout_cb, &pf->_connect_timeout);
 		pf->_connect_timeout = false;
 
@@ -319,6 +360,17 @@ namespace net {
 		Logger* logger = pf->_logger;
 		if (logger->is_debug_enabled()) {
 			logger->debug("... %x PortForwarder tcp error err=%d", pf, err);
+		}
+
+		if (err != ERR_OK) {
+			if (pf->_state == PortForwarder::State::DISCONNECTING && pf->_connect_timeout) {
+				logger->error("ERROR: timeout, can't connect to %s", 
+					pf->_endpoint.to_string().c_str());
+			}
+			else if (pf->_state != PortForwarder::State::DISCONNECTING) {
+				logger->error("ERROR: %s", 
+					lwip_errmsg(err).c_str());
+			}
 		}
 
 		// An error has occurred
@@ -347,8 +399,8 @@ namespace net {
 
 		if (p) {
 			if (!pf->_local_server.connected()) {
-				// The local server is disconnected. we can discard any received data
-				// as it is no more possible to forward it.
+				// The local server is disconnected, we can discard any received data.
+				// It is no longer possible to forward it.
 				tcp_recved(tpcb, p->tot_len);
 			}
 			else {
@@ -394,6 +446,7 @@ namespace net {
 
 		return rc;
 	}
+
 
 	static void timeout_cb(void* arg)
 	{
