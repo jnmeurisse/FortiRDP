@@ -60,7 +60,7 @@ namespace tools {
 		errmsg = lwip_strerr(errnum);
 
 		// format the error message
-		os << errmsg << " (" << errnum << ")";
+		os << errmsg << " (-0x" << std::hex << (int)-errnum << ")";
 
 		return os.str();
 	}
