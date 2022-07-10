@@ -102,7 +102,7 @@ namespace net {
 		if (_logger->is_trace_enabled()) {
 			// define a debug callback
 			mbedtls_ssl_conf_dbg(&_ssl_config, mbedtls_debug_fn, _logger);
-#ifdef _DEBUG
+#ifndef _DEBUG
 			mbedtls_debug_set_threshold(0);
 #else
 			mbedtls_debug_set_threshold(1);
@@ -249,5 +249,4 @@ namespace net {
 
 		Socket::do_close();
 	}
-
 }
