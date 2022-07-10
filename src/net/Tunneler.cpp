@@ -9,6 +9,7 @@
 #include <iostream>
 #include <list>
 
+#include "net/DnsClient.h"
 #include "net/Tunneler.h"
 #include "net/PortForwarders.h"
 
@@ -26,10 +27,10 @@ namespace net {
 		_counters(),
 		_pp_interface(tunnel, _counters),
 		_listener(),
-		_listening(),
+		_listening_status(),
 		_local_endpoint(local),
 		_remote_endpoint(remote)
-	{		
+	{
 		DEBUG_CTOR(_logger, "Tunneler");
 	}
 
@@ -74,7 +75,7 @@ namespace net {
 
 	bool Tunneler::wait_listening(DWORD timeout)
 	{
-		return _listening.wait(timeout) && _listener.is_ready();
+		return _listening_status.wait(timeout) && _listener.is_ready();
 	}
 
 
@@ -96,13 +97,15 @@ namespace net {
 		_state = State::CONNECTING;
 
 		// The socket was in blocking mode during the authentication phase. 
-		if (rc = _tunnel.set_blocking(false)) {
+		if (!_tunnel.set_blocking(false)) {
 			_logger->error("ERROR: Tunneler unable to change socket blocking mode");
-			_logger->error("%s", mbed_errmsg(rc).c_str());
 
 			_state = State::STOPPED;
 			return 0;
 		}
+
+		// Disable Nagle algorithm if required
+		_tunnel.set_nodelay(_config.tcp_nodelay);
 
 		if (!_pp_interface.open()) {
 			_state = State::STOPPED;
@@ -125,7 +128,7 @@ namespace net {
 
 				if (_pp_interface.if4_up() && !connecting && 
 					active_port_forwarders.connected_count() < _config.max_clients) {
-					// We are ready to accept a new connection only if the pp interface
+					// We are ready to accept a new connection only if the ppp interface
 					// is up, if we are not currently accepting a connection and the 
 					// max number of connected forwarders is not reached.
 					FD_SET(_listener.get_fd(), &read_set);
@@ -149,7 +152,10 @@ namespace net {
 					}
 				}
 
+				// Determine how long we sleep in the select 
 				compute_sleep_time(timeout);
+
+				// Wait for a network event or timeout
 				rc = select(0, &read_set, &write_set, NULL, &timeout);
 				if (rc > 0) {
 					if (FD_ISSET(_tunnel.get_fd(), &write_set)) {
@@ -170,9 +176,9 @@ namespace net {
 
 					if (FD_ISSET(_listener.get_fd(), &read_set)) {
 						// Accept a new connection
-						PortForwarder* pf = new PortForwarder(false, 30 * 1000);
+						PortForwarder* pf = new PortForwarder(_remote_endpoint, false, 30 * 1000);
 
-						if (pf->connect(_listener, _remote_endpoint)) {
+						if (pf->connect(_listener)) {
 							// A new port forwarder is active
 							connecting = true;
 							active_port_forwarders.push_back(pf);
@@ -217,7 +223,7 @@ namespace net {
 				}
 			}
 
-		
+
 			// Forward data inside the local IP stack.  LwIP creates IP frames
 			// that are appended to the PPP Interface output queue.
 			// LwIP calls pppossl_netif_output which calls ppp_output_cb that 
@@ -255,14 +261,20 @@ namespace net {
 				}
 				else if (_pp_interface.if4_up()) {
 					// The listener is now accepting inbound connection
-					_listening.set();
+					_listening_status.set();
 
 					_state = State::RUNNING;
 					_logger->info(">> tunnel is up, listening on %s",
 						_listener.endpoint().to_string().c_str());
-					_logger->info("   IP=%s GW=%s, listening on %s",
+					_logger->info("   ip=%s/%d gw=%s mtu=%d",
 						_pp_interface.addr().c_str(),
-						_pp_interface.gateway().c_str());
+						_pp_interface.netmask(),
+						_pp_interface.gateway().c_str(),
+						_pp_interface.mtu());
+
+					if (DnsClient::configured()) {
+						_logger->info("   dns=%s", DnsClient::dns().c_str());
+					}
 				}
 				break;
 
@@ -292,7 +304,7 @@ namespace net {
 
 			case State::CLOSING:
 				if (active_port_forwarders.size() == 0 || abort_timeout) {
-					// All connections are closed, shutdown the pp interface
+					// All connections are closed, shutdown the ppp interface
 					_state = State::DISCONNECTING;
 					_pp_interface.close();
 

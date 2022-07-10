@@ -75,9 +75,9 @@ namespace net {
 		*/
 		inline const Counters& counters() const { return _counters; }
 
-		/*
+		/* Returns the local endpoint address and port
 		*/
-		inline const Endpoint& local_endpoint() const { return _local_endpoint; }
+		inline const Endpoint& local_endpoint() const { return _listener.endpoint(); }
 
 	protected:
 		virtual unsigned int run();
@@ -95,7 +95,7 @@ namespace net {
 		// The current state of this tunnel listener
 		volatile State _state;
 
-		// the tunneler must stop if this flag is set 
+		// the tunneler must stop when this flag is set 
 		volatile bool _terminate;
 
 		// Tunnel socket
@@ -108,13 +108,13 @@ namespace net {
 		PPInterface _pp_interface;
 		
 		// this event is set when the tunneler is listening  
-		Event _listening;
+		Event _listening_status;
 
 		// local end point and an associated listener
-		Endpoint _local_endpoint;
+		const Endpoint _local_endpoint;
 		Listener _listener;
 
-		// 
+		// remote end point (behind the firewall)
 		Endpoint _remote_endpoint;
 	};
 
