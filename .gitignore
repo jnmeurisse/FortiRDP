@@ -21,4 +21,5 @@ Release/
 *.suo
 *.db
 *.opendb
-
+*.aps
+*.vcxproj.user
