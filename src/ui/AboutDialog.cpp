@@ -52,7 +52,7 @@ INT_PTR AboutDialog::onCreateDialogMessage(WPARAM wParam, LPARAM lParam)
 	about_info.append("A Fortigate SSLVPN client\n");
 	about_info.append("\nThis program uses mbed TLS ");
 	about_info.append(mbedtls_ver);
-	about_info.append(" library (tls.mbed.org).");
+	about_info.append(" library (https://github.com/Mbed-TLS).");
 
 	set_control_font(IDC_ABOUT_INFO, _hFont);
 	set_control_text(IDC_ABOUT_INFO, tools::str2wstr(about_info));
