@@ -586,7 +586,7 @@ void ConnectDialog::clearRdpHistory()
 			endpoint = _controller->tunnel()->local_endpoint();
 		}
 
-		// Clear saved username
+		// Clear saved user name
 		std::string key = "Software\\Microsoft\\Terminal Server Client\\Servers\\" + endpoint.hostname();
 		tools::RegKey rdp_server{ HKEY_CURRENT_USER, tools::str2wstr(key) };
 
@@ -594,7 +594,7 @@ void ConnectDialog::clearRdpHistory()
 			rdp_server.del_value(L"UsernameHint");
 		}
 		catch (std::system_error& err) {
-			_logger->debug("ERROR : %s", err.what());
+			_logger->debug("ERROR : ClearRdpHistory %s", err.what());
 		}
 
 		tools::RegKey rdp_default{
@@ -602,15 +602,21 @@ void ConnectDialog::clearRdpHistory()
 			L"Software\\Microsoft\\Terminal Server Client\\Default"
 		};
 
+		// Remove entry in the MRU list
+		const std::wstring mru_entry = tools::str2wstr(endpoint.to_string());
+
 		for (int i = 0; i < 10; i++) {
 			try {
-				std::wstring value = rdp_default.get_string(L"xx");
-				if (value.compare(L"xx")) {
-					rdp_default.del_value(L"");
+				wchar_t value_name[5]{ 0 };
+				wsprintf(value_name, L"MRU%d", i);
+
+				std::wstring value = rdp_default.get_string(value_name, L"");
+				if (value.compare(mru_entry) == 0) {
+					rdp_default.del_value(value_name);
 				}
 			}
 			catch (std::system_error& err) {
-				_logger->debug("ERROR : %s", err.what());
+				_logger->debug("ERROR : ClearRdpHistory %s", err.what());
 			}
 		}
 	}
