@@ -58,6 +58,7 @@ bool CmdlineParams::initialize(int argc, LPWSTR argv[])
 	_app_name = L"mstsc";
 	_local_port = 0;
 	_rdp_filename = L"";
+	_tcp_nodelay = false;
 
 	int c;
 	while ((c = getopt(argc, argv, L"?u:famvc:tx:p:sr:lCMn")) != EOF) {
@@ -153,6 +154,10 @@ bool CmdlineParams::initialize(int argc, LPWSTR argv[])
 
 		i++;
 	}
+
+	// tcp nodelay is always set for rdp connection
+	if (is_mstsc())
+		_tcp_nodelay = true;
 
 	return true;
 }
