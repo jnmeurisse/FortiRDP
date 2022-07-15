@@ -64,6 +64,9 @@ namespace net {
 			return false;
 		}
 
+		// Disable nagle algorithm on the local server
+		_local_server.set_nodelay(_tcp_nodelay);
+
 		// Resolve the end point host name to an ip address
 		ip_addr_t addr;
 		const mbed_err rc_query = DnsClient::query(_endpoint.hostname(), addr, dns_found_cb, this);
@@ -97,9 +100,9 @@ namespace net {
 			return false;
 		}
 
-		// NODELAY is not working, program hangs immediately after sending data.
-		//if (_tcp_nodelay)
-		//	tcp_nagle_disable(_local_client);
+		// Set TCP_NODELAY inside the tunnel
+		if (_tcp_nodelay)
+			tcp_nagle_disable(_local_client);
 
 		if (_keepalive > 0) {
 			// Turn on TCP keep alive

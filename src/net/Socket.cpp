@@ -85,7 +85,7 @@ namespace net {
 		bool rc = true;
 
 		if (_logger->is_debug_enabled())
-			_logger->debug("... %x enter Socket::set_nodelay=%d", this, no_delay);
+			_logger->debug("... %x enter Socket::set_nodelay=%d", this, no_delay ? 1 : 0);
 		
 		if (no_delay != _no_delay) {
 			_no_delay = no_delay;
@@ -102,7 +102,7 @@ namespace net {
 		bool rc = true;
 
 		if (_logger->is_debug_enabled())
-			_logger->debug("... %x enter Socket::set_noblocking=%d", this, blocking);
+			_logger->debug("... %x enter Socket::set_noblocking=%d", this, blocking ? 1 : 0);
 
 		if (blocking != _blocking) {
 			_blocking = blocking;

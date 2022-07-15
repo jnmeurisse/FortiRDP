@@ -176,7 +176,7 @@ namespace net {
 
 					if (FD_ISSET(_listener.get_fd(), &read_set)) {
 						// Accept a new connection
-						PortForwarder* pf = new PortForwarder(_remote_endpoint, false, 30 * 1000);
+						PortForwarder* pf = new PortForwarder(_remote_endpoint, _config.tcp_nodelay, 30 * 1000);
 
 						if (pf->connect(_listener)) {
 							// A new port forwarder is active
