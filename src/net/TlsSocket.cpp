@@ -209,7 +209,7 @@ namespace net {
 
 	const mbedtls_x509_crt* TlsSocket::get_peer_crt() const
 	{
-		return _ssl_context.session ? _ssl_context.session->peer_cert : nullptr;
+		return mbedtls_ssl_get_peer_cert(&_ssl_context);
 	}
 
 
