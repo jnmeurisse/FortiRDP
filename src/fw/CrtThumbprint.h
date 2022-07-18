@@ -26,7 +26,7 @@ namespace fw {
 		 *
 		 * @param crt The certificate from which we determine the thumbprint
 		 */
-		explicit CrtThumbprint(const mbedtls_x509_crt& crt);
+		explicit CrtThumbprint(const mbedtls_x509_crt* crt);
 
 		/* Compares for equality this thumbprint with another.
 		 *

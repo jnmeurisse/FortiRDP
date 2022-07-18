@@ -18,9 +18,12 @@ namespace fw {
 	}
 
 
-	CrtThumbprint::CrtThumbprint(const mbedtls_x509_crt& crt)
+	CrtThumbprint::CrtThumbprint(const mbedtls_x509_crt* crt)
 	{
-		mbedtls_sha256_ret(crt.raw.p, crt.raw.len, _thumbprint, 0);
+		if (crt)
+			mbedtls_sha256_ret(crt->raw.p, crt->raw.len, _thumbprint, 0);
+		else
+			std::memset(_thumbprint, 0, sizeof(_thumbprint));
 	}
 
 
