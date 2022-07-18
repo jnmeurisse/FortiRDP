@@ -617,6 +617,48 @@
 */
 #define MBEDTLS_SSL_EXTENDED_MASTER_SECRET
 
+
+/**
+* \def MBEDTLS_SSL_FALLBACK_SCSV
+*
+* Enable support for RFC 7507: Fallback Signaling Cipher Suite Value (SCSV)
+* for Preventing Protocol Downgrade Attacks.
+*
+* For servers, it is recommended to always enable this, unless you support
+* only one version of TLS, or know for sure that none of your clients
+* implements a fallback strategy.
+*
+* For clients, you only need this if you're using a fallback strategy, which
+* is not recommended in the first place, unless you absolutely need it to
+* interoperate with buggy (version-intolerant) servers.
+*
+* Comment this macro to disable support for FALLBACK_SCSV
+*/
+#define MBEDTLS_SSL_FALLBACK_SCSV
+
+/**
+* \def MBEDTLS_SSL_KEEP_PEER_CERTIFICATE
+*
+* This option controls the availability of the API mbedtls_ssl_get_peer_cert()
+* giving access to the peer's certificate after completion of the handshake.
+*
+* Unless you need mbedtls_ssl_peer_cert() in your application, it is
+* recommended to disable this option for reduced RAM usage.
+*
+* \note If this option is disabled, mbedtls_ssl_get_peer_cert() is still
+*       defined, but always returns \c NULL.
+*
+* \note This option has no influence on the protection against the
+*       triple handshake attack. Even if it is disabled, Mbed TLS will
+*       still ensure that certificates do not change during renegotiation,
+*       for example by keeping a hash of the peer's certificate.
+*
+* Comment this macro to disable storing the peer's certificate
+* after the handshake.
+*/
+#define MBEDTLS_SSL_KEEP_PEER_CERTIFICATE
+
+
 /**
 * \def MBEDTLS_SSL_CBC_RECORD_SPLITTING
 *
