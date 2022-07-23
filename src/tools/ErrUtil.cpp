@@ -88,7 +88,7 @@ namespace tools {
 
 		if ((errnum < 0) || (errnum >= LWIP_ARRAYSIZE(errmsg))) {
 			os << "Unknown error.";
-		} 
+		}
 		else {
 			// format the error message
 			os << errmsg[errnum] << " (" << errnum << ")";
@@ -98,33 +98,8 @@ namespace tools {
 	}
 
 
-	std::string mbed_error::message() const
+	std::string mbed_error::message() const noexcept
 	{
 		return mbed_errmsg(_errnum);
-	}
-
-
-	std::string http_error::message() const
-	{
-		switch (_errnum)
-		{
-		case 0:
-			return "all is ok";
-
-		case CHUNK_SIZE:
-			return "Invalid http chunk size";
-
-		case BODY_SIZE:
-			return "Invalid http body size";
-
-		default:
-			return "Unknown error code";
-		}
-	}
-
-
-	std::string lwip_error::message() const
-	{
-		return lwip_errmsg(_errnum);
 	}
 }

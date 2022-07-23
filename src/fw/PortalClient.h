@@ -144,10 +144,15 @@ namespace fw {
 		// mutex to serialize calls
 		tools::Mutex _mutex;
 
-		bool login_check(const tools::StringMap& params, http::Answer& answer);
-		bool request(const std::string& verb, const std::string& url, const std::string& body, 
+		bool send_and_receive(http::Request& request, http::Answer& answer);
+
+		bool do_request(const std::string& verb, const std::string& url, const std::string& body,
 			const http::Headers& headers, http::Answer& answer);
-		bool request(http::Request& request, http::Answer& answer);
+
+		bool request(const std::string& verb, const std::string& url, const std::string& body,
+			const http::Headers& headers, http::Answer& answer, bool allow_redir);
+
+		bool login_check(const tools::StringMap& params, http::Answer& answer);
 	};
 
 }

@@ -25,46 +25,6 @@ namespace tools {
 	// ppp over fortigate sslvpn error codes
 	using ppp_err = int;
 
-
-	class tnl_error : public std::exception {
-	public:
-		explicit tnl_error(int errnum) : _errnum(errnum) {};
-		
-		inline int errnum() const noexcept { return _errnum; }
-		virtual std::string message() const = 0;
-
-	protected:
-		const int _errnum;
-	};
-
-	
-	class mbed_error final : public tnl_error {
-	public:
-		explicit mbed_error(int errnum): tnl_error(errnum >= 0 ? 0 : errnum) {};
-		
-		std::string message() const override;
-	};
-
-
-	class lwip_error final : public tnl_error {
-	public:
-		explicit lwip_error(int errnum) : tnl_error(errnum) {};
-		
-		std::string message() const override;
-	};
-
-
-	class http_error final : public tnl_error {
-	public:
-		static const int CHUNK_SIZE = -1;
-		static const int BODY_SIZE = -2;
-
-		explicit http_error(int errnum) : tnl_error(errnum) {};
-		
-		std::string message() const override;
-	};
-
-
 	// Returns winapi error message 
 	std::wstring win_errmsg(const win_err errnum);
 
@@ -76,4 +36,30 @@ namespace tools {
 
 	// Returns ppp error message
 	std::string ppp_errmsg(const ppp_err errnum);
+
+
+	class frdp_error : public std::exception {
+	public:
+		virtual std::string message() const noexcept = 0;
+	};
+
+	class mbed_error : public frdp_error {
+	public:
+		explicit mbed_error(mbed_err errnum) : _errnum(errnum >= 0 ? 0 : errnum) {};
+		
+		std::string message() const noexcept override;
+
+	private:
+		const mbed_err _errnum;
+	};
+
+	class httpcli_error : public frdp_error {
+	public:
+		httpcli_error(const std::string& message) : _message(message) {};
+
+		std::string message() const noexcept override { return _message; }
+
+	private:
+		const std::string _message;
+	};
 }

@@ -55,16 +55,19 @@ namespace http {
 	}
 
 
-	mbed_err HttpsClient::connect()
+	void HttpsClient::connect()
 	{
 		DEBUG_ENTER(_logger, "HttpsClient", "connect");
 
 		_keepalive_timer.start(10000);
 		_request_count = 0;
 
-		return TlsSocket::connect(_host_ep);
+		const mbed_err rc = TlsSocket::connect(_host_ep);
+		_logger->debug("... %x       HttpsClient::connect : rc = %d", this, rc);
+		if (rc < 0) {
+			throw mbed_error(rc);
+		}
 	}
-
 
 	void HttpsClient::disconnect()
 	{
@@ -74,11 +77,14 @@ namespace http {
 	}
 
 
-	void HttpsClient::send_request(Request& request)
+	void  HttpsClient::send_request(Request& request)
 	{
+		DEBUG_ENTER(_logger, "HttpsClient", "send_request");
+
 		if (_logger->is_trace_enabled())
-			_logger->trace("... %x enter HttpsClient::send_request count=%d max=%d timeout=%d",
+			_logger->trace("... %x enter HttpsClient::send_request url=%s count=%d max=%d timeout=%d",
 				this,
+				request.url().c_str(),
 				_request_count,
 				_max_requests,
 				_keepalive_timeout);
@@ -89,49 +95,69 @@ namespace http {
 		_request_count++;
 		_keepalive_timer.start(_keepalive_timeout * 1000);
 
-
 		if (_logger->is_trace_enabled())
 			_logger->trace("... %x leave HttpsClient::send_request count=%d max=%d timeout=%d",
 				this,
 				_request_count,
 				_max_requests,
 				_keepalive_timeout);
+
+		return;
 	}
 
 
-	bool HttpsClient::recv_answer(Answer& answer)
+	void HttpsClient::recv_answer(Answer& answer)
 	{
 		DEBUG_ENTER(_logger, "HttpsClient", "recv_answer");
-		bool received = false;
 
+		// Make sure the answer holder is empty
 		answer.clear();
 
-		if (answer.recv(*this)) {
-			received = true;
-	
-			int timeout = 60;
-			int max_requests = 100;
-			std::string keep_alive;
-
-			if (answer.headers().get("Keep-Alive", keep_alive)) {
-				StringMap keep_alive_params{ keep_alive, ',' };
-
-				keep_alive_params.get_int("timeout", timeout);
-				keep_alive_params.get_int("max", max_requests);
+		const mbed_err rc = answer.recv(*this);
+		_logger->debug("... %x       HttpsClient::recv_answer : rc = %d", this, rc);
+		
+		if (rc > 0) {
+			std::string message;
+			switch (rc) {
+			case Answer::ERR_INVALID_STATUS:
+				message = "Invalid HTTP Status line"; break;
+			case Answer::ERR_CHUNCK_SIZE:
+				message = "Invalid HTTP chunk size"; break;
+			case Answer::ERR_BODY_SIZE:
+				message = "Invalid HTTP body size"; break;
+			case Answer::ERR_CONTENT_ENCODING:
+				message = "Unsupported HTTP content encoding"; break;
+			case Answer::ERR_TRANSFER_ENCODING:
+				message = "Unsupported HTTP transfer encoding"; break;
+			default:
+				message = "Unknown error in HttpsClient"; break;
 			}
 
-			_max_requests = max(0, max_requests);
-			_keepalive_timeout = max(0, timeout);
-
-			if (_logger->is_trace_enabled())
-				_logger->trace("... %x leave HttpsClient::recv_answer max=%d timeout=%d",
-					this,
-					_max_requests,
-					_keepalive_timeout);
-
+			throw httpcli_error(message);
 		}
 
-		return received;
+		int timeout = 60;
+		int max_requests = 100;
+		std::string keep_alive;
+
+		if (answer.headers().get("Keep-Alive", keep_alive)) {
+			StringMap keep_alive_params{ keep_alive, ',' };
+
+			keep_alive_params.get_int("timeout", timeout);
+			keep_alive_params.get_int("max", max_requests);
+		}
+
+		_max_requests = max(0, max_requests);
+		_keepalive_timeout = max(0, timeout);
+
+		if (_logger->is_trace_enabled())
+			_logger->trace("... %x leave HttpsClient::recv_answer rc=%d max=%d timeout=%d",
+				this,
+				rc,
+				_max_requests,
+				_keepalive_timeout);
+
+		return;
 	}
 
 

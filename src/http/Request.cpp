@@ -22,8 +22,8 @@ namespace http {
 	const std::string Request::TRACE_VERB = "TRACE";
 
 
-	Request::Request(const std::string& verb, const std::string& url, const Cookies& cookies, int version) :
-		_http_version(version),
+	Request::Request(const std::string& verb, const std::string& url, const Cookies& cookies) :
+		_logger(Logger::get_logger()),
 		_verb(verb),
 		_url(url),
 		_cookies(cookies),
@@ -51,6 +51,8 @@ namespace http {
 
 	void Request::send(net::Socket& _socket)
 	{
+		DEBUG_ENTER(_logger, "Request", "send");
+
 		tools::ByteBuffer buffer(1024);
 		int rc;
 
@@ -62,7 +64,7 @@ namespace http {
 		buffer
 			.append(_verb).append(" ")
 			.append(_url).append(" ")
-			.append(_http_version == 0 ? "HTTP/1.0" : "HTTP/1.1")
+			.append("HTTP/1.1")
 			.append("\r\n");
 
 		// Append all headers
@@ -81,8 +83,11 @@ namespace http {
 
 		// Send headers to the web server
 		rc = _socket.write(buffer.cbegin(), buffer.size());
+		if (_logger->is_trace_enabled())
+			_logger->trace("... %x       Request::send : write headers rc = %d", this, rc);
+
 		if (rc < 0)
-			throw new mbed_error(rc);
+			throw mbed_error(rc);
 
 		// Erase sensitive data
 		buffer.clear();
@@ -90,12 +95,20 @@ namespace http {
 		if (_body.size() > 0) {
 			// send the body to the web server
 			rc = _socket.write(_body.cbegin(), _body.size());
+			if (_logger->is_trace_enabled())
+				_logger->trace("... %x       Request::send : write body rc = %d", this, rc);
+
 			if (rc < 0)
-				throw new mbed_error(rc);
+				throw mbed_error(rc);
 		}
 
 		// flush the output buffer
-		_socket.flush();
+		rc = _socket.flush();
+		if (_logger->is_trace_enabled())
+			_logger->trace("... %x       Request::send : flush rc = %d", this, rc);
+
+		if (rc < 0)
+			throw mbed_error(rc);
 
 		return;
 	}

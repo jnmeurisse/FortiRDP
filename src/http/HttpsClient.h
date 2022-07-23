@@ -21,6 +21,7 @@
 
 
 namespace http {
+	using namespace tools;
 
 	class HttpsClient : public net::TlsSocket
 	{
@@ -43,23 +44,23 @@ namespace http {
 		bool must_reconnect() const;
 
 		/* Connects this client to the specified endpoint.
-		 * Returns a negative value in an error has occurred
-		 * (see mbedtls_net_connect)
+		*  May throw mbed_error
 		*/
-		mbed_err connect();
+		void connect();
 
 		/* Disconnects this client from the specified endpoint
 		*/
 		void disconnect();
 
 		/* Sends a request to the server.
+		*  May throw mbed_error
 		*/
 		void send_request(Request& request);
 
 		/* Receives a response from the server
-		*  Returns true if an answer is received
+		*  May throw mbed_error or httpcli_error
 		*/
-		bool recv_answer(Answer& answer);
+		void recv_answer(Answer& answer);
 
 		/* Encodes a string that can be used in a query part of a URL
 		*/

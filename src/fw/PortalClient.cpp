@@ -20,6 +20,8 @@
 #include "tools/pugixml.hpp"
 
 namespace fw {
+	using namespace tools;
+
 
 	PortalClient::PortalClient(const net::Endpoint& ep) :
 		HttpsClient(ep),
@@ -86,8 +88,7 @@ namespace fw {
 	portal_err PortalClient::open(confirm_crt_fn confirm_crt)
 	{
 		DEBUG_ENTER(_logger, "PortalClient", "open");
-		tools::Mutex::Lock lock{ _mutex };
-		tools::mbed_err rc = 0;
+		Mutex::Lock lock{ _mutex };
 		http::Answer answer;
 
 		_logger->info(">> connecting to %s", host().to_string().c_str());
@@ -96,9 +97,12 @@ namespace fw {
 		set_cipher(Cipher::HIGH_SEC);
 
 		// connect to the server
-		if ((rc = HttpsClient::connect()) != 0) {
+		try {
+			HttpsClient::connect();
+		}
+		catch (mbed_error& e) {
 			_logger->error("ERROR: failed to connect to %s", host().to_string().c_str());
-			_logger->error("%s", tools::mbed_errmsg(rc).c_str());
+			_logger->error("ERROR: %s", e.message().c_str());
 
 			return portal_err::COMM_ERROR;
 		}
@@ -128,10 +132,10 @@ namespace fw {
 		}
 
 		// compute the thumbprint of the certificate.
-		_peer_crt_thumbprint = CrtThumbprint(*get_peer_crt());
+		_peer_crt_thumbprint = CrtThumbprint(get_peer_crt());
 
 		// get the top page
-		if (!request(http::Request::GET_VERB, "/", "", http::Headers(), answer))
+		if (!request(http::Request::GET_VERB, "/", "", http::Headers(), answer, true))
 			return portal_err::COMM_ERROR;
 
 		// check if the web page exists
@@ -151,11 +155,11 @@ namespace fw {
 	bool PortalClient::login_check(const tools::StringMap& params, http::Answer& answer)
 	{
 		DEBUG_ENTER(_logger, "PortalClient", "login_check");
+
 		http::Headers headers;
 		headers.set("Content-Type", "text/plain;charset=UTF-8");
-		headers.set("Pragma", "no-cache");
-
-		return request(http::Request::POST_VERB, "/remote/logincheck", params.join("&"), headers, answer);
+		
+		return request(http::Request::POST_VERB, "/remote/logincheck", params.join("&"), headers, answer, false);
 	}
 
 
@@ -177,16 +181,8 @@ namespace fw {
 		_cookies.clear();
 
 		// get the login page from the firewall web portal
-		if (!request(http::Request::GET_VERB, "/remote/login?lang=en", "", http::Headers(), answer))
+		if (!request(http::Request::GET_VERB, "/remote/login?lang=en", "", http::Headers(), answer, true))
 			goto comm_error;
-
-		// redirect to the login page if firewall language is different
-		if (answer.get_status_code() == HttpsClient::STATUS_FOUND) {
-			std::string location;
-			answer.headers().get("location", location);
-			if (!request(http::Request::GET_VERB, location, "", http::Headers(), answer))
-				goto comm_error;
-		}
 
 		// check if page is available
 		if (answer.get_status_code() != HttpsClient::STATUS_OK)
@@ -242,7 +238,7 @@ namespace fw {
 
 				case 1: {
 					// Access allowed
-					if (!request(http::Request::GET_VERB, redir_url, "", http::Headers(), answer))
+					if (!request(http::Request::GET_VERB, redir_url, "", http::Headers(), answer, false))
 						goto comm_error;
 
 					if (answer.get_status_code() != HttpsClient::STATUS_OK)
@@ -409,7 +405,7 @@ namespace fw {
 			http::Headers headers;
 			http::Answer answer;
 
-			ok = request(http::Request::GET_VERB, "/remote/portal?access", "", headers, answer);
+			ok = request(http::Request::GET_VERB, "/remote/portal?access", "", headers, answer, false);
 			if (ok && answer.get_status_code() == HttpsClient::STATUS_OK) {
 				const tools::ByteBuffer& body = answer.body();
 				const std::string data{ body.cbegin(), body.cend() };
@@ -444,7 +440,7 @@ namespace fw {
 		if (_authenticated) {
 			http::Headers headers;
 			http::Answer answer;
-			ok = request(http::Request::GET_VERB, "/remote/fortisslvpn_xml", "", headers, answer);
+			ok = request(http::Request::GET_VERB, "/remote/fortisslvpn_xml", "", headers, answer, false);
 
 			if (ok && answer.get_status_code() == HttpsClient::STATUS_OK) {
 				const tools::ByteBuffer& body = answer.body();
@@ -473,23 +469,23 @@ namespace fw {
 	bool PortalClient::start_tunnel_mode()
 	{
 		DEBUG_ENTER(_logger, "PortalClient", "start_tunnel_mode");
-		bool started = false;
-		tools::Mutex::Lock lock(_mutex);
+		Mutex::Lock lock(_mutex);
 
 		http::Answer answer;
-		http::Request request{ http::Request::GET_VERB, "/remote/sslvpn-tunnel", _cookies, 1 };
+		http::Request request{ http::Request::GET_VERB, "/remote/sslvpn-tunnel", _cookies };
 		request.headers().set("Host", "sslvpn");
 
 		try {
 			send_request(request);
-			started = true;
-		}
-		catch (const tools::tnl_error& e) {
+
+		} catch (mbed_error& e) {
 			_logger->error("ERROR: failed to open the tunnel");
-			_logger->error("%s", e.message());
+			_logger->error("ERROR: %s", e.message().c_str());
+
+			return false;
 		}
 
-		return started;
+		return true;
 	}
 
 
@@ -502,66 +498,26 @@ namespace fw {
 	}
 
 
-	bool PortalClient::request(const std::string& verb, const std::string& url,
-		const std::string& body, const http::Headers& headers, http::Answer& answer)
+	bool PortalClient::send_and_receive(http::Request& request, http::Answer& answer)
 	{
-		DEBUG_ENTER(_logger, "PortalClient", "request");
-		
-		// Prepare the request
-		http::Request request{ verb, url, _cookies };
-
-		request.headers()
-			.set("Host", host().to_string())
-			.set("Connection", "keep-alive")
-			.set("Accept", "text/html")
-			.set("User-Agent", "Mozilla/5.0")
-			.add(headers);
-
-		request.set_body((unsigned char *)body.c_str(), body.length());
-
-		bool ok;
-		int retry = 0;
-		do {
-			ok = PortalClient::request(request, answer);
-			if (ok) {
-				_cookies.add(answer.cookies());
-			}
-			else {
-				disconnect();
-			}
-
-			retry++;
-		} while (!ok && retry <= 1);
-
-		_logger->debug("... %s https://%s%s (status=%s (%d))",
-			verb.c_str(),
-			host().to_string().c_str(),
-			url.c_str(),
-			answer.get_reason_phrase().c_str(),
-			answer.get_status_code());
-
-		return ok;
-	}
-
-
-	bool PortalClient::request(http::Request& request, http::Answer& answer)
-	{
-		DEBUG_ENTER(_logger, "PortalClient", "request");
-		int rc;
+		DEBUG_ENTER(_logger, "PortalClient", "send_and_receive");
 
 		if (must_reconnect()) {
 			disconnect();
 
-			if ((rc = connect()) != 0) {
+			try {
+				connect();
+			}
+			catch (mbed_error &e) {
 				_logger->error("ERROR: failed to connect to %s", host().to_string().c_str());
-				_logger->error("%s", tools::mbed_errmsg(rc).c_str());
+				_logger->error("ERROR: %s", e.message().c_str());
 
 				return false;
 			}
 
 			// verify the thumbprint of the certificate
-			if (_peer_crt_thumbprint != CrtThumbprint(*get_peer_crt())) {
-				_logger->error("ERROR: invalid certificate thumbprint");
+			if (_peer_crt_thumbprint != CrtThumbprint(get_peer_crt())) {
+				_logger->error("ERROR: invalid certificate digest");
 
 				return false;
 			}
@@ -571,27 +527,94 @@ namespace fw {
 		try {
 			send_request(request);
 		}
-		catch (const tools::tnl_error& e) {
-			_logger->error("ERROR: failed to send data to %s", host().to_string().c_str());
-			_logger->error("%s", e.message().c_str());
-			
+		catch (mbed_error &e) {
+			_logger->error("ERROR: failed to send HTTP request to %s", host().to_string().c_str());
+			_logger->error("ERROR: %s", e.message().c_str());
+
 			return false;
 		}
 
 		//.. receive the answer
 		try {
-			if (!recv_answer(answer)) {
-				_logger->error("ERROR: failed to receive data from %s", host().to_string().c_str());
-				_logger->error("Communication timeout");
-			}
+			recv_answer(answer);
 		}
-		catch (const tools::tnl_error& e) {
-			_logger->error("ERROR: failed to receive data from %s", host().to_string().c_str());
-			_logger->error("%s", e.message().c_str());
+		catch (frdp_error &e) {
+			_logger->error("ERROR: failed to receive HTTP data from %s", host().to_string().c_str());
+			_logger->error("ERROR: %s", e.message().c_str());
 
 			return false;
 		}
 
 		return true;
 	}
+
+
+	bool PortalClient::do_request(const std::string& verb, const std::string& url,
+		const std::string& body, const http::Headers& headers, http::Answer& answer)
+	{
+		DEBUG_ENTER(_logger, "PortalClient", "do_request");
+		
+		// Prepare the request
+		http::Request request{ verb, url, _cookies };
+
+		request.headers()
+			.set("Accept", "text/html")
+			.set("Accept-Encoding", "gzip")
+			.set("Accept-Language", "en")
+			.set("Cache-Control", "no-cache")
+			.set("Connection", "keep-alive")
+			.set("Host", host().to_string())
+			.set("User-Agent", "Mozilla/5.0")
+			.add(headers);
+
+		request.set_body((unsigned char *)body.c_str(), body.length());
+
+		// Send and wait for a response
+		const bool success = PortalClient::send_and_receive(request, answer);
+		if (success) {
+			_cookies.add(answer.cookies());
+		}
+		else {
+			// disconnect if not yet done
+			disconnect();
+		}
+
+		_logger->debug("... %x       PortalClient::do_request : %s https://%s%s (status=%s (%d))",
+			this,
+			verb.c_str(),
+			host().to_string().c_str(),
+			url.c_str(),
+			answer.get_reason_phrase().c_str(),
+			answer.get_status_code());
+
+		return success;
+	}
+
+
+	bool PortalClient::request(const std::string& verb, const std::string& url,
+		const std::string& body, const http::Headers& headers, http::Answer& answer, bool allow_redir)
+	{
+		if (!do_request(verb, url, body, headers, answer))
+			return false;
+
+		// redirect if required
+		if (answer.get_status_code() == HttpsClient::STATUS_FOUND && allow_redir) {
+			std::string location;
+			std::string redir_url;
+			answer.headers().get("location", location);
+
+			if (location.compare(0, 8, "https://") == 0) {
+				tools::parse_redir_url(location, redir_url);
+			} 
+			else {
+				redir_url = location;
+			}
+
+			if (!do_request(verb, redir_url, body, http::Headers(), answer))
+				return false;
+		}
+
+		return true;
+	}
+
 }

@@ -14,10 +14,13 @@
 
 #include "net/Socket.h"
 
+#include "tools/Logger.h"
 #include "tools/ByteBuffer.h"
 #include "tools/ErrUtil.h"
 
+
 namespace http {
+	using namespace tools;
 
 	class Request final
 	{
@@ -27,9 +30,8 @@ namespace http {
 		 * @param verb The HTTP verb
 		 * @param url  The url
 		 * @param cookies the cookies store
-		 * @param version The HTTP version of this request
 		*/
-		explicit Request(const std::string& verb, const std::string& url, const Cookies& cookies, int version = 1);
+		explicit Request(const std::string& verb, const std::string& url, const Cookies& cookies);
 
 		/* Clears the request */
 		void clear();
@@ -40,15 +42,14 @@ namespace http {
 		*/
 		Request& set_body(const unsigned char* data, size_t size);
 
+		inline const std::string& url() const { return _url; }
 		inline Headers& headers() { return _headers; }
 		inline const Cookies& cookies() const { return _cookies; }
 
 		/* Sends this request to the server
 		 *
 		 * @param socket The socket connected to the server
-		 * @param err The error code
-		 * 
-		 * In case of failure, the function raises an mbed_error exception.
+		 * Throws an mbed_error in case of failure.
 		 */
 		void send(net::Socket& socket);
 
@@ -62,13 +63,15 @@ namespace http {
 		static const std::string TRACE_VERB;
 
 	private:
-		// HTTP Version, by default HTTP/1.1
-		const int _http_version;
+		// a reference to the application logger
+		tools::Logger* const _logger;
 
-		// Components of an HTTP request
+		// Fixed components of the HTTP request
 		const std::string _verb;
 		const std::string _url;
 		const Cookies _cookies;
+
+		// Dynamic components of the HTTP request
 		Headers _headers;
 		tools::ByteBuffer _body;
 	};

@@ -15,6 +15,7 @@
 
 #include "net/Socket.h"
 
+#include "tools/Logger.h"
 #include "tools/ErrUtil.h"
 #include "tools/ObfuscatedString.h"
 
@@ -29,6 +30,16 @@ namespace http {
 	class Answer
 	{
 	public:
+		static const int ERR_NONE = 0;
+		static const int ERR_INVALID_VERSION = 1;
+		static const int ERR_INVALID_STATUS = 2;
+		static const int ERR_INVALID_HEADER = 3;
+		static const int ERR_CHUNCK_SIZE = 4;
+		static const int ERR_BODY_SIZE = 5;
+		static const int ERR_CONTENT_ENCODING = 6;
+		static const int ERR_TRANSFER_ENCODING = 7;
+		static const int ERR_BODY = 8;
+
 		/* Allocates an HTTP answer
 		*/
 		Answer();
@@ -40,26 +51,25 @@ namespace http {
 		/* Reads the response for the HTTP server and initialize this object.
 		*
 		* @param socket The socket connected to the server
-		* @return false if the socket has been closed.
-		*
-		* In case of failure, the function may raise the following exceptions
-		* mbed_error : mbed tls communication error
-		* http_error : http protocol error
-		*
+		* @return 0 if answer is valid
+		*         ERR_INVALID_VERSION: HTTP status line is invalid
+		*         2 HTTP chunk size error
+		*         3 HTTP body too large
+		*         an mbed_error code in an error has occurred
 		*/
-		bool recv(net::Socket& socket);
+		mbed_err recv(net::Socket& socket) noexcept;
 
 		/* Returns the HTTP version
 		*/
-		const std::string& get_version() const;
+		inline const std::string& get_version() const noexcept { return _version; }
 
 		/* Returns the HTTP status code
 		*/
-		const int get_status_code() const;
+		inline const int get_status_code() const noexcept { return _status_code; }
 
 		/* Returns the HTTP reason phrase
 		*/
-		const std::string& get_reason_phrase() const;
+		inline const std::string& get_reason_phrase() const noexcept { return _reason_phrase; }
 
 		/* Returns the headers collection.  The cookies are stored apart in  
 		 * obfuscated strings
@@ -75,11 +85,14 @@ namespace http {
 		inline const tools::ByteBuffer& body() const { return _body; }
 
 	private:
+		// a reference to the application logger
+		tools::Logger* const _logger;
+
 		// The HTTP version
 		std::string _version;
 
 		// The HTTP status code
-		std::string _status_code;
+		int _status_code;
 
 		// The HTTP reason phrase
 		std::string _reason_phrase;
@@ -93,52 +106,84 @@ namespace http {
 		// The body of the answer
 		tools::ByteBuffer _body;
 
-		static const int MAX_HEADER_SIZE = (8 * 1024);
+		static const int MAX_LINE_SIZE = (8 * 1024);
+		static const int MAX_HEADER_SIZE = (4 * 1024);
 		static const int MAX_BODY_SIZE = (32 * 1014 * 1024);
 		static const int MAX_CHUNCK_SIZE = (2 * 1014 * 1024);
+
+		/* Reads a sequence of bytes from the socket. The buffer pointed to by 
+		* the buffer parameter will contain the data received. The number of bytes to
+		* read is specified by the len parameter.
+		*
+		* @param socket The socket connected to the server
+		* @param buffer The buffer to store received data
+		* @param len Number of bytes to read
+		*
+		* @return number of bytes, 0 if the socket is closed.
+		*
+		* Throws an mbed_error in case of failure.
+		*/
+		int read(net::Socket& socket, unsigned char* buf, const size_t len);
 
 		/* Reads a single character.
 		*
 		* @param socket The socket connected to the server
-		* @return false if the socket has been closed.
+		* @return 1 in case of success, 0 if the socket is closed.
 		*
-		* In case of failure, the function may raise mbed_error.
+		* Throws an mbed_error in case of failure.
 		*/
-		bool read_char(net::Socket& socket, char& c);
+		int read_char(net::Socket& socket, char& c);
 
 		/* Reads a string until \r\n is found. The \r\n are not included
 		 * in the line.
 		 *
-		 * @param socket The socket connected to the server
-		 * @param maxlen The maximum number of bytes this client accept when reading
-		 *		the line. If the effective value of this parameter is 0,
-		 *		the functions does not check for a limit.
-		 * @param line The string read from the socket
-		 * @return false if the socket has been closed.
+		 * @param socket  The socket connected to the server
+		 * @param max_len The maximum number of bytes this client accept when reading
+		 *                the line..
+		 * @param line    The string read from the socket
+		 * @return the number of characters in the line.
 		 *
-		 * In case of failure, the function may raise mbed_error.
-		 *
-		*/
-		bool read_line(net::Socket& socket, int maxlen, tools::obfstring& line);
+		 * Throws an mbed_error in case of failure.
+		 */
+		int read_line(net::Socket& socket, int max_len, tools::obfstring& line);
 
 		/* Reads the HTTP status response
 		*
 		* @param socket The socket connected to the server
 		* @return false if the socket has been closed.
 		*
-		* In case of failure, the function may raise mbed_error.
+		* @return .
+		*         ERR_INVALID_STATUS :		HTTP status line is invalid
+		*         ERR_INVALID_VERSION :		HTTP version is not HTTP/1.1
+		*         ERR_INVALID_STATUS :		HTTP status code is not valid
+		*
+		* Throws an mbed_error in case of failure.
 		*/
-		bool read_status(net::Socket& socket);
+		int read_status(net::Socket& socket);
+
+
+		/* Reads a gzip body
+		*
+		* @param socket The socket connected to the server
+		* @param size The size of the body (in bytes)
+		* @param max_size The maximum size of the body we can load (in bytes)
+		*
+		* @return
+		* Throws an mbed_error in case of failure.
+		*/
+		bool read_gzip_body(net::Socket& socket, int size, int max_size);
+
 
 		/* Reads the body
 		*
 		* @param socket The socket connected to the server
 		* @param size The size of the body (in bytes)
-		* @return false if the socket has been closed.
+		* @param max_size The maximum size of the body we can load (in bytes)
 		*
-		* In case of failure, the function may raise mbed_error.
+		* @return 
+		* Throws an mbed_error in case of failure.
 		*/
-		bool read_body(net::Socket& socket, size_t size);
+		bool read_body(net::Socket& socket, int size, int max_size);
 	};
 }
 
