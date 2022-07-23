@@ -116,19 +116,27 @@ namespace http {
 		const mbed_err rc = answer.recv(*this);
 		_logger->debug("... %x       HttpsClient::recv_answer : rc = %d", this, rc);
 		
-		if (rc > 0) {
+		if (rc != Answer::ERR_NONE) {
 			std::string message;
 			switch (rc) {
-			case Answer::ERR_INVALID_STATUS:
+			case Answer::ERR_INVALID_STATUS_LINE:;
 				message = "Invalid HTTP Status line"; break;
-			case Answer::ERR_CHUNCK_SIZE:
+			case Answer::ERR_INVALID_VERSION:
+				message = "Invalid HTTP version"; break;
+			case Answer::ERR_INVALID_STATUS_CODE:
+				message = "Invalid HTTP status code"; break;
+			case Answer::ERR_INVALID_HEADER:
+				message = "Invalid HTTP header"; break;
+			case Answer::ERR_CHUNK_SIZE:
 				message = "Invalid HTTP chunk size"; break;
 			case Answer::ERR_BODY_SIZE:
 				message = "Invalid HTTP body size"; break;
-			case Answer::ERR_CONTENT_ENCODING:
+			case Answer::ERR_CONTENT_ENCODING:;
 				message = "Unsupported HTTP content encoding"; break;
 			case Answer::ERR_TRANSFER_ENCODING:
 				message = "Unsupported HTTP transfer encoding"; break;
+			case Answer::ERR_BODY:
+				message = "Invalid HTTP body"; break;
 			default:
 				message = "Unknown error in HttpsClient"; break;
 			}

@@ -30,15 +30,17 @@ namespace http {
 	class Answer
 	{
 	public:
+		// Error codes
 		static const int ERR_NONE = 0;
 		static const int ERR_INVALID_VERSION = 1;
-		static const int ERR_INVALID_STATUS = 2;
-		static const int ERR_INVALID_HEADER = 3;
-		static const int ERR_CHUNCK_SIZE = 4;
-		static const int ERR_BODY_SIZE = 5;
-		static const int ERR_CONTENT_ENCODING = 6;
-		static const int ERR_TRANSFER_ENCODING = 7;
-		static const int ERR_BODY = 8;
+		static const int ERR_INVALID_STATUS_LINE = 2;
+		static const int ERR_INVALID_STATUS_CODE = 3;
+		static const int ERR_INVALID_HEADER = 4;
+		static const int ERR_CHUNK_SIZE = 5;
+		static const int ERR_BODY_SIZE = 6;
+		static const int ERR_CONTENT_ENCODING = 7;
+		static const int ERR_TRANSFER_ENCODING = 8;
+		static const int ERR_BODY = 9;
 
 		/* Allocates an HTTP answer
 		*/
@@ -51,13 +53,18 @@ namespace http {
 		/* Reads the response for the HTTP server and initialize this object.
 		*
 		* @param socket The socket connected to the server
-		* @return 0 if answer is valid
-		*         ERR_INVALID_VERSION: HTTP status line is invalid
-		*         2 HTTP chunk size error
-		*         3 HTTP body too large
-		*         an mbed_error code in an error has occurred
+		* @return ERR_NONE if answer is valid
+		*         ERR_INVALID_VERSION: Invalid HTTP version
+		*         ERR_INVALID_STATUS_LINE: Invalid HTTP status line
+		*         ERR_INVALID_STATUS_CODE: Invalid HTTP status code
+		*         ERR_INVALID_HEADER: Error while reading headers
+		*         ERR_CHUNCK_SIZE: Unable to decode chunk size
+		*         ERR_BODY_SIZE: Unable to decode body size;
+		*         ERR_CONTENT_ENCODING: Unsupported content encoding
+		*         ERR_TRANSFER_ENCODING: Unsupported transfer encoding
+		*         ERR_BODY: Error while reading body
 		*/
-		mbed_err recv(net::Socket& socket) noexcept;
+		int recv(net::Socket& socket) noexcept;
 
 		/* Returns the HTTP version
 		*/
@@ -153,14 +160,13 @@ namespace http {
 		* @return false if the socket has been closed.
 		*
 		* @return .
-		*         ERR_INVALID_STATUS :		HTTP status line is invalid
+		*         ERR_INVALID_STATUS_LINE :	HTTP status line is invalid
 		*         ERR_INVALID_VERSION :		HTTP version is not HTTP/1.1
-		*         ERR_INVALID_STATUS :		HTTP status code is not valid
+		*         ERR_INVALID_STATUS_CODE :	HTTP status code is not valid
 		*
 		* Throws an mbed_error in case of failure.
 		*/
 		int read_status(net::Socket& socket);
-
 
 		/* Reads a gzip body
 		*

@@ -112,7 +112,7 @@ namespace http {
 		// Read the status line and return an error code if the server has closed 
 		// the connection before sending a valid response.
 		if (read_line(socket, MAX_HEADER_SIZE, line) <= 0)
-			return ERR_INVALID_STATUS;
+			return ERR_INVALID_STATUS_LINE;
 
 		// The answer should have the following syntax :  HTTP-Version SP Status-Code SP Reason-Phrase
 		// See https://www.rfc-editor.org/rfc/rfc9110.html 
@@ -128,7 +128,7 @@ namespace http {
 		if (count >= 2) {
 			if (!tools::str2i(parts[1], _status_code) || (_status_code < 100) || (_status_code >= 600)) {
 				// Invalid HTTP code
-				return ERR_INVALID_STATUS;
+				return ERR_INVALID_STATUS_CODE;
 			}
 		}
 
@@ -141,7 +141,7 @@ namespace http {
 			}
 		}
 
-		return count >= 2 ? ERR_NONE : ERR_INVALID_STATUS;
+		return count >= 2 ? ERR_NONE : ERR_INVALID_STATUS_LINE;
 	}
 
 
@@ -300,11 +300,11 @@ namespace http {
 			do {
 				// read chunk size
 				if ((rc = read_line(socket, MAX_LINE_SIZE, line)) <= 0)
-					return ERR_CHUNCK_SIZE;
+					return ERR_CHUNK_SIZE;
 
 				// decode chunk size
 				if (!tools::str2num(line.uncrypt(), 16, 0, MAX_CHUNCK_SIZE, chunck_size)) {
-					return ERR_CHUNCK_SIZE;
+					return ERR_CHUNK_SIZE;
 				}
 
 				if (chunck_size > 0) {
