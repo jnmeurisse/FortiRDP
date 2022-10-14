@@ -51,7 +51,6 @@ namespace http {
 	}
 
 
-
 	int Answer::read_char(net::Socket& socket, char& c)
 	{
 		return read(socket, (unsigned char *)&c, sizeof(char));
