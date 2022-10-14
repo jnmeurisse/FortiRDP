@@ -31,7 +31,7 @@ namespace http {
 		 * @param url  The url
 		 * @param cookies the cookies store
 		*/
-		explicit Request(const std::string& verb, const std::string& url, const Cookies& cookies);
+		explicit Request(const std::string& verb, const Url& url, const Cookies& cookies);
 
 		/* Clears the request */
 		void clear();
@@ -42,9 +42,17 @@ namespace http {
 		*/
 		Request& set_body(const unsigned char* data, size_t size);
 
-		inline const std::string& url() const { return _url; }
+		/* Returns the request's url
+		*/
+		inline const Url& url() const noexcept { return _url; }
+
+		/* The request's headers
+		*/
 		inline Headers& headers() { return _headers; }
-		inline const Cookies& cookies() const { return _cookies; }
+		
+		/* The request's cookies
+		*/
+		inline const Cookies& cookies() const noexcept { return _cookies; }
 
 		/* Sends this request to the server
 		 *
@@ -68,7 +76,7 @@ namespace http {
 
 		// Fixed components of the HTTP request
 		const std::string _verb;
-		const std::string _url;
+		const Url _url;
 		const Cookies _cookies;
 
 		// Dynamic components of the HTTP request
