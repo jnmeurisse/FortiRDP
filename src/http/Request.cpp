@@ -22,7 +22,7 @@ namespace http {
 	const std::string Request::TRACE_VERB = "TRACE";
 
 
-	Request::Request(const std::string& verb, const std::string& url, const Cookies& cookies) :
+	Request::Request(const std::string& verb, const Url& url, const Cookies& cookies) :
 		_logger(Logger::get_logger()),
 		_verb(verb),
 		_url(url),
@@ -63,7 +63,7 @@ namespace http {
 
 		buffer
 			.append(_verb).append(" ")
-			.append(_url).append(" ")
+			.append(_url.to_string(true)).append(" ")
 			.append("HTTP/1.1")
 			.append("\r\n");
 
