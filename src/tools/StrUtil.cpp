@@ -345,4 +345,5 @@ namespace tools {
 
 		return wstr;
 	}
+
 }

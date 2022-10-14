@@ -179,7 +179,6 @@ namespace http {
 		*/
 		bool read_gzip_body(net::Socket& socket, int size, int max_size);
 
-
 		/* Reads the body
 		*
 		* @param socket The socket connected to the server

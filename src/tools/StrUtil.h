@@ -81,4 +81,5 @@ std::string wstr2str(const std::wstring& wstr);
 
 // Converts string to wstring
 std::wstring str2wstr(const std::string& str);
+
 }
