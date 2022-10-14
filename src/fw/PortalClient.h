@@ -12,6 +12,7 @@
 #include "http/HttpsClient.h"
 #include "http/Answer.h"
 #include "http/Cookies.h"
+#include "http/Url.h"
 
 #include "fw/CrtThumbprint.h"
 
@@ -69,7 +70,7 @@ namespace fw {
 	using ask_code_fn = std::function<bool (Code2FA&)>;
 
 	/**
-	 * A fortigate sslvpn web portal client
+	 * A fortigate sslvpn portal client
 	 */
 	class PortalClient final : public http::HttpsClient
 	{
@@ -83,7 +84,7 @@ namespace fw {
 
 		/* Returns the name of the root CA file
 		*/
-		inline const tools::Path& get_ca_file() const { return _ca_file; }
+		inline const tools::Path& get_ca_file() const noexcept { return _ca_file; }
 
 		/* Opens the connection. The confirm_crt_fn function is called when
 		 * the user is asked to accept the server certificate. The method returns
@@ -144,14 +145,18 @@ namespace fw {
 		// mutex to serialize calls
 		tools::Mutex _mutex;
 
+		// Sends a request and wait for a response.
 		bool send_and_receive(http::Request& request, http::Answer& answer);
 
-		bool do_request(const std::string& verb, const std::string& url, const std::string& body,
+		// Sends a request and wait for a response.
+		bool do_request(const std::string& verb, const http::Url& url, const std::string& body,
 			const http::Headers& headers, http::Answer& answer);
 
-		bool request(const std::string& verb, const std::string& url, const std::string& body,
+		// Sends a request and wait for a response, follows redirect if allow_redir is true
+		bool request(const std::string& verb, const http::Url& url, const std::string& body,
 			const http::Headers& headers, http::Answer& answer, bool allow_redir);
 
+		// Sends a login check to the firewall portal
 		bool login_check(const tools::StringMap& params, http::Answer& answer);
 	};
 
