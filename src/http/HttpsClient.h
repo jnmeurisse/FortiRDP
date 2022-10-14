@@ -33,13 +33,13 @@ namespace http {
 		*/
 		inline const net::Endpoint& host() const noexcept { return _host_ep; }
 
-		/* Returns true if we must reconnect the socket
+		/* Returns true if we must reconnect the socket.
 		 *
 		 * The client must reconnect the server if the keep alive timer
 		 * has expired or if the number of requests has exceeded the maximum
 		 * number of requests a client can send to the server. These two
 		 * parameters are returned by the server. If not returned, we use default
-		 * values (60 seconds and 100 requests)
+		 * values (60 seconds and 100 requests).
 		*/
 		bool must_reconnect() const;
 
@@ -57,16 +57,16 @@ namespace http {
 		*/
 		void send_request(Request& request);
 
-		/* Receives a response from the server
+		/* Receives a response from the server.
 		*  May throw mbed_error or httpcli_error
 		*/
 		void recv_answer(Answer& answer);
 
-		/* Encodes a string that can be used in a query part of a URL
+		/* Encodes a string that can be used in a query part of a URL.
 		*/
 		static std::string url_encode(const std::wstring& str);
 
-		/* Decodes a URL string
+		/* Decodes a URL string.
 		*/
 		static std::string url_decode(const std::string& str);
 
@@ -78,6 +78,14 @@ namespace http {
 		static const int STATUS_TEMPORARY_REDIRECT;
 		static const int STATUS_UNAUTHORIZED;
 		static const int STATUS_FORBIDDEN;
+
+		/* Creates an Url from a path.
+		*/
+		http::Url make_url(const std::string& path) const;
+
+		/* Creates an Url from a path and a query.
+		*/
+		http::Url make_url(const std::string& path, const std::string& query) const;
 
 	private:
 		// The endpoint

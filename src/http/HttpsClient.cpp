@@ -84,7 +84,7 @@ namespace http {
 		if (_logger->is_trace_enabled())
 			_logger->trace("... %x enter HttpsClient::send_request url=%s count=%d max=%d timeout=%d",
 				this,
-				request.url().c_str(),
+				request.url().to_string(false).c_str(),
 				_request_count,
 				_max_requests,
 				_keepalive_timeout);
@@ -113,7 +113,7 @@ namespace http {
 		// Make sure the answer holder is empty
 		answer.clear();
 
-		const mbed_err rc = answer.recv(*this);
+		const int rc = answer.recv(*this);
 		_logger->debug("... %x       HttpsClient::recv_answer : rc = %d", this, rc);
 		
 		if (rc != Answer::ERR_NONE) {
@@ -233,4 +233,22 @@ namespace http {
 		return unescaped;
 	}
 
+
+	http::Url HttpsClient::make_url(const std::string& path) const
+	{
+		return http::Url(
+			"https",
+			_host_ep.to_string(),
+			path,
+			"");
+	}
+
+	http::Url HttpsClient::make_url(const std::string& path, const std::string& query) const
+	{
+		return http::Url(
+			"https",
+			_host_ep.to_string(),
+			path,
+			query);
+	}
 }

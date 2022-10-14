@@ -12,6 +12,7 @@
 #include "http/Cookie.h"
 #include "http/Cookies.h"
 #include "http/Url.h"
+#include "http/UrlError.h"
 
 #include "tools/StringMap.h"
 #include "tools/SysUtil.h"
@@ -135,15 +136,16 @@ namespace fw {
 		_peer_crt_thumbprint = CrtThumbprint(get_peer_crt());
 
 		// get the top page
-		if (!request(http::Request::GET_VERB, "/", "", http::Headers(), answer, true))
+		if (!request(http::Request::GET_VERB, http::Url("/"), "", http::Headers(), answer, true))
 			return portal_err::COMM_ERROR;
 
 		// check if the web page exists
 		if (answer.get_status_code() != HttpsClient::STATUS_OK) {
-			_logger->error("ERROR: portal connection failure - %s (HTTP code %d)", 
-				answer.get_reason_phrase().c_str(),
-				answer.get_status_code()
-			);
+			_logger->error("ERROR: portal connection failure");
+			_logger->error("ERROR: %s (HTTP code %d)",
+					answer.get_reason_phrase().c_str(),
+					answer.get_status_code()
+				);
 
 			return portal_err::HTTP_ERROR;
 		}
@@ -159,7 +161,7 @@ namespace fw {
 		http::Headers headers;
 		headers.set("Content-Type", "text/plain;charset=UTF-8");
 		
-		return request(http::Request::POST_VERB, "/remote/logincheck", params.join("&"), headers, answer, false);
+		return request(http::Request::POST_VERB, make_url("/remote/logincheck"), params.join("&"), headers, answer, false);
 	}
 
 
@@ -181,7 +183,8 @@ namespace fw {
 		_cookies.clear();
 
 		// get the login page from the firewall web portal
-		if (!request(http::Request::GET_VERB, "/remote/login?lang=en", "", http::Headers(), answer, true))
+		const http::Url login_url = make_url("/remote/login", "lang=en");
+		if (!request(http::Request::GET_VERB, login_url, "", http::Headers(), answer, true))
 			goto comm_error;
 
 		// check if page is available
@@ -220,16 +223,17 @@ namespace fw {
 			// Loop until authenticated. The loop breaks if an error (access denied,
 			// communication error) is detected.
 			while (!_authenticated) {
-				std::string redir_url;
-				params_result.get_str("redir", redir_url);
+				std::string redir;
+				if (!params_result.get_str("redir", redir))
+					goto redir_error;
+				const http::Url redir_url{ url_decode(redir) };
 
 				switch (retcode) {
 				case 0: {
 					// Access denied,
 					// show the error message received from the firewall
-					const http::Url url{ url_decode(redir_url) };
 					std::string msg;
-					if (url.get_query().get_str("err", msg)) {
+					if (redir_url.get_query_map().get_str("err", msg)) {
 						_logger->error("ERROR: %s", msg.c_str());
 					}
 				}
@@ -378,6 +382,9 @@ namespace fw {
 	auth_error:
 		return portal_err::ACCESS_DENIED;
 
+	redir_error:
+		return portal_err::HTTP_ERROR;
+
 	terminate:
 		return portal_err::LOGIN_CANCELLED;
 	}
@@ -405,7 +412,8 @@ namespace fw {
 			http::Headers headers;
 			http::Answer answer;
 
-			ok = request(http::Request::GET_VERB, "/remote/portal?access", "", headers, answer, false);
+			const http::Url portal_url = make_url("/remote/portal", "access");
+			ok = request(http::Request::GET_VERB, portal_url, "", headers, answer, false);
 			if (ok && answer.get_status_code() == HttpsClient::STATUS_OK) {
 				const tools::ByteBuffer& body = answer.body();
 				const std::string data{ body.cbegin(), body.cend() };
@@ -440,7 +448,8 @@ namespace fw {
 		if (_authenticated) {
 			http::Headers headers;
 			http::Answer answer;
-			ok = request(http::Request::GET_VERB, "/remote/fortisslvpn_xml", "", headers, answer, false);
+			const http::Url vpninfo_url = make_url("/remote/fortisslvpn_xml");
+			ok = request(http::Request::GET_VERB, vpninfo_url, "", headers, answer, false);
 
 			if (ok && answer.get_status_code() == HttpsClient::STATUS_OK) {
 				const tools::ByteBuffer& body = answer.body();
@@ -471,8 +480,8 @@ namespace fw {
 		DEBUG_ENTER(_logger, "PortalClient", "start_tunnel_mode");
 		Mutex::Lock lock(_mutex);
 
-		http::Answer answer;
-		http::Request request{ http::Request::GET_VERB, "/remote/sslvpn-tunnel", _cookies };
+		const http::Url tunnel_url = make_url("/remote/sslvpn-tunnel");
+		http::Request request{ http::Request::GET_VERB, tunnel_url, _cookies };
 		request.headers().set("Host", "sslvpn");
 
 		try {
@@ -549,7 +558,7 @@ namespace fw {
 	}
 
 
-	bool PortalClient::do_request(const std::string& verb, const std::string& url,
+	bool PortalClient::do_request(const std::string& verb, const http::Url& url,
 		const std::string& body, const http::Headers& headers, http::Answer& answer)
 	{
 		DEBUG_ENTER(_logger, "PortalClient", "do_request");
@@ -560,6 +569,7 @@ namespace fw {
 		request.headers()
 			.set("Accept", "text/html")
 			.set("Accept-Encoding", "gzip")
+			.set("Accept-Encoding", "identity")
 			.set("Accept-Language", "en")
 			.set("Cache-Control", "no-cache")
 			.set("Connection", "keep-alive")
@@ -579,11 +589,10 @@ namespace fw {
 			disconnect();
 		}
 
-		_logger->debug("... %x       PortalClient::do_request : %s https://%s%s (status=%s (%d))",
+		_logger->debug("... %x       PortalClient::do_request : %s %s (status=%s (%d))",
 			this,
 			verb.c_str(),
-			host().to_string().c_str(),
-			url.c_str(),
+			url.to_string(false).c_str(),
 			answer.get_reason_phrase().c_str(),
 			answer.get_status_code());
 
@@ -591,7 +600,7 @@ namespace fw {
 	}
 
 
-	bool PortalClient::request(const std::string& verb, const std::string& url,
+	bool PortalClient::request(const std::string& verb, const http::Url& url,
 		const std::string& body, const http::Headers& headers, http::Answer& answer, bool allow_redir)
 	{
 		if (!do_request(verb, url, body, headers, answer))
@@ -600,16 +609,9 @@ namespace fw {
 		// redirect if required
 		if (answer.get_status_code() == HttpsClient::STATUS_FOUND && allow_redir) {
 			std::string location;
-			std::string redir_url;
 			answer.headers().get("location", location);
 
-			if (location.compare(0, 8, "https://") == 0) {
-				tools::parse_redir_url(location, redir_url);
-			} 
-			else {
-				redir_url = location;
-			}
-
+			const http::Url redir_url{ location };
 			if (!do_request(verb, redir_url, body, http::Headers(), answer))
 				return false;
 		}
