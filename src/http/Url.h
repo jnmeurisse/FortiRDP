@@ -31,7 +31,7 @@ namespace http {
 
 		/* Returns the authority from this URL
 		*/
-		inline const std::string get_authority() const noexcept { return _authority; }
+		inline const std::string& get_authority() const noexcept { return _authority; }
 
 		/* Returns the path from this URL
 		*/
