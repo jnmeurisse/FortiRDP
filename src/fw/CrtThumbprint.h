@@ -15,7 +15,7 @@ namespace fw {
 	 * Stores the thumbprint of a X.509 certificate. The thumbprint contains
 	 * a sha256 hash of the certificate.
 	 */
-	class CrtThumbprint
+	class CrtThumbprint final
 	{
 	public:
 		/* Creates an undefined thumbprint
