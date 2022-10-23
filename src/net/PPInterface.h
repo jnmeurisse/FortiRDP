@@ -16,7 +16,7 @@
 
 namespace net {
 
-	class PPInterface
+	class PPInterface final
 	{
 	public:
 		explicit PPInterface(TlsSocket& tunnel, Counters& counters);
