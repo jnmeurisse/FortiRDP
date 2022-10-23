@@ -352,19 +352,8 @@ namespace fw {
 			}
 		}
 		else {
-			// Firewall should be running an old FortiOS 3
-			// check is svpncookie is assigned
-			if (_cookies.exists("SVPNCOOKIE")) {
-				const http::Cookie cookie = _cookies.get("SVPNCOOKIE");
-				_authenticated = cookie.get_value().size() > 0;
-				if (!_authenticated)
-					goto auth_error;
-
-			}
-			else {
-				_logger->error("ERROR: invalid firewall answer");
-				goto terminate;
-			}
+			_logger->error("ERROR: invalid firewall answer");
+			goto terminate;
 		}
 
 		return portal_err::NONE;
