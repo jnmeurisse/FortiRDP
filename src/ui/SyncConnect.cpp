@@ -107,13 +107,11 @@ bool SyncConnect::procedure()
 					portal_info.group.c_str());
 			}
 
-#if 0
 			fw::SslvpnConfig vpn_config;
 			if (_portal->get_config(vpn_config)) {
 				if (!_portal->start_tunnel_mode())
 					showErrorMessageDialog("Open tunnel error");
 			}
-#endif
 		}
 	}
 
