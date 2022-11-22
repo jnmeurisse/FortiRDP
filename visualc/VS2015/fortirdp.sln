@@ -13,6 +13,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "lwIP", "..\..\lib\lwip\visu
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "mbedTLS", "..\..\lib\mbedtls\visualc\VS2015\mbedTLS.vcxproj", "{46CF2D25-6A36-4189-B59C-E4815388E554}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "zlib", "..\..\lib\zlib\visualc\VS2015\zlib\zlib.vcxproj", "{021B4BAE-CDB6-42D4-823C-660531651E67}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -45,6 +47,14 @@ Global
 		{46CF2D25-6A36-4189-B59C-E4815388E554}.Release|x64.Build.0 = Release|x64
 		{46CF2D25-6A36-4189-B59C-E4815388E554}.Release|x86.ActiveCfg = Release|Win32
 		{46CF2D25-6A36-4189-B59C-E4815388E554}.Release|x86.Build.0 = Release|Win32
+		{021B4BAE-CDB6-42D4-823C-660531651E67}.Debug|x64.ActiveCfg = Debug|x64
+		{021B4BAE-CDB6-42D4-823C-660531651E67}.Debug|x64.Build.0 = Debug|x64
+		{021B4BAE-CDB6-42D4-823C-660531651E67}.Debug|x86.ActiveCfg = Debug|Win32
+		{021B4BAE-CDB6-42D4-823C-660531651E67}.Debug|x86.Build.0 = Debug|Win32
+		{021B4BAE-CDB6-42D4-823C-660531651E67}.Release|x64.ActiveCfg = Release|x64
+		{021B4BAE-CDB6-42D4-823C-660531651E67}.Release|x64.Build.0 = Release|x64
+		{021B4BAE-CDB6-42D4-823C-660531651E67}.Release|x86.ActiveCfg = Release|Win32
+		{021B4BAE-CDB6-42D4-823C-660531651E67}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

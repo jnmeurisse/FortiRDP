@@ -29,6 +29,7 @@
     <ClCompile Include="..\..\src\http\HttpsClient.cpp" />
     <ClCompile Include="..\..\src\http\Request.cpp" />
     <ClCompile Include="..\..\src\http\Url.cpp" />
+    <ClCompile Include="..\..\src\http\UrlError.cpp" />
     <ClCompile Include="..\..\src\net\DnsClient.cpp" />
     <ClCompile Include="..\..\src\net\Endpoint.cpp" />
     <ClCompile Include="..\..\src\net\Listener.cpp" />
@@ -94,6 +95,7 @@
     <ClInclude Include="..\..\src\http\HttpsClient.h" />
     <ClInclude Include="..\..\src\http\Request.h" />
     <ClInclude Include="..\..\src\http\Url.h" />
+    <ClInclude Include="..\..\src\http\UrlError.h" />
     <ClInclude Include="..\..\src\net\DnsClient.h" />
     <ClInclude Include="..\..\src\net\Endpoint.h" />
     <ClInclude Include="..\..\src\net\Listener.h" />
@@ -171,6 +173,9 @@
     <ProjectReference Include="..\..\lib\mbedtls\visualc\VS2015\mbedTLS.vcxproj">
       <Project>{46cf2d25-6a36-4189-b59c-e4815388e554}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\..\lib\zlib\visualc\VS2015\zlib\zlib.vcxproj">
+      <Project>{021b4bae-cdb6-42d4-823c-660531651e67}</Project>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{F734AC9A-37F3-4ABD-8FF6-A9D08BCD2678}</ProjectGuid>
@@ -234,6 +239,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <IntDir>$(ProjectDir)$(Platform)\$(Configuration)\</IntDir>
+    <OutDir>$(ProjectDir)$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
@@ -246,7 +252,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\..\src;$(ProjectDir)..\..\lib\lwip\src\include;$(ProjectDir)..\..\lib\mbedtls\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\..\src;$(ProjectDir)..\..\lib\lwip\src\include;$(ProjectDir)..\..\lib\mbedtls\include;$(ProjectDir)..\..\lib\zlib\src</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
@@ -262,7 +268,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\..\src;$(ProjectDir)..\..\lib\lwip\src\include;$(ProjectDir)..\..\lib\mbedtls\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\..\src;$(ProjectDir)..\..\lib\lwip\src\include;$(ProjectDir)..\..\lib\mbedtls\include;$(ProjectDir)..\..\lib\zlib\src</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
@@ -280,7 +286,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\..\src;$(ProjectDir)..\..\lib\lwip\src\include;$(ProjectDir)..\..\lib\mbedtls\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\..\src;$(ProjectDir)..\..\lib\lwip\src\include;$(ProjectDir)..\..\lib\mbedtls\include;$(ProjectDir)..\..\lib\zlib\src</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
@@ -300,7 +306,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\..\src;$(ProjectDir)..\..\lib\lwip\src\include;$(ProjectDir)..\..\lib\mbedtls\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\..\src;$(ProjectDir)..\..\lib\lwip\src\include;$(ProjectDir)..\..\lib\mbedtls\include;$(ProjectDir)..\..\lib\zlib\src</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
