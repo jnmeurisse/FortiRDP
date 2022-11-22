@@ -213,6 +213,9 @@
     <ClCompile Include="..\..\src\net\DnsClient.cpp">
       <Filter>sources\net</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\http\UrlError.cpp">
+      <Filter>sources\http</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\ui\AboutDialog.h">
@@ -412,6 +415,9 @@
     </ClInclude>
     <ClInclude Include="..\..\src\net\DnsClient.h">
       <Filter>sources\net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\http\UrlError.h">
+      <Filter>sources\http</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
