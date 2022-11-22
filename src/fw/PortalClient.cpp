@@ -395,32 +395,30 @@ namespace fw {
 	{
 		DEBUG_ENTER(_logger, "PortalClient", "get_info");
 		tools::Mutex::Lock lock{ _mutex };
-		bool ok = false;
 
-		if (_authenticated) {
-			http::Headers headers;
-			http::Answer answer;
+		if (!_authenticated)
+			return false;
 
-			const http::Url portal_url = make_url("/remote/portal", "access");
-			ok = request(http::Request::GET_VERB, portal_url, "", headers, answer, false);
-			if (ok && answer.get_status_code() == HttpsClient::STATUS_OK) {
-				const tools::ByteBuffer& body = answer.body();
-				const std::string data{ body.cbegin(), body.cend() };
-				_logger->debug("... portal_info : %s...", data.substr(0, 80).c_str());
+		http::Headers headers;
+		http::Answer answer;
 
-				std::string parser_error;
-				tools::Json info = tools::Json::parse(data, parser_error);
-				if (info.is_object()) {
-					tools::Json user = info["user"];
-					tools::Json group = info["group"];
-					tools::Json version = info["version"];
+		const http::Url portal_url = make_url("/remote/portal", "access");
+		bool ok = request(http::Request::GET_VERB, portal_url, "", headers, answer, false);
+		if (ok && answer.get_status_code() == HttpsClient::STATUS_OK) {
+			const tools::ByteBuffer& body = answer.body();
+			const std::string data{ body.cbegin(), body.cend() };
+			_logger->debug("... portal_info : %s...", data.substr(0, 80).c_str());
 
-					portal_info.user = user.is_string() ? user.string_value() : "";
-					portal_info.group = group.is_string() ? group.string_value() : "";
-					portal_info.version = version.is_string() ? version.string_value() : "";
+			std::string parser_error;
+			tools::Json info = tools::Json::parse(data, parser_error);
+			if (info.is_object()) {
+				tools::Json user = info["user"];
+				tools::Json group = info["group"];
+				tools::Json version = info["version"];
 
-					ok = true;
-				}
+				portal_info.user = user.is_string() ? user.string_value() : "";
+				portal_info.group = group.is_string() ? group.string_value() : "";
+				portal_info.version = version.is_string() ? version.string_value() : "";
 			}
 		}
 
@@ -432,36 +430,61 @@ namespace fw {
 	{
 		DEBUG_ENTER(_logger, "PortalClient", "get_config");
 		tools::Mutex::Lock lock{ _mutex };
-		bool ok = false;
 
-		if (_authenticated) {
-			http::Headers headers;
-			http::Answer answer;
-			const http::Url vpninfo_url = make_url("/remote/fortisslvpn_xml");
-			ok = request(http::Request::GET_VERB, vpninfo_url, "", headers, answer, false);
+		if (!_authenticated)
+			return false;
 
-			if (ok && answer.get_status_code() == HttpsClient::STATUS_OK) {
-				const tools::ByteBuffer& body = answer.body();
-				const std::string data(body.cbegin(), body.cend());
+		http::Headers headers;
+		http::Answer answer;
 
-				pugi::xml_document doc;
-				pugi::xml_parse_result parse_result = doc.load_string(data.c_str());
-
-				if (parse_result.status != pugi::xml_parse_status::status_ok) {
-					//TODO: report an error
-				}
-				else {
-					const pugi::xml_attribute address = doc
-														.child("sslvpn-tunnel")
-														.child("ipv4")
-														.child("assigned-addr")
-														.attribute("ipv4");
-					sslvpn_config.local_addr = address.as_string();
-				}
-			}
+		// Get the vpn configuration.  
+		// This call is mandatory, without it we don't get an IP address from the fortigate
+		const http::Url vpninfo_url = make_url("/remote/fortisslvpn_xml");
+		if (!request(http::Request::GET_VERB, vpninfo_url, "", headers, answer, false))
+		{
+			// Log an error message
+			_logger->error("ERROR: portal configuration failure");
+			return false;
 		}
 
-		return ok;
+		if (answer.get_status_code() != HttpsClient::STATUS_OK) {
+			// Log an error message
+			_logger->error("ERROR: portal configuration failure - %s (HTTP code %d)",
+				answer.get_reason_phrase().c_str(),
+				answer.get_status_code());
+
+			return false;
+		}
+
+		const tools::ByteBuffer& body = answer.body();
+		const std::string data(body.cbegin(), body.cend());
+
+		pugi::xml_document doc;
+		pugi::xml_parse_result parse_result = doc.load_string(data.c_str());
+
+		if (parse_result.status != pugi::xml_parse_status::status_ok)
+			goto xml_parse_error;
+
+		const pugi::xml_node& root = doc.child("sslvpn-tunnel");
+		if (root.empty())
+			goto xml_decode_error;
+
+		const pugi::xml_attribute& address = root
+												.child("ipv4")
+												.child("assigned-addr")
+												.attribute("ipv4");
+		sslvpn_config.local_addr = address.as_string();
+
+		return true;
+
+
+	xml_parse_error:
+		_logger->error("ERROR: portal configuration failure - xml parse error");
+		return false;
+
+	xml_decode_error:
+		_logger->error("ERROR: portal configuration failure - xml decode error");
+		return false;
 	}
 
 	bool PortalClient::start_tunnel_mode()
