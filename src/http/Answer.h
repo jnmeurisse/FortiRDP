@@ -63,8 +63,11 @@ namespace http {
 		*         ERR_CONTENT_ENCODING: Unsupported content encoding
 		*         ERR_TRANSFER_ENCODING: Unsupported transfer encoding
 		*         ERR_BODY: Error while reading body
+		*
+		* Throws an mbed_error in case of failure.
+		*
 		*/
-		int recv(net::Socket& socket) noexcept;
+		int recv(net::Socket& socket);
 
 		/* Returns the HTTP version
 		*/

@@ -225,7 +225,7 @@ namespace http {
 	}
 
 
-	int Answer::recv(net::Socket& socket) noexcept
+	int Answer::recv(net::Socket& socket)
 	{
 		int rc;
 		tools::obfstring line;
@@ -255,12 +255,13 @@ namespace http {
 				const tools::obfstring field_value{ tools::trim(line.substr(pos + 1, std::string::npos)) };
 
 				if (tools::iequal(field_name, "Set-Cookie")) {
-					// it should be a cookie definition
+					// A cookie definition
 					try {
 						const Cookie cookie{ field_value };
 						_cookies.set(cookie.get_name(), cookie);
 					}
 					catch (CookieError e) {
+						// silently ignore this error
 					}
 				}
 				else {
