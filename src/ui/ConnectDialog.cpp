@@ -245,7 +245,7 @@ void ConnectDialog::connect()
 	// Clear the information log
 	clearInfo();
 
-	// Disable all controls in this dialog and show the disconnect button
+	// Disable all controls on this dialog and show the disconnect button
 	set_control_enable(IDC_CONNECT, false);
 	set_control_enable(IDC_DISCONNECT, false);
 	set_control_enable(IDC_QUIT, false);
