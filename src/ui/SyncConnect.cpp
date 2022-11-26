@@ -80,16 +80,16 @@ bool SyncConnect::procedure()
 		}
 
 	} else {
+		auto ask_credential_callback = [this](fw::Credential& credential) {
+			return ask_credential(credential);
+		};
+
+		auto ask_code_callback = [this](fw::Code2FA& code) {
+			return ask_code(code);
+		};
+
 		// loop while user enter wrong credentials
 		do {
-			auto ask_credential_callback = [this](fw::Credential& credential) {
-				return ask_credential(credential);
-			};
-
-			auto ask_code_callback = [this](fw::Code2FA& code) {
-				return ask_code(code);
-			};
-
 			rc = _portal->login(ask_credential_callback, ask_code_callback);
 			if (rc) {
 				// report errors.
