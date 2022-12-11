@@ -147,6 +147,7 @@
     <ClInclude Include="..\..\src\ui\OptionsDialog.h" />
     <ClInclude Include="..\..\src\ui\RdpFile.h" />
     <ClInclude Include="..\..\src\ui\RegistrySettings.h" />
+    <ClInclude Include="..\..\src\ui\ScreenSize.h" />
     <ClInclude Include="..\..\src\ui\SyncConnect.h" />
     <ClInclude Include="..\..\src\ui\SyncDisconnect.h" />
     <ClInclude Include="..\..\src\ui\SyncProc.h" />
