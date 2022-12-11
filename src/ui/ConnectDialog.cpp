@@ -28,10 +28,10 @@ ConnectDialog::ConnectDialog(HINSTANCE hInstance, const CmdlineParams& params):
 	// Assign application icons. Icons are automatically deleted when the 
 	// application stops thanks to the LR_SHARED parameter.
 	HICON hIcon = (HICON)LoadImage(hInstance, MAKEINTRESOURCE(IDI_FORTIRDP), IMAGE_ICON, 16, 16, LR_SHARED);
-	SendMessage(window_handle(), WM_SETICON, ICON_SMALL, (LPARAM)hIcon);
+	::SendMessage(window_handle(), WM_SETICON, ICON_SMALL, (LPARAM)hIcon);
 
 	hIcon = (HICON)LoadImage(hInstance, MAKEINTRESOURCE(IDI_FORTIRDP), IMAGE_ICON, 128, 128, LR_SHARED);
-	SendMessage(window_handle(), WM_SETICON, ICON_BIG, (LPARAM)hIcon);
+	::SendMessage(window_handle(), WM_SETICON, ICON_BIG, (LPARAM)hIcon);
 
 	// Configure the status text font. The color is assigned later when responding to WM_CTLCOLORSTATIC
 	// message.
@@ -93,7 +93,7 @@ ConnectDialog::ConnectDialog(HINSTANCE hInstance, const CmdlineParams& params):
 
 	if (params.firewall_address().length() > 0 && params.host_address().length() > 0) {
 		// auto connect if both addresses are specified
-		PostMessage(window_handle(), WM_COMMAND, IDC_CONNECT, 0);
+		::PostMessage(window_handle(), WM_COMMAND, IDC_CONNECT, 0);
 	}
 }
 
@@ -101,9 +101,9 @@ ConnectDialog::ConnectDialog(HINSTANCE hInstance, const CmdlineParams& params):
 ConnectDialog::~ConnectDialog()
 {
 	// delete all objects we created
-	DeleteObject(_bg_brush);
-	DeleteObject(_msg_font);
-	DeleteObject(_anim_font);
+	::DeleteObject(_bg_brush);
+	::DeleteObject(_msg_font);
+	::DeleteObject(_anim_font);
 
 	_controller->terminate();
 	_controller->wait(1000);
@@ -174,7 +174,8 @@ void ConnectDialog::connect()
 		std::string fw_addr{ tools::trim(tools::wstr2str(getFirewallAddress())) };
 		_firewall_endpoint = net::Endpoint(fw_addr, DEFAULT_FW_PORT);
 
-	} catch (const std::invalid_argument) {
+	}
+	catch (const std::invalid_argument) {
 		set_focus(IDC_ADDR_FW);
 		showErrorMessageDialog("Invalid firewall address");
 		return;
@@ -184,7 +185,8 @@ void ConnectDialog::connect()
 		std::string host_addr{ tools::trim(tools::wstr2str(getHostAddress())) };
 		_host_endpoint = net::Endpoint(host_addr, DEFAULT_RDP_PORT);
 
-	} catch (const std::invalid_argument) {
+	}
+	catch (const std::invalid_argument) {
 		set_focus(IDC_ADDR_HOST);
 		showErrorMessageDialog("Invalid host address");
 		return;
@@ -199,17 +201,27 @@ void ConnectDialog::connect()
 
 		if (!_params.rdp_filename().empty()) {
 			task_params.push_back(_params.rdp_filename());
-		} else if (_settings.get_rdpfile_mode() && !_settings.get_rdp_filename().empty()) {
+		}
+		else if (_settings.get_rdpfile_mode() && !_settings.get_rdp_filename().empty()) {
 			task_params.push_back(_settings.get_rdp_filename());
 		}
 
 		task_params.push_back(L"/v:${host}:${port}");
-		
+
 		if (_params.admin_console() || _settings.get_admin_console())
 			task_params.push_back(L"/admin");
 
 		if (_params.full_screen() || _settings.get_full_screen())
 			task_params.push_back(L"/f");
+
+		else {
+			const bool size_from_parameters = _params.screen_size().height > 0 || _params.screen_size().width > 0;
+			const ScreenSize screen_size = size_from_parameters ? _params.screen_size() : _settings.get_screen_size();
+			if (screen_size.height > 0)
+				task_params.push_back(L"/h:" + std::to_wstring(screen_size.height));
+			if (screen_size.width > 0)
+				task_params.push_back(L"/w:" + std::to_wstring(screen_size.width));
+		}
 
 		if (_params.span_mode() || _settings.get_span_mode())
 			task_params.push_back(L"/span");
@@ -217,7 +229,8 @@ void ConnectDialog::connect()
 		if (_params.multimon_mode() || _settings.get_multimon_mode())
 			task_params.push_back(L"/multimon");
 
-	} else {
+	}
+	else {
 		std::vector<std::wstring> task_info;
 		tools::split(_params.appname(), L';', task_info);
 
@@ -253,6 +266,8 @@ void ConnectDialog::connect()
 	set_control_enable(IDC_ADDR_HOST, false);
 	set_control_visible(IDC_CONNECT, false);
 	set_control_visible(IDC_DISCONNECT, true);
+	if (_params.is_mstsc())
+		::EnableMenuItem(get_sys_menu(false), SYSCMD_OPTIONS, MF_BYCOMMAND | MF_DISABLED);
 
 	// start the client
 	_controller->connect(_firewall_endpoint);
@@ -490,6 +505,12 @@ void ConnectDialog::showOptionsDialog()
 	optionsDialog.full_screen = _params.full_screen() || _settings.get_full_screen();
 	optionsDialog.full_screen_updatable = !_params.full_screen();
 
+	optionsDialog.screen_size_updatable = _params.screen_size().height == 0 && _params.screen_size().width == 0;
+	if (optionsDialog.screen_size_updatable) 
+		optionsDialog.screen_size = _settings.get_screen_size();
+	else
+		optionsDialog.screen_size = _params.screen_size();
+
 	optionsDialog.clear_rdp_username = _params.clear_rdp_username() || _settings.get_clear_rdp_username();
 	optionsDialog.clear_rdp_username_updatable = ! _params.clear_rdp_username();
 
@@ -514,6 +535,8 @@ void ConnectDialog::showOptionsDialog()
 	if (optionsDialog.showModal()) {
 		if (optionsDialog.full_screen_updatable)
 			_settings.set_full_screen(optionsDialog.full_screen);
+		if (optionsDialog.screen_size_updatable)
+			_settings.set_screen_size(optionsDialog.screen_size);
 		if (optionsDialog.clear_rdp_username_updatable)
 			_settings.set_clear_username(optionsDialog.clear_rdp_username);
 		if (optionsDialog.span_mode_updatable)
@@ -532,24 +555,14 @@ void ConnectDialog::showOptionsDialog()
 
 void ConnectDialog::showErrorMessageDialog(const char * pText)
 {
-	::MessageBox(
-		window_handle(),
-		tools::str2wstr(pText).c_str(),
-		get_title().c_str(),
-		MB_ICONERROR | MB_OK);
-
+	show_message_box(tools::str2wstr(pText), MB_ICONERROR | MB_OK);
 	return;
 }
 
 
 void ConnectDialog::showInvalidCertificateDialog(const char* pText)
 {
-	const int rc = ::MessageBox(
-		window_handle(),
-		tools::str2wstr(pText).c_str(),
-		get_title().c_str(),
-		MB_ICONWARNING | MB_YESNO | MB_DEFBUTTON2);
-
+	const int rc = show_message_box(tools::str2wstr(pText), MB_ICONWARNING | MB_YESNO | MB_DEFBUTTON2);
 	ReplyMessage(rc == IDYES);
 
 	return;
@@ -685,7 +698,9 @@ void ConnectDialog::onDisconnectedEvent(bool success)
 	set_control_enable(IDC_DISCONNECT, true);
 	set_control_enable(IDC_QUIT, true);
 	set_control_visible(IDC_CONNECT, true);
-	set_control_visible(IDC_DISCONNECT, false);	
+	set_control_visible(IDC_DISCONNECT, false);
+	if (_params.is_mstsc())
+		::EnableMenuItem(get_sys_menu(false), SYSCMD_OPTIONS, MF_BYCOMMAND | MF_ENABLED);
 
 	// Restore window visibility if currently minimized
 	if (is_minimized())
