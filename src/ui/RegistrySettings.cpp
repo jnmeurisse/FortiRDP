@@ -116,6 +116,22 @@ void RegistrySettings::set_rdp_filename(const std::wstring& rdp_filename)
 	_key.set_string(RDPFILENAME_KEYNAME, rdp_filename);
 }
 
+ScreenSize RegistrySettings::get_screen_size() const
+{
+	ScreenSize size{
+		min(ScreenSize::max_height, max(0, get_int(SCREEN_HEIGHT, 0))),
+		min(ScreenSize::max_width, max(0, get_int(SCREEN_WIDTH, 0)))
+	};
+
+	return size;
+}
+
+void RegistrySettings::set_screen_size(const ScreenSize& size)
+{
+	set_int(SCREEN_HEIGHT, size.height);
+	set_int(SCREEN_WIDTH, size.width);
+}
+
 bool RegistrySettings::get_bool(const std::wstring& value_name) const
 {
 	return _key.get_word(value_name, 0) != 0;
@@ -124,6 +140,16 @@ bool RegistrySettings::get_bool(const std::wstring& value_name) const
 void RegistrySettings::set_bool(const std::wstring& value_name, const bool value)
 {
 	_key.set_word(value_name, value ? 1 : 0);
+}
+
+int RegistrySettings::get_int(const std::wstring& value_name, const int default_value) const
+{
+	return _key.get_word(value_name, default_value);
+}
+
+void RegistrySettings::set_int(const std::wstring& value_name, const int value)
+{
+	_key.set_word(value_name, value);
 }
 
 
@@ -137,3 +163,6 @@ const std::wstring RegistrySettings::MULTIMON_KEYNAME(L"multimon");
 const std::wstring RegistrySettings::ADMINCONSOLE_KEYNAME(L"console");
 const std::wstring RegistrySettings::RDPFILEMODE_KEYNAME(L"rdpfile");
 const std::wstring RegistrySettings::RDPFILENAME_KEYNAME(L"rdpfilename");
+const std::wstring RegistrySettings::SCREENSIZE_MODE(L"screensize");
+const std::wstring RegistrySettings::SCREEN_WIDTH(L"width");
+const std::wstring RegistrySettings::SCREEN_HEIGHT(L"height");

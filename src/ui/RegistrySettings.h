@@ -9,6 +9,7 @@
 #include <Windows.h>
 #include <string>
 #include "tools\RegKey.h"
+#include "ScreenSize.h"
 
 
 /**
@@ -101,6 +102,14 @@ public:
 	*/
 	void set_rdp_filename(const std::wstring& rdp_filename);
 
+	/* retrieves the screen size
+	*/
+	ScreenSize get_screen_size() const;
+
+	/* saves the screen size
+	*/
+	void set_screen_size(const ScreenSize& size);
+
 private:
 	//- the registry root key
 	tools::RegKey _key;
@@ -110,6 +119,12 @@ private:
 
 	//- a convenient method to save a flag value
 	void set_bool(const std::wstring& value_name, const bool value);
+	
+	// - a convenient method to retrieve an int value
+	int get_int(const std::wstring& value_name, const int default_value) const;
+
+	//- a convenient method to save an int value
+	void set_int(const std::wstring& value_name, const int value);
 
 	//- registry keys
 	static const std::wstring USERNAME_KEYNAME;
@@ -122,4 +137,7 @@ private:
 	static const std::wstring ADMINCONSOLE_KEYNAME;
 	static const std::wstring RDPFILEMODE_KEYNAME;
 	static const std::wstring RDPFILENAME_KEYNAME;
+	static const std::wstring SCREENSIZE_MODE;
+	static const std::wstring SCREEN_WIDTH;
+	static const std::wstring SCREEN_HEIGHT;
 };

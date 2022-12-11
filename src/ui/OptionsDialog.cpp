@@ -7,6 +7,7 @@
 */
 
 #include "OptionsDialog.h"
+#include "tools\StrUtil.h"
 #include "resources\resource.h"
 
 OptionsDialog::OptionsDialog(HINSTANCE hInstance, HWND hParent) :
@@ -24,6 +25,16 @@ INT_PTR OptionsDialog::onCreateDialogMessage(WPARAM wParam, LPARAM lParam)
 {
 	set_checkbox_state(IDC_CHECK_FULLSCREEN, full_screen);
 	set_control_enable(IDC_CHECK_FULLSCREEN, full_screen_updatable);
+
+	set_control_enable(IDC_SCREEN_HEIGHT, !full_screen && screen_size_updatable);
+	set_control_textlen(IDC_SCREEN_HEIGHT, 5);
+	if (screen_size.height > 0)
+		set_control_text(IDC_SCREEN_HEIGHT, std::to_wstring(screen_size.height));
+
+	set_control_enable(IDC_SCREEN_WIDTH, !full_screen  && screen_size_updatable);
+	set_control_textlen(IDC_SCREEN_WIDTH, 5);
+	if (screen_size.width > 0)
+		set_control_text(IDC_SCREEN_WIDTH, std::to_wstring(screen_size.width));
 
 	set_checkbox_state(IDC_CHECK_CLEAR_USERNAME, clear_rdp_username);
 	set_control_enable(IDC_CHECK_CLEAR_USERNAME, clear_rdp_username_updatable);
@@ -59,6 +70,24 @@ INT_PTR OptionsDialog::onButtonClick(int cid, LPARAM lParam)
 	switch (cid) {
 	case IDOK:
 		full_screen = get_checkbox_state(IDC_CHECK_FULLSCREEN);
+		if (!full_screen && screen_size_updatable) {
+			if (!tools::str2i(get_control_text(IDC_SCREEN_HEIGHT), screen_size.height)
+				|| screen_size.height < 0 || screen_size.height > ScreenSize::max_height) {
+				set_focus(IDC_SCREEN_HEIGHT);
+				show_message_box(L"Invalid screen height", MB_OK | MB_ICONERROR);
+
+				break;
+			}
+
+			if (!tools::str2i(get_control_text(IDC_SCREEN_WIDTH), screen_size.width)
+				|| screen_size.width < 0 || screen_size.width > ScreenSize::max_width) {
+				set_focus(IDC_SCREEN_WIDTH);
+				show_message_box(L"Invalid screen width", MB_OK | MB_ICONERROR);
+
+				break;
+			}
+		}
+
 		clear_rdp_username = get_checkbox_state(IDC_CHECK_CLEAR_USERNAME);
 		span_mode = get_checkbox_state(IDC_CHECK_SPAN_MODE);
 		multimon_mode = get_checkbox_state(IDC_CHECK_MULTIMON_MODE);
@@ -67,11 +96,11 @@ INT_PTR OptionsDialog::onButtonClick(int cid, LPARAM lParam)
 		if (rdpfile_mode)
 			rdp_filename = get_control_text(IDC_EDIT_RDPFILE);
 
-		::EndDialog(window_handle(), TRUE);
+		close(TRUE);
 		break;
 
 	case IDCANCEL:
-		::EndDialog(window_handle(), FALSE);
+		close(FALSE);
 		break;
 
 	case IDC_CHECK_RDPFILE:
@@ -83,6 +112,11 @@ INT_PTR OptionsDialog::onButtonClick(int cid, LPARAM lParam)
 		filename = get_control_text(IDC_EDIT_RDPFILE);
 		if (select_file(filename))
 			set_control_text(IDC_EDIT_RDPFILE, filename);
+		break;
+
+	case IDC_CHECK_FULLSCREEN:
+		set_control_enable(IDC_SCREEN_HEIGHT, !get_checkbox_state(IDC_CHECK_FULLSCREEN) && screen_size_updatable);
+		set_control_enable(IDC_SCREEN_WIDTH, !get_checkbox_state(IDC_CHECK_FULLSCREEN) && screen_size_updatable);
 		break;
 
 	default:

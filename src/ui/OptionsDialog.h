@@ -9,6 +9,7 @@
 
 #include <Windows.h>
 #include "ModalDialog.h"
+#include "ScreenSize.h"
 
 
 class OptionsDialog final : public ModalDialog
@@ -31,6 +32,9 @@ public:
 
 	bool admin_console = false;
 	bool admin_console_updatable = false;
+
+	ScreenSize screen_size = { 0, 0 };
+	bool screen_size_updatable = false;
 
 	bool rdpfile_mode = false;
 	bool rdpfile_updatable = false;

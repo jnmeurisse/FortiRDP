@@ -49,6 +49,7 @@ bool CmdlineParams::initialize(int argc, LPWSTR argv[])
 	_multi_clients = false;
 	_span_mode = false;
 	_multimon_mode = false;
+	_screen_size = { 0, 0 };
 	_clear_lastuser = false;
 
 	_verbose = false;
@@ -61,7 +62,7 @@ bool CmdlineParams::initialize(int argc, LPWSTR argv[])
 	_tcp_nodelay = false;
 
 	int c;
-	while ((c = getopt(argc, argv, L"?u:famvc:tx:p:sr:lCMn")) != EOF) {
+	while ((c = getopt(argc, argv, L"?u:famvc:tx:p:sr:lCMnw:h:")) != EOF) {
 		switch (c) {
 		case L'?':
 			return false;
@@ -123,9 +124,18 @@ bool CmdlineParams::initialize(int argc, LPWSTR argv[])
 			_tcp_nodelay = true;
 			break;
 
-		default:
+		case L'w':
+			if (!tools::str2i(optarg, _screen_size.width))
+				_screen_size.width = -1;
 			break;
 
+		case L'h':
+			if (!tools::str2i(optarg, _screen_size.height))
+				_screen_size.height = -1;
+			break;
+
+		default:
+			break;
 		}
 	}
 
@@ -138,7 +148,15 @@ bool CmdlineParams::initialize(int argc, LPWSTR argv[])
 		&& (!is_mstsc()))
 		return false;
 
-	// local port is not valid
+	// screen size allowed only if app is rdp
+	if ((_screen_size.height != 0 || _screen_size.width != 0) && (!is_mstsc()))
+		return false;
+
+	// is screen size valid
+	if (!_screen_size.is_valid())
+		return false;
+
+	// is local port valid ?
 	if (_local_port < 0 || _local_port > 65535)
 		return false;
 

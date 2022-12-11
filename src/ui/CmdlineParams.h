@@ -9,6 +9,7 @@
 #include <Windows.h>
 #include <string>
 #include <vector>
+#include "ScreenSize.h"
 
 class CmdlineParams final
 {
@@ -72,6 +73,9 @@ public:
 	*/
 	inline bool multimon_mode() const { return _multimon_mode; }
 
+	/*! screen size */
+	ScreenSize screen_size() const { return _screen_size; }
+
 	/*! admin console (only if app = rdp)
 	*/
 	inline bool admin_console() const { return _admin_console; }
@@ -106,6 +110,7 @@ private:
 	std::wstring _ca_filename;
 	std::wstring _app_name;
 	std::wstring _rdp_filename;
+	ScreenSize _screen_size{ 0,0 };
 	int _local_port = 0;
 
 	// Command line options
