@@ -55,11 +55,11 @@ INT_PTR AskCodeDialog::onButtonClick(int cid, LPARAM lParam)
 	case IDOK:
 		_code = get_control_text(IDC_CODE);
 
-		::EndDialog(window_handle(), TRUE);
+		close(TRUE);
 		break;
 
 	case IDCANCEL:
-		::EndDialog(window_handle(), FALSE);
+		close(FALSE);
 		break;
 
 	default:

@@ -23,7 +23,7 @@ AboutDialog::AboutDialog(HINSTANCE hInstance, HWND hParent) :
 
 AboutDialog::~AboutDialog()
 {
-	DeleteObject(_hFont);
+	::DeleteObject(_hFont);
 }
 
 
@@ -73,11 +73,11 @@ INT_PTR AboutDialog::onButtonClick(int cid, LPARAM lParam)
 
 	switch (cid) {
 	case IDOK:
-		::EndDialog(window_handle(), TRUE);
+		close(TRUE);
 		break;
 
 	case IDCANCEL:
-		::EndDialog(window_handle(), FALSE);
+		close(FALSE);
 		break;
 
 	default:

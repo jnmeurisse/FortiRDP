@@ -57,7 +57,7 @@ public:
 	*/
 	void set_control_text(int idc, const std::wstring& text);
 
-	/* returns text in a specified control
+	/* returns text from a specified control
 	*/
 	std::wstring get_control_text(int idc) const;
 
@@ -96,6 +96,10 @@ public:
 	/* returns the system menu
 	*/
 	HMENU get_sys_menu(bool reset);
+
+	/* shows a message box
+	*/
+	int show_message_box(const std::wstring& message, UINT type);
 
 protected:
 	// Methods to create a modal or a modeless dialog

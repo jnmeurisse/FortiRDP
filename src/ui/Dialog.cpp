@@ -186,6 +186,12 @@ HMENU Dialog::get_sys_menu(bool reset)
 }
 
 
+int Dialog::show_message_box(const std::wstring& message, UINT type)
+{
+	return ::MessageBox(window_handle(), message.c_str(), get_title().c_str(), type);
+}
+
+
 HWND Dialog::create_modeless_dialog()
 {
 	return ::CreateDialogParam(

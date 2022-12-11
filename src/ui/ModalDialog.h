@@ -21,5 +21,9 @@ class ModalDialog : public Dialog
 public:
 	explicit ModalDialog(HINSTANCE hInstance, HWND hParent, int idd);
 
+	/* destroys this modal dialog.
+	*/
+	void close(INT_PTR result);
+
 	INT_PTR showModal();
 };
