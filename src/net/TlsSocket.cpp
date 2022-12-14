@@ -91,9 +91,8 @@ namespace net {
 		mbedtls_ssl_conf_authmode(&_ssl_config, MBEDTLS_SSL_VERIFY_REQUIRED);
 		mbedtls_ssl_conf_rng(&_ssl_config, mbedtls_ctr_drbg_random, &_ctr_drbg);
 
-		// TLS 1.0, 1.1 and 1.2 are accepted
-		// 1.0 is still needed for FortiOS 4.3.x
-		mbedtls_ssl_conf_min_version(&_ssl_config, MBEDTLS_SSL_MAJOR_VERSION_3, MBEDTLS_SSL_MINOR_VERSION_1);
+		// 1.1 and 1.2 are accepted
+		mbedtls_ssl_conf_min_version(&_ssl_config, MBEDTLS_SSL_MAJOR_VERSION_3, MBEDTLS_SSL_MINOR_VERSION_2);
 		mbedtls_ssl_conf_max_version(&_ssl_config, MBEDTLS_SSL_MAJOR_VERSION_3, MBEDTLS_SSL_MINOR_VERSION_3);
 
 		// set cipher list
