@@ -11,9 +11,10 @@
 #include "ui/SyncConnect.h"
 
 
-SyncConnect::SyncConnect(HWND hwnd, const std::wstring& ca_filename, fw::PortalClient* portal):
+SyncConnect::SyncConnect(HWND hwnd, const std::wstring& cacrt_file, const struct UserCertFile& ucrt_file, fw::PortalClient* portal):
 	SyncProc(hwnd, AsyncMessage::ConnectedEvent),
-	_ca_filename(ca_filename),
+	_cacrt_file(cacrt_file),
+	_ucrt_file(ucrt_file),
 	_portal(portal)
 {
 	DEBUG_CTOR(_logger, "SyncConnect");
@@ -37,35 +38,65 @@ bool SyncConnect::procedure()
 	DEBUG_ENTER(_logger, "SyncConnect", "procedure");
 
 	// .. Check which CA file to use by the client 
-	tools::Path ca_path;
+	tools::Path cacrt_path;
 
-	if (_ca_filename.length() == 0) {
+	if (_cacrt_file.length() == 0) {
 		// no CA file specified, use the default file located in the application folder
-		ca_path = tools::Path(tools::Path::get_module_path().folder(), L"fortirdp.crt");
+		cacrt_path = tools::Path(tools::Path::get_module_path().folder(), L"fortirdp.crt");
 
 	} else {
 		// use the CA file specified in the command line
-		ca_path = tools::Path(_ca_filename);
+		cacrt_path = tools::Path(_cacrt_file);
 
 		// if no path specified, we assume that the .crt file is located next to the .exe
-		if (ca_path.folder().empty()) {
-			ca_path = tools::Path(tools::Path::get_module_path().folder(), _ca_filename);
+		if (cacrt_path.folder().empty()) {
+			cacrt_path = tools::Path(tools::Path::get_module_path().folder(), _cacrt_file);
 		}
 	}
 
 	// .. Is the CA file available ?
-	const bool ca_found = tools::file_exists(ca_path.to_string());
+	const bool ca_found = tools::file_exists(cacrt_path.to_string());
 
 	if (!ca_found) {
 		// log an error
-		const std::string compacted = tools::wstr2str(ca_path.compact(50));
+		const std::string compacted = tools::wstr2str(cacrt_path.compact(50));
 		_logger->error("ERROR: can't find CA file %s", compacted.c_str());
 	}
 
 	if (ca_found)
-		_portal->set_ca_file(ca_path);
+		_portal->set_ca_file(cacrt_path);
 	else
 		_portal->set_ca_crt(nullptr);
+
+	// Are user certificate and private key available ?
+	tools::Path crt_path = tools::Path(_ucrt_file.crt_filename);
+	if (crt_path.folder().empty()) {
+		crt_path = tools::Path(tools::Path::get_module_path().folder(), _ucrt_file.crt_filename);
+	}
+	tools::Path pk_path = tools::Path(_ucrt_file.pk_filename);
+	if (pk_path.folder().empty()) {
+		pk_path = tools::Path(tools::Path::get_module_path().folder(), _ucrt_file.pk_filename);
+	}
+
+	const bool crt_found = tools::file_exists(crt_path.to_string());
+	const bool pk_found = tools::file_exists(pk_path.to_string());
+	if (!crt_found) {
+		// log an error
+		const std::string compacted = tools::wstr2str(crt_path.compact(50));
+		_logger->error("ERROR: can't find crt file %s", compacted.c_str());
+	} else if (!pk_found) {
+		// log an error
+		const std::string compacted = tools::wstr2str(pk_path.compact(50));
+		_logger->error("ERROR: can't find private key file %s", compacted.c_str());
+	}
+
+	if (crt_found && pk_found) {
+		_portal->set_crt_file(crt_path);
+		_portal->set_pk_file(pk_path);
+	}
+	else {
+		_portal->set_own_crt(nullptr, nullptr);
+	}
 
 	// Open the https connection
 	fw::confirm_crt_fn confirm_crt_callback = [this](const mbedtls_x509_crt* crt, int status) {

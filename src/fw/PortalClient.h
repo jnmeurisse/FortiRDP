@@ -86,6 +86,14 @@ namespace fw {
 		*/
 		inline const tools::Path& get_ca_file() const noexcept { return _ca_file; }
 
+		/* Set the user certificate file
+		*/
+		bool set_crt_file(const tools::Path& crt_file);
+
+		/* Set the private key file
+		*/
+		bool set_pk_file(const tools::Path& pk_file);
+
 		/* Opens the connection. The confirm_crt_fn function is called when
 		 * the user is asked to accept the server certificate. The method returns
 		 * ERR_NONE if the connection opens
@@ -129,6 +137,14 @@ namespace fw {
 
 		// The CA public certificate if loaded.
 		mbedtls_x509_crt _ca_crt;
+
+		// Our own certificate filename and private key
+		tools::Path _crt_file;
+		tools::Path _pk_file;
+		
+		// Our own certificate and private key if loaded
+		mbedtls_x509_crt _own_crt;
+		mbedtls_pk_context _own_key;
 
 		// The peer certificate thumbprint
 		CrtThumbprint _peer_crt_thumbprint;

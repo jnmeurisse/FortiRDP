@@ -11,6 +11,7 @@
 #include "mbedTLS/ssl.h"
 #include "fw/PortalClient.h"
 #include "ui/SyncProc.h"
+#include "ui/UserCertFile.h"
 
 /**
 * A synchronous procedure that connects this client to the firewall. The procedure
@@ -19,11 +20,12 @@
 class SyncConnect final : public SyncProc
 {
 public:
-	explicit SyncConnect(HWND hwnd, const std::wstring& ca_filename, fw::PortalClient* portal);
+	explicit SyncConnect(HWND hwnd, const std::wstring& cacrt_file, const struct UserCertFile& ucrt_file, fw::PortalClient* portal);
 	~SyncConnect();
 
 private:
-	const std::wstring _ca_filename;
+	const std::wstring _cacrt_file;
+	const struct UserCertFile _ucrt_file;
 	fw::PortalClient* const _portal;
 
 	// send a show error message command to the window specified by hwnd
@@ -40,6 +42,5 @@ private:
 
 	// connect procedure
 	virtual bool procedure() override;
-
 };
 

@@ -16,6 +16,7 @@
 #include "tools/Task.h"
 #include "net/Endpoint.h"
 #include "fw/PortalClient.h"
+#include "ui/UserCertFile.h"
 
 /**
 * The AsyncController is a singleton class. This controller is responsible to execute all
@@ -26,7 +27,7 @@
 class AsyncController final : public tools::Thread
 {
 public:
-	explicit AsyncController(HWND hwnd, const std::wstring& ca_filename);
+	explicit AsyncController(HWND hwnd, const std::wstring& cacrt_file, const struct UserCertFile& ucrt_file);
 	~AsyncController();
 
 	/* Connects the controller to the firewall. The methods creates a portal
@@ -87,8 +88,11 @@ private:
 	// - the recipient window of the user event message sent at completion of an action
 	const HWND _hwnd;
 
-	// - Filename containing the certificate authority 
-	const std::wstring& _ca_filename;
+	// - the certificate authority filename 
+	const std::wstring& _cacrt_file;
+
+	// - the user certificate
+	const struct UserCertFile _ucrt_file;
 
 	std::unique_ptr<fw::PortalClient> _portal;
 	std::unique_ptr<net::Tunneler> _tunnel;

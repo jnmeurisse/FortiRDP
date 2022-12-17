@@ -31,11 +31,15 @@ namespace fw {
 		_peer_crt_thumbprint(),
 		_mutex(),
 		_ca_file(),
+		_crt_file(),
 		_cookies()
 	{
 		DEBUG_CTOR(_logger, "PortalClient");
 
 		mbedtls_x509_crt_init(&_ca_crt);
+		mbedtls_x509_crt_init(&_own_crt);
+		mbedtls_pk_init(&_own_key);
+
 		set_timeout(10000, 10000);
 	}
 
@@ -45,6 +49,8 @@ namespace fw {
 		DEBUG_DTOR(_logger, "PortalClient");
 
 		mbedtls_x509_crt_free(&_ca_crt);
+		mbedtls_x509_crt_free(&_own_crt);
+		mbedtls_pk_free(&_own_key);
 	}
 
 

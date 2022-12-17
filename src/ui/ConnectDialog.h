@@ -21,6 +21,7 @@
 #include "ui/ModelessDialog.h"
 #include "ui/AsyncController.h"
 #include "ui/InfoLogWriter.h"
+#include "ui/UserCertFile.h"
 
 namespace chrono = std::chrono;
 
@@ -71,8 +72,11 @@ private:
 	const int DEFAULT_RDP_PORT = 3389;
 	net::Endpoint _host_endpoint;
 
-	// - username
+	// - user name
 	std::wstring _username;
+
+	// - user certificate
+	struct UserCertFile _ucrt_file;
 
 	// - task to launch and parameters
 	std::unique_ptr<tools::TaskInfo> _task_info;

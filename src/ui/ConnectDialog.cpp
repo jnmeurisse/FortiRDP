@@ -89,7 +89,7 @@ ConnectDialog::ConnectDialog(HINSTANCE hInstance, const CmdlineParams& params):
 	}
 
 	// allocate the communication controller
-	_controller = std::make_unique<AsyncController>(window_handle(), _params.ca_filename());
+	_controller = std::make_unique<AsyncController>(window_handle(), _params.ca_filename(), _ucrt_file);
 
 	if (params.firewall_address().length() > 0 && params.host_address().length() > 0) {
 		// auto connect if both addresses are specified

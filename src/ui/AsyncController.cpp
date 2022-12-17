@@ -13,11 +13,12 @@
 #include "tools/Mutex.h"
 
 
-AsyncController::AsyncController(HWND hwnd, const std::wstring& ca_filename):
+AsyncController::AsyncController(HWND hwnd, const std::wstring& cacrt_file, const struct UserCertFile& ucrt_file):
 	tools::Thread(),
 	_logger(tools::Logger::get_logger()),
 	_hwnd(hwnd),
-	_ca_filename(ca_filename),
+	_cacrt_file(cacrt_file),
+	_ucrt_file(ucrt_file),
 	_mutex(),
 	_requestEvent(false),
 	_readyEvent(false)
@@ -203,7 +204,7 @@ unsigned int AsyncController::run()
 				switch (_action)
 				{
 				case AsyncController::CONNECT:
-					procedure = std::make_unique<SyncConnect>(_hwnd, _ca_filename, _portal.get());
+					procedure = std::make_unique<SyncConnect>(_hwnd, _cacrt_file, _ucrt_file, _portal.get());
 					break;
 
 				case AsyncController::TUNNEL:
