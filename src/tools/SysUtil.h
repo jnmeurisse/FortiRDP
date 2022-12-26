@@ -6,6 +6,8 @@
 *
 */
 #pragma once
+#include "tools/Path.h"
+
 #include <Windows.h>
 #include <string>
 
@@ -13,6 +15,9 @@ namespace tools {
 
 // Returns true if a file exists
 bool file_exists(const std::wstring& path);
+
+// Returns true if a file exists
+bool file_exists(const tools::Path& path);
 
 // Returns the name of the user associated with this application 
 std::wstring get_windows_username();

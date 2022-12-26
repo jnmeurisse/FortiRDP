@@ -27,6 +27,12 @@ namespace tools {
 	}
 
 
+	bool file_exists(const tools::Path& path)
+	{
+		return file_exists(path.to_string());
+	}
+
+
 	std::wstring get_windows_username()
 	{
 		wchar_t username[UNLEN + 1]{ 0 };
