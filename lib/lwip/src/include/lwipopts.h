@@ -63,7 +63,16 @@
 #define TCP_MSS					1476
 
 /* TCP sender buffer space (bytes). */
-#define TCP_SND_BUF				32 * 1024
+#define TCP_SND_BUF				(64 * 1024)
+
+/* TCP Window size */
+#define TCP_WND					(64 * 1024)
+
+/* TCP Window scaling is enabled */
+#define LWIP_WND_SCALE			1
+
+/* TCP Recive scale factor */
+#define TCP_RCV_SCALE			1
 
 /* LWIP_TCP_KEEPALIVE==1: Enable TCP_KEEPIDLE, TCP_KEEPINTVL and TCP_KEEPCNT */
 #define LWIP_TCP_KEEPALIVE		1
