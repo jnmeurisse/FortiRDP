@@ -720,8 +720,6 @@ namespace fw {
 		
 		url = http::Url{ url_decode(redir) };
 		return true;
-
-//		const http::Url redir_url{ url_decode(redir) };
 	}
 
 }
