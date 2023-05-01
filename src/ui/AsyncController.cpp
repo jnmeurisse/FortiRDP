@@ -13,12 +13,10 @@
 #include "tools/Mutex.h"
 
 
-AsyncController::AsyncController(HWND hwnd, const std::wstring& cacrt_file, const struct UserCertFile& ucrt_file):
+AsyncController::AsyncController(HWND hwnd):
 	tools::Thread(),
 	_logger(tools::Logger::get_logger()),
 	_hwnd(hwnd),
-	_cacrt_file(cacrt_file),
-	_ucrt_file(ucrt_file),
 	_mutex(),
 	_requestEvent(false),
 	_readyEvent(false)
@@ -34,7 +32,7 @@ AsyncController::~AsyncController()
 }
 
 
-bool AsyncController::connect(const net::Endpoint& firewall_endpoint)
+bool AsyncController::connect(const net::Endpoint& firewall_endpoint, const fw::CertFiles& cert_files)
 {
 	if (_logger->is_debug_enabled()) {
 		_logger->debug("... %x enter AsyncController::connect ep=%s",
@@ -43,7 +41,7 @@ bool AsyncController::connect(const net::Endpoint& firewall_endpoint)
 	}
 
 	// Start the async connect procedure
-	_portal = std::make_unique<fw::PortalClient>(firewall_endpoint);
+	_portal = std::make_unique<fw::PortalClient>(firewall_endpoint, cert_files);
 	request_action(AsyncController::CONNECT);
 
 	return _portal != nullptr;
@@ -204,7 +202,7 @@ unsigned int AsyncController::run()
 				switch (_action)
 				{
 				case AsyncController::CONNECT:
-					procedure = std::make_unique<SyncConnect>(_hwnd, _cacrt_file, _ucrt_file, _portal.get());
+					procedure = std::make_unique<SyncConnect>(_hwnd, _portal.get());
 					break;
 
 				case AsyncController::TUNNEL:

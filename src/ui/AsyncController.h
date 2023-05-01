@@ -11,12 +11,12 @@
 #include <memory>
 #include "tools/Event.h"
 #include "tools/Logger.h"
+#include "tools/ObfuscatedString.h"
 #include "tools/Thread.h"
 #include "tools/TaskInfo.h"
 #include "tools/Task.h"
 #include "net/Endpoint.h"
 #include "fw/PortalClient.h"
-#include "ui/UserCertFile.h"
 
 /**
 * The AsyncController is a singleton class. This controller is responsible to execute all
@@ -27,13 +27,13 @@
 class AsyncController final : public tools::Thread
 {
 public:
-	explicit AsyncController(HWND hwnd, const std::wstring& cacrt_file, const struct UserCertFile& ucrt_file);
+	explicit AsyncController(HWND hwnd);
 	~AsyncController();
 
 	/* Connects the controller to the firewall. The methods creates a portal
 	   client and connects it to the firewall. 
 	*/
-	bool connect(const net::Endpoint& firewall_endpoint);
+	bool connect(const net::Endpoint& firewall_endpoint, const fw::CertFiles& cert_files);
 
 	/* Creates a tunnel with the firewall 
 	*/
@@ -88,11 +88,12 @@ private:
 	// - the recipient window of the user event message sent at completion of an action
 	const HWND _hwnd;
 
-	// - the certificate authority filename 
-	const std::wstring& _cacrt_file;
+	// - portal sslvpn certificates
+	const fw::CertFiles _cert_files;
 
-	// - the user certificate
-	const struct UserCertFile _ucrt_file;
+	// - the user certificate filename and the private key password
+	const std::wstring _uscrt_file;
+	const tools::obfstring _password;
 
 	std::unique_ptr<fw::PortalClient> _portal;
 	std::unique_ptr<net::Tunneler> _tunnel;
