@@ -11,6 +11,7 @@
 #include <memory>
 #include "tools/Event.h"
 #include "tools/Logger.h"
+#include "tools/ObfuscatedString.h"
 #include "tools/Thread.h"
 #include "tools/TaskInfo.h"
 #include "tools/Task.h"
@@ -26,13 +27,13 @@
 class AsyncController final : public tools::Thread
 {
 public:
-	explicit AsyncController(HWND hwnd, const std::wstring& ca_filename);
+	explicit AsyncController(HWND hwnd);
 	~AsyncController();
 
 	/* Connects the controller to the firewall. The methods creates a portal
 	   client and connects it to the firewall. 
 	*/
-	bool connect(const net::Endpoint& firewall_endpoint);
+	bool connect(const net::Endpoint& firewall_endpoint, const fw::CertFiles& cert_files);
 
 	/* Creates a tunnel with the firewall 
 	*/
@@ -87,8 +88,12 @@ private:
 	// - the recipient window of the user event message sent at completion of an action
 	const HWND _hwnd;
 
-	// - Filename containing the certificate authority 
-	const std::wstring& _ca_filename;
+	// - portal sslvpn certificates
+	const fw::CertFiles _cert_files;
+
+	// - the user certificate filename and the private key password
+	const std::wstring _uscrt_file;
+	const tools::obfstring _password;
 
 	std::unique_ptr<fw::PortalClient> _portal;
 	std::unique_ptr<net::Tunneler> _tunnel;

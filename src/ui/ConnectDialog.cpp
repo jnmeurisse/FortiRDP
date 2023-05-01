@@ -13,6 +13,8 @@
 #include "ui/AsyncMessage.h"
 #include "tools/StrUtil.h"
 #include "tools/SysUtil.h"
+#include "tools/ErrUtil.h"
+#include "mbedtls/pem.h"
 #include "resources/resource.h"
 
 // ID for the system menu
@@ -35,7 +37,7 @@ ConnectDialog::ConnectDialog(HINSTANCE hInstance, const CmdlineParams& params):
 
 	// Configure the status text font. The color is assigned later when responding to WM_CTLCOLORSTATIC
 	// message.
-	_msg_font = create_font(10, L"Arial");
+	_msg_font = create_font(10, L"Tahoma");
 	set_control_font(IDC_STATUSTEXT, _msg_font);
 
 	// create a black brush used to fill the IDC_STATUSTEXT control
@@ -89,7 +91,7 @@ ConnectDialog::ConnectDialog(HINSTANCE hInstance, const CmdlineParams& params):
 	}
 
 	// allocate the communication controller
-	_controller = std::make_unique<AsyncController>(window_handle(), _params.ca_filename());
+	_controller = std::make_unique<AsyncController>(window_handle());
 
 	if (params.firewall_address().length() > 0 && params.host_address().length() > 0) {
 		// auto connect if both addresses are specified
@@ -177,7 +179,7 @@ void ConnectDialog::connect()
 	}
 	catch (const std::invalid_argument) {
 		set_focus(IDC_ADDR_FW);
-		showErrorMessageDialog("Invalid firewall address");
+		showErrorMessageDialog(L"Invalid firewall address");
 		return;
 	}
 
@@ -188,7 +190,7 @@ void ConnectDialog::connect()
 	}
 	catch (const std::invalid_argument) {
 		set_focus(IDC_ADDR_HOST);
-		showErrorMessageDialog("Invalid host address");
+		showErrorMessageDialog(L"Invalid host address");
 		return;
 	}
 
@@ -243,17 +245,22 @@ void ConnectDialog::connect()
 
 	// Check if the app executable exists
 	if (!task_name.empty() && !tools::file_exists(task_name)) {
-		std::string message{ "Application not found : " + tools::wstr2str(task_name) };
+		const std::wstring message{ L"Application not found : " + task_name };
 		showErrorMessageDialog(message.c_str());
 		return;
 	}
 
 	// Check if the rdp file exists
 	if (!_params.rdp_filename().empty() && !tools::file_exists(_params.rdp_filename())) {
-		std::string message{ "RDP file not found : " + tools::wstr2str(_task_info->path()) };
+		const std::wstring message{ L"RDP file not found : " + _task_info->path() };
 		showErrorMessageDialog(message.c_str());
 		return;
 	}
+
+	// Initialize all certificates
+	fw::CertFiles cert_files;
+	if (!initCertFiles(cert_files))
+		return;
 
 	// Clear the information log
 	clearInfo();
@@ -270,7 +277,7 @@ void ConnectDialog::connect()
 		::EnableMenuItem(get_sys_menu(false), SYSCMD_OPTIONS, MF_BYCOMMAND | MF_DISABLED);
 
 	// start the client
-	_controller->connect(_firewall_endpoint);
+	_controller->connect(_firewall_endpoint, cert_files);
 }
 
 
@@ -283,14 +290,12 @@ void ConnectDialog::disconnect()
 
 void ConnectDialog::showAskCredentialDialog(fw::Credential* pCredential)
 {
-	bool modal_result;
-
 	CredentialDialog credentialDialog(instance_handle(), window_handle());
-	std::string message{ "Enter user name and password to access firewall " + _controller->portal()->host().hostname() };
+	const std::string message{ "Enter user name and password to access firewall " + _controller->portal()->host().hostname() };
 	credentialDialog.setText(tools::str2wstr(message));
 	credentialDialog.setUsername(_username);
 
-	modal_result = credentialDialog.showModal() == TRUE;
+	const bool modal_result = credentialDialog.showModal() == TRUE;
 	if (modal_result && pCredential) {
 		// returns user name and password to caller
 		_username = credentialDialog.getUsername();
@@ -309,12 +314,12 @@ void ConnectDialog::showAskCredentialDialog(fw::Credential* pCredential)
 void ConnectDialog::showAskCodeDialog(fw::Code2FA* pCode)
 {
 	AskCodeDialog codeDialog{ instance_handle(), window_handle() };
-	std::string message = (!pCode)
+	const std::string message = (!pCode)
 		? "Enter code to access firewall " + _controller->portal()->host().hostname()
 		: pCode->info;
 	codeDialog.setText(tools::str2wstr(message));
 
-	bool modal_result = codeDialog.showModal() == TRUE;
+	const bool modal_result = codeDialog.showModal() == TRUE;
 	if (modal_result && pCode) {
 		// returns code to caller
 		pCode->code = tools::wstr2str(codeDialog.getCode());
@@ -553,9 +558,9 @@ void ConnectDialog::showOptionsDialog()
 }
 
 
-void ConnectDialog::showErrorMessageDialog(const char * pText)
+void ConnectDialog::showErrorMessageDialog(const wchar_t* pText)
 {
-	show_message_box(tools::str2wstr(pText), MB_ICONERROR | MB_OK);
+	show_message_box(pText, MB_ICONERROR | MB_OK);
 	return;
 }
 
@@ -573,7 +578,6 @@ void ConnectDialog::disconnectFromFirewall(bool success)
 {
 	disconnect();
 }
-
 
 
 void ConnectDialog::startTask()
@@ -634,6 +638,92 @@ void ConnectDialog::clearRdpHistory()
 		}
 	}
 }
+
+
+bool ConnectDialog::initCertFiles(fw::CertFiles& cert_files)
+{
+	//  CA certificate
+	if (_params.ca_cert_filename().length() == 0) {
+		// no CA file specified, use the default file located in the application folder
+		cert_files.crt_auth_file = tools::Path(
+			tools::Path::get_module_path().folder(), 
+			L"fortirdp.crt"
+		);
+	}
+	else {
+		// use the CA file specified in the command line
+		cert_files.crt_auth_file = tools::Path(_params.ca_cert_filename());
+
+		// if no path specified, we assume that the .crt file is located next to the .exe
+		if (cert_files.crt_auth_file.folder().empty()) {
+			cert_files.crt_auth_file = tools::Path(
+				tools::Path::get_module_path().folder(), 
+				cert_files.crt_auth_file.filename()
+			);
+		}
+	}
+
+	//  User certificate
+	if (_params.us_cert_filename().length() > 0) {
+		// use the user certificate file specified in the command line
+		cert_files.crt_user_file = tools::Path(_params.us_cert_filename());
+
+		// if no path specified, we assume that the .crt file is located next to the .exe
+		if (cert_files.crt_user_file.folder().empty()) {
+			cert_files.crt_user_file = tools::Path(
+				tools::Path::get_module_path().folder(), 
+				cert_files.crt_user_file.filename()
+			);
+		}
+
+		if (!tools::file_exists(cert_files.crt_user_file)) {
+			std::wstring message{ L"User certificate file not found : " + cert_files.crt_user_file.to_string() };
+			showErrorMessageDialog(message.c_str());
+			return false;
+		}
+
+		// try to load the private key without a password
+		mbedtls_pk_context own_key;
+		mbedtls_pk_init(&own_key);
+		tools::mbed_err rc = mbedtls_pk_parse_keyfile(
+			&own_key, 
+			tools::wstr2str(cert_files.crt_user_file.to_string()).c_str(), 
+			nullptr
+		);
+
+		if (rc == MBEDTLS_ERR_PK_PASSWORD_REQUIRED) {
+			AskCodeDialog codeDialog{ instance_handle(), window_handle() };
+			codeDialog.setText(L"enter your private key password");
+
+			if (codeDialog.showModal() == TRUE) {
+				const std::string passcode = tools::wstr2str(codeDialog.getCode());
+				rc = mbedtls_pk_parse_keyfile(
+					&own_key, 
+					tools::wstr2str(cert_files.crt_user_file.to_string()).c_str(), 
+					passcode.c_str()
+				);
+				if (rc == 0)
+					cert_files.crt_user_password = passcode;
+			}
+		}
+
+		if (rc) {
+			// can't load the private key
+			const std::wstring message =
+				L"Can't load private key from " +
+				cert_files.crt_user_file.filename()
+				+ L"\n"
+				+ tools::str2wstr(tools::mbed_errmsg(rc));
+			showErrorMessageDialog(message.c_str());
+			return false;
+		}
+
+		mbedtls_pk_free(&own_key);
+	}
+
+	return true;
+}
+
 
 
 void ConnectDialog::onConnectedEvent(bool success)
@@ -742,7 +832,7 @@ INT_PTR ConnectDialog::onUserEventMessage(UINT eventNumber, void* param)
 
 	}
 	else if (AsyncMessage::ShowErrorMessageDialogRequest == eventNumber) {
-		showErrorMessageDialog(static_cast<char *>(param));
+		showErrorMessageDialog(static_cast<wchar_t *>(param));
 
 	}
 	else if (AsyncMessage::DisconnectFromFirewallRequest == eventNumber) {

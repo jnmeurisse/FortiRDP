@@ -18,7 +18,7 @@ namespace http {
 
 	Headers& Headers::add(const Headers& headers)
 	{
-		for (auto iter = cbegin(); iter != cend(); iter++) {
+		for (auto iter = headers.cbegin(); iter != headers.cend(); iter++) {
 			StringMap::set(iter->first, iter->second);
 		}
 

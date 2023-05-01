@@ -43,6 +43,12 @@ namespace http {
 	}
 
 
+	void Cookies::remove(const std::string& name)
+	{
+		_cookies.erase(name);
+	}
+
+
 	const Cookies& Cookies::set(const std::string& name, const Cookie& value)
 	{
 		// check if the name exists in this collection. 

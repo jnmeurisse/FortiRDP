@@ -142,6 +142,12 @@ namespace net {
 	}
 
 
+	mbed_err TlsSocket::set_own_crt(mbedtls_x509_crt* own_crt, mbedtls_pk_context *own_key)
+	{
+		return mbedtls_ssl_conf_own_cert(&_ssl_config, own_crt, own_key);
+	}
+
+
 	void TlsSocket::set_cipher(enum Cipher cipher)
 	{
 		DEBUG_ENTER(_logger, "TlsSocket", "set_cipher");

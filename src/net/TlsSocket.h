@@ -41,6 +41,10 @@ namespace net {
 		*/
 		const mbedtls_x509_crt* get_ca_crt() const;
 
+		/* Defines the client certificate
+		*/
+		mbed_err set_own_crt(mbedtls_x509_crt* own_crt, mbedtls_pk_context *own_key);
+
 		/* Defines a type of cipher
 		*/
 		void set_cipher(enum Cipher cipher);

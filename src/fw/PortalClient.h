@@ -53,6 +53,18 @@ namespace fw {
 		std::string local_addr;
 	};
 
+	// certificate files
+	struct CertFiles
+	{
+		// - certificate authority
+		tools::Path crt_auth_file;
+
+		// - the user certificate filename and the private key password
+		tools::Path crt_user_file;
+		std::string crt_user_password;
+	};
+
+
 	// Portal Client error codes
 	typedef enum {
 		NONE = 0,
@@ -75,16 +87,12 @@ namespace fw {
 	class PortalClient final : public http::HttpsClient
 	{
 	public:
-		explicit PortalClient(const net::Endpoint& ep);
+		explicit PortalClient(const net::Endpoint& ep, const CertFiles& cert_files);
 		~PortalClient();
 
-		/* Sets the root CA certificate file used to authenticate the server
+		/* Returns portal certificate files
 		*/
-		bool set_ca_file(const tools::Path& ca_file);
-
-		/* Returns the name of the root CA file
-		*/
-		inline const tools::Path& get_ca_file() const noexcept { return _ca_file; }
+		inline const CertFiles& get_cert_files() const noexcept { return _cert_files; }
 
 		/* Opens the connection. The confirm_crt_fn function is called when
 		 * the user is asked to accept the server certificate. The method returns
@@ -121,14 +129,18 @@ namespace fw {
 
 		/* Returns true if we are authenticated in the portal
 		*/
-		inline bool authenticated() const {return _authenticated;}
+		bool authenticated() const;
 
 	private:
-		// The CA public certificate filename
-		tools::Path _ca_file;
+		// Portal certificates
+		CertFiles _cert_files;
 
 		// The CA public certificate if loaded.
-		mbedtls_x509_crt _ca_crt;
+		mbedtls_x509_crt _crt_auth;
+
+		// The user certificate and its private key if loaded.
+		mbedtls_x509_crt _crt_user;
+		mbedtls_pk_context _pk_crt_user;
 
 		// The peer certificate thumbprint
 		CrtThumbprint _peer_crt_thumbprint;
@@ -139,11 +151,16 @@ namespace fw {
 		// true if socket connected
 		bool _connected;
 
-		// true if authenticated
-		bool _authenticated;
-
 		// mutex to serialize calls
 		tools::Mutex _mutex;
+
+		/* Sets the root CA certificate file used to authenticate the server
+		*/
+		bool init_ca_crt();
+
+		/* Set the user certificate and private key
+		*/
+		bool init_user_crt();
 
 		// Sends a request and wait for a response.
 		bool send_and_receive(http::Request& request, http::Answer& answer);
@@ -158,6 +175,9 @@ namespace fw {
 
 		// Sends a login check to the firewall portal
 		bool login_check(const tools::StringMap& params, http::Answer& answer);
+
+		// Extract redir URL
+		bool extract_redir_url(const tools::StringMap& params, http::Url& url);
 	};
 
 }
