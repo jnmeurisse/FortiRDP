@@ -42,7 +42,6 @@ public:
 	void clearInfo();
 	void writeInfo(const std::wstring& message);
 
-
 private:
 	enum TimersId
 	{
@@ -71,7 +70,7 @@ private:
 	const int DEFAULT_RDP_PORT = 3389;
 	net::Endpoint _host_endpoint;
 
-	// - username
+	// - user name
 	std::wstring _username;
 
 	// - task to launch and parameters
@@ -96,6 +95,7 @@ private:
 	void disconnect();
 	void startTask();
 	void clearRdpHistory();
+	bool initCertFiles(fw::CertFiles& cert_files);
 
 	// Event handlers
 	virtual INT_PTR onDestroyDialogMessage(WPARAM wParam, LPARAM lParam) override;
@@ -111,7 +111,7 @@ private:
 	void outputInfoMessage(const char* pText);
 	void showAboutDialog();
 	void showOptionsDialog();
-	void showErrorMessageDialog(const char* pText);
+	void showErrorMessageDialog(const wchar_t* pText);
 	void showAskCredentialDialog(fw::Credential* pCredential);
 	void showAskCodeDialog(fw::Code2FA* pCode);
 	void showInvalidCertificateDialog(const char* pText);

@@ -266,14 +266,14 @@ namespace net {
 					_state = State::RUNNING;
 					_logger->info(">> tunnel is up, listening on %s",
 						_listener.endpoint().to_string().c_str());
-					_logger->info("   ip=%s/%d gw=%s mtu=%d",
+					_logger->info("     ip=%s/%d gw=%s mtu=%d",
 						_pp_interface.addr().c_str(),
 						_pp_interface.netmask(),
 						_pp_interface.gateway().c_str(),
 						_pp_interface.mtu());
 
 					if (DnsClient::configured()) {
-						_logger->info("   dns=%s", DnsClient::dns().c_str());
+						_logger->info("     dns=%s", DnsClient::dns().c_str());
 					}
 				}
 				break;
