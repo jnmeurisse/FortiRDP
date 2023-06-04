@@ -131,6 +131,48 @@ int mbedtls_x509_get_alg( unsigned char **p, const unsigned char *end,
     return( 0 );
 }
 
+/*
+ * Convert md type to string
+ */
+static inline const char* md_type_to_string( mbedtls_md_type_t md_alg )
+{
+    switch( md_alg )
+    {
+#if defined(MBEDTLS_MD5_C)
+    case MBEDTLS_MD_MD5:
+        return( "MD5" );
+#endif
+#if defined(MBEDTLS_SHA1_C)
+    case MBEDTLS_MD_SHA1:
+        return( "SHA1" );
+#endif
+#if defined(MBEDTLS_SHA224_C)
+    case MBEDTLS_MD_SHA224:
+        return( "SHA224" );
+#endif
+#if defined(MBEDTLS_SHA256_C)
+    case MBEDTLS_MD_SHA256:
+        return( "SHA256" );
+#endif
+#if defined(MBEDTLS_SHA384_C)
+    case MBEDTLS_MD_SHA384:
+        return( "SHA384" );
+#endif
+#if defined(MBEDTLS_SHA512_C)
+    case MBEDTLS_MD_SHA512:
+        return( "SHA512" );
+#endif
+#if defined(MBEDTLS_RIPEMD160_C)
+    case MBEDTLS_MD_RIPEMD160:
+        return( "RIPEMD160" );
+#endif
+    case MBEDTLS_MD_NONE:
+        return( NULL );
+    default:
+        return( NULL );
+    }
+}
+
 #if defined(MBEDTLS_X509_RSASSA_PSS_SUPPORT)
 /*
  * HashAlgorithm ::= AlgorithmIdentifier
@@ -838,6 +880,7 @@ int mbedtls_x509_serial_gets( char *buf, size_t size, const mbedtls_x509_buf *se
     return( (int) ( size - n ) );
 }
 
+#if !defined(MBEDTLS_X509_REMOVE_INFO)
 /*
  * Helper for writing signature algorithms
  */
@@ -861,16 +904,15 @@ int mbedtls_x509_sig_alg_gets( char *buf, size_t size, const mbedtls_x509_buf *s
     if( pk_alg == MBEDTLS_PK_RSASSA_PSS )
     {
         const mbedtls_pk_rsassa_pss_options *pss_opts;
-        const mbedtls_md_info_t *md_info, *mgf_md_info;
 
         pss_opts = (const mbedtls_pk_rsassa_pss_options *) sig_opts;
 
-        md_info = mbedtls_md_info_from_type( md_alg );
-        mgf_md_info = mbedtls_md_info_from_type( pss_opts->mgf1_hash_id );
+        const char *name = md_type_to_string( md_alg );
+        const char *mgf_name = md_type_to_string( pss_opts->mgf1_hash_id );
 
         ret = mbedtls_snprintf( p, n, " (%s, MGF1-%s, 0x%02X)",
-                              md_info ? mbedtls_md_get_name( md_info ) : "???",
-                              mgf_md_info ? mbedtls_md_get_name( mgf_md_info ) : "???",
+                              name ? name : "???",
+                              mgf_name ? mgf_name : "???",
                               (unsigned int) pss_opts->expected_salt_len );
         MBEDTLS_X509_SAFE_SNPRINTF;
     }
@@ -882,6 +924,7 @@ int mbedtls_x509_sig_alg_gets( char *buf, size_t size, const mbedtls_x509_buf *s
 
     return( (int)( size - n ) );
 }
+#endif /* MBEDTLS_X509_REMOVE_INFO */
 
 /*
  * Helper for writing "RSA key size", "EC key size", etc
@@ -1002,73 +1045,4 @@ int mbedtls_x509_time_is_future( const mbedtls_x509_time *from )
     return( 0 );
 }
 #endif /* MBEDTLS_HAVE_TIME_DATE */
-
-#if defined(MBEDTLS_SELF_TEST)
-
-#include "mbedtls/x509_crt.h"
-#include "mbedtls/certs.h"
-
-/*
- * Checkup routine
- */
-int mbedtls_x509_self_test( int verbose )
-{
-    int ret = 0;
-#if defined(MBEDTLS_CERTS_C) && defined(MBEDTLS_SHA256_C)
-    uint32_t flags;
-    mbedtls_x509_crt cacert;
-    mbedtls_x509_crt clicert;
-
-    if( verbose != 0 )
-        mbedtls_printf( "  X.509 certificate load: " );
-
-    mbedtls_x509_crt_init( &cacert );
-    mbedtls_x509_crt_init( &clicert );
-
-    ret = mbedtls_x509_crt_parse( &clicert, (const unsigned char *) mbedtls_test_cli_crt,
-                           mbedtls_test_cli_crt_len );
-    if( ret != 0 )
-    {
-        if( verbose != 0 )
-            mbedtls_printf( "failed\n" );
-
-        goto cleanup;
-    }
-
-    ret = mbedtls_x509_crt_parse( &cacert, (const unsigned char *) mbedtls_test_ca_crt,
-                          mbedtls_test_ca_crt_len );
-    if( ret != 0 )
-    {
-        if( verbose != 0 )
-            mbedtls_printf( "failed\n" );
-
-        goto cleanup;
-    }
-
-    if( verbose != 0 )
-        mbedtls_printf( "passed\n  X.509 signature verify: ");
-
-    ret = mbedtls_x509_crt_verify( &clicert, &cacert, NULL, NULL, &flags, NULL, NULL );
-    if( ret != 0 )
-    {
-        if( verbose != 0 )
-            mbedtls_printf( "failed\n" );
-
-        goto cleanup;
-    }
-
-    if( verbose != 0 )
-        mbedtls_printf( "passed\n\n");
-
-cleanup:
-    mbedtls_x509_crt_free( &cacert  );
-    mbedtls_x509_crt_free( &clicert );
-#else
-    ((void) verbose);
-#endif /* MBEDTLS_CERTS_C && MBEDTLS_SHA256_C */
-    return( ret );
-}
-
-#endif /* MBEDTLS_SELF_TEST */
-
 #endif /* MBEDTLS_X509_USE_C */
