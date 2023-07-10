@@ -194,8 +194,14 @@ namespace net {
 		int rc;
 
 		rc = mbedtls_net_connect(&_netctx, host.c_str(), port.c_str(), MBEDTLS_NET_PROTO_TCP);
-		if (rc)
+		if (rc) {
+			// mbedtls_net_connect should call mbedtls_net_close instead of close
+			// and keeping a socket file descriptor. 
+			_netctx.fd = -1;
+
 			goto terminate;
+		}
+			
 
 		// configure all options
 		if (!apply_opt(SocketOptions::all)) {

@@ -7,7 +7,6 @@
 */
 
 #include "tools/Path.h"
-#include "mbedtls/ssl_internal.h"
 #include "mbedtls/ssl_ciphersuites.h"
 #include "net/TlsSocket.h"
 
@@ -45,33 +44,10 @@ namespace net {
 	}
 
 
-	// Recommended ciphers from https://ciphersuite.info. 
-	//    Key exchange   : elliptic curve diffie-hellman key exchange
-	//    Authentication : RSA
-	//    Encryption     : CHACHA20 or AES
-	//    Message auth   : SHA256 
 	static const int default_ciphers[] = {
-		// recommended
-		MBEDTLS_TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256,
-		MBEDTLS_TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
-
-		// secure (no perfect Forward Secrecy)
-		MBEDTLS_TLS_RSA_WITH_AES_128_GCM_SHA256,
-		MBEDTLS_TLS_RSA_WITH_AES_128_CBC_SHA256,
-
-		// mandatory supported by all tls 1.2 server (RFC5246)
-		MBEDTLS_TLS_RSA_WITH_AES_128_CBC_SHA,
-
-		// end of list
-		0
-	};
-
-	// Cipher with the shortest message authentication to reduced overhead.
-	// Considered as weak but strong enough for tunneling https
-	static const int lowsec_ciphers[] = {
-		MBEDTLS_TLS_RSA_WITH_AES_128_CBC_SHA,
-
-		// end of list
+		MBEDTLS_TLS1_3_CHACHA20_POLY1305_SHA256,
+		MBEDTLS_TLS1_3_AES_128_GCM_SHA256,
+		MBEDTLS_TLS1_3_AES_256_GCM_SHA384,
 		0
 	};
 
@@ -91,9 +67,9 @@ namespace net {
 		mbedtls_ssl_conf_authmode(&_ssl_config, MBEDTLS_SSL_VERIFY_REQUIRED);
 		mbedtls_ssl_conf_rng(&_ssl_config, mbedtls_ctr_drbg_random, &_ctr_drbg);
 
-		// 1.1 and 1.2 are accepted
-		mbedtls_ssl_conf_min_version(&_ssl_config, MBEDTLS_SSL_MAJOR_VERSION_3, MBEDTLS_SSL_MINOR_VERSION_2);
-		mbedtls_ssl_conf_max_version(&_ssl_config, MBEDTLS_SSL_MAJOR_VERSION_3, MBEDTLS_SSL_MINOR_VERSION_3);
+		// only 1.3 is accepted
+		mbedtls_ssl_conf_min_tls_version(&_ssl_config, MBEDTLS_SSL_VERSION_TLS1_3);
+		mbedtls_ssl_conf_max_tls_version(&_ssl_config, MBEDTLS_SSL_VERSION_TLS1_3);
 
 		// set cipher list
 		mbedtls_ssl_conf_ciphersuites(&_ssl_config, default_ciphers);
@@ -136,34 +112,9 @@ namespace net {
 	}
 
 
-	const mbedtls_x509_crt* TlsSocket::get_ca_crt() const
-	{
-		return _ssl_config.ca_chain;
-	}
-
-
 	mbed_err TlsSocket::set_own_crt(mbedtls_x509_crt* own_crt, mbedtls_pk_context *own_key)
 	{
 		return mbedtls_ssl_conf_own_cert(&_ssl_config, own_crt, own_key);
-	}
-
-
-	void TlsSocket::set_cipher(enum Cipher cipher)
-	{
-		DEBUG_ENTER(_logger, "TlsSocket", "set_cipher");
-
-		switch (cipher)
-		{
-		case Cipher::LOW_SEC:
-			mbedtls_ssl_conf_ciphersuites(&_ssl_config, lowsec_ciphers);
-			break;
-
-		default:
-			mbedtls_ssl_conf_ciphersuites(&_ssl_config, default_ciphers);
-			break;
-		}
-
-		return;
 	}
 
 
@@ -239,7 +190,9 @@ namespace net {
 	mbed_err TlsSocket::flush()
 	{
 		DEBUG_ENTER(_logger, "TlsSocket", "flush");
-		return mbedtls_ssl_flush_output(&_ssl_context);
+//TODO replace or remove flush 
+//		return mbedtls_ssl_flush_output(&_ssl_context);
+		return 0;
 	}
 
 
@@ -247,7 +200,7 @@ namespace net {
 	{
 		DEBUG_ENTER(_logger, "TlsSocket", "do_close");
 
-		if (connected() && _ssl_context.p_bio) {
+		if (connected()) {
 			mbedtls_ssl_close_notify(&_ssl_context);
 			mbedtls_ssl_session_reset(&_ssl_context);
 		}

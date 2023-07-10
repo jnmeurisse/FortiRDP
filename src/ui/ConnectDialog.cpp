@@ -688,6 +688,8 @@ bool ConnectDialog::initCertFiles(fw::CertFiles& cert_files)
 		tools::mbed_err rc = mbedtls_pk_parse_keyfile(
 			&own_key, 
 			tools::wstr2str(cert_files.crt_user_file.to_string()).c_str(), 
+			nullptr,
+			nullptr,
 			nullptr
 		);
 
@@ -700,7 +702,9 @@ bool ConnectDialog::initCertFiles(fw::CertFiles& cert_files)
 				rc = mbedtls_pk_parse_keyfile(
 					&own_key, 
 					tools::wstr2str(cert_files.crt_user_file.to_string()).c_str(), 
-					passcode.c_str()
+					passcode.c_str(),
+					nullptr,
+					nullptr
 				);
 				if (rc == 0)
 					cert_files.crt_user_password = passcode;

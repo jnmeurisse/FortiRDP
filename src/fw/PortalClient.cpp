@@ -119,7 +119,9 @@ namespace fw {
 			rc = mbedtls_pk_parse_keyfile(
 				&_pk_crt_user, 
 				tools::wstr2str(filename).c_str(), 
-				_cert_files.crt_user_password.c_str()
+				_cert_files.crt_user_password.c_str(),
+				nullptr,
+				nullptr
 			);
 			if (rc != 0) {
 				_logger->info(
@@ -160,9 +162,6 @@ namespace fw {
 		http::Answer answer;
 
 		_logger->info(">> connecting to %s", host().to_string().c_str());
-
-		// define the type of cipher used to encrypt and sign all traffic 
-		set_cipher(Cipher::HIGH_SEC);
 
 		// initialize our certificates
 		init_ca_crt();
