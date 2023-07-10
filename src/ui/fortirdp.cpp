@@ -40,6 +40,9 @@ static void			RedirectStdioToConsole();
 static bool			is_wow64();
 static void			lwip_log_cb(void *ctx, int level, const char* fmt, va_list args);
 
+extern "C" {
+	void psa_crypto_init();
+}
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	_In_opt_ HINSTANCE hPrevInstance,
@@ -94,6 +97,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 		if (cmdline_params.trace()) 
 			logger->set_level(tools::Logger::LL_TRACE);
 	}
+
+	// Initialize 
+	psa_crypto_init();
 
 	// Initialize lwip stack
 	lwip_init();
