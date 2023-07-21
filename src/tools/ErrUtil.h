@@ -16,8 +16,8 @@ namespace tools {
 	// Windows error codes
 	using win_err = DWORD;
 
-	// mbed tls error codes
-	using mbed_err = int;
+	// openssl error codes
+	using ossl_err = int;
 
 	// lwip error codes
 	using lwip_err = err_t;
@@ -28,8 +28,8 @@ namespace tools {
 	// Returns winapi error message 
 	std::wstring win_errmsg(const win_err errnum);
 
-	// Returns mbedtls error message
-	std::string mbed_errmsg(const mbed_err errnum);
+	// Returns openssl error message
+	std::string ossl_errmsg(const ossl_err errnum);
 
 	// Returns lwip error message
 	std::string lwip_errmsg(const lwip_err errnum);
@@ -43,14 +43,14 @@ namespace tools {
 		virtual std::string message() const noexcept = 0;
 	};
 
-	class mbed_error : public frdp_error {
+	class ossl_error : public frdp_error {
 	public:
-		explicit mbed_error(mbed_err errnum) : _errnum(errnum >= 0 ? 0 : errnum) {};
+		explicit ossl_error(ossl_err errnum) : _errnum(errnum >= 0 ? 0 : errnum) {};
 		
 		std::string message() const noexcept override;
 
 	private:
-		const mbed_err _errnum;
+		const ossl_err _errnum;
 	};
 
 	class httpcli_error : public frdp_error {
