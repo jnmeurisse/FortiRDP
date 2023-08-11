@@ -59,7 +59,7 @@ extern "C" {
 		ppp_link_status_cb_fn link_status_cb, void *ctx_cb);
 
 	/* This is the input function to be called for received data. */
-	int pppossl_input(ppp_pcb *ppp, u8_t* s, int l);
+	int pppossl_input(ppp_pcb *ppp, u8_t* s, size_t l);
 
 	/* Send a keep alive packet */
 	void ppossl_send_ka(ppp_pcb *ppp);
