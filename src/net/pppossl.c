@@ -247,7 +247,7 @@ pppossl_destroy(ppp_pcb *ppp, void *ctx)
 * @param l		length of received data
 */
 int
-pppossl_input(ppp_pcb *ppp, u8_t* s, int l)
+pppossl_input(ppp_pcb *ppp, u8_t* s, size_t l)
 {
 	err_t err = PPPERR_NONE;
 	pppossl_pcb*const pppossl = (pppossl_pcb *)ppp->link_ctx_cb;
