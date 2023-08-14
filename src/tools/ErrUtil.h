@@ -10,6 +10,7 @@
 #include <Windows.h>
 #include <string>
 #include <exception>
+#include <openssl/err.h>
 #include "lwip/err.h"
 
 namespace tools {
@@ -17,7 +18,7 @@ namespace tools {
 	using win_err = DWORD;
 
 	// openssl error codes
-	using ossl_err = int;
+	using ossl_err = unsigned long;
 
 	// lwip error codes
 	using lwip_err = err_t;
@@ -40,24 +41,26 @@ namespace tools {
 
 	class frdp_error : public std::exception {
 	public:
-		virtual std::string message() const noexcept = 0;
+		virtual std::string message() const = 0;
 	};
 
+	
 	class ossl_error : public frdp_error {
 	public:
-		explicit ossl_error(ossl_err errnum) : _errnum(errnum >= 0 ? 0 : errnum) {};
+		explicit ossl_error(ossl_err errnum) : _errnum(errnum) {};
 		
-		std::string message() const noexcept override;
+		std::string message() const override;
 
 	private:
 		const ossl_err _errnum;
 	};
 
+
 	class httpcli_error : public frdp_error {
 	public:
 		httpcli_error(const std::string& message) : _message(message) {};
 
-		std::string message() const noexcept override { return _message; }
+		std::string message() const override { return _message; }
 
 	private:
 		const std::string _message;
