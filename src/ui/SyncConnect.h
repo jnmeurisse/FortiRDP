@@ -8,7 +8,8 @@
 #pragma once
 #include <Windows.h>
 #include <string>
-#include "mbedTLS/ssl.h"
+#include <openssl/x509.h>
+
 #include "fw/PortalClient.h"
 #include "ui/SyncProc.h"
 
@@ -30,7 +31,7 @@ private:
 	void showErrorMessageDialog(const wchar_t* message) const;
 
 	// callback called to ask user to confirm certificate usage
-	bool confirm_certificate(const mbedtls_x509_crt* crt, int status);
+	bool confirm_certificate(const X509* crt, int status);
 
 	// callback called to ask user to provide user name/password
 	bool ask_credential(fw::Credential& credential);
