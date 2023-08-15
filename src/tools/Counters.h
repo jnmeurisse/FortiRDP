@@ -16,7 +16,7 @@ namespace tools {
 	{
 	public:
 		volatile size_t sent{ 0 };
-		volatile size_t  received{ 0 };
+		volatile size_t received{ 0 };
 
 		/* Resets counters to 0
 		*/
