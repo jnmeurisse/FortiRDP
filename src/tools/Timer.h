@@ -14,7 +14,7 @@ namespace tools {
 	class Timer final
 	{
 	public:
-		Timer();
+
 		explicit Timer(int ms);
 		explicit Timer(const Timer& timer);
 		~Timer();
@@ -26,10 +26,6 @@ namespace tools {
 		/* Returns true if the timer has elapsed
 		*/
 		bool elapsed() const;
-
-		/* Returns the timer handle
-		*/
-		inline HANDLE get_handle() const { return _handle; }
 
 	private:
 		// A reference to the application logger

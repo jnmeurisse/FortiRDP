@@ -7,16 +7,10 @@
 */
 #include <iostream>
 
-#include "Timer.h"
-#include "SysUtil.h"
+#include "tools/Timer.h"
+#include "tools/SysUtil.h"
 
 namespace tools {
-
-	Timer::Timer() :
-		Timer(0)
-	{
-	}
-
 
 	Timer::Timer(int ms) :
 		_logger(Logger::get_logger())
@@ -40,13 +34,13 @@ namespace tools {
 		DEBUG_CTOR(_logger, "Timer");
 
 		if (!::DuplicateHandle(GetCurrentProcess(),
-			timer.get_handle(),
+			timer._handle,
 			GetCurrentProcess(),
 			&_handle,
 			0,
 			FALSE,
 			DUPLICATE_SAME_ACCESS))
-			throw_winapi_error(::GetLastError(), "DuplicateHandle error");
+			throw_winapi_error(::GetLastError(), "Timer DuplicateHandle error");
 
 		if (_logger->is_debug_enabled())
 			_logger->debug("... %x created Timer handle=%x", this, _handle);
@@ -73,6 +67,9 @@ namespace tools {
 		BOOL rc = ::SetWaitableTimer(_handle, &due_time, 0, nullptr, nullptr, false);
 		if (_logger->is_debug_enabled())
 			_logger->debug("... %x Timer::start ms=%d rc=%d", this, ms, rc);
+
+		if (!rc)
+			throw_winapi_error(::GetLastError(), "SetWaitableTimer error");
 	}
 
 
