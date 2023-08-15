@@ -14,9 +14,16 @@ namespace tools {
 	class Timer final
 	{
 	public:
-
+		/* Constructs and starts the timer for the specified number of milli-seconds.
+		*/
 		explicit Timer(int ms);
+
+		/* Copy constructor.
+		*/
 		explicit Timer(const Timer& timer);
+
+		/* Destructor.
+		*/
 		~Timer();
 
 		/* Starts the timer for the specified number of milli-seconds
