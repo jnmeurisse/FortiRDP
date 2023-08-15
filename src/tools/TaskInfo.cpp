@@ -15,11 +15,13 @@ namespace tools {
 	{
 	}
 
+	
 	TaskInfo::TaskInfo(const std::wstring & path) :
 		_task_path(path),
 		_task_params(std::vector<std::wstring>())
 	{
 	}
+
 
 	TaskInfo::~TaskInfo()
 	{
