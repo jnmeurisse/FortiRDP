@@ -8,7 +8,7 @@
 #pragma once
 
 #include <string>
-#include "lwip/ip_addr.h"
+
 
 namespace net {
 
@@ -39,7 +39,7 @@ namespace net {
 		*/
 		std::string to_string() const;
 
-		/* Returns the hostname of this end point
+		/* Returns the host name of this end point
 		*/
 		inline const std::string& hostname() const { return _hostname; }
 
@@ -47,13 +47,9 @@ namespace net {
 		*/
 		inline const int port() const { return _port; }
 
-		/* Returns true if this end point is empty
+		/* Returns true if this end point is undefined
 		*/
-		bool is_empty() const;
-
-		/* Checks if this is a valid representation of an IP address
-		*/
-		bool is_ipaddr(ip4_addr_t& addr) const;
+		bool is_undef() const;
 
 	private:
 		std::string _hostname;
