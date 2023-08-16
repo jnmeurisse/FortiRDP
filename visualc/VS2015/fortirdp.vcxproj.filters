@@ -7,9 +7,6 @@
     <Filter Include="sources\ui">
       <UniqueIdentifier>{aefac82a-9ca3-4ffe-a9be-ac646b0b986a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="sources\fw">
-      <UniqueIdentifier>{aacb8a34-2a7d-44c1-a162-fef5fa0b7036}</UniqueIdentifier>
-    </Filter>
     <Filter Include="sources\http">
       <UniqueIdentifier>{9e74ad4d-ebf1-4126-8c14-28cc57c44d49}</UniqueIdentifier>
     </Filter>
@@ -21,6 +18,9 @@
     </Filter>
     <Filter Include="sources\tools">
       <UniqueIdentifier>{83133963-3525-430b-90be-0ad5ad076025}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sources\fw">
+      <UniqueIdentifier>{aacb8a34-2a7d-44c1-a162-fef5fa0b7036}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -83,9 +83,6 @@
     </ClCompile>
     <ClCompile Include="..\..\src\ui\SyncWaitTunnel.cpp">
       <Filter>sources\ui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\fw\CrtThumbprint.cpp">
-      <Filter>sources\fw</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\fw\PortalClient.cpp">
       <Filter>sources\fw</Filter>
@@ -216,6 +213,15 @@
     <ClCompile Include="..\..\src\http\UrlError.cpp">
       <Filter>sources\http</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\net\TcpSocket.cpp">
+      <Filter>sources\net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\fw\CrtDigest.cpp">
+      <Filter>sources\fw</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\net\SslContext.cpp">
+      <Filter>sources\net</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\ui\AboutDialog.h">
@@ -277,9 +283,6 @@
     </ClInclude>
     <ClInclude Include="..\..\src\ui\SyncWaitTunnel.h">
       <Filter>sources\ui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\fw\CrtThumbprint.h">
-      <Filter>sources\fw</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\fw\PortalClient.h">
       <Filter>sources\fw</Filter>
@@ -421,6 +424,15 @@
     </ClInclude>
     <ClInclude Include="..\..\src\ui\ScreenSize.h">
       <Filter>sources\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\net\TcpSocket.h">
+      <Filter>sources\net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\fw\CrtDigest.h">
+      <Filter>sources\fw</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\net\SslContext.h">
+      <Filter>sources\net</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

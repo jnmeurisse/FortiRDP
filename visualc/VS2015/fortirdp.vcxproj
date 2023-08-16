@@ -19,7 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\src\fw\CrtThumbprint.cpp" />
+    <ClCompile Include="..\..\src\fw\CrtDigest.cpp" />
     <ClCompile Include="..\..\src\fw\PortalClient.cpp" />
     <ClCompile Include="..\..\src\http\Answer.cpp" />
     <ClCompile Include="..\..\src\http\Cookie.cpp" />
@@ -39,6 +39,8 @@
     <ClCompile Include="..\..\src\net\PPInterface.cpp" />
     <ClCompile Include="..\..\src\net\pppossl.c" />
     <ClCompile Include="..\..\src\net\Socket.cpp" />
+    <ClCompile Include="..\..\src\net\SslContext.cpp" />
+    <ClCompile Include="..\..\src\net\TcpSocket.cpp" />
     <ClCompile Include="..\..\src\net\TlsSocket.cpp" />
     <ClCompile Include="..\..\src\net\Tunneler.cpp" />
     <ClCompile Include="..\..\src\net\WinsOutputQueue.cpp" />
@@ -85,7 +87,7 @@
     <ClCompile Include="..\..\src\ui\SyncWaitTunnel.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\src\fw\CrtThumbprint.h" />
+    <ClInclude Include="..\..\src\fw\CrtDigest.h" />
     <ClInclude Include="..\..\src\fw\PortalClient.h" />
     <ClInclude Include="..\..\src\http\Answer.h" />
     <ClInclude Include="..\..\src\http\Cookie.h" />
@@ -105,6 +107,8 @@
     <ClInclude Include="..\..\src\net\PPInterface.h" />
     <ClInclude Include="..\..\src\net\pppossl.h" />
     <ClInclude Include="..\..\src\net\Socket.h" />
+    <ClInclude Include="..\..\src\net\SslContext.h" />
+    <ClInclude Include="..\..\src\net\TcpSocket.h" />
     <ClInclude Include="..\..\src\net\TlsSocket.h" />
     <ClInclude Include="..\..\src\net\Tunneler.h" />
     <ClInclude Include="..\..\src\net\WinsOutputQueue.h" />
@@ -250,13 +254,13 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\..\src;$(ProjectDir)..\..\lib\lwip\src\include;$(ProjectDir)..\..\lib\zlib\src</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Program Files\OpenSSL\include;$(ProjectDir)..\..\src;$(ProjectDir)..\..\lib\lwip\src\include;$(ProjectDir)..\..\lib\zlib\src</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>shlwapi.lib;version.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>shlwapi.lib;version.lib;ws2_32.lib;crypt32.lib;$(ProgramW6432)/openssl/lib/libssl.lib;$(ProgramW6432)/openssl/lib/libcrypto.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -266,14 +270,15 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\..\src;$(ProjectDir)..\..\lib\lwip\src\include;$(ProjectDir)..\..\lib\zlib\src</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Program Files\OpenSSL\include;$(ProjectDir)..\..\src;$(ProjectDir)..\..\lib\lwip\src\include;$(ProjectDir)..\..\lib\zlib\src</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <ExceptionHandling>Sync</ExceptionHandling>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>shlwapi.lib;version.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>shlwapi.lib;version.lib;ws2_32.lib;crypt32.lib;$(ProgramW6432)/openssl/lib/libssl.lib;$(ProgramW6432)/openssl/lib/libcrypto.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <GenerateMapFile>true</GenerateMapFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -285,7 +290,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\..\src;$(ProjectDir)..\..\lib\lwip\src\include;$(ProjectDir)..\..\lib\zlib\src</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Program Files\OpenSSL\include;$(ProjectDir)..\..\src;$(ProjectDir)..\..\lib\lwip\src\include;$(ProjectDir)..\..\lib\zlib\src</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
@@ -293,7 +298,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>shlwapi.lib;version.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>shlwapi.lib;version.lib;ws2_32.lib;crypt32.lib;$(ProgramW6432)/openssl/lib/libssl.lib;$(ProgramW6432)/openssl/lib/libcrypto.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -301,11 +306,11 @@
       <WarningLevel>Level3</WarningLevel>
       <PrecompiledHeader>
       </PrecompiledHeader>
-      <Optimization>MaxSpeed</Optimization>
+      <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\..\src;$(ProjectDir)..\..\lib\lwip\src\include;$(ProjectDir)..\..\lib\zlib\src</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Program Files\OpenSSL\include;$(ProjectDir)..\..\src;$(ProjectDir)..\..\lib\lwip\src\include;$(ProjectDir)..\..\lib\zlib\src</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <ExceptionHandling>Sync</ExceptionHandling>
     </ClCompile>
@@ -313,8 +318,9 @@
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>shlwapi.lib;version.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <AdditionalDependencies>shlwapi.lib;version.lib;ws2_32.lib;crypt32.lib;$(ProgramW6432)/openssl/lib/libssl.lib;$(ProgramW6432)/openssl/lib/libcrypto.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <GenerateMapFile>true</GenerateMapFile>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
