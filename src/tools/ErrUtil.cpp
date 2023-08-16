@@ -10,7 +10,6 @@
 #include "tools/ErrUtil.h"
 #include "tools/StrUtil.h"
 
-#include "openssl/err.h"
 #include "lwip/def.h"
 
 namespace tools {
@@ -39,13 +38,14 @@ namespace tools {
 	std::string ossl_errmsg(const ossl_err errnum)
 	{
 		std::ostringstream os;
-		char buffer[2048] = { 0 };
 
-		// get error message
-		::ERR_error_string_n(errnum, buffer, sizeof(buffer) - 1);
+		// get the OpenSSL error message (can be null if errnum is unknown)
+		const char* errmsg = ::ERR_reason_error_string(errnum);
+		if (!errmsg) {
+			errmsg = "Unknown error";
+		} 
 
-		// format the error message
-		os << buffer << " (-0x" << std::hex << -errnum << ")";
+		os << errmsg << " (ossl 0x" << std::hex << errnum << ")";
 
 		return os.str();
 	}
@@ -54,13 +54,12 @@ namespace tools {
 	std::string lwip_errmsg(const lwip_err errnum)
 	{
 		std::ostringstream os;
-		const char* errmsg;
 
-		// get the lwip error message
-		errmsg = ::lwip_strerr(errnum);
+		// get the lwip error message (lwip_strerr always return an error message)
+		const char* errmsg = ::lwip_strerr(errnum);
 
 		// format the error message
-		os << errmsg << " (-0x" << std::hex << (int)-errnum << ")";
+		os << errmsg << " (lwip -0x" << std::hex << (int)-errnum << ")";
 
 		return os.str();
 	}
@@ -87,7 +86,7 @@ namespace tools {
 		std::ostringstream os;
 
 		if ((errnum < 0) || (errnum >= LWIP_ARRAYSIZE(errmsg))) {
-			os << "Unknown error";
+			os << "Unknown error " << " (" << errnum << ")";
 		}
 		else {
 			// format the error message
@@ -98,7 +97,7 @@ namespace tools {
 	}
 
 
-	std::string ossl_error::message() const noexcept
+	std::string ossl_error::message() const
 	{
 		return ossl_errmsg(_errnum);
 	}
