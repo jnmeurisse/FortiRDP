@@ -9,12 +9,14 @@
 
 #include <functional>
 
+#include <openssl/x509.h>
+
 #include "http/HttpsClient.h"
 #include "http/Answer.h"
 #include "http/Cookies.h"
 #include "http/Url.h"
 
-#include "fw/CrtThumbprint.h"
+#include "fw/CrtDigest.h"
 
 #include "net/Endpoint.h"
 #include "net/Tunneler.h"
@@ -77,7 +79,7 @@ namespace fw {
 
 
 	// Callbacks definition
-	using confirm_crt_fn = std::function<bool (const mbedtls_x509_crt*, int)>;
+	using confirm_crt_fn = std::function<bool (const X509*, int)>;
 	using ask_credential_fn = std::function<bool (Credential&)>;
 	using ask_code_fn = std::function<bool (Code2FA&)>;
 
@@ -87,7 +89,7 @@ namespace fw {
 	class PortalClient final : public http::HttpsClient
 	{
 	public:
-		explicit PortalClient(const net::Endpoint& ep, const CertFiles& cert_files);
+		explicit PortalClient(const net::Endpoint& ep, const net::SslContext context, const CertFiles& cert_files);
 		~PortalClient();
 
 		/* Returns portal certificate files
@@ -132,31 +134,24 @@ namespace fw {
 		bool authenticated() const;
 
 	private:
+		// Send and receive timeout (seconds)
+		const int _timeout = 5;
+
 		// Portal certificates
 		CertFiles _cert_files;
 
-		// The CA public certificate if loaded.
-		mbedtls_x509_crt _crt_auth;
-
-		// The user certificate and its private key if loaded.
-		mbedtls_x509_crt _crt_user;
-		mbedtls_pk_context _pk_crt_user;
-
-		// The peer certificate thumbprint
-		CrtThumbprint _peer_crt_thumbprint;
+		// The peer certificate digest
+		CrtDigest _peer_crt_digest;
 
 		// Session cookies
 		http::Cookies _cookies;
-
-		// true if socket connected
-		bool _connected;
 
 		// mutex to serialize calls
 		tools::Mutex _mutex;
 
 		/* Sets the root CA certificate file used to authenticate the server
 		*/
-		bool init_ca_crt();
+		void init_ca_crt();
 
 		/* Set the user certificate and private key
 		*/

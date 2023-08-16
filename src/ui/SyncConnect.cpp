@@ -37,7 +37,7 @@ bool SyncConnect::procedure()
 	DEBUG_ENTER(_logger, "SyncConnect", "procedure");
 
 	// Open the https connection
-	fw::confirm_crt_fn confirm_crt_callback = [this](const mbedtls_x509_crt* crt, int status) {
+	fw::confirm_crt_fn confirm_crt_callback = [this](const X509* crt, int status) {
 		return confirm_certificate(crt, status);
 	};
 	int rc = _portal->open(confirm_crt_callback);
@@ -89,15 +89,16 @@ bool SyncConnect::procedure()
 }
 
 
-bool SyncConnect::confirm_certificate(const mbedtls_x509_crt* crt, int status)
+bool SyncConnect::confirm_certificate(const X509* crt, int status)
 {
-	char buffer[4096];
+	const char* const cert_error = X509_verify_cert_error_string(status);
 
-	mbedtls_x509_crt_verify_info(buffer, sizeof(buffer), " ** ", status);
-	_logger->info(buffer);
+	_logger->error(cert_error);
 
 	std::string message("The security certificate is not valid.\n");
-	message.append(buffer);
+	message.append("** ");
+	message.append(cert_error);
+	message.append("** ");
 	message.append("\n");
 
 	message.append("Security certificate problems may indicate an attempt to intercept any data including passwords you send to the firewall.\n");

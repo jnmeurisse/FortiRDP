@@ -5,8 +5,11 @@
 * SPDX-License-Identifier: Apache-2.0
 *
 */
+#include <openssl/err.h>
+
 #include "http/Answer.h"
 #include "tools/StrUtil.h"
+#include "tools/Timer.h"
 #include "zlib.h"
 
 
@@ -15,14 +18,15 @@ namespace http {
 	const int default_code = 400;
 	const std::string default_reason = "Bad Request";
 
-	Answer::Answer() :
+	Answer::Answer(int timeout) :
 		_logger(Logger::get_logger()),
 		_version(),
 		_status_code(default_code),
 		_reason_phrase(default_reason),
 		_headers(),
 		_cookies(),
-		_body(4096)
+		_body(4096),
+		_timeout(timeout)
 	{
 	}
 
@@ -38,26 +42,61 @@ namespace http {
 	}
 
 
-	int Answer::read(net::Socket& socket, unsigned char* buf, const size_t len)
+	bool Answer::read(Socket& socket, byte* buffer, const size_t len, size_t& rbytes)
 	{
-		const int rc = socket.read(buf, len);
-		if (_logger->is_trace_enabled())
-			_logger->trace("... %x       Answer::read : socket=%d len=%d rc = %d", this, socket.get_fd(), len, rc);
+		tools::Timer timer{ _timeout * 1000 };
 
-		if (rc < 0)
-			throw mbed_error(rc);
+		bool abort = false;
 
-		return rc;
+		do {
+			switch (socket.recv(buffer, len, rbytes)) {
+			case Socket::rcv_retry:
+				if (timer.elapsed()) {
+					ERR_raise(ERR_LIB_BIO, BIO_R_TRANSFER_TIMEOUT);
+					abort = true;
+				}
+				else
+					Sleep(150);
+				break;
+
+			case Socket::rcv_ok:
+				return true;
+
+			case Socket::rcv_eof:
+				return false;
+
+			case Socket::rcv_error:
+				abort = true;
+				break;
+			}
+		} while (!abort);
+
+		throw ossl_error(ERR_peek_error());
 	}
 
 
-	int Answer::read_char(net::Socket& socket, char& c)
+	bool Answer::read_buffer(Socket& socket, byte* buffer, size_t len)
 	{
-		return read(socket, (unsigned char *)&c, sizeof(char));
+		while (len > 0) {
+			size_t rbytes;
+			if (!read(socket, buffer, len, rbytes))
+				return false;
+		
+			len -= rbytes;
+			buffer += rbytes;
+		}
+
+		return true;
 	}
 
 
-	int Answer::read_line(net::Socket& socket, int max_len, tools::obfstring& line)
+	bool Answer::read_char(Socket& socket, char& c)
+	{
+		return read_buffer(socket, (byte*)&c, sizeof(char));
+	}
+
+
+	int Answer::read_line(Socket& socket, int max_len, tools::obfstring& line)
 	{
 		DEBUG_ENTER(_logger, "Answer", "read_line");
 
@@ -68,7 +107,7 @@ namespace http {
 		line.clear();
 
 		while (state != 2) {
-			if (read_char(socket, c) != sizeof(c))
+			if (!read_char(socket, c))
 				break;
 
 			switch (state) {
@@ -99,7 +138,7 @@ namespace http {
 	}
 
 
-	int Answer::read_status(net::Socket& socket)
+	int Answer::read_status(Socket& socket)
 	{
 		DEBUG_ENTER(_logger, "Answer", "read_status");
 		tools::obfstring line;
@@ -110,7 +149,7 @@ namespace http {
 
 		// Read the status line and return an error code if the server has closed 
 		// the connection before sending a valid response.
-		if (read_line(socket, MAX_HEADER_SIZE, line) <= 0)
+		if (read_line(socket, MAX_HEADER_SIZE, line) < strlen("HTTP/1.1"))
 			return ERR_INVALID_STATUS_LINE;
 
 		// The answer should have the following syntax :  HTTP-Version SP Status-Code SP Reason-Phrase
@@ -144,7 +183,7 @@ namespace http {
 	}
 
 
-	bool Answer::read_gzip_body(net::Socket& socket, int size, int max_size)
+	bool Answer::read_gzip_body(Socket& socket, size_t size, int max_size)
 	{
 		DEBUG_ENTER(_logger, "Answer", "read_gzip_body");
 
@@ -163,13 +202,13 @@ namespace http {
 		unsigned char out[1024];
 
 		do {
-			const int len = read(socket, buffer, min(size, sizeof(buffer)));
-			if (len <= 0) {
+			size_t len;
+			if (!read(socket, buffer, min(size, sizeof(buffer)), len)) {
 				inflateEnd(&strm);
 				return false;
 			}
 
-			strm.avail_in = len;
+			strm.avail_in = static_cast<uInt>(len);
 			strm.next_in = buffer;
 
 			do {
@@ -198,7 +237,7 @@ namespace http {
 	}
 
 
-	bool Answer::read_body(net::Socket& socket, int size, int max_size)
+	bool Answer::read_body(Socket& socket, size_t size, int max_size)
 	{
 		DEBUG_ENTER(_logger, "Answer", "read_body");
 
@@ -207,8 +246,8 @@ namespace http {
 
 		do {
 			// read a chunk of bytes
-			const int len = read(socket, buffer, min(size, sizeof(buffer)));
-			if (len <= 0)
+			size_t len;
+			if (!read(socket, buffer, min(size, sizeof(buffer)), len))
 				break;
 
 			// append what we can in the buffer
@@ -225,7 +264,7 @@ namespace http {
 	}
 
 
-	int Answer::recv(net::Socket& socket)
+	int Answer::recv(Socket& socket)
 	{
 		int rc;
 		tools::obfstring line;
@@ -351,4 +390,5 @@ namespace http {
 
 		return ERR_NONE;
 	}
+
 }

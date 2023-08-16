@@ -11,12 +11,14 @@
 #include "SyncDisconnect.h"
 #include "SyncWaitTask.h"
 #include "tools/Mutex.h"
-
+#include "tools/ErrUtil.h"
+#include "tools/SysUtil.h"
 
 AsyncController::AsyncController(HWND hwnd):
 	tools::Thread(),
 	_logger(tools::Logger::get_logger()),
 	_hwnd(hwnd),
+	_context(),
 	_mutex(),
 	_requestEvent(false),
 	_readyEvent(false)
@@ -40,8 +42,24 @@ bool AsyncController::connect(const net::Endpoint& firewall_endpoint, const fw::
 			firewall_endpoint.to_string().c_str());
 	}
 
+	const std::string compacted{ tools::wstr2str(cert_files.crt_auth_file.compact(40)) };
+	if (tools::file_exists(cert_files.crt_auth_file)) {
+		if (_context.load_ca_cert(tools::wstr2str(cert_files.crt_auth_file.to_string()))) {
+			_logger->info(">> CA cert loaded from file '%s'", compacted.c_str());
+		}
+		else {
+			tools::ossl_err err;
+			_logger->info("WARNING: failed to load CA cert file %s ", compacted.c_str());
+			while ((err = ERR_get_error()) != 0)
+				_logger->error("ERROR: %s", tools::ossl_errmsg(err).c_str());
+		}
+	}
+	else {
+		_logger->error("ERROR: can't find CA cert file %s", compacted.c_str());
+	}
+
 	// Start the async connect procedure
-	_portal = std::make_unique<fw::PortalClient>(firewall_endpoint, cert_files);
+	_portal = std::make_unique<fw::PortalClient>(firewall_endpoint, _context, cert_files);
 	request_action(AsyncController::CONNECT);
 
 	return _portal != nullptr;

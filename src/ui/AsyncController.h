@@ -16,6 +16,7 @@
 #include "tools/TaskInfo.h"
 #include "tools/Task.h"
 #include "net/Endpoint.h"
+#include "net/SslContext.h"
 #include "fw/PortalClient.h"
 
 /**
@@ -88,8 +89,8 @@ private:
 	// - the recipient window of the user event message sent at completion of an action
 	const HWND _hwnd;
 
-	// - portal sslvpn certificates
-	const fw::CertFiles _cert_files;
+	// - the SSL context
+	net::SslContext _context;
 
 	// - the user certificate filename and the private key password
 	const std::wstring _uscrt_file;

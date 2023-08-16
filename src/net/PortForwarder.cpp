@@ -14,10 +14,10 @@
 namespace net {
 	using namespace tools;
 
-	PortForwarder::PortForwarder(const Endpoint& endpoint, bool tcp_nodelay, int keepalive) :
+	PortForwarder::PortForwarder(Socket* socket, const Endpoint& endpoint, bool tcp_nodelay, int keepalive) :
 		_logger(Logger::get_logger()),
 		_endpoint(endpoint),
-		_local_server(),
+		_local_server(socket),
 		_local_client(nullptr),
 		_tcp_nodelay(tcp_nodelay),
 		_keepalive(keepalive),
@@ -41,10 +41,12 @@ namespace net {
 		sys_untimeout(timeout_cb, &_connect_timeout);
 		sys_untimeout(timeout_cb, &_fflush_timeout);
 		sys_untimeout(timeout_cb, &_rflush_timeout);
+
+		delete _local_server;
 	}
 
 
-	bool PortForwarder::connect(Listener& listener)
+	bool PortForwarder::connect()
 	{
 		DEBUG_ENTER(_logger, "PortForwarder", "connect");
 
@@ -53,23 +55,12 @@ namespace net {
 			return false;
 		}
 
-		// Accept the connection from the local client
-		const mbed_err rc_accept = listener.accept(_local_server);
-		if (rc_accept != 0) {
-			_logger->error("ERROR: PortForwarder %x - accept error %s.",
-				this,
-				mbed_errmsg(rc_accept).c_str());
-
-			_state = State::FAILED;
-			return false;
-		}
-
 		// Disable nagle algorithm on the local server
-		_local_server.set_nodelay(_tcp_nodelay);
+		_local_server->set_nodelay(_tcp_nodelay);
 
 		// Resolve the end point host name to an ip address
 		ip_addr_t addr;
-		const mbed_err rc_query = DnsClient::query(_endpoint.hostname(), addr, dns_found_cb, this);
+		const lwip_err rc_query = DnsClient::query(_endpoint.hostname(), addr, dns_found_cb, this);
 		if (rc_query == ERR_OK || rc_query == ERR_INPROGRESS) {
 			// Name is resolved or not yet resolved
 			_state = State::CONNECTING;
@@ -134,7 +125,7 @@ namespace net {
 		_state = State::DISCONNECTING;
 
 		// Close our server.
-		_local_server.close();
+		_local_server->close();
 
 		// It is not possible to reply to the server anymore, we can clear the reply queue.
 		_reply_queue.clear();
@@ -171,27 +162,45 @@ namespace net {
 	bool PortForwarder::recv()
 	{
 		TRACE_ENTER(_logger, "PortForwarder", "recv");
+		bool rc = false;
 
-		if (_state != State::CONNECTED)
-			return false;
+		if (_state == State::CONNECTED) {
+			byte buffer[2048];
+			size_t rbytes;
 
-		byte buffer[2048];
-		int rc = _local_server.recv(buffer, sizeof(buffer));
-		if (rc <= 0) {
-			return false;
+			switch (_local_server->recv(buffer, sizeof(buffer), rbytes)) {
+			case Socket::rcv_retry: {
+				rc = true;
+			}
+			break;
+
+			case Socket::rcv_ok: {
+				// rbytes is always < sizeof(buffer), we can cast to an u16_t type
+				const u16_t len = static_cast<u16_t>(rbytes);
+
+				pbuf* const pbuf = pbuf_alloc(PBUF_RAW, len, PBUF_RAM);
+				if (!pbuf) {
+					_logger->error("ERROR: PortForwarder %x - pbuf memory allocation error", this);
+					rc = false;
+				}
+				else {
+					pbuf_take(pbuf, buffer, len);
+					_forward_queue.append(pbuf);
+					pbuf_free(pbuf);
+					rc = true;
+				}
+			}
+			break;
+
+			case Socket::rcv_eof:
+			case Socket::rcv_error: {
+				rc = false;
+			}
+			break;
+			}
 		}
 
-		pbuf* const data = pbuf_alloc(PBUF_RAW, rc, PBUF_RAM);
-		if (!data) {
-			_logger->error("ERROR: PortForwarder %x - memory allocation error", this);
-			return false;
-		}
-
-		pbuf_take(data, buffer, rc);
-		_forward_queue.append(data);
-		pbuf_free(data);
-
-		return true;
+		return rc;
 	}
 
 
@@ -223,7 +232,7 @@ namespace net {
 			return false;
 
 		size_t written;
-		return _reply_queue.write(_local_server, written) == 0;
+		return _reply_queue.write(*_local_server, written);
 	}
 
 
@@ -273,15 +282,15 @@ namespace net {
 
 		// send what we can
 		size_t written;
-		mbed_err rc = _reply_queue.write(_local_server, written);
+		bool rc = _reply_queue.write(*_local_server, written);
 
 		// Stop to reply 
 		//        if an error has occurred, 
 		//     or if all data has been forwarded
 		//     or if we are not able to forward in a fixed delay. 
-		if (rc < 0 || _rflush_timeout || _forward_queue.empty()) {
+		if (!rc || _rflush_timeout || _forward_queue.empty()) {
 			_forward_queue.clear();
-			_local_server.close();
+			_local_server->close();
 			_state = State::DISCONNECTED;
 		}
 	}
@@ -331,7 +340,7 @@ namespace net {
 			tcp_close(pf->_local_client);
 
 			// close the local server socket
-			pf->_local_server.close();
+			pf->_local_server->close();
 		}
 	}
 
@@ -380,8 +389,8 @@ namespace net {
 		pf->_state = PortForwarder::State::DISCONNECTED;
 
 		// Close our server if not yet done
-		if (pf->_local_server.connected())
-			pf->_local_server.close();
+		if (pf->_local_server->is_connected())
+			pf->_local_server->close();
 	}
 
 
@@ -401,7 +410,7 @@ namespace net {
 		int len = 0;
 
 		if (p) {
-			if (!pf->_local_server.connected()) {
+			if (!pf->_local_server->is_connected()) {
 				// The local server is disconnected, we can discard any received data.
 				// It is no longer possible to forward it.
 				tcp_recved(tpcb, p->tot_len);

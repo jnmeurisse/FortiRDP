@@ -5,12 +5,12 @@
 * SPDX-License-Identifier: Apache-2.0
 *
 */
-
+#include <openssl/err.h>
+#include "tools/Timer.h"
 #include "Request.h"
 
 namespace http {
 
-	using namespace tools;
 
 	/* Initialization of common HTTP Verbs */
 	const std::string Request::GET_VERB = "GET";
@@ -22,13 +22,14 @@ namespace http {
 	const std::string Request::TRACE_VERB = "TRACE";
 
 
-	Request::Request(const std::string& verb, const Url& url, const Cookies& cookies) :
+	Request::Request(const std::string& verb, const Url& url, const Cookies& cookies, int timeout) :
 		_logger(Logger::get_logger()),
 		_verb(verb),
 		_url(url),
 		_cookies(cookies),
 		_headers(),
-		_body(2048)
+		_body(2048),
+		_timeout(timeout)
 	{
 	}
 
@@ -40,7 +41,7 @@ namespace http {
 	}
 
 
-	Request& Request::set_body(const unsigned char* data, size_t size)
+	Request& Request::set_body(const byte* data, size_t size)
 	{
 		_body.clear();
 		_body.append(data, size);
@@ -49,12 +50,12 @@ namespace http {
 	}
 
 
-	void Request::send(net::Socket& _socket)
+	void Request::send(Socket& socket)
 	{
 		DEBUG_ENTER(_logger, "Request", "send");
 
-		tools::ByteBuffer buffer(1024);
-		int rc;
+		ByteBuffer buffer(1024);
+		bool rc;
 
 		if (_body.size() > 0) {
 			// add a content-length header if there is a body.
@@ -71,7 +72,7 @@ namespace http {
 		_headers.write(buffer);
 
 		// add cookies, cookies are still obfuscated at this stage
-		tools::obfstring cookie_header{ _cookies.to_header() };
+		obfstring cookie_header{ _cookies.to_header() };
 		if (cookie_header.size() > 0) {
 			// cookies are appended decrypted in the buffer
 			buffer
@@ -82,35 +83,79 @@ namespace http {
 		buffer.append("\r\n");
 
 		// Send headers to the web server
-		rc = _socket.write(buffer.cbegin(), buffer.size());
+		rc = write_buffer(socket, buffer.cbegin(), buffer.size());
 		if (_logger->is_trace_enabled())
-			_logger->trace("... %x       Request::send : write headers rc = %d", this, rc);
+			_logger->trace("... %x       Request::send : write headers rc=%d", this, rc);
 
-		if (rc < 0)
-			throw mbed_error(rc);
+		if (!rc)
+			throw ossl_error(ERR_peek_error());
 
 		// Erase sensitive data
 		buffer.clear();
 
 		if (_body.size() > 0) {
 			// send the body to the web server
-			rc = _socket.write(_body.cbegin(), _body.size());
+			rc = write_buffer(socket, _body.cbegin(), _body.size());
 			if (_logger->is_trace_enabled())
-				_logger->trace("... %x       Request::send : write body rc = %d", this, rc);
+				_logger->trace("... %x       Request::send : write body rc=%d", this, rc);
 
-			if (rc < 0)
-				throw mbed_error(rc);
+			if (!rc)
+				throw ossl_error(ERR_peek_error());
 		}
 
 		// flush the output buffer
-		rc = _socket.flush();
+		rc = socket.flush();
 		if (_logger->is_trace_enabled())
-			_logger->trace("... %x       Request::send : flush rc = %d", this, rc);
+			_logger->trace("... %x       Request::send : flush rc=%d", this, rc);
 
-		if (rc < 0)
-			throw mbed_error(rc);
+		if (!rc)
+			throw ossl_error(ERR_peek_error());
 
 		return;
+	}
+
+
+	bool Request::write(Socket& socket, const byte* buffer, size_t len, size_t &sbytes)
+	{
+		tools::Timer timer{ _timeout * 1000 };
+		bool abort = false;
+
+		do {
+			switch (socket.send(buffer, len, sbytes)) {
+			case Socket::snd_retry:
+				if (timer.elapsed()) {
+					ERR_raise(ERR_LIB_BIO, BIO_R_TRANSFER_TIMEOUT);
+					abort = true;
+				}
+				else
+					Sleep(150);
+				break;
+
+			case Socket::snd_ok:
+				return true;
+
+			case Socket::snd_error:
+				abort = true;
+				break;
+			}
+		} while (!abort);
+
+		throw ossl_error(ERR_peek_error());
+	}
+
+
+	bool Request::write_buffer(Socket& socket, const byte* buffer, size_t len)
+	{
+		while (len > 0) {
+			size_t sbytes = 0;
+			if (!write(socket, buffer, len, sbytes))
+				return  false;
+
+			len -= sbytes;
+			buffer += sbytes;
+		}
+
+		return true;
 	}
 
 }

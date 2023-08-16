@@ -5,7 +5,7 @@
 * SPDX-License-Identifier: Apache-2.0
 *
 */
-#include "mbedtls/x509.h"
+#include <openssl/bio.h>
 
 #include "PortalClient.h"
 #include "http/Request.h"
@@ -15,82 +15,36 @@
 #include "http/UrlError.h"
 
 #include "tools/StringMap.h"
-#include "tools/SysUtil.h"
 #include "tools/ErrUtil.h"
 #include "tools/Json11.h"
 #include "tools/pugixml.hpp"
 
 namespace fw {
 	using namespace tools;
+	using BioPtr = std::unique_ptr<::BIO, decltype(&BIO_free)>;
 
-	PortalClient::PortalClient(const net::Endpoint& ep, const CertFiles& cert_files):
-		HttpsClient(ep),
-		_connected(false),
-		_peer_crt_thumbprint(),
+
+	PortalClient::PortalClient(const net::Endpoint& ep, const net::SslContext context, const CertFiles& cert_files):
+		HttpsClient(ep, context),
+		_peer_crt_digest(),
 		_mutex(),
 		_cert_files(cert_files),
 		_cookies()
 	{
 		DEBUG_CTOR(_logger, "PortalClient");
-
-		mbedtls_x509_crt_init(&_crt_auth);
-		mbedtls_x509_crt_init(&_crt_user);
-		mbedtls_pk_init(&_pk_crt_user);
-
-		set_timeout(10000, 10000);
 	}
 
 
 	PortalClient::~PortalClient()
 	{
 		DEBUG_DTOR(_logger, "PortalClient");
-
-		mbedtls_x509_crt_free(&_crt_auth);
-		mbedtls_x509_crt_free(&_crt_user);
-		mbedtls_pk_free(&_pk_crt_user);
-	}
-
-
-	bool PortalClient::init_ca_crt()
-	{
-		DEBUG_ENTER(_logger, "PortalClient", "init_ca_crt");
-		tools::mbed_err rc = 0;
-
-		// free previous ca certificate
-		mbedtls_x509_crt_free(&_crt_auth);
-
-		// get full filename
-		tools::Path& crt_auth_file = _cert_files.crt_auth_file;
-		const std::wstring filename{ crt_auth_file.to_string() };
-		const std::string compacted{ tools::wstr2str(crt_auth_file.compact(40)) };
-
-		if (tools::file_exists(filename)) {
-
-			rc = mbedtls_x509_crt_parse_file(&_crt_auth, tools::wstr2str(filename).c_str());
-			if (rc != 0) {
-				_logger->info("WARNING: failed to load CA cert file %s ", compacted.c_str());
-				_logger->info("%s", tools::mbed_errmsg(rc).c_str());
-
-				goto error;
-			}
-
-			_logger->info(">> CA cert loaded from file '%s'", compacted.c_str());
-		}
-		else {
-			_logger->error("ERROR: can't find CA cert file %s", compacted.c_str());
-			mbedtls_x509_crt_init(&_crt_auth);
-		}
-
-		set_ca_crt(&_crt_auth);
-
-	error:
-		return rc == 0;
 	}
 
 
 	bool PortalClient::init_user_crt()
 	{
 		DEBUG_ENTER(_logger, "PortalClient", "init_user_crt");
+/*
 		tools::mbed_err rc = 0;
 
 		// free previous user certificate and key
@@ -150,6 +104,8 @@ namespace fw {
 
 	error:
 		return rc == 0;
+		*/
+		return false;
 	}
 
 
@@ -157,24 +113,20 @@ namespace fw {
 	{
 		DEBUG_ENTER(_logger, "PortalClient", "open");
 		Mutex::Lock lock{ _mutex };
-		http::Answer answer;
+		http::Answer answer{ _timeout };
 
 		_logger->info(">> connecting to %s", host().to_string().c_str());
 
-		// define the type of cipher used to encrypt and sign all traffic 
-		set_cipher(Cipher::HIGH_SEC);
-
 		// initialize our certificates
-		init_ca_crt();
 		init_user_crt();
 
-		// connect to the server
-		try {
-			HttpsClient::connect();
-		}
-		catch (mbed_error& e) {
+		// connect the server
+		ERR_clear_error();
+		if (!HttpsClient::connect()) {
+			ossl_err err;
 			_logger->error("ERROR: failed to connect to %s", host().to_string().c_str());
-			_logger->error("ERROR: %s", e.message().c_str());
+			while ((err = ERR_get_error()) != 0)
+				_logger->error("ERROR: %s", tools::ossl_errmsg(err).c_str());
 
 			return portal_err::COMM_ERROR;
 		}
@@ -183,9 +135,9 @@ namespace fw {
 		_logger->info(">> cipher : %s", get_ciphersuite().c_str());
 
 		// Check the server certificate
-		int crt_status = get_crt_check();
+		int crt_status = get_verify_result();
 
-		if (crt_status == 0) {
+		if (crt_status == X509_V_OK) {
 			_logger->info(">> peer X.509 certificate valid");
 
 		}
@@ -194,17 +146,20 @@ namespace fw {
 
 			if (_logger->is_debug_enabled()) {
 				char buffer[4096] = { 0 };
-				mbedtls_x509_crt_info(buffer, sizeof(buffer) - 1, "   ", get_peer_crt());
-				_logger->debug(buffer);
+				BioPtr bio{ BIO_new(BIO_s_mem()), BIO_free };
+				X509_print(bio.get(), get_peer_crt().get());
+				if (BIO_read(bio.get(), buffer, sizeof(buffer) - 1) > 0) {
+					_logger->debug(buffer);
+				}
 			}
 
-			if (!confirm_crt(get_peer_crt(), crt_status)) {
+			if (!confirm_crt(get_peer_crt().get(), crt_status)) {
 				return portal_err::CERT_UNTRUSTED;
 			}
 		}
 
-		// compute the thumbprint of the certificate.
-		_peer_crt_thumbprint = CrtThumbprint(get_peer_crt());
+		// compute a digest of the peer certificate.
+		_peer_crt_digest = CrtDigest(get_peer_crt().get());
 
 		// get the top page
 		if (!request(http::Request::GET_VERB, http::Url("/"), "", http::Headers(), answer, true))
@@ -232,7 +187,14 @@ namespace fw {
 		http::Headers headers;
 		headers.set("Content-Type", "text/plain;charset=UTF-8");
 		
-		return request(http::Request::POST_VERB, make_url("/remote/logincheck"), params.join("&"), headers, answer, false);
+		return request(
+			http::Request::POST_VERB, 
+			make_url("/remote/logincheck"), 
+			params.join("&"), 
+			headers, 
+			answer, 
+			false
+		);
 	}
 
 
@@ -245,7 +207,7 @@ namespace fw {
 		int retcode = 0;
 		tools::StringMap params_query;
 		tools::StringMap params_result;
-		http::Answer answer;
+		http::Answer answer{ _timeout };
 		std::string body;
 		Credential credential;
 
@@ -473,7 +435,7 @@ namespace fw {
 			return false;
 
 		http::Headers headers;
-		http::Answer answer;
+		http::Answer answer(5000);
 
 		const http::Url portal_url = make_url("/remote/portal", "access");
 		bool ok = request(http::Request::GET_VERB, portal_url, "", headers, answer, false);
@@ -508,7 +470,7 @@ namespace fw {
 			return false;
 
 		http::Headers headers;
-		http::Answer answer;
+		http::Answer answer(5000);
 
 		// Get the vpn configuration.  
 		// This call is mandatory, without it we don't get an IP address from the fortigate
@@ -567,21 +529,24 @@ namespace fw {
 		Mutex::Lock lock(_mutex);
 
 		const http::Url tunnel_url = make_url("/remote/sslvpn-tunnel");
-		http::Request request{ http::Request::GET_VERB, tunnel_url, _cookies };
+		http::Request request{ http::Request::GET_VERB, tunnel_url, _cookies, _timeout };
 		request.headers().set("Host", "sslvpn");
 
 		try {
 			send_request(request);
 
-		} catch (mbed_error& e) {
+		} catch (ossl_error) {
+			ossl_err err;
 			_logger->error("ERROR: failed to open the tunnel");
-			_logger->error("ERROR: %s", e.message().c_str());
+			while ((err = ERR_get_error()) != 0)
+				_logger->error("ERROR: %s", tools::ossl_errmsg(err).c_str());
 
 			return false;
 		}
 
 		return true;
 	}
+
 
 	bool PortalClient::authenticated() const
 	{
@@ -604,20 +569,20 @@ namespace fw {
 		DEBUG_ENTER(_logger, "PortalClient", "send_and_receive");
 
 		if (must_reconnect()) {
-			disconnect();
+			close();
 
-			try {
-				connect();
-			}
-			catch (mbed_error &e) {
+			ERR_clear_error();
+			if (!connect()) {
+				ossl_err err;
 				_logger->error("ERROR: failed to connect to %s", host().to_string().c_str());
-				_logger->error("ERROR: %s", e.message().c_str());
+				while ((err = ERR_get_error()) != 0)
+					_logger->error("ERROR: %s", tools::ossl_errmsg(err).c_str());
 
 				return false;
 			}
 
 			// verify the thumbprint of the certificate
-			if (_peer_crt_thumbprint != CrtThumbprint(get_peer_crt())) {
+			if (_peer_crt_digest != CrtDigest(get_peer_crt().get())) {
 				_logger->error("ERROR: invalid certificate digest");
 
 				return false;
@@ -628,9 +593,11 @@ namespace fw {
 		try {
 			send_request(request);
 		}
-		catch (mbed_error &e) {
+		catch (ossl_error) {
+			ossl_err err;
 			_logger->error("ERROR: failed to send HTTP request to %s", host().to_string().c_str());
-			_logger->error("ERROR: %s", e.message().c_str());
+			while ((err = ERR_get_error()) != 0)
+				_logger->error("ERROR: %s", tools::ossl_errmsg(err).c_str());
 
 			return false;
 		}
@@ -639,13 +606,21 @@ namespace fw {
 		try {
 			recv_answer(answer);
 		}
-		catch (frdp_error &e) {
+		catch (ossl_error e) {
+			ossl_err err;
+			_logger->error("ERROR: failed to receive HTTP data from %s", host().to_string().c_str());
+			while ((err = ERR_get_error()) != 0)
+				_logger->error("ERROR: %s", tools::ossl_errmsg(err).c_str());
+
+			return false;
+		}
+		catch (httpcli_error &e) {
 			_logger->error("ERROR: failed to receive HTTP data from %s", host().to_string().c_str());
 			_logger->error("ERROR: %s", e.message().c_str());
 
 			return false;
 		}
-		
+
 		return true;
 	}
 
@@ -656,7 +631,7 @@ namespace fw {
 		DEBUG_ENTER(_logger, "PortalClient", "do_request");
 		
 		// Prepare the request
-		http::Request request{ verb, url, _cookies };
+		http::Request request{ verb, url, _cookies, _timeout };
 
 		request.headers()
 			.set("Accept", "text/html")
@@ -678,7 +653,7 @@ namespace fw {
 		}
 		else {
 			// disconnect if not yet done
-			disconnect();
+			close();
 		}
 
 		_logger->debug("... %x       PortalClient::do_request : %s %s (status=%s (%d))",

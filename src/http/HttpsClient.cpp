@@ -29,8 +29,8 @@ namespace http {
 	const int HttpsClient::STATUS_FORBIDDEN = 403;
 
 
-	HttpsClient::HttpsClient(const net::Endpoint& ep) :
-		TlsSocket(),
+	HttpsClient::HttpsClient(const net::Endpoint& ep, const net::SslContext& context) :
+		TlsSocket(context),
 		_host_ep(ep),
 		_keepalive_timeout(10),
 		_keepalive_timer(_keepalive_timeout * 1000),
@@ -49,31 +49,15 @@ namespace http {
 
 	bool HttpsClient::must_reconnect() const
 	{
-		return (!connected())
+		return (!TlsSocket::is_connected())
 			|| _keepalive_timer.elapsed()
 			|| (_request_count >= _max_requests);
 	}
 
 
-	void HttpsClient::connect()
+	bool HttpsClient::connect()
 	{
-		DEBUG_ENTER(_logger, "HttpsClient", "connect");
-
-		_keepalive_timer.start(10000);
-		_request_count = 0;
-
-		const mbed_err rc = TlsSocket::connect(_host_ep);
-		_logger->debug("... %x       HttpsClient::connect : rc = %d", this, rc);
-		if (rc < 0) {
-			throw mbed_error(rc);
-		}
-	}
-
-	void HttpsClient::disconnect()
-	{
-		DEBUG_ENTER(_logger, "HttpsClient", "disconnect");
-
-		Socket::close();
+		return TlsSocket::connect(_host_ep, 5);
 	}
 
 
@@ -114,31 +98,31 @@ namespace http {
 		answer.clear();
 
 		const int rc = answer.recv(*this);
-		_logger->debug("... %x       HttpsClient::recv_answer : rc = %d", this, rc);
+		_logger->debug("... %x       HttpsClient::recv_answer : rc=%d", this, rc);
 		
 		if (rc != Answer::ERR_NONE) {
 			std::string message;
 			switch (rc) {
 			case Answer::ERR_INVALID_STATUS_LINE:;
-				message = "Invalid HTTP Status line"; break;
+				message = "HTTP Status line not available"; break;
 			case Answer::ERR_INVALID_VERSION:
-				message = "Invalid HTTP version"; break;
+				message = "invalid HTTP version"; break;
 			case Answer::ERR_INVALID_STATUS_CODE:
-				message = "Invalid HTTP status code"; break;
+				message = "invalid HTTP status code"; break;
 			case Answer::ERR_INVALID_HEADER:
-				message = "Invalid HTTP header"; break;
+				message = "invalid HTTP header"; break;
 			case Answer::ERR_CHUNK_SIZE:
-				message = "Invalid HTTP chunk size"; break;
+				message = "invalid HTTP chunk size"; break;
 			case Answer::ERR_BODY_SIZE:
-				message = "Invalid HTTP body size"; break;
+				message = "invalid HTTP body size"; break;
 			case Answer::ERR_CONTENT_ENCODING:;
-				message = "Unsupported HTTP content encoding"; break;
+				message = "unsupported HTTP content encoding"; break;
 			case Answer::ERR_TRANSFER_ENCODING:
-				message = "Unsupported HTTP transfer encoding"; break;
+				message = "unsupported HTTP transfer encoding"; break;
 			case Answer::ERR_BODY:
-				message = "Invalid HTTP body"; break;
+				message = "invalid HTTP body"; break;
 			default:
-				message = "Unknown error in HttpsClient"; break;
+				message = "unknown error in HttpsClient"; break;
 			}
 
 			throw httpcli_error(message);
@@ -250,5 +234,16 @@ namespace http {
 			_host_ep.to_string(),
 			path,
 			query);
+	}
+
+
+	bool HttpsClient::do_connect(int timeout)
+	{
+		DEBUG_ENTER(_logger, "HttpsClient", "do_connect");
+
+		_keepalive_timer.start(_keepalive_timeout * 1000);
+		_request_count = 0;
+
+		return TlsSocket::do_connect(timeout);
 	}
 }

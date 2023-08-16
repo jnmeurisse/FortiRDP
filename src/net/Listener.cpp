@@ -5,18 +5,21 @@
 * SPDX-License-Identifier: Apache-2.0
 *
 */
-#include <winsock2.h>
+#include <openssl/err.h>
 #include "net/Listener.h"
+#include "net/TcpSocket.h"
+
 
 namespace net {
-	using namespace tools;
 
 	Listener::Listener() :
 		_logger(Logger::get_logger()),
-		_endpoint()
+		_bio(::BIO_new(::BIO_s_accept()))
 	{
 		DEBUG_CTOR(_logger, "Listener");
-		mbedtls_net_init(&_netctx);
+
+		if (!_bio)
+			throw std::bad_alloc();
 	}
 
 
@@ -24,101 +27,52 @@ namespace net {
 	{
 		DEBUG_DTOR(_logger, "Listener");
 		close();
+		BIO_vfree(_bio);
 	}
 
 
-	mbed_err Listener::bind(const Endpoint& endpoint)
+	bool Listener::bind(const Endpoint& endpoint)
 	{
 		DEBUG_ENTER(_logger, "Listener", "bind");
 
-		mbed_err rc = 0;
-		std::string host{ endpoint.hostname() };
-		std::string port{ std::to_string(endpoint.port()) };
-
-		/*
-		* SO_EXCLUSIVEADDRUSE can not be enabled, mbedtls_net_bind is setting SO_REUSEADDR
-		* in mbedtls_net_bind. Until mbedtls is improved and allows to specify this option
-		* it will not be possible to avoid that another process binds the same port.
-		*
-		* // set the exclusive address option
-		* int option = 1;
-		* if (setsockopt(_netctx.fd, SOL_SOCKET,
-		* 	SO_EXCLUSIVEADDRUSE, (char *)&option, sizeof(option)) == SOCKET_ERROR) {
-		* 	_logger->error("ERROR: Listener::bind setsockopt failed, error=%d", WSAGetLastError());
-		*
-		* 	rc = MBEDTLS_ERR_NET_BIND_FAILED;
-		* 	goto terminate;
-		* }
-		*/
-
-		rc = mbedtls_net_bind(&_netctx, host.c_str(), port.c_str(), MBEDTLS_NET_PROTO_TCP);
-		if (rc) {
-			// Unable to bind this host
-			_endpoint = endpoint;
-			goto terminate;
+		if (BIO_set_accept_name(_bio, endpoint.to_string().c_str()) != 1) {
+			_logger->trace("ERROR: Listener::bind set_accept_name error %d", ERR_peek_error());
+			return false;
 		}
-
-		// get the port that has been assigned during the bind.
-		struct sockaddr_in addr;
-		int len = sizeof(sockaddr_in);
-		if (getsockname(_netctx.fd, (SOCKADDR*)&addr, &len)) {
-			_logger->error("ERROR: Listener::bind getsockname error %d", WSAGetLastError());
-
-			rc = MBEDTLS_ERR_NET_BIND_FAILED;
-			goto terminate;
-		}
-		_endpoint = Endpoint(endpoint.hostname(), ntohs(addr.sin_port));
 
 		// set the socket in non blocking mode
-		if (mbedtls_net_set_nonblock(&_netctx)) {
-			_logger->error("ERROR: Listener::bind ioctlsocket error %d", WSAGetLastError());
-
-			rc = MBEDTLS_ERR_NET_BIND_FAILED;
-			goto terminate;
+		if (BIO_set_nbio_accept(_bio, 1) != 1) {
+			_logger->trace("ERROR: Listener::bind set_nbio_accept error %d", ERR_peek_error());
+			return false;
 		}
 
-
-terminate:
-		if (_logger->is_debug_enabled()) {
-			_logger->debug(
-				"... %x Listener::bind endpoint=%s rc=%d",
-				this,
-				endpoint.to_string().c_str(),
-				rc);
-		}
-
-		return rc;
+		return ::BIO_do_accept(_bio) == 1;
 	}
 
 
-	mbed_err Listener::accept(Socket& socket)
+	Socket* Listener::accept()
 	{
 		DEBUG_ENTER(_logger, "Listener", "accept");
 
-		int rc = 0;
-		mbedtls_net_context client_ctx;
+		if (::BIO_do_accept(_bio) != 1)
+			return nullptr;
 
-		rc = mbedtls_net_accept(&_netctx, &client_ctx, nullptr, 0, nullptr);
-		if (rc == 0)
-			socket.attach(client_ctx);
-
-		if (_logger->is_debug_enabled()) {
-			_logger->debug(
-				"... %x Listener::accept endpoint=%s rc=%d",
-				this,
-				_endpoint.to_string().c_str(),
-				rc);
-		}
-
-		return rc;
+		return new TcpSocket(BIO_pop(_bio));
 	}
 
 
-	void Listener::close()
+	bool Listener::close()
 	{
 		DEBUG_ENTER(_logger, "Listener", "close");
+		
+		return BIO_reset(_bio) == 1;
+	}
 
-		mbedtls_net_free(&_netctx);
+
+	Endpoint Listener::endpoint() const
+	{
+		const char* const name = BIO_get_accept_name(_bio);
+		return name? Endpoint(name, 0) : Endpoint();
 	}
 
 
@@ -127,14 +81,22 @@ terminate:
 		int opt_val;
 		int opt_len = sizeof(opt_val);
 
-		if (getsockopt(_netctx.fd,
-			SOL_SOCKET,
-			SO_ACCEPTCONN,
-			(char*)&opt_val,
-			&opt_len) == SOCKET_ERROR)
+		if (getsockopt(
+				get_fd(),
+				SOL_SOCKET,
+				SO_ACCEPTCONN,
+				(char*)&opt_val,
+				&opt_len) == SOCKET_ERROR)
 			return false;
 
 		return opt_val != 0;
+	}
+
+
+	int Listener::get_fd() const
+	{
+		int fd;
+		return BIO_get_fd(_bio, &fd);
 	}
 
 }

@@ -8,7 +8,6 @@
 #pragma once
 
 #include "net/Socket.h"
-#include "net/Listener.h"
 #include "net/Endpoint.h"
 #include "net/WinsOutputQueue.h"
 #include "net/LwipOutputQueue.h"
@@ -21,12 +20,12 @@ namespace net {
 
 	class PortForwarder final {
 	public:
-		explicit PortForwarder(const Endpoint& endpoint, bool tcp_nodelay, int keepalive);
+		explicit PortForwarder(Socket* socket, const Endpoint& endpoint, bool tcp_nodelay, int keepalive);
 		~PortForwarder();
 
 		/*
 		*/
-		bool connect(Listener& listener);
+		bool connect();
 		
 		/*
 		*/
@@ -75,7 +74,7 @@ namespace net {
 
 		/* Returns true if this forwarder can still flush the reply queue
 		*/
-		inline bool can_rflush() const noexcept { return  _local_server.connected(); }
+		inline bool can_rflush() const noexcept { return  _local_server->is_connected(); }
 
 		/* Returns true if this forwarder can still flush the forward queue
 		*/
@@ -83,7 +82,7 @@ namespace net {
 
 		/* Returns the underlying socket file descriptor
 		*/
-		inline int get_fd() const noexcept { return _local_server.get_fd(); }
+		inline int get_fd() const noexcept { return _local_server->get_fd(); }
 		
 		/* try to receive data from the local client and store it in the 
 		*  forward queue. 
@@ -140,7 +139,7 @@ namespace net {
 		const int _keepalive;
 
 		// local endpoint acting as a server. 
-		Socket _local_server;
+		Socket* _local_server;
 		
 		// local endpoint acting as a client.
 		struct ::tcp_pcb* _local_client;

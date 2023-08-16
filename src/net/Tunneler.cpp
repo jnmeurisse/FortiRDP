@@ -46,12 +46,13 @@ namespace net {
 		DEBUG_ENTER(_logger, "Tunneler", "start");
 		bool started = true;
 
-		mbed_err rc = _listener.bind(_local_endpoint);
-
-		if (rc < 0) {
+		ERR_clear_error();
+		if (! _listener.bind(_local_endpoint)) {
+			ossl_err err;
 			_logger->error("ERROR: listener error on %s", _local_endpoint.to_string().c_str());
-			_logger->error("%s", mbed_errmsg(rc).c_str());
-		
+			while ((err = ERR_get_error()) != 0)
+				_logger->error("ERROR: %s", tools::ossl_errmsg(err).c_str());
+
 			started = false;
 		}
 		else {
@@ -96,14 +97,6 @@ namespace net {
 		_logger->info(">> starting tunnel");
 		_state = State::CONNECTING;
 
-		// The socket was in blocking mode during the authentication phase. 
-		if (!_tunnel.set_blocking(false)) {
-			_logger->error("ERROR: Tunneler unable to change socket blocking mode");
-
-			_state = State::STOPPED;
-			return 0;
-		}
-
 		// Disable Nagle algorithm if required
 		_tunnel.set_nodelay(_config.tcp_nodelay);
 
@@ -113,11 +106,12 @@ namespace net {
 		}
 
 		while (!stop) {
+			ERR_clear_error();
 			FD_ZERO(&read_set);
 			FD_ZERO(&write_set);
 
 			// Define select conditions only if the tunnel is still connected 
-			if (_tunnel.connected()) {
+			if (_tunnel.is_connected()) {
 				if (_pp_interface.must_transmit()) {
 					// data is available in the output queue, check if we can write 
 					FD_SET(_tunnel.get_fd(), &write_set);
@@ -176,15 +170,22 @@ namespace net {
 
 					if (FD_ISSET(_listener.get_fd(), &read_set)) {
 						// Accept a new connection
-						PortForwarder* pf = new PortForwarder(_remote_endpoint, _config.tcp_nodelay, 30 * 1000);
+						Socket *socket = _listener.accept();
+						if (socket) {
+							PortForwarder* pf = new PortForwarder(
+								socket,
+								_remote_endpoint,
+								_config.tcp_nodelay,
+								30 * 1000);
 
-						if (pf->connect(_listener)) {
-							// A new port forwarder is active
-							connecting = true;
-							active_port_forwarders.push_back(pf);
-						}
-						else {
-							delete pf;
+							if (pf->connect()) {
+								// A new port forwarder is active
+								connecting = true;
+								active_port_forwarders.push_back(pf);
+							}
+							else {
+								delete pf;
+							}
 						}
 					}
 
@@ -336,13 +337,11 @@ namespace net {
 		sys_untimeout(timeout_cb, &abort_timeout);
 		sys_untimeout(timeout_cb, &disconnect_timeout);
 
-		// restore the blocking mode
-		if (_tunnel.connected())
-			_tunnel.set_blocking(true);
-
 		_logger->debug("... closing tunneler stop=%d terminate=%d", 
 				stop,
 				_terminate);
+
+		_listener.close();
 
 		_state = State::STOPPED;
 

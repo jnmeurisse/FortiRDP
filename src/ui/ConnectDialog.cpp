@@ -14,7 +14,6 @@
 #include "tools/StrUtil.h"
 #include "tools/SysUtil.h"
 #include "tools/ErrUtil.h"
-#include "mbedtls/pem.h"
 #include "resources/resource.h"
 
 // ID for the system menu
@@ -469,6 +468,7 @@ INT_PTR ConnectDialog::onTimerMessage(WPARAM wParam, LPARAM lParam)
 	return 0;
 }
 
+
 INT_PTR ConnectDialog::onHotKey(WPARAM wParam, LPARAM lParam)
 {
 	INT_PTR rc = TRUE;
@@ -683,6 +683,9 @@ bool ConnectDialog::initCertFiles(fw::CertFiles& cert_files)
 		}
 
 		// try to load the private key without a password
+		//TODO: SSL_CTX_set_default_passwd_cb()
+
+/*
 		mbedtls_pk_context own_key;
 		mbedtls_pk_init(&own_key);
 		tools::mbed_err rc = mbedtls_pk_parse_keyfile(
@@ -719,6 +722,7 @@ bool ConnectDialog::initCertFiles(fw::CertFiles& cert_files)
 		}
 
 		mbedtls_pk_free(&own_key);
+*/
 	}
 
 	return true;

@@ -5,16 +5,18 @@
 * SPDX-License-Identifier: Apache-2.0
 *
 */
-
-#include "tools/Path.h"
-#include "mbedtls/ssl_internal.h"
-#include "mbedtls/ssl_ciphersuites.h"
 #include "net/TlsSocket.h"
+#include "tools/StrUtil.h"
 
 
 namespace net {
-
 	using namespace tools;
+
+
+	static int SSL_verify_cb(int preverify_ok, X509_STORE_CTX *x509_ctx)
+	{
+		return 1;
+	}
 
 	static void mbedtls_debug_fn(void *ctx, int level,
 		const char *file, int line, const char *str)
@@ -45,213 +47,90 @@ namespace net {
 	}
 
 
-	// Recommended ciphers from https://ciphersuite.info. 
-	//    Key exchange   : elliptic curve diffie-hellman key exchange
-	//    Authentication : RSA
-	//    Encryption     : CHACHA20 or AES
-	//    Message auth   : SHA256 
-	static const int default_ciphers[] = {
-		// recommended
-		MBEDTLS_TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256,
-		MBEDTLS_TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
-
-		// secure (no perfect Forward Secrecy)
-		MBEDTLS_TLS_RSA_WITH_AES_128_GCM_SHA256,
-		MBEDTLS_TLS_RSA_WITH_AES_128_CBC_SHA256,
-
-		// mandatory supported by all tls 1.2 server (RFC5246)
-		MBEDTLS_TLS_RSA_WITH_AES_128_CBC_SHA,
-
-		// end of list
-		0
-	};
-
-	// Cipher with the shortest message authentication to reduced overhead.
-	// Considered as weak but strong enough for tunneling https
-	static const int lowsec_ciphers[] = {
-		MBEDTLS_TLS_RSA_WITH_AES_128_CBC_SHA,
-
-		// end of list
-		0
-	};
-
-
-	TlsSocket::TlsSocket() :
-		Socket()
+	TlsSocket::TlsSocket(const SslContext& context) :
+		Socket(BIO_new(BIO_f_ssl())),
+		_ssl(context.create_ssl())
 	{
 		DEBUG_CTOR(_logger, "TlsSocket");
+		SSL* const ssl = _ssl.get();
+		if (!ssl)
+			throw std::bad_alloc();
 
-		mbedtls_entropy_init(&_entropy_ctx);
+		//TODO: vérifier l'utilisation des modes
+		SSL_clear_mode(ssl, SSL_MODE_AUTO_RETRY);
 
-		mbedtls_ctr_drbg_init(&_ctr_drbg);
-		mbedtls_ctr_drbg_seed(&_ctr_drbg, mbedtls_entropy_func, &_entropy_ctx, nullptr, 0);
+		::SSL_up_ref(ssl);
+		::SSL_set_connect_state(ssl);
+		BIO_set_ssl(get_bio(), ssl, BIO_CLOSE);
 
-		mbedtls_ssl_config_init(&_ssl_config);
-		mbedtls_ssl_config_defaults(&_ssl_config, MBEDTLS_SSL_IS_CLIENT, MBEDTLS_SSL_TRANSPORT_STREAM, MBEDTLS_SSL_PRESET_DEFAULT);
-		mbedtls_ssl_conf_authmode(&_ssl_config, MBEDTLS_SSL_VERIFY_REQUIRED);
-		mbedtls_ssl_conf_rng(&_ssl_config, mbedtls_ctr_drbg_random, &_ctr_drbg);
-
-		// 1.1 and 1.2 are accepted
-		mbedtls_ssl_conf_min_version(&_ssl_config, MBEDTLS_SSL_MAJOR_VERSION_3, MBEDTLS_SSL_MINOR_VERSION_2);
-		mbedtls_ssl_conf_max_version(&_ssl_config, MBEDTLS_SSL_MAJOR_VERSION_3, MBEDTLS_SSL_MINOR_VERSION_3);
-
-		// set cipher list
-		mbedtls_ssl_conf_ciphersuites(&_ssl_config, default_ciphers);
-
-		if (_logger->is_trace_enabled()) {
-			// define a debug callback
-			mbedtls_ssl_conf_dbg(&_ssl_config, mbedtls_debug_fn, _logger);
-#ifndef _DEBUG
-			mbedtls_debug_set_threshold(0);
-#else
-			mbedtls_debug_set_threshold(1);
-#endif
-		}
-
-		mbedtls_ssl_init(&_ssl_context);
+		BIO* conn_bio = ::BIO_new(BIO_s_connect());
+		if (!conn_bio)
+			throw std::bad_alloc();
+		BIO_set_nbio(conn_bio, 1);
+		::BIO_push(get_bio(), conn_bio);
 	}
 
 
 	TlsSocket::~TlsSocket()
 	{
 		DEBUG_DTOR(_logger, "TlsSocket");
-
-		// close the socket if not yet done
-		close();
-
-		// free all memory allocated by SSL library
-		mbedtls_ssl_config_free(&_ssl_config);
-		mbedtls_ctr_drbg_free(&_ctr_drbg);
-		mbedtls_entropy_free(&_entropy_ctx);
-		mbedtls_ssl_free(&_ssl_context);
 	}
 
 
-	void TlsSocket::set_ca_crt(mbedtls_x509_crt* ca_crt)
+	bool TlsSocket::set_own_crt(const std::string& filename)
 	{
-		DEBUG_ENTER(_logger, "TlsSocket", "set_ca_ctr");
+		DEBUG_ENTER(_logger, "TlsSocket", "set_own_ctr");
 
-		mbedtls_ssl_conf_ca_chain(&_ssl_config, ca_crt, nullptr);
-		mbedtls_ssl_conf_authmode(&_ssl_config, MBEDTLS_SSL_VERIFY_OPTIONAL);
+		// return SSL_CTX_us	
+		return true;
 	}
 
 
-	const mbedtls_x509_crt* TlsSocket::get_ca_crt() const
+	int TlsSocket::get_verify_result() const
 	{
-		return _ssl_config.ca_chain;
-	}
-
-
-	mbed_err TlsSocket::set_own_crt(mbedtls_x509_crt* own_crt, mbedtls_pk_context *own_key)
-	{
-		return mbedtls_ssl_conf_own_cert(&_ssl_config, own_crt, own_key);
-	}
-
-
-	void TlsSocket::set_cipher(enum Cipher cipher)
-	{
-		DEBUG_ENTER(_logger, "TlsSocket", "set_cipher");
-
-		switch (cipher)
-		{
-		case Cipher::LOW_SEC:
-			mbedtls_ssl_conf_ciphersuites(&_ssl_config, lowsec_ciphers);
-			break;
-
-		default:
-			mbedtls_ssl_conf_ciphersuites(&_ssl_config, default_ciphers);
-			break;
-		}
-
-		return;
-	}
-
-
-	mbed_err TlsSocket::connect(const Endpoint& ep)
-	{
-		if (_logger->is_debug_enabled())
-			_logger->debug("... %x enter TlsSocket::connect ep=%s", this, ep.to_string().c_str());
-
-		mbed_err rc = 0;
-
-		// connect the socket to the specified end point
-		if ((rc = Socket::connect(ep)) < 0)
-			goto abort;
-
-		// configure the ssl context
-		if ((rc = mbedtls_ssl_setup(&_ssl_context, &_ssl_config)) != 0)
-			goto abort;
-		mbedtls_ssl_set_bio(&_ssl_context, &_netctx, mbedtls_net_send, mbedtls_net_recv, NULL);
-
-		// perform handshake with the SSL server
-		if ((rc = mbedtls_ssl_handshake(&_ssl_context)) != 0)
-			goto abort;
-
-	abort:
-		if (_logger->is_debug_enabled())
-			_logger->debug("... %x leave TlsSocket::connect rc=%d", this, rc);
-		return rc;
-	}
-
-
-	mbed_err TlsSocket::get_crt_check() const
-	{
-		return mbedtls_ssl_get_verify_result(&_ssl_context);
+		return SSL_get_verify_result(_ssl.get());
 	}
 
 
 	std::string TlsSocket::get_ciphersuite() const
 	{
-		return mbedtls_ssl_get_ciphersuite(&_ssl_context);
+		SSL_CIPHER const* cipher = SSL_get_current_cipher(_ssl.get());
+		return  std::string(cipher ? SSL_CIPHER_get_name(cipher) : "not available");
 	}
 
 
 	std::string TlsSocket::get_tls_version() const
 	{
-		return mbedtls_ssl_get_version(&_ssl_context);
+		const char* const version = SSL_get_version(_ssl.get());
+		return std::string(version ? version : "not available");
 	}
 
 
-	const mbedtls_x509_crt* TlsSocket::get_peer_crt() const
+	X509Ptr TlsSocket::get_peer_crt() const
 	{
-		return mbedtls_ssl_get_peer_cert(&_ssl_context);
+		return std::unique_ptr<::X509, decltype(&X509_free)>(
+			::SSL_get1_peer_certificate(_ssl.get()),
+			&X509_free
+		);
 	}
 
 
-	int TlsSocket::recv(unsigned char* buf, const size_t len)
+	bool TlsSocket::set_nodelay(bool no_delay)
 	{
-		if (_logger->is_trace_enabled())
-			_logger->trace(".... %x enter TlsSocket::recv buffer=%x len=%d", this, buf, len);
-
-		return mbedtls_ssl_read(&_ssl_context, buf, len);
+		return ::BIO_set_tcp_ndelay(get_fd(), no_delay ? 1 : 0) == 1;
 	}
 
 
-	int TlsSocket::send(const unsigned char* buf, const size_t len)
+	int TlsSocket::get_fd() const noexcept
 	{
-		if (_logger->is_trace_enabled())
-			_logger->trace(".... %x enter TlsSocket::send buffer=%x len=%d", this, buf, len);
-
-		return mbedtls_ssl_write(&_ssl_context, buf, len);
+		return _ssl.get() ? SSL_get_fd(_ssl.get()) : -1;
 	}
 
 
-	mbed_err TlsSocket::flush()
+	bool TlsSocket::do_connect(int timeout)
 	{
-		DEBUG_ENTER(_logger, "TlsSocket", "flush");
-		return mbedtls_ssl_flush_output(&_ssl_context);
-	}
-
-
-	void TlsSocket::do_close()
-	{
-		DEBUG_ENTER(_logger, "TlsSocket", "do_close");
-
-		if (connected() && _ssl_context.p_bio) {
-			mbedtls_ssl_close_notify(&_ssl_context);
-			mbedtls_ssl_session_reset(&_ssl_context);
-		}
-
-		Socket::do_close();
+		return 
+			::SSL_set1_host(_ssl.get(), get_endpoint().hostname().c_str()) == 1 &&
+			::BIO_do_connect_retry(get_bio(), timeout, 0) == 1;
 	}
 }

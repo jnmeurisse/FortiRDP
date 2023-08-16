@@ -22,29 +22,28 @@ namespace net {
 	}
 
 
-	mbed_err WinsOutputQueue::write(Socket& socket, size_t& written)
+	bool WinsOutputQueue::write(Socket& socket, size_t& written)
 	{
+		bool rs = false;
+		written = 0;
+
 		if (_logger->is_trace_enabled())
 			_logger->trace(
 				".... %x enter WinsOutputQueue::write tcp=%x",
 				this,
 				socket);
 
-		int rc = 0;
-		written = 0;
-
 		if (!empty()) {
 			PBufChain* const pbuf = front();
 
 			// send what we can 
-			rc = socket.send(pbuf->cbegin(), pbuf->cend() - pbuf->cbegin());
-
-			if (rc > 0) {
-				// reports the number of sent bytes.
-				written = rc;
-
-				// move our pointer into the payload if bytes have been sent
-				pbuf->move(rc);
+			switch (socket.send(pbuf->cbegin(), pbuf->cend() - pbuf->cbegin(), written))
+			{
+			case Socket::snd_ok: {
+				// Move our pointer into the payload. Since 'written' is always lower 
+				// than the maximum size of a single pbuf struct (64 Kbytes), we can 
+				// safely cast to an int.
+				pbuf->move(static_cast<int>(written));
 
 				// unlink the first chain if no more data
 				if (pbuf->empty()) {
@@ -52,21 +51,32 @@ namespace net {
 					delete pbuf;
 				}
 
-				// no error detected 
-				rc = 0;
+				rs = true;
+			}
+			break;
+
+			case Socket::snd_retry: {
+				rs = true;
+			}
+			break;
+
+			case Socket::snd_error: {
+				rs = false;
+			}
+			break;
 			}
 		}
 
 		if (_logger->is_trace_enabled())
 			_logger->trace(
-				".... %x leave WinsOutputQueue::write tcp=%x rc=%d written=%d",
+				".... %x leave WinsOutputQueue::write tcp=%x rs=%d written=%d",
 				this,
 				socket,
-				rc, 
+				rs, 
 				written);
 
 
-		// return the error code
-		return rc;
+		// return the status
+		return rs;
 	}
 }

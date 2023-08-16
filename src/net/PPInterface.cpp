@@ -40,7 +40,7 @@ namespace net {
 	{
 		DEBUG_ENTER(_logger, "PPInterface", "open");
 
-		if (!_tunnel.connected()) {
+		if (!_tunnel.is_connected()) {
 			_logger->error("ERROR: PP Interface - tunnel not connected.");
 			return false;
 		}
@@ -51,7 +51,7 @@ namespace net {
 		}
 
 		// Create a PPP over SSLVPN connection
-		_pcb = pppossl_create(&_nif, ppp_output_cb, ppp_link_status_cb, this);
+		_pcb = ::pppossl_create(&_nif, ppp_output_cb, ppp_link_status_cb, this);
 		if (_pcb == nullptr) {
 			_logger->error("ERROR: PP Interface - memory allocation failure.");
 			return false;
@@ -67,7 +67,7 @@ namespace net {
 
 		// Start the connection.  The ppp_link_status_cb will be called
 		// by the lwip stack to report the connection success/failure.
-		ppp_err rc_con = ppp_connect(_pcb, 0);
+		ppp_err rc_con = ::ppp_connect(_pcb, 0);
 		if (rc_con != PPPERR_NONE) {
 			ppp_free(_pcb);
 			_pcb = nullptr;
@@ -85,7 +85,7 @@ namespace net {
 		DEBUG_ENTER(_logger, "PPInterface", "close");
 
 		if (_pcb) {
-			ppp_err rc = ppp_close(_pcb, 0);
+			ppp_err rc = ::ppp_close(_pcb, 0);
 
 			if (rc != PPPERR_NONE) {
 				_logger->error("ERROR: ppp_close failure - %s.",
@@ -114,7 +114,7 @@ namespace net {
 
 	std::string PPInterface::addr() const
 	{
-		return std::string(ip4addr_ntoa(netif_ip4_addr(_pcb->netif)));
+		return std::string(::ip4addr_ntoa(netif_ip4_addr(_pcb->netif)));
 	}
 
 
@@ -137,7 +137,7 @@ namespace net {
 
 	std::string PPInterface::gateway() const
 	{
-		return std::string(ip4addr_ntoa(netif_ip4_gw(_pcb->netif)));
+		return std::string(::ip4addr_ntoa(netif_ip4_gw(_pcb->netif)));
 	}
 
 
@@ -153,15 +153,13 @@ namespace net {
 
 		if (!_output_queue.empty()) {
 			size_t written;
-			const int rc = _output_queue.write(_tunnel, written);
 
-			if (rc == MBEDTLS_ERR_SSL_WANT_READ || rc == MBEDTLS_ERR_SSL_WANT_WRITE)
-				return true;
-
-			if (rc < 0) {
+			if (!_output_queue.write(_tunnel, written)) {
 				// an error has occurred
+				ossl_err err;
 				_logger->error("ERROR: tunnel send failure");
-				_logger->error(mbed_errmsg(rc).c_str());
+				while ((err = ERR_get_error()) != 0)
+					_logger->error("ERROR: %s", tools::ossl_errmsg(err).c_str());
 
 				return false;
 			}
@@ -169,10 +167,10 @@ namespace net {
 			_counters.sent += written;
 			if (_logger->is_trace_enabled())
 				_logger->trace(
-					".... %x       PPInterface::send socket fd=%d rc=%d",
+					".... %x       PPInterface::send socket fd=%d written=%d",
 					this,
 					_tunnel.get_fd(),
-					rc);
+					written);
 		}
 
 		return true;
@@ -183,45 +181,57 @@ namespace net {
 	{
 		TRACE_ENTER(_logger, "PPInterface", "recv");
 		byte buffer[4096];
+		size_t rbytes;
+		bool rc;
 
 		// read what is available from the tunnel
-		const int rc = _tunnel.recv(buffer, sizeof(buffer));
-
-		if (rc == MBEDTLS_ERR_SSL_WANT_READ || rc == MBEDTLS_ERR_SSL_WANT_WRITE)
-			return true;
-
-		if (rc == 0) {
+		switch (_tunnel.recv(buffer, sizeof(buffer), rbytes))
+		{
+		case Socket::rcv_eof: {
 			// socket was closed by peer
 			_logger->error("ERROR: tunnel closed by peer.");
-			return false;
+			rc = false;
 		}
+		break;
 
-		if (rc < 0) {
+		case Socket::rcv_error: {
 			// an error has occurred
+			ossl_err err;
 			_logger->error("ERROR: tunnel receive failure");
-			_logger->error(mbed_errmsg(rc).c_str());
+			while ((err = ERR_get_error()) != 0)
+				_logger->error("ERROR: %s", tools::ossl_errmsg(err).c_str());
+			rc = false;
+		}
+		break;
 
-			return false;
+		case Socket::rcv_retry: {
+			rc = true;
+		}
+		break;
+
+		case Socket::rcv_ok: {
+			rc = true;
+			_counters.received += rbytes;
+			if (_logger->is_trace_enabled())
+				_logger->trace(
+					".... %x       PPInterface::recv socket fd=%d read=%d",
+					this,
+					_tunnel.get_fd(),
+					rbytes);
+
+			// PPP data available, pass it to the stack.
+			const ppp_err ppp_rc = pppossl_input(_pcb, buffer, rbytes);
+			if (ppp_rc) {
+				_logger->error("ERROR: pppossl_input failure - %s",
+					ppp_errmsg(ppp_rc).c_str());
+
+				rc = false;
+			}
+		}
+		break;
 		}
 
-		_counters.received += rc;
-		if (_logger->is_trace_enabled())
-			_logger->trace(
-				".... %x       PPInterface::recv socket fd=%d rc=%d",
-				this,
-				_tunnel.get_fd(),
-				rc);
-
-		// PPP data available, pass it to the stack.
-		const ppp_err ppp_rc = pppossl_input(_pcb, buffer, rc);
-		if (ppp_rc) {
-			_logger->error("ERROR: pppossl_input failure - %s",
-				ppp_errmsg(ppp_rc).c_str());
-
-			return false;
-		}
-
-		return true;
+		return rc;
 	}
 
 
@@ -250,7 +260,7 @@ namespace net {
 	}
 
 
-	static void	ppp_link_status_cb(ppp_pcb *pcb, int err_code, void *ctx)
+	static void ppp_link_status_cb(ppp_pcb *pcb, int err_code, void *ctx)
 	{
 		LWIP_UNUSED_ARG(pcb);
 		net::PPInterface* pp_interface = (net::PPInterface *)ctx;

@@ -5,276 +5,226 @@
 * SPDX-License-Identifier: Apache-2.0
 *
 */
-#include <iostream>
 
-#include "tools/Logger.h"
 #include "net/Socket.h"
+#include "tools/StrUtil.h"
+
 
 namespace net {
-	using namespace tools;
+	static long bio_callback_fn(::BIO *bio, int oper, const char *argp, size_t len,
+		int argi, long argl, int ret, size_t *processed)
+	{
+		Logger* const _logger = (Logger *)BIO_get_callback_arg(bio);
 
-	Socket::Socket() :
-		_mutex(),
+		if (_logger && _logger->is_trace_enabled()) {
+			switch (oper) {
+			case BIO_CB_FREE:
+				_logger->trace(".... enter Free BIO=%x", bio);
+				break;
+
+			case BIO_CB_READ:
+				_logger->trace(".... enter Read BIO=%x len=%d", bio, len);
+				break;
+
+			case BIO_CB_WRITE:
+				_logger->trace(".... enter Write BIO=%x len=%d", bio, len);
+				break;
+
+			case BIO_CB_CTRL:
+				_logger->trace(".... enter Ctrl BIO=%x arg=%d", bio, argi);
+				break;
+
+			case BIO_CB_GETS:
+				_logger->trace(".... enter Gets BIO=%x arg=%d", bio, argi);
+				break;
+
+			case BIO_CB_PUTS:
+				_logger->trace(".... enter Puts BIO=%x arg=%d", bio, argi);
+				break;
+
+			case BIO_CB_READ | BIO_CB_RETURN:
+				_logger->trace(".... leave Read BIO=%x len=%d rc=%d", bio, len, ret);
+				break;
+
+			case BIO_CB_WRITE | BIO_CB_RETURN:
+				_logger->trace(".... leave Write BIO=%x len=%d rc=%d", bio, len, ret);
+				break;
+
+			case BIO_CB_CTRL | BIO_CB_RETURN:
+				_logger->trace(".... leave Ctrl BIO=%x arg=%d rc=%d", bio, argi, ret);
+				break;
+
+			case BIO_CB_GETS | BIO_CB_RETURN:
+				_logger->trace(".... leave Gets BIO=%x arg=%d rc=%d", bio, argi, ret);
+				break;
+
+			case BIO_CB_PUTS | BIO_CB_RETURN:
+				_logger->trace(".... leave Puts BIO=%x arg=%d rc=%d", bio, argi, ret);
+				break;
+
+			default:
+				_logger->trace(".... undefined callback BIO=%x", bio);
+				break;
+			}
+		}
+
+		return ret;
+	};
+
+
+	Socket::Socket(::BIO* bio) :
 		_logger(Logger::get_logger()),
-		_send_timeout(0),
-		_recv_timeout(0),
-		_no_delay(false),
-		_blocking(true)
+		_bio(bio),
+		_connected(false)
 	{
 		DEBUG_CTOR(_logger, "Socket");
-		mbedtls_net_init(&_netctx);
+
+		if (!_bio)
+			throw std::invalid_argument("null bio in Socket ctor");
+
+		if (_logger->is_trace_enabled()) {
+			_logger->trace("... %x allocate BIO=%x", this, _bio);
+			::BIO_set_callback_ex(_bio, bio_callback_fn);
+			::BIO_set_callback_arg(_bio, (char *) _logger);
+		}
 	}
 
 
 	Socket::~Socket()
 	{
 		DEBUG_DTOR(_logger, "Socket");
-		close();
+
+		if (_logger->is_trace_enabled()) {
+			_logger->trace("... %x free BIO %x", this, _bio);
+		}
+		
+		::BIO_free_all(_bio);
 	}
 
 
-	bool Socket::attach(const mbedtls_net_context& netctx)
-	{
-		if (_logger->is_debug_enabled())
-			_logger->debug("... %x enter Socket::attach fd=%d", this, netctx.fd);
-		Mutex::Lock lock{ _mutex };
-		_netctx = netctx;
-
-		return apply_opt(SocketOptions::all);
-	}
-
-
-	mbed_err Socket::connect(const Endpoint& ep)
+	bool Socket::connect(const Endpoint& ep, int timeout)
 	{
 		DEBUG_ENTER(_logger, "Socket", "connect");
-		Mutex::Lock lock{ _mutex };
 
-		return do_connect(ep);
+		if (_connected)
+			throw std::runtime_error("socket is open");
+
+		_connected = set_endpoint(ep) && do_connect(timeout);
+		return _connected;
 	}
 
-
-	void Socket::close()
+	
+	bool Socket::close()
 	{
 		DEBUG_ENTER(_logger, "Socket", "close");
-		Mutex::Lock lock{ _mutex };
+
+		_connected = false;
+		return BIO_reset(_bio) == 1;
+	}
+
+
+	Endpoint Socket::get_endpoint() const
+	{
+		const std::string hostname{ BIO_get_conn_hostname(_bio) };
+		const std::string portnum{ BIO_get_conn_port(_bio) };
+		int port = 0;
+
+		return tools::str2i(portnum, port) ? Endpoint(hostname, port) : Endpoint();
+	}
+
+
+	Socket::rcv_status Socket::recv(byte* buf, const size_t len, size_t& rbytes)
+	{
+		DEBUG_ENTER(_logger, "Socket", "recv");
+
+		rcv_status status;
+		int rc = ::BIO_read(_bio, buf, (int)len);
+
+		if (rc > 0) {
+			rbytes = rc;
+			status = rcv_status::rcv_ok;
+		}
+		else if (rc == 0) {
+			rbytes = 0;
+			status = rcv_status::rcv_eof;
+		}
+		else {
+			if (BIO_should_retry(_bio))
+				status = rcv_status::rcv_retry;
+			else
+				status = rcv_status::rcv_error;
+		}
+
+		/* 
+			This code is not working with OpenSSL 3.x (see issue #8208)
+			BIO_read_ex does not distinguish EOF from failure.
 		
-		do_close();
-	}
+		int rc = ::BIO_read_ex(_bio, buf, len, &rbytes);
+		rcv_status status;
 
-
-	bool Socket::set_timeout(DWORD send_timeout, DWORD recv_timeout)
-	{
-		bool rc = true;
-
-		if (_logger->is_debug_enabled())
-			_logger->debug("... %x enter Socket::set_timeout s=%d r=%d", this, send_timeout, recv_timeout);
-
-		if (send_timeout != _send_timeout || recv_timeout != _recv_timeout) {
-			_send_timeout = send_timeout;
-			_recv_timeout = recv_timeout;
-
-			rc = apply_opt(SocketOptions::timeout);
+		if (rc == 1) {
+			if (rbytes <= 0)
+				status = rcv_status::rcv_eof;
+			else
+				status = rcv_status::rcv_ok;
 		}
-
-		return rc;
-	}
-
-
-	bool Socket::set_nodelay(bool no_delay)
-	{
-		bool rc = true;
-
-		if (_logger->is_debug_enabled())
-			_logger->debug("... %x enter Socket::set_nodelay=%d", this, no_delay ? 1 : 0);
-		
-		if (no_delay != _no_delay) {
-			_no_delay = no_delay;
-
-			rc = apply_opt(SocketOptions::nodelay);
+		else {
+			if (BIO_should_retry(_bio))
+				status = rcv_status::rcv_retry;
+			else
+				status = rcv_status::rcv_error;
 		}
+		*/
 
-		return rc;
+		return status;
 	}
 
 
-	bool Socket::set_blocking(bool blocking)
+	Socket::snd_status Socket::send(const byte* buf, const size_t len, size_t& sbytes)
 	{
-		bool rc = true;
+		DEBUG_ENTER(_logger, "Socket", "send");
 
-		if (_logger->is_debug_enabled())
-			_logger->debug("... %x enter Socket::set_noblocking=%d", this, blocking ? 1 : 0);
+		int rc = ::BIO_write_ex(_bio, buf, len, &sbytes);
+		snd_status status;
 
-		if (blocking != _blocking) {
-			_blocking = blocking;
+		if (rc == 1)
+			status = snd_status::snd_ok;
+		else if (BIO_should_retry(_bio))
+			status = snd_status::snd_retry;
+		else
+			status = snd_status::snd_error;
 
-			rc = apply_opt(SocketOptions::blocking);
-		}
-
-		return rc;
+		return status;
 	}
 
 
-	int Socket::recv(unsigned char* buf, const size_t len)
+	bool Socket::flush()
 	{
-		if (_logger->is_trace_enabled())
-			_logger->trace(".... %x enter Socket::recv buffer=%x len=%d", this, buf, len);
+		DEBUG_ENTER(_logger, "Socket", "flush");
 
-		return mbedtls_net_recv(&_netctx, buf, len);
+		return (BIO_flush(_bio) == 1) || BIO_should_retry(_bio);
 	}
 
 
-	int Socket::send(const unsigned char* buf, const size_t len)
+	int Socket::get_fd() const
 	{
-		if (_logger->is_trace_enabled())
-			_logger->trace(".... %x enter Socket::send buffer=%x len=%d", this, buf, len);
-
-		return mbedtls_net_send(&_netctx, buf, len);
+		int fd;
+		return BIO_get_fd(_bio, &fd);
 	}
 
 
-	mbed_err Socket::flush()
+	bool Socket::is_connected() const noexcept
 	{
-		return 0;
+		return _connected;
 	}
 
 
-	int Socket::read(unsigned char *buf, const size_t len)
+	bool Socket::set_endpoint(const Endpoint& ep)
 	{
-		if (_logger->is_trace_enabled())
-			_logger->trace(".... %x enter Socket::read buffer=%x len=%d", this, buf, len);
+		const std::string& conn_host{ ep.hostname() };
+		const std::string conn_port{ std::to_string(ep.port()) };
 
-		int rc = 0;
-		size_t cnt = len;
-
-		while (cnt > 0) {
-			rc = recv(buf, cnt);
-			if (rc <= 0) return rc;
-
-			cnt -= rc;
-			buf += rc;
-		}
-
-		return (int)len;
-	}
-
-
-	int Socket::write(const unsigned char *buf, const size_t len)
-	{
-		if (_logger->is_trace_enabled())
-			_logger->trace(".... %x enter Socket::write buffer=%x len=%d", this, buf, len);
-
-		int rc = 0;
-		size_t cnt = (int)len;
-
-		while (cnt > 0) {
-			rc = send(buf, cnt);
-			if (rc < 0) return rc;
-
-			cnt -= rc;
-			buf += rc;
-		}
-
-		return (int)len;
-	}
-
-
-	bool Socket::connected() const noexcept
-	{
-		return _netctx.fd != -1;
-	}
-
-
-	mbed_err Socket::do_connect(const Endpoint& ep)
-	{
-		if (_logger->is_debug_enabled())
-			_logger->debug("... %x enter Socket::do_connect ep=%s", this, ep.to_string().c_str());
-
-		const std::string& host = ep.hostname();
-		const std::string port{ std::to_string(ep.port()) };
-		int rc;
-
-		rc = mbedtls_net_connect(&_netctx, host.c_str(), port.c_str(), MBEDTLS_NET_PROTO_TCP);
-		if (rc)
-			goto terminate;
-
-		// configure all options
-		if (!apply_opt(SocketOptions::all)) {
-			rc = MBEDTLS_ERR_NET_CONNECT_FAILED;
-			goto terminate;
-		}
-
-	terminate:
-		if (_logger->is_debug_enabled())
-			_logger->debug("... %x leave Socket::do_connect fd=%d %d", this, _netctx.fd, rc);
-
-		return rc;
-	}
-
-
-	void Socket::do_close()
-	{
-		if (_logger->is_debug_enabled())
-			_logger->debug("... %x enter Socket::do_close fd=%d", this, _netctx.fd);
-
-		mbedtls_net_free(&_netctx);
-	}
-
-
-	bool Socket::apply_opt(enum SocketOptions option)
-	{
-		bool rc = true;
-
-		if (connected()) {
-			if (_logger->is_debug_enabled())
-				_logger->debug("... %x enter Socket::apply_opt fd=%d", this, _netctx.fd);
-
-			if (option == SocketOptions::all || option == SocketOptions::nodelay) {
-				const int tcp_nodelay = _no_delay ? 1 : 0;
-				if (setsockopt(_netctx.fd, IPPROTO_TCP, TCP_NODELAY, (const char *)&tcp_nodelay, sizeof(tcp_nodelay)) != 0) {
-					_logger->error("ERROR : set nodelay error %x on socket %x, fd=%d",
-						::WSAGetLastError(),
-						this,
-						_netctx.fd);
-
-					rc = false;
-				}
-			}
-
-			if (option == SocketOptions::all || option == SocketOptions::timeout) {
-				if (setsockopt(_netctx.fd, SOL_SOCKET, SO_RCVTIMEO, (const char *)&_recv_timeout, sizeof(_recv_timeout)) != 0) {
-					_logger->error("ERROR : set receive time-out error %x on socket %x, fd=%d",
-						::WSAGetLastError(),
-						this,
-						_netctx.fd);
-
-					rc = false;
-				}
-
-				if (setsockopt(_netctx.fd, SOL_SOCKET, SO_SNDTIMEO, (const char *)&_send_timeout, sizeof(_send_timeout)) != 0) {
-					_logger->error("ERROR : set send time-out error %x on socket %x, fd=%d",
-						::WSAGetLastError(),
-						this,
-						_netctx.fd);
-
-					rc = false;
-				}
-			}
-		}
-
-		if (option == SocketOptions::all || option == SocketOptions::blocking) {
-			int rc = _blocking
-				? mbedtls_net_set_block(&_netctx)
-				: mbedtls_net_set_nonblock(&_netctx);
-			if (rc) {
-				_logger->error("ERROR: set socket blocking mode error %x on socket %x, fd=%d",
-					::WSAGetLastError(),
-					this,
-					_netctx.fd);
-
-				rc = false;
-			}
-		}
-		
-		return rc;
+		return (::BIO_set_conn_port(_bio, conn_port.c_str()) == 1) &&
+			(::BIO_set_conn_hostname(_bio, conn_host.c_str()) == 1);
 	}
 }

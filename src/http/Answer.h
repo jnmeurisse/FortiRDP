@@ -6,6 +6,7 @@
 *
 */
 #pragma once
+#include <cstdint>
 #include <string>
 #include <vector>
 #include <list>
@@ -22,6 +23,8 @@
 
 namespace http {
 	using namespace tools;
+	using namespace net;
+
 
 	/**
 	* Defines the HTTP answer. 
@@ -30,6 +33,8 @@ namespace http {
 	class Answer
 	{
 	public:
+		using byte = uint8_t;
+
 		// Error codes
 		static const int ERR_NONE = 0;
 		static const int ERR_INVALID_VERSION = 1;
@@ -44,7 +49,7 @@ namespace http {
 
 		/* Allocates an HTTP answer
 		*/
-		Answer();
+		Answer(int timeout);
 
 		/* Clears this HTTP Answer
 		*/
@@ -64,10 +69,10 @@ namespace http {
 		*         ERR_TRANSFER_ENCODING: Unsupported transfer encoding
 		*         ERR_BODY: Error while reading body
 		*
-		* Throws an mbed_error in case of failure.
+		* Throws an ossl_error in case of failure.
 		*
 		*/
-		int recv(net::Socket& socket);
+		int recv(Socket& socket);
 
 		/* Returns the HTTP version
 		*/
@@ -116,10 +121,16 @@ namespace http {
 		// The body of the answer
 		tools::ByteBuffer _body;
 
+		int _timeout;
+
 		static const int MAX_LINE_SIZE = (8 * 1024);
 		static const int MAX_HEADER_SIZE = (4 * 1024);
 		static const int MAX_BODY_SIZE = (32 * 1014 * 1024);
 		static const int MAX_CHUNCK_SIZE = (2 * 1014 * 1024);
+
+
+		bool read(Socket& socket, byte* buffer, const size_t len, size_t& rbytes);
+
 
 		/* Reads a sequence of bytes from the socket. The buffer pointed to by 
 		* the buffer parameter will contain the data received. The number of bytes to
@@ -129,20 +140,16 @@ namespace http {
 		* @param buffer The buffer to store received data
 		* @param len Number of bytes to read
 		*
-		* @return number of bytes, 0 if the socket is closed.
-		*
-		* Throws an mbed_error in case of failure.
 		*/
-		int read(net::Socket& socket, unsigned char* buf, const size_t len);
+		bool read_buffer(Socket& socket, byte* buffer, const size_t len);
 
 		/* Reads a single character.
 		*
 		* @param socket The socket connected to the server
-		* @return 1 in case of success, 0 if the socket is closed.
+		* @return .
 		*
-		* Throws an mbed_error in case of failure.
 		*/
-		int read_char(net::Socket& socket, char& c);
+		bool read_char(Socket& socket, char& c);
 
 		/* Reads a string until \r\n is found. The \r\n are not included
 		 * in the line.
@@ -153,9 +160,9 @@ namespace http {
 		 * @param line    The string read from the socket
 		 * @return the number of characters in the line.
 		 *
-		 * Throws an mbed_error in case of failure.
+		 * Throws an ossl_error in case of failure.
 		 */
-		int read_line(net::Socket& socket, int max_len, tools::obfstring& line);
+		int read_line(Socket& socket, int max_len, tools::obfstring& line);
 
 		/* Reads the HTTP status response
 		*
@@ -167,9 +174,9 @@ namespace http {
 		*         ERR_INVALID_VERSION :		HTTP version is not HTTP/1.1
 		*         ERR_INVALID_STATUS_CODE :	HTTP status code is not valid
 		*
-		* Throws an mbed_error in case of failure.
+		* Throws an ossl_error in case of failure.
 		*/
-		int read_status(net::Socket& socket);
+		int read_status(Socket& socket);
 
 		/* Reads a gzip body
 		*
@@ -178,9 +185,9 @@ namespace http {
 		* @param max_size The maximum size of the body we can load (in bytes)
 		*
 		* @return
-		* Throws an mbed_error in case of failure.
+		* Throws an ossl_error in case of failure.
 		*/
-		bool read_gzip_body(net::Socket& socket, int size, int max_size);
+		bool read_gzip_body(Socket& socket, size_t size, int max_size);
 
 		/* Reads the body
 		*
@@ -189,9 +196,10 @@ namespace http {
 		* @param max_size The maximum size of the body we can load (in bytes)
 		*
 		* @return 
-		* Throws an mbed_error in case of failure.
+		* Throws an ossl_error in case of failure.
 		*/
-		bool read_body(net::Socket& socket, int size, int max_size);
+		bool read_body(Socket& socket, size_t size, int max_size);
+
 	};
 }
 

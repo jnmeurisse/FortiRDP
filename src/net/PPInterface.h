@@ -15,6 +15,7 @@
 #include "tools/Counters.h"
 
 namespace net {
+	using namespace tools;
 
 	class PPInterface final
 	{
@@ -92,13 +93,13 @@ namespace net {
 		int last_xmit() const;
 
 		// a reference to the application logger
-		tools::Logger* const _logger;
+		Logger* const _logger;
 
 		// socket connected to the firewall
 		TlsSocket&  _tunnel;
 
 		// Counters of bytes sent to / received from the tunnel
-		tools::Counters& _counters;
+		Counters& _counters;
 
 		// The lwip network interface and the control block.  Received 
 		// data are passed to that interface

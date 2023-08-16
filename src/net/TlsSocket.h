@@ -6,19 +6,17 @@
 *
 */
 #pragma once
-#include "mbedtls/net_sockets.h"
-#include "mbedtls/ctr_drbg.h"
-#include "mbedtls/entropy.h"
-#include "mbedtls/x509_crt.h"
-#include "mbedtls/debug.h"
 
+#include <openssl/ssl.h>
+#include <memory>
 #include "net/Socket.h"
-#include "net/Endpoint.h"
-
-#include "tools/ErrUtil.h"
+#include "net/SslContext.h"
 
 namespace net {
 	using namespace tools;
+
+	using X509Ptr = std::unique_ptr<::X509, decltype(&X509_free)>;
+
 
 	/*
 	 * The client side of a network TLS socket
@@ -26,34 +24,12 @@ namespace net {
 	class TlsSocket : public Socket
 	{
 	public:
-		TlsSocket();
+		TlsSocket(const SslContext& context);
 		virtual ~TlsSocket();
-
-		/* Types of cipher used to encrypt TLS
-		*/
-		enum Cipher { LOW_SEC = 0, HIGH_SEC };
-
-		/* Defines the CA certificate
-		*/
-		void set_ca_crt(mbedtls_x509_crt* ca_crt);
-
-		/* Returns the CA certificate
-		*/
-		const mbedtls_x509_crt* get_ca_crt() const;
 
 		/* Defines the client certificate
 		*/
-		mbed_err set_own_crt(mbedtls_x509_crt* own_crt, mbedtls_pk_context *own_key);
-
-		/* Defines a type of cipher
-		*/
-		void set_cipher(enum Cipher cipher);
-
-		/* Initiates a connection to the specified endpoint.
-		 *
-		 * @param  ep Then endpoint to connect to
-		*/
-		mbed_err connect(const Endpoint& ep);
+		bool set_own_crt(const std::string& filename);
 
 		/* Returns the result of the certificate verification.
 		 *
@@ -61,7 +37,7 @@ namespace net {
 		 * of this method is undefined until the connect method has been
 		 * executed.
 		*/
-		mbed_err get_crt_check() const;
+		int get_verify_result() const;
 
 		/* Returns the cipher suite selected to encrypt ssl communication
 		*/
@@ -74,33 +50,24 @@ namespace net {
 		/* Returns a pointer to the X509 certificate of the ssl server. The peer
 		 * certificate is obtained during the connection.
 		*/
-		const mbedtls_x509_crt* get_peer_crt() const;
+		X509Ptr get_peer_crt() const;
 
-		/* Receives data from the socket.
-		 * See Socket::recv
-		*/
-		virtual int recv(unsigned char* buf, const size_t len) override;
+		virtual bool set_nodelay(bool no_delay) override;
 
-		/* Sends data to the socket.
-		 * See Socket::send
-		*/
-		virtual int send(const unsigned char* buf, const size_t len) override;
+		virtual int get_fd() const noexcept override;
+
 
 		/* Flushes data
 		 * See Socket::flush
 		*/
-		virtual mbed_err flush() override;
+		//virtual void flush() override;
 
 	protected:
-		// SSL configurations
-		mbedtls_entropy_context _entropy_ctx;
-		mbedtls_ctr_drbg_context _ctr_drbg;
-		mbedtls_ssl_config _ssl_config;
+		virtual bool do_connect(int timeout) override;
 
-		// the ssl socket
-		mbedtls_ssl_context _ssl_context;
-
-		virtual void do_close() override;
+	private:
+		// - The SSL connection
+		SSLPtr _ssl;
 	};
 
 }

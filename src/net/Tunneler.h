@@ -7,8 +7,6 @@
 */
 #pragma once
 
-#include "mbedTLS/ssl.h"
-
 #include "net/Socket.h"
 #include "net/TlsSocket.h"
 #include "net/Listener.h"
@@ -73,11 +71,11 @@ namespace net {
 
 		/* Returns the transmitted/received bytes counters
 		*/
-		inline const Counters& counters() const { return _counters; }
+		inline const Counters& counters() const noexcept { return _counters; }
 
 		/* Returns the local endpoint address and port
 		*/
-		inline const Endpoint& local_endpoint() const { return _listener.endpoint(); }
+		inline const Endpoint local_endpoint() const { return _listener.endpoint(); }
 
 	protected:
 		virtual unsigned int run();
@@ -114,7 +112,7 @@ namespace net {
 		const Endpoint _local_endpoint;
 		Listener _listener;
 
-		// remote end point (behind the firewall)
+		// remote end point (protected by the firewall)
 		Endpoint _remote_endpoint;
 	};
 

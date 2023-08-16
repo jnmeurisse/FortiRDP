@@ -7,7 +7,7 @@
 */
 #pragma once
 
-#include "mbedtls/net_sockets.h"
+#include <openssl/bio.h>
 
 #include "net/Endpoint.h"
 #include "net/Socket.h"
@@ -29,24 +29,23 @@ namespace net {
 		~Listener();
 
 		/* Binds this listener to the specified end point. The function
-		 * returns 0 if the bind is successful or a negative error code.
+		 * returns true if the bind is successful.
 		*/
-		mbed_err bind(const Endpoint& endpoint);
+		bool bind(const Endpoint& endpoint);
 
-		/* Waits for an incoming connection. The connection is assigned
-		 * to the given socket parameter. The function returns 0 if
-		 * the accept is successful or a negative error code.
+		/* Waits for an incoming connection. The function returns a Socket if
+		 * the accept is successful or a null pointer
 		*/
-		mbed_err accept(Socket& socket);
+		Socket* accept();
 
 		/* Closes the listener. The listener stops immediately to listen for
 		 * incoming connection.
 		*/
-		void close();
+		bool close();
 
 		/* Returns the end point to which this listener was bound.
 		*/
-		inline const Endpoint& endpoint() const { return _endpoint; }
+		Endpoint endpoint() const;
 
 		/* Returns true if the listener is ready to accept a connection
 		*/
@@ -54,14 +53,13 @@ namespace net {
 
 		/* Returns the socket descriptor
 		*/
-		inline int get_fd() const { return _netctx.fd; };
+		int get_fd() const;
 
 	private:
 		// a reference to the application logger
-		tools::Logger* const _logger;
+		Logger* const _logger;
 
-		mbedtls_net_context _netctx;
-		Endpoint _endpoint;
+		::BIO* const _bio;
 	};
 
 }
