@@ -1,0 +1,279 @@
+
+Command line (with current working directory = .):
+
+    E:\Strawberry\perl\bin\perl.exe Configure --api=3.0 VC-WIN64A no-threads no-autoload-config no-autoalginit no-async no-shared no-pinshared no-filenames no-stdio no-ui-console no-deprecated no-legacy no-tests no-dso no-comp no-sctp no-srtp no-ssl-trace no-gost no-aria no-bf no-blake2 no-camellia no-cast no-idea no-scrypt no-siphash no-siv no-sm2 no-sm3 no-sm4 no-whirlpool no-seed no-rmd160 no-mdc2 no-ocb no-rc2 no-rc4 no-des no-tls1_1 no-tls1_1-method no-tls1_2 no-tls1_2-method no-dtls1 no-dtls1-method
+
+Perl information:
+
+    E:\Strawberry\perl\bin\perl.exe
+    5.32.1 for MSWin32-x64-multi-thread
+
+Enabled features:
+
+    asm
+    autoerrinit
+    bulk
+    cached-fetch
+    chacha
+    cmac
+    cmp
+    cms
+    ct
+    dgram
+    dh
+    dsa
+    dtls
+    ec
+    ec2m
+    ecdh
+    ecdsa
+    err
+    makedepend
+    md4
+    multiblock
+    nextprotoneg
+    ocsp
+    pic
+    poly1305
+    posix-io
+    psk
+    rdrand
+    rfc3779
+    secure-memory
+    sock
+    sse2
+    ssl
+    static-engine
+    tls
+    ts
+    tls1-method
+    tls1_3
+    dtls1_2
+    dtls1_2-method
+
+Disabled features:
+
+    acvp-tests          [cascade]               OPENSSL_NO_ACVP_TESTS
+    afalgeng            [cascade]               OPENSSL_NO_AFALGENG
+    aria                [option]                OPENSSL_NO_ARIA (skip crypto\aria)
+    asan                [default]               OPENSSL_NO_ASAN
+    async               [option]                OPENSSL_NO_ASYNC
+    autoalginit         [option]                OPENSSL_NO_AUTOALGINIT
+    autoload-config     [option]                OPENSSL_NO_AUTOLOAD_CONFIG
+    bf                  [option]                OPENSSL_NO_BF (skip crypto\bf)
+    blake2              [option]                OPENSSL_NO_BLAKE2
+    buildtest-c++       [default]               
+    camellia            [option]                OPENSSL_NO_CAMELLIA (skip crypto\camellia)
+    capieng             [cascade]               OPENSSL_NO_CAPIENG
+    cast                [option]                OPENSSL_NO_CAST (skip crypto\cast)
+    comp                [option]                OPENSSL_NO_COMP (skip crypto\comp)
+    crypto-mdebug       [default]               OPENSSL_NO_CRYPTO_MDEBUG
+    deprecated          [option]                OPENSSL_NO_DEPRECATED
+    des                 [option]                OPENSSL_NO_DES (skip crypto\des)
+    devcryptoeng        [default]               OPENSSL_NO_DEVCRYPTOENG
+    dso                 [option]                OPENSSL_NO_DSO
+    dynamic-engine      [cascade]               
+    ec_nistp_64_gcc_128 [default]               OPENSSL_NO_EC_NISTP_64_GCC_128
+    egd                 [default]               OPENSSL_NO_EGD
+    engine              [cascade]               OPENSSL_NO_ENGINE (skip crypto\engine)
+    external-tests      [default]               OPENSSL_NO_EXTERNAL_TESTS
+    filenames           [option]                OPENSSL_NO_FILENAMES
+    fips                [default]               
+    fips-securitychecks [cascade]               OPENSSL_NO_FIPS_SECURITYCHECKS
+    fuzz-afl            [default]               OPENSSL_NO_FUZZ_AFL
+    fuzz-libfuzzer      [default]               OPENSSL_NO_FUZZ_LIBFUZZER
+    gost                [option]                OPENSSL_NO_GOST
+    idea                [option]                OPENSSL_NO_IDEA (skip crypto\idea)
+    ktls                [default]               OPENSSL_NO_KTLS
+    legacy              [option]                
+    loadereng           [cascade]               OPENSSL_NO_LOADERENG
+    md2                 [default]               OPENSSL_NO_MD2 (skip crypto\md2)
+    mdc2                [option]                OPENSSL_NO_MDC2 (skip crypto\mdc2)
+    module              [cascade]               
+    msan                [default]               OPENSSL_NO_MSAN
+    ocb                 [option]                OPENSSL_NO_OCB
+    padlockeng          [cascade]               OPENSSL_NO_PADLOCKENG
+    pinshared           [option]                OPENSSL_NO_PINSHARED
+    rc2                 [option]                OPENSSL_NO_RC2 (skip crypto\rc2)
+    rc4                 [option]                OPENSSL_NO_RC4 (skip crypto\rc4)
+    rc5                 [default]               OPENSSL_NO_RC5 (skip crypto\rc5)
+    rmd160              [option]                OPENSSL_NO_RMD160 (skip crypto\ripemd)
+    scrypt              [option]                OPENSSL_NO_SCRYPT
+    sctp                [option]                OPENSSL_NO_SCTP
+    seed                [option]                OPENSSL_NO_SEED (skip crypto\seed)
+    shared              [option]                
+    siphash             [option]                OPENSSL_NO_SIPHASH (skip crypto\siphash)
+    siv                 [option]                OPENSSL_NO_SIV
+    sm2                 [option]                OPENSSL_NO_SM2 (skip crypto\sm2)
+    sm3                 [option]                OPENSSL_NO_SM3 (skip crypto\sm3)
+    sm4                 [option]                OPENSSL_NO_SM4 (skip crypto\sm4)
+    srp                 [cascade]               OPENSSL_NO_SRP (skip crypto\srp)
+    srtp                [option]                OPENSSL_NO_SRTP
+    ssl-trace           [option]                OPENSSL_NO_SSL_TRACE
+    stdio               [option]                OPENSSL_NO_STDIO
+    tests               [option]                OPENSSL_NO_TESTS
+    threads             [option]                
+    trace               [default]               OPENSSL_NO_TRACE
+    ubsan               [default]               OPENSSL_NO_UBSAN
+    ui-console          [option]                OPENSSL_NO_UI_CONSOLE
+    unit-test           [default]               OPENSSL_NO_UNIT_TEST
+    uplink              [cascade]               OPENSSL_NO_UPLINK
+    weak-ssl-ciphers    [default]               OPENSSL_NO_WEAK_SSL_CIPHERS
+    whirlpool           [option]                OPENSSL_NO_WHIRLPOOL (skip crypto\whrlpool)
+    zlib                [default]               
+    zlib-dynamic        [default]               
+    ssl3                [default]               OPENSSL_NO_SSL3
+    ssl3-method         [default]               OPENSSL_NO_SSL3_METHOD
+    tls1                [cascade]               OPENSSL_NO_TLS1
+    tls1_1              [option(tls1_1-method)] OPENSSL_NO_TLS1_1
+    tls1_1-method       [option]                OPENSSL_NO_TLS1_1_METHOD
+    tls1_2              [option(tls1_2-method)] OPENSSL_NO_TLS1_2
+    tls1_2-method       [option]                OPENSSL_NO_TLS1_2_METHOD
+    dtls1               [option(dtls1-method)]  OPENSSL_NO_DTLS1
+    dtls1-method        [option]                OPENSSL_NO_DTLS1_METHOD
+
+Config target attributes:
+
+    AR => "lib",
+    ARFLAGS => "/nologo",
+    AS => "nasm",
+    ASFLAGS => "-g",
+    CC => "cl",
+    CFLAGS => "/W3 /wd4090 /nologo /O2",
+    CPP => "\$(CC) /EP /C",
+    HASHBANGPERL => "/usr/bin/env perl",
+    LD => "link",
+    LDFLAGS => "/nologo /debug",
+    MT => "mt",
+    MTFLAGS => "-nologo",
+    RANLIB => "CODE(0x2c3a750)",
+    RC => "rc",
+    ar_resp_delim => "
+",
+    aroutflag => "/out:",
+    asflags => "-Ox -f win64 -DNEAR",
+    asm_arch => "x86_64",
+    asoutflag => "-o ",
+    bin_cflags => "/Zi /Fdapp.pdb /MT",
+    bin_lflags => "setargv.obj /subsystem:console /opt:ref",
+    bn_ops => "SIXTY_FOUR_BIT",
+    build_file => "makefile",
+    build_scheme => [ "unified", "windows", "VC-common" ],
+    cflags => "/Gs0 /GF /Gy",
+    coutflag => "/Fo",
+    cppflags => "",
+    defines => [ "OPENSSL_BUILDING_OPENSSL", "OPENSSL_SYS_WIN32", "WIN32_LEAN_AND_MEAN", "UNICODE", "_UNICODE", "_CRT_SECURE_NO_DEPRECATE", "_WINSOCK_DEPRECATED_NO_WARNINGS" ],
+    disable => [  ],
+    dso_cflags => "/Zi /Fddso.pdb",
+    dso_scheme => "win32",
+    enable => [  ],
+    ex_libs => "ws2_32.lib gdi32.lib advapi32.lib crypt32.lib user32.lib",
+    includes => [  ],
+    ld_implib_flag => "/implib:",
+    ld_resp_delim => "
+",
+    lddefflag => "/def:",
+    ldoutflag => "/out:",
+    ldpostoutflag => "",
+    ldresflag => " ",
+    lflags => "",
+    lib_cflags => "/Zi /Fdossl_static.pdb /MT /Zl",
+    lib_cppflags => "",
+    lib_defines => [ "L_ENDIAN" ],
+    makedep_scheme => "VC",
+    makedepcmd => "\$(CC) /Zs /showIncludes",
+    module_cflags => "",
+    module_cxxflags => undef,
+    module_ldflags => "/dll",
+    mtinflag => "-manifest ",
+    mtoutflag => "-outputresource:",
+    multilib => "-x64",
+    perl_platform => "Windows::MSVC",
+    perlasm_scheme => "auto",
+    rcoutflag => "/fo",
+    shared_cflag => "",
+    shared_defflag => "",
+    shared_defines => [  ],
+    shared_ldflag => "/dll",
+    shared_rcflag => "",
+    shared_target => "win-shared",
+    sys_id => "WIN64A",
+    thread_defines => [  ],
+    thread_scheme => "winthreads",
+    unistd => "<unistd.h>",
+    uplink_arch => "x86_64",
+
+Recorded environment:
+
+    AR = 
+    ARFLAGS = 
+    AS = 
+    ASFLAGS = 
+    BUILDFILE = 
+    CC = 
+    CFLAGS = 
+    CPP = 
+    CPPDEFINES = 
+    CPPFLAGS = 
+    CPPINCLUDES = 
+    CROSS_COMPILE = 
+    CXX = 
+    CXXFLAGS = 
+    HASHBANGPERL = 
+    LD = 
+    LDFLAGS = 
+    LDLIBS = 
+    MT = 
+    MTFLAGS = 
+    OPENSSL_LOCAL_CONFIG_DIR = 
+    PERL = 
+    RANLIB = 
+    RC = 
+    RCFLAGS = 
+    RM = 
+    WINDRES = 
+    __CNF_CFLAGS = 
+    __CNF_CPPDEFINES = 
+    __CNF_CPPFLAGS = 
+    __CNF_CPPINCLUDES = 
+    __CNF_CXXFLAGS = 
+    __CNF_LDFLAGS = 
+    __CNF_LDLIBS = 
+
+Makevars:
+
+    AR              = lib
+    ARFLAGS         = /nologo
+    AS              = nasm
+    ASFLAGS         = -g
+    CC              = cl
+    CFLAGS          = /W3 /wd4090 /nologo /O2
+    CPP             = $(CC) /EP /C
+    CPPDEFINES      = 
+    CPPFLAGS        = 
+    CPPINCLUDES     = 
+    CXXFLAGS        = 
+    HASHBANGPERL    = /usr/bin/env perl
+    LD              = link
+    LDFLAGS         = /nologo /debug
+    LDLIBS          = 
+    MT              = mt
+    MTFLAGS         = -nologo
+    PERL            = E:\Strawberry\perl\bin\perl.exe
+    RANLIB          = ranlib
+    RC              = rc
+    RCFLAGS         = 
+
+NOTE: These variables only represent the configuration view.  The build file
+template may have processed these variables further, please have a look at the
+build file for more exact data:
+    makefile
+
+build file:
+
+    makefile
+
+build file templates:
+
+    Configurations\common0.tmpl
+    Configurations\windows-makefile.tmpl
