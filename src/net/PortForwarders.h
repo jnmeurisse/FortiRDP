@@ -13,6 +13,7 @@
 #include "tools/Logger.h"
 
 namespace net {
+	using namespace tools;
 	using state_check_cb = std::function<bool(PortForwarder *)>;
 
 	class PortForwarders final : public std::list<PortForwarder*>
@@ -46,6 +47,6 @@ namespace net {
 
 	private:
 		// a reference to the application logger
-		tools::Logger* const _logger;
+		Logger* const _logger;
 	};
 }
