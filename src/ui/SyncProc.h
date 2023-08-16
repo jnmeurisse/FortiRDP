@@ -34,7 +34,7 @@ protected:
 
 private:
 	// - event message sent asynchronously when procedure execution is finished
-	const AsyncMessage& _message;
+	const AsyncMessage _message;
 
 	// - procedure to execute
 	virtual bool procedure()=0;

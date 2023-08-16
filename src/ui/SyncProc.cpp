@@ -13,7 +13,6 @@ SyncProc::SyncProc(HWND hwnd, const AsyncMessage& message):
 	_logger(tools::Logger::get_logger())
 {
 	DEBUG_CTOR(_logger, "SyncProc");
-
 }
 
 

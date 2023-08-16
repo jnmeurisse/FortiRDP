@@ -24,6 +24,9 @@
 class AsyncMessage final
 {
 public:
+	AsyncMessage(const AsyncMessage& message);
+	virtual ~AsyncMessage();
+
 	LRESULT send(HWND hWnd, void* lParam) const;
 	BOOL post(HWND hWnd, void* lParam) const;
 
@@ -82,7 +85,6 @@ public:
 
 private:
 	explicit AsyncMessage(UINT eventNumber);
-	virtual ~AsyncMessage();
 
 private:
 	// - A global message identifier assigned by windows for all AsyncMessages
