@@ -15,10 +15,10 @@ namespace tools {
 	static unsigned __stdcall thread_entry_point(void *);
 
 	Thread::Thread(bool auto_delete) : 
-		_logger(Logger::get_logger())
+		_logger(Logger::get_logger()),
+		_auto_delete(auto_delete)
 	{
 		DEBUG_CTOR(_logger, "Thread");
-		_auto_delete = auto_delete;
 
 		_handle = (HANDLE)::_beginthreadex(nullptr, 0, thread_entry_point, this, CREATE_SUSPENDED, &_id);
 		_logger->debug("... %x created Thread handle=%x", this, _handle);
@@ -72,11 +72,11 @@ namespace tools {
 
 	//-
 	// Function : threadEntryPoint
-	// Purpose  : Thread entry point 
+	// Purpose  : Thread entry point
 	//
 	static unsigned __stdcall thread_entry_point(void* data)
 	{
-		Thread* thread = (Thread*)data;
+		Thread* const thread = (Thread*)data;
 		unsigned int rc = thread->run();
 
 		if (thread->_auto_delete) {
