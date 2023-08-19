@@ -13,7 +13,7 @@ namespace http {
 	Cookie::Cookie(const tools::obfstring& value)
 	{
 		if (!parse(value)) {
-			throw new CookieError{ "Invalid cookie value:" + value.uncrypt() };
+			throw CookieError{ "Invalid cookie value:" + value.uncrypt() };
 		}
 	}
 
