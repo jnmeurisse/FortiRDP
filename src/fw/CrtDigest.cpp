@@ -12,18 +12,17 @@
 
 namespace fw {
 
-	CrtDigest::CrtDigest()
+	CrtDigest::CrtDigest() :
+		_digest{ 0 }
 	{
-		std::memset(_digest, 0, sizeof(_digest));
 	}
 
 
-	CrtDigest::CrtDigest(const mbedtls_x509_crt* crt)
+	CrtDigest::CrtDigest(const mbedtls_x509_crt* crt) :
+		CrtDigest()
 	{
 		if (crt)
 			mbedtls_sha256_ret(crt->raw.p, crt->raw.len, _digest, 0);
-		else
-			std::memset(_digest, 0, sizeof(_digest));
 	}
 
 
