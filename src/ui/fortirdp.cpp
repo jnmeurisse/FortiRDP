@@ -92,19 +92,25 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	dns_init();
 	sys_set_logger(lwip_log_cb, logger);
 
-	ConnectDialog main_dialog(hInstance, cmdline_params);
-	main_dialog.show_window(nCmdShow);
-	
-	// Main application loop
-	while (GetMessage(&msg, nullptr, 0, 0)) {
-		if (IsDialogMessage(main_dialog.window_handle(), &msg))
-			continue;
+	// Create the main dialog in a reduced scope.  This forces the
+	// compiler to destroy the ConnectDialog when the application loop
+	// ends (and before the destruction of the logger).
+	{
+		ConnectDialog main_dialog(hInstance, cmdline_params);
+		main_dialog.show_window(nCmdShow);
 
-		TranslateMessage(&msg);
-		DispatchMessage(&msg);
+		// Main application loop
+		while (GetMessage(&msg, nullptr, 0, 0)) {
+			if (IsDialogMessage(main_dialog.window_handle(), &msg))
+				continue;
+
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}
 	}
 
 	if (cmdline_params.verbose()) {
+		logger->debug("End.");
 		writer.flush();
 		logger->remove_writer(&writer);
 	}
