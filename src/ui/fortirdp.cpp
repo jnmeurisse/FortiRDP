@@ -25,20 +25,12 @@
 	name='Microsoft.Windows.Common-Controls' version='6.0.0.0' \
 	processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 
-
-#define MAX_LOADSTRING 100
-
-// Variables globales :
-HINSTANCE hInst;                                // instance actuelle
-WCHAR szWindowClass[MAX_LOADSTRING];            // le nom de la classe de fenêtre principale
-
 // Pré-déclarations des fonctions incluses dans ce module de code :
-ATOM                MyRegisterClass(HINSTANCE hInstance);
-INT_PTR CALLBACK	MainDialogProc(HWND, UINT, WPARAM, LPARAM);
-INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
-static void			RedirectStdioToConsole();
-static bool			is_wow64();
-static void			lwip_log_cb(void *ctx, int level, const char* fmt, va_list args);
+INT_PTR CALLBACK MainDialogProc(HWND, UINT, WPARAM, LPARAM);
+INT_PTR CALLBACK About(HWND, UINT, WPARAM, LPARAM);
+static void RedirectStdioToConsole();
+static bool is_wow64();
+static void lwip_log_cb(void *ctx, int level, const char* fmt, va_list args);
 
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
