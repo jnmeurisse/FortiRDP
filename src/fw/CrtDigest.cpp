@@ -8,7 +8,7 @@
 #include <string>
 
 #include "CrtDigest.h"
-#include "mbedtls\sha256.h"
+#include "tools/ErrUtil.h"
 
 namespace fw {
 
@@ -17,12 +17,15 @@ namespace fw {
 	{
 	}
 
-
-	CrtDigest::CrtDigest(const mbedtls_x509_crt* crt) :
+	
+	CrtDigest::CrtDigest(const x509_crt* crt) :
 		CrtDigest()
 	{
-		if (crt)
-			mbedtls_sha256_ret(crt->raw.p, crt->raw.len, _digest, 0);
+		if (crt) {
+			const int rc = x509_digest(crt, _digest, sizeof(_digest));
+			if (rc != 0)
+				throw tools::mbed_error(rc);
+		}
 	}
 
 

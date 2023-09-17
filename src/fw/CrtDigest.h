@@ -7,7 +7,7 @@
 */
 #pragma once
 
-#include "mbedtls\x509_crt.h"
+#include "mbedccl/x509.h"
 
 namespace fw {
 
@@ -26,7 +26,7 @@ namespace fw {
 		 *
 		 * @param crt The certificate from which we determine the digest
 		 */
-		explicit CrtDigest(const mbedtls_x509_crt* crt);
+		explicit CrtDigest(const x509_crt* crt);
 
 		/* Compares for equality this digest with another.
 		 *
