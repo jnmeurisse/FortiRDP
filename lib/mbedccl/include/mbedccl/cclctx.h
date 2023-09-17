@@ -13,19 +13,17 @@
 extern "C" {
 #endif
 
-typedef void(*sslcfg_debug_cb)(int level, const char* buffer, void* data);
 
-/*! Initializes the Mbed TLS library.
-* The function initializes the threading and the psa modules.
-*
+/*! Initialize the Mbed TLS library.
+    The function initializes the threading and the psa modules.
 */
 mbed_err mbedccl_initialize();
 
-/*! Un-initializes the Mbed TLS library.
+/*! Un-initialize the Mbed TLS library.
 */
 void mbedccl_terminate();
 
-/*! Returns the Mbed TLS library version.
+/*! Return the Mbed TLS library version.
 */
 const char* mbedccl_get_version();
 
