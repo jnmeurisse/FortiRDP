@@ -18,11 +18,11 @@ namespace fw {
 	}
 
 	
-	CrtDigest::CrtDigest(const x509_crt* crt) :
+	CrtDigest::CrtDigest(const x509crt* crt) :
 		CrtDigest()
 	{
 		if (crt) {
-			const int rc = x509_digest(crt, _digest, sizeof(_digest));
+			const mbed_err rc = x509crt_digest(crt, _digest, sizeof(_digest));
 			if (rc != 0)
 				throw tools::mbed_error(rc);
 		}

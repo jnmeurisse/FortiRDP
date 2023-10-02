@@ -6,6 +6,8 @@
 *
 */
 #pragma once
+
+#include <stdlib.h>
 #include <stdint.h>
 
 #include "mbedccl/nettypes.h"
@@ -31,12 +33,12 @@ void netctx_free(netctx* ctx);
 /**
  * Close a network connection
  */
-void netctx_close(netctx* ctx);
+mbed_err netctx_close(netctx* ctx);
 
 /**
  * Disable transmission and reception and close the network connection.
  */
-void netctx_shutdown(netctx* ctx);
+mbed_err netctx_shutdown(netctx* ctx);
 
 /**
  * Return the socket file descriptor.

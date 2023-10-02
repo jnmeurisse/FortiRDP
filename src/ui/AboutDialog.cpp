@@ -10,9 +10,8 @@
 #include "tools/SysUtil.h"
 #include "tools/StrUtil.h"
 #include "tools/Path.h"
-#include "mbedtls\version.h"
-#include "resources\resource.h"
-
+#include "resources/resource.h"
+#include "mbedccl/init.h"
 
 AboutDialog::AboutDialog(HINSTANCE hInstance, HWND hParent) :
 	ModalDialog(hInstance, hParent, IDD_ABOUT_DIALOG)
@@ -45,13 +44,10 @@ INT_PTR AboutDialog::onCreateDialogMessage(WPARAM wParam, LPARAM lParam)
 	set_control_font(IDC_ABOUT_VERSION, _hFont);
 	set_control_text(IDC_ABOUT_VERSION, tools::str2wstr(about_version));
 	
-	char mbedtls_ver[10]{ 0 };
-	mbedtls_version_get_string(mbedtls_ver);
-
 	std::string about_info;
 	about_info.append("A Fortigate SSLVPN client\n");
 	about_info.append("\nThis program uses mbed TLS ");
-	about_info.append(mbedtls_ver);
+	about_info.append(mbedccl_get_version());
 	about_info.append(" library (https://github.com/Mbed-TLS).");
 
 	set_control_font(IDC_ABOUT_INFO, _hFont);
