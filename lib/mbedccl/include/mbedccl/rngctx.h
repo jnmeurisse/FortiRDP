@@ -22,17 +22,16 @@ extern "C" {
 rngctx* rngctx_alloc();
 
 /**
- * Initialize a Random Generator Context.
- */
-mbed_err rngctx_init(rngctx* ctx);
+* Free a Random Generator Context.
+*/
+void rngctx_free(rngctx* ctx);
 
 /**
- * Free a Random Generator Context.
+ * Configure a Random Generator Context.
  */
-void rngctx_free(rngctx* ctx);
+mbed_err rngctx_configure(rngctx* ctx);
+
 
 #ifdef __cplusplus
 }
 #endif
-
-
