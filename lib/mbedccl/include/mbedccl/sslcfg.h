@@ -27,15 +27,15 @@ typedef struct ssl_config sslcfg;
 sslcfg* sslcfg_alloc();
 
 /**
+* Free a SSL configuration context.
+*/
+void sslcfg_free(sslcfg* cfg);
+
+/**
  * Configure a SSL configuration context.
  * The function initializes the context with all options required by fortirdp.
  */
-mbed_err sslcfg_config(sslcfg* cfg, rngctx* ctx);
-
-/**
- * Free a SSL configuration context.
- */
-void sslcfg_free(sslcfg* cfg);
+mbed_err sslcfg_configure(sslcfg* cfg, rngctx* ctx);
 
 /**
  * Enable/disable the debug callback.
