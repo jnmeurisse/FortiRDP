@@ -43,12 +43,17 @@ typedef enum sslctx_hdk_status_code {
 	SSLCTX_HDK_ERROR      = 3
 } netctx_hdk_status_code;
 
+typedef enum netctx_poll_status_code {
+	NETCTX_POLL_OK = 0,
+	NETCTX_POLL_TIMEOUT = 1,
+	NETCTX_POLL_ERROR = 2
+} netctx_poll_status_code;
 
 typedef struct netctx_poll_status {
-	netctx_poll_mode poll_event;
+	netctx_poll_status_code  status_code;
+	netctx_poll_mode event;
 	mbed_err errnum;
 } netctx_poll_status;
-
 
 typedef struct netctx_rcv_status {
 	netctx_rcv_status_code status_code;
