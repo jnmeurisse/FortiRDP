@@ -5,7 +5,8 @@
 * SPDX-License-Identifier: Apache-2.0
 *
 */
-#include <vector> 
+#include <stdexcept>
+#include <vector>
 #include "tools\RegKey.h"
 #include "tools\SysUtil.h"
 

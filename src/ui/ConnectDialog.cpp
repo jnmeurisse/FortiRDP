@@ -5,6 +5,7 @@
 * SPDX-License-Identifier: Apache-2.0
 *
 */
+#include <stdexcept>
 #include "ui/ConnectDialog.h"
 #include "ui/CredentialDialog.h"
 #include "ui/AskCodeDialog.h"
