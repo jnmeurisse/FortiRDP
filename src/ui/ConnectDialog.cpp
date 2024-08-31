@@ -176,7 +176,7 @@ void ConnectDialog::connect()
 		_firewall_endpoint = net::Endpoint(fw_addr, DEFAULT_FW_PORT);
 
 	}
-	catch (const std::invalid_argument) {
+	catch (const std::invalid_argument&) {
 		set_focus(IDC_ADDR_FW);
 		showErrorMessageDialog("Invalid firewall address");
 		return;
@@ -187,7 +187,7 @@ void ConnectDialog::connect()
 		_host_endpoint = net::Endpoint(host_addr, DEFAULT_RDP_PORT);
 
 	}
-	catch (const std::invalid_argument) {
+	catch (const std::invalid_argument&) {
 		set_focus(IDC_ADDR_HOST);
 		showErrorMessageDialog("Invalid host address");
 		return;

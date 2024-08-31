@@ -65,7 +65,7 @@ namespace tools
 	{
 		try {
 			return get_word(value_name);
-		} catch (std::system_error& ) {
+		} catch (const std::system_error&) {
 			return default_value;
 		}
 	}
@@ -128,7 +128,7 @@ namespace tools
 	{
 		try {
 			return get_string(value_name);
-		} catch (std::system_error&) {
+		} catch (const std::system_error&) {
 			return default_value;
 		}
 	}

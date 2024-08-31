@@ -250,7 +250,7 @@ unsigned int AsyncController::run()
 			try {
 				procedure->run();
 			}
-			catch (const std::exception e) {
+			catch (const std::exception& e) {
 				_logger->error("ERROR: %x AsyncController::run failure exception=%s",
 					this,
 					e.what());
