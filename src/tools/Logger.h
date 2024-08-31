@@ -55,7 +55,7 @@ namespace tools {
 		void info(const char* format, ...);
 		void error(const char* format, ...);
 
-		/* Sets the threshold to 'level'. Logging message that are less severe than
+		/* Sets the threshold to 'level'. Logging message than are less severe than
 		*  the specified level are ignored
 		*/
 		void set_level(Level level);
