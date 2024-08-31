@@ -66,15 +66,6 @@ namespace net {
 		0
 	};
 
-	// Cipher with the shortest message authentication to reduced overhead.
-	// Considered as weak but strong enough for tunneling https
-	static const int lowsec_ciphers[] = {
-		MBEDTLS_TLS_RSA_WITH_AES_128_CBC_SHA,
-
-		// end of list
-		0
-	};
-
 
 	TlsSocket::TlsSocket() :
 		Socket()
@@ -139,25 +130,6 @@ namespace net {
 	const mbedtls_x509_crt* TlsSocket::get_ca_crt() const
 	{
 		return _ssl_config.ca_chain;
-	}
-
-
-	void TlsSocket::set_cipher(enum Cipher cipher)
-	{
-		DEBUG_ENTER(_logger, "TlsSocket", "set_cipher");
-
-		switch (cipher)
-		{
-		case Cipher::LOW_SEC:
-			mbedtls_ssl_conf_ciphersuites(&_ssl_config, lowsec_ciphers);
-			break;
-
-		default:
-			mbedtls_ssl_conf_ciphersuites(&_ssl_config, default_ciphers);
-			break;
-		}
-
-		return;
 	}
 
 

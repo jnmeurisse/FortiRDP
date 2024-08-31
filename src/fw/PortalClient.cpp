@@ -94,9 +94,6 @@ namespace fw {
 
 		_logger->info(">> connecting to %s", host().to_string().c_str());
 
-		// define the type of cipher used to encrypt and sign all traffic 
-		set_cipher(Cipher::HIGH_SEC);
-
 		// connect to the server
 		try {
 			HttpsClient::connect();
