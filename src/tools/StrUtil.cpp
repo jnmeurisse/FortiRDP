@@ -84,6 +84,7 @@ namespace tools {
 			errno = EINVAL;
 
 		} else {
+			errno = 0;
 			long l = std::strtol(numstr.c_str(), nullptr, radix);
 		
 			if (errno == 0) {
