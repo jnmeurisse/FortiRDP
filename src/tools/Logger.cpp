@@ -54,7 +54,7 @@ namespace tools {
 	}
 
 
-	void Logger::write(Logger::Level level, const char* text)
+	void Logger::write(Level level, const char* text)
 	{
 		Mutex::Lock lock{ _mutex };
 
@@ -136,21 +136,24 @@ namespace tools {
 
 	char* Logger::fmt(const char* format, va_list args)
 	{
-		char* text = 0;
+		char* text = nullptr;
 		int size = 0;
 
-		//  compute the number of characters in the string referenced by the list of arguments.
+		// compute the number of characters
 		size = _vscprintf(format, args) + 1;
+
+		// allocate and format
 		text = new char[size];
 		vsprintf_s(text, size, format, args);
 
+		// return the formated text
 		return text;
 	}
 
 
 	void Logger::log(Level level, const char* format, va_list args)
 	{
-		char* text = fmt(format, args);
+		const char* const text = fmt(format, args);
 		write(level, text);
 		delete[] text;
 	}
@@ -159,7 +162,7 @@ namespace tools {
 	static std::string datetime()
 	{
 		// get current system time
-		time_t now = time(nullptr);
+		const time_t now = time(nullptr);
 
 		// convert to local time
 		tm local_time;

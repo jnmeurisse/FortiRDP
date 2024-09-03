@@ -84,7 +84,7 @@ namespace net {
 
 	private:
 		friend u32_t ppp_output_cb(ppp_pcb *pcb, struct pbuf* pbuf, void *ctx);
-		friend void	 ppp_link_status_cb(ppp_pcb *pcb, int err_code, void *ctx);
+		friend void ppp_link_status_cb(ppp_pcb *pcb, int err_code, void *ctx);
 
 		/*
 		* Returns the last transmission timeout.

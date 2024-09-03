@@ -26,7 +26,7 @@ namespace fw {
 	PortalClient::PortalClient(const net::Endpoint& ep, const CertFiles& cert_files):
 		HttpsClient(ep),
 		_connected(false),
-		_peer_crt_thumbprint(),
+		_peer_crt_digest(),
 		_mutex(),
 		_cert_files(cert_files),
 		_cookies()
@@ -203,8 +203,8 @@ namespace fw {
 			}
 		}
 
-		// compute the thumbprint of the certificate.
-		_peer_crt_thumbprint = CrtThumbprint(get_peer_crt());
+		// compute the digest of the certificate.
+		_peer_crt_digest = CrtDigest(get_peer_crt());
 
 		// get the top page
 		if (!request(http::Request::GET_VERB, http::Url("/"), "", http::Headers(), answer, true))
@@ -616,8 +616,8 @@ namespace fw {
 				return false;
 			}
 
-			// verify the thumbprint of the certificate
-			if (_peer_crt_thumbprint != CrtThumbprint(get_peer_crt())) {
+			// verify the digest of the certificate
+			if (_peer_crt_digest != CrtDigest(get_peer_crt())) {
 				_logger->error("ERROR: invalid certificate digest");
 
 				return false;

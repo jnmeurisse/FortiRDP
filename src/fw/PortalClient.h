@@ -14,7 +14,7 @@
 #include "http/Cookies.h"
 #include "http/Url.h"
 
-#include "fw/CrtThumbprint.h"
+#include "fw/CrtDigest.h"
 
 #include "net/Endpoint.h"
 #include "net/Tunneler.h"
@@ -142,8 +142,8 @@ namespace fw {
 		mbedtls_x509_crt _crt_user;
 		mbedtls_pk_context _pk_crt_user;
 
-		// The peer certificate thumbprint
-		CrtThumbprint _peer_crt_thumbprint;
+		// The peer certificate digest
+		CrtDigest _peer_crt_digest;
 
 		// Session cookies
 		http::Cookies _cookies;

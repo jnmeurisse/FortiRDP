@@ -14,9 +14,16 @@ namespace tools {
 	class Timer final
 	{
 	public:
-		Timer();
+		/* Constructs and starts the timer for the specified number of milli-seconds.
+		*/
 		explicit Timer(int ms);
+
+		/* Copy constructor.
+		*/
 		explicit Timer(const Timer& timer);
+
+		/* Destructor.
+		*/
 		~Timer();
 
 		/* Starts the timer for the specified number of milli-seconds
@@ -26,10 +33,6 @@ namespace tools {
 		/* Returns true if the timer has elapsed
 		*/
 		bool elapsed() const;
-
-		/* Returns the timer handle
-		*/
-		inline HANDLE get_handle() const { return _handle; }
 
 	private:
 		// A reference to the application logger
