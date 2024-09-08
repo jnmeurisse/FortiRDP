@@ -260,7 +260,7 @@ namespace http {
 						const Cookie cookie{ field_value };
 						_cookies.set(cookie.get_name(), cookie);
 					}
-					catch (CookieError e) {
+					catch (const CookieError&) {
 						// silently ignore this error
 					}
 				}

@@ -29,10 +29,6 @@ namespace net {
 		TlsSocket();
 		virtual ~TlsSocket();
 
-		/* Types of cipher used to encrypt TLS
-		*/
-		enum Cipher { LOW_SEC = 0, HIGH_SEC };
-
 		/* Defines the CA certificate
 		*/
 		void set_ca_crt(mbedtls_x509_crt* ca_crt);
@@ -44,10 +40,6 @@ namespace net {
 		/* Defines the client certificate
 		*/
 		mbed_err set_own_crt(mbedtls_x509_crt* own_crt, mbedtls_pk_context *own_key);
-
-		/* Defines a type of cipher
-		*/
-		void set_cipher(enum Cipher cipher);
 
 		/* Initiates a connection to the specified endpoint.
 		 *

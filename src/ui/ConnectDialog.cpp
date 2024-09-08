@@ -5,6 +5,7 @@
 * SPDX-License-Identifier: Apache-2.0
 *
 */
+#include <stdexcept>
 #include "ui/ConnectDialog.h"
 #include "ui/CredentialDialog.h"
 #include "ui/AskCodeDialog.h"
@@ -177,7 +178,7 @@ void ConnectDialog::connect()
 		_firewall_endpoint = net::Endpoint(fw_addr, DEFAULT_FW_PORT);
 
 	}
-	catch (const std::invalid_argument) {
+	catch (const std::invalid_argument&) {
 		set_focus(IDC_ADDR_FW);
 		showErrorMessageDialog(L"Invalid firewall address");
 		return;
@@ -188,7 +189,7 @@ void ConnectDialog::connect()
 		_host_endpoint = net::Endpoint(host_addr, DEFAULT_RDP_PORT);
 
 	}
-	catch (const std::invalid_argument) {
+	catch (const std::invalid_argument&) {
 		set_focus(IDC_ADDR_HOST);
 		showErrorMessageDialog(L"Invalid host address");
 		return;

@@ -161,9 +161,6 @@ namespace fw {
 
 		_logger->info(">> connecting to %s", host().to_string().c_str());
 
-		// define the type of cipher used to encrypt and sign all traffic 
-		set_cipher(Cipher::HIGH_SEC);
-
 		// initialize our certificates
 		init_ca_crt();
 		init_user_crt();
@@ -172,7 +169,7 @@ namespace fw {
 		try {
 			HttpsClient::connect();
 		}
-		catch (mbed_error& e) {
+		catch (const mbed_error& e) {
 			_logger->error("ERROR: failed to connect to %s", host().to_string().c_str());
 			_logger->error("ERROR: %s", e.message().c_str());
 
@@ -573,7 +570,7 @@ namespace fw {
 		try {
 			send_request(request);
 
-		} catch (mbed_error& e) {
+		} catch (const mbed_error& e) {
 			_logger->error("ERROR: failed to open the tunnel");
 			_logger->error("ERROR: %s", e.message().c_str());
 
@@ -609,7 +606,7 @@ namespace fw {
 			try {
 				connect();
 			}
-			catch (mbed_error &e) {
+			catch (const mbed_error &e) {
 				_logger->error("ERROR: failed to connect to %s", host().to_string().c_str());
 				_logger->error("ERROR: %s", e.message().c_str());
 
@@ -628,7 +625,7 @@ namespace fw {
 		try {
 			send_request(request);
 		}
-		catch (mbed_error &e) {
+		catch (const mbed_error &e) {
 			_logger->error("ERROR: failed to send HTTP request to %s", host().to_string().c_str());
 			_logger->error("ERROR: %s", e.message().c_str());
 
@@ -639,7 +636,7 @@ namespace fw {
 		try {
 			recv_answer(answer);
 		}
-		catch (frdp_error &e) {
+		catch (const frdp_error &e) {
 			_logger->error("ERROR: failed to receive HTTP data from %s", host().to_string().c_str());
 			_logger->error("ERROR: %s", e.message().c_str());
 

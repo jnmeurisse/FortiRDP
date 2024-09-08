@@ -21,7 +21,7 @@ namespace tools {
 		DEBUG_CTOR(_logger, "Thread");
 
 		_handle = (HANDLE)::_beginthreadex(nullptr, 0, thread_entry_point, this, CREATE_SUSPENDED, &_id);
-		_logger->debug("... %x created Thread handle=%x", this, _handle);
+		_logger->debug("... %x created Thread handle=%x", std::addressof(*this), _handle);
 
 		if (_handle == NULL)
 			throw_winapi_error(::GetLastError(), "_beginthreadex error");
