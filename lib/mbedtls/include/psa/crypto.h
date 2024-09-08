@@ -4,19 +4,7 @@
  */
 /*
  *  Copyright The Mbed TLS Contributors
- *  SPDX-License-Identifier: Apache-2.0
- *
- *  Licensed under the Apache License, Version 2.0 (the "License"); you may
- *  not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
- *
- *  http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- *  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ *  SPDX-License-Identifier: Apache-2.0 OR GPL-2.0-or-later
  */
 
 #ifndef PSA_CRYPTO_H
@@ -142,6 +130,9 @@ static psa_key_attributes_t psa_key_attributes_init(void);
  *
  * \param[out] attributes  The attribute structure to write to.
  * \param key              The persistent identifier for the key.
+ *                         This can be any value in the range from
+ *                         #PSA_KEY_ID_USER_MIN to #PSA_KEY_ID_USER_MAX
+ *                         inclusive.
  */
 static void psa_set_key_id(psa_key_attributes_t *attributes,
                            mbedtls_svc_key_id_t key);
@@ -878,7 +869,7 @@ psa_status_t psa_hash_compute(psa_algorithm_t alg,
  *                          such that #PSA_ALG_IS_HASH(\p alg) is true).
  * \param[in] input         Buffer containing the message to hash.
  * \param input_length      Size of the \p input buffer in bytes.
- * \param[out] hash         Buffer containing the expected hash value.
+ * \param[in] hash          Buffer containing the expected hash value.
  * \param hash_length       Size of the \p hash buffer in bytes.
  *
  * \retval #PSA_SUCCESS
@@ -1237,7 +1228,7 @@ psa_status_t psa_mac_compute(mbedtls_svc_key_id_t key,
  *                          such that #PSA_ALG_IS_MAC(\p alg) is true).
  * \param[in] input         Buffer containing the input message.
  * \param input_length      Size of the \p input buffer in bytes.
- * \param[out] mac          Buffer containing the expected MAC value.
+ * \param[in] mac           Buffer containing the expected MAC value.
  * \param mac_length        Size of the \p mac buffer in bytes.
  *
  * \retval #PSA_SUCCESS
@@ -2940,7 +2931,7 @@ psa_status_t psa_sign_message(mbedtls_svc_key_id_t key,
  *                              \p key.
  * \param[in]  input            The message whose signature is to be verified.
  * \param[in]  input_length     Size of the \p input buffer in bytes.
- * \param[out] signature        Buffer containing the signature to verify.
+ * \param[in] signature         Buffer containing the signature to verify.
  * \param[in]  signature_length Size of the \p signature buffer in bytes.
  *
  * \retval #PSA_SUCCESS \emptydescription
