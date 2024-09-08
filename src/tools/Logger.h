@@ -64,7 +64,7 @@ namespace tools {
 		*/
 		inline Level get_level() const { return _level; }
 
-		/* tests if the specified level is more severe that the current level
+		/* tests if the specified level is more severe than the current level
 		*/
 		inline bool is_enabled(Level level) const { return level >= _level; }
 

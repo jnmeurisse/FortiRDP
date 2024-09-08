@@ -55,14 +55,14 @@ bool CmdlineParams::initialize(int argc, LPWSTR argv[])
 	_verbose = false;
 	_trace = false;
 
-	_ca_filename = L"";
+	_ca_cert_filename = L"";
 	_app_name = L"mstsc";
 	_local_port = 0;
 	_rdp_filename = L"";
 	_tcp_nodelay = false;
 
 	int c;
-	while ((c = getopt(argc, argv, L"?u:famvc:tx:p:sr:lCMnw:h:")) != EOF) {
+	while ((c = getopt(argc, argv, L"?u:famvc:tx:p:sr:lCMnw:h:U:")) != EOF) {
 		switch (c) {
 		case L'?':
 			return false;
@@ -85,7 +85,7 @@ bool CmdlineParams::initialize(int argc, LPWSTR argv[])
 			break;
 
 		case L'c':
-			_ca_filename = tools::trim(optarg);
+			_ca_cert_filename = tools::trim(optarg);
 			break;
 
 		case L'v':
@@ -132,6 +132,10 @@ bool CmdlineParams::initialize(int argc, LPWSTR argv[])
 		case L'h':
 			if (!tools::str2i(optarg, _screen_size.height))
 				_screen_size.height = -1;
+			break;
+
+		case L'U':
+			_us_cert_filename = tools::trim(optarg);
 			break;
 
 		default:

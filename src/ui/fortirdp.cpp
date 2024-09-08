@@ -25,20 +25,12 @@
 	name='Microsoft.Windows.Common-Controls' version='6.0.0.0' \
 	processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 
-
-#define MAX_LOADSTRING 100
-
-// Variables globales :
-HINSTANCE hInst;                                // instance actuelle
-WCHAR szWindowClass[MAX_LOADSTRING];            // le nom de la classe de fenêtre principale
-
 // Pré-déclarations des fonctions incluses dans ce module de code :
-ATOM                MyRegisterClass(HINSTANCE hInstance);
-INT_PTR CALLBACK	MainDialogProc(HWND, UINT, WPARAM, LPARAM);
-INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
-static void			RedirectStdioToConsole();
-static bool			is_wow64();
-static void			lwip_log_cb(void *ctx, int level, const char* fmt, va_list args);
+INT_PTR CALLBACK MainDialogProc(HWND, UINT, WPARAM, LPARAM);
+INT_PTR CALLBACK About(HWND, UINT, WPARAM, LPARAM);
+static void RedirectStdioToConsole();
+static bool is_wow64();
+static void lwip_log_cb(void *ctx, int level, const char* fmt, va_list args);
 
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
@@ -100,19 +92,25 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	dns_init();
 	sys_set_logger(lwip_log_cb, logger);
 
-	ConnectDialog main_dialog(hInstance, cmdline_params);
-	main_dialog.show_window(nCmdShow);
-	
-	// Main application loop
-	while (GetMessage(&msg, nullptr, 0, 0)) {
-		if (IsDialogMessage(main_dialog.window_handle(), &msg))
-			continue;
+	// Create the main dialog in a reduced scope.  This forces the
+	// compiler to destroy the ConnectDialog when the application loop
+	// ends (and before the destruction of the logger).
+	{
+		ConnectDialog main_dialog(hInstance, cmdline_params);
+		main_dialog.show_window(nCmdShow);
 
-		TranslateMessage(&msg);
-		DispatchMessage(&msg);
+		// Main application loop
+		while (GetMessage(&msg, nullptr, 0, 0)) {
+			if (IsDialogMessage(main_dialog.window_handle(), &msg))
+				continue;
+
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}
 	}
 
 	if (cmdline_params.verbose()) {
+		logger->debug("End.");
 		writer.flush();
 		logger->remove_writer(&writer);
 	}

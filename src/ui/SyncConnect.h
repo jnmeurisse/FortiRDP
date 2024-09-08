@@ -12,6 +12,7 @@
 #include "fw/PortalClient.h"
 #include "ui/SyncProc.h"
 
+
 /**
 * A synchronous procedure that connects this client to the firewall. The procedure
 * posts a ConnectedEvent to the window when done.
@@ -19,15 +20,14 @@
 class SyncConnect final : public SyncProc
 {
 public:
-	explicit SyncConnect(HWND hwnd, const std::wstring& ca_filename, fw::PortalClient* portal);
+	explicit SyncConnect(HWND hwnd, fw::PortalClient* portal);
 	~SyncConnect();
 
 private:
-	const std::wstring _ca_filename;
 	fw::PortalClient* const _portal;
 
 	// send a show error message command to the window specified by hwnd
-	void showErrorMessageDialog(const char* message) const;
+	void showErrorMessageDialog(const wchar_t* message) const;
 
 	// callback called to ask user to confirm certificate usage
 	bool confirm_certificate(const mbedtls_x509_crt* crt, int status);
@@ -40,6 +40,5 @@ private:
 
 	// connect procedure
 	virtual bool procedure() override;
-
 };
 

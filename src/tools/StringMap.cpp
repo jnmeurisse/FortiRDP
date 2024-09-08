@@ -25,7 +25,6 @@ namespace tools {
 	}
 
 
-
 	void StringMap::serase()
 	{
 		if (_strmap.size() > 0) {

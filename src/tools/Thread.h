@@ -67,7 +67,7 @@ namespace tools {
 		unsigned int _id;
 
 		// Should we delete this object when the thread stops
-		bool _auto_delete;
+		const bool _auto_delete;
 
 		friend unsigned __stdcall thread_entry_point(void *data);
 	};

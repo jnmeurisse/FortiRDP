@@ -23,19 +23,20 @@
 namespace fw {
 	using namespace tools;
 
-
-	PortalClient::PortalClient(const net::Endpoint& ep) :
+	PortalClient::PortalClient(const net::Endpoint& ep, const CertFiles& cert_files):
 		HttpsClient(ep),
 		_connected(false),
-		_authenticated(false),
-		_peer_crt_thumbprint(),
+		_peer_crt_digest(),
 		_mutex(),
-		_ca_file(),
+		_cert_files(cert_files),
 		_cookies()
 	{
 		DEBUG_CTOR(_logger, "PortalClient");
 
-		mbedtls_x509_crt_init(&_ca_crt);
+		mbedtls_x509_crt_init(&_crt_auth);
+		mbedtls_x509_crt_init(&_crt_user);
+		mbedtls_pk_init(&_pk_crt_user);
+
 		set_timeout(10000, 10000);
 	}
 
@@ -44,42 +45,108 @@ namespace fw {
 	{
 		DEBUG_DTOR(_logger, "PortalClient");
 
-		mbedtls_x509_crt_free(&_ca_crt);
+		mbedtls_x509_crt_free(&_crt_auth);
+		mbedtls_x509_crt_free(&_crt_user);
+		mbedtls_pk_free(&_pk_crt_user);
 	}
 
 
-	bool PortalClient::set_ca_file(const tools::Path& ca_file)
+	bool PortalClient::init_ca_crt()
 	{
-		DEBUG_ENTER(_logger, "PortalClient", "set_ca_file");
+		DEBUG_ENTER(_logger, "PortalClient", "init_ca_crt");
 		tools::mbed_err rc = 0;
 
 		// free previous ca certificate
-		mbedtls_x509_crt_free(&_ca_crt);
-
-		// save the file
-		_ca_file = ca_file;
+		mbedtls_x509_crt_free(&_crt_auth);
 
 		// get full filename
-		const std::wstring filename{ ca_file.to_string() };
+		tools::Path& crt_auth_file = _cert_files.crt_auth_file;
+		const std::wstring filename{ crt_auth_file.to_string() };
+		const std::string compacted{ tools::wstr2str(crt_auth_file.compact(40)) };
 
 		if (tools::file_exists(filename)) {
-			const std::string compacted{ tools::wstr2str(ca_file.compact(50)) };
 
-			rc = mbedtls_x509_crt_parse_file(&_ca_crt, tools::wstr2str(filename).c_str());
+			rc = mbedtls_x509_crt_parse_file(&_crt_auth, tools::wstr2str(filename).c_str());
 			if (rc != 0) {
-				_logger->info("WARNING: failed to load CA certificate from file %s ", compacted.c_str());
+				_logger->info("WARNING: failed to load CA cert file %s ", compacted.c_str());
 				_logger->info("%s", tools::mbed_errmsg(rc).c_str());
 
 				goto error;
 			}
 
-			_logger->info(">> certificate loaded from file '%s'", compacted.c_str());
+			_logger->info(">> CA cert loaded from file '%s'", compacted.c_str());
 		}
 		else {
-			mbedtls_x509_crt_init(&_ca_crt);
+			_logger->error("ERROR: can't find CA cert file %s", compacted.c_str());
+			mbedtls_x509_crt_init(&_crt_auth);
 		}
 
-		set_ca_crt(&_ca_crt);
+		set_ca_crt(&_crt_auth);
+
+	error:
+		return rc == 0;
+	}
+
+
+	bool PortalClient::init_user_crt()
+	{
+		DEBUG_ENTER(_logger, "PortalClient", "init_user_crt");
+		tools::mbed_err rc = 0;
+
+		// free previous user certificate and key
+		mbedtls_x509_crt_free(&_crt_user);
+		mbedtls_pk_free(&_pk_crt_user);
+
+		// get full filename
+		const tools::Path& crt_user_file = _cert_files.crt_user_file;
+		const std::wstring filename{ crt_user_file.to_string() };
+		
+		if (tools::file_exists(filename)) {
+			rc = mbedtls_x509_crt_parse_file(
+				&_crt_user, 
+				tools::wstr2str(filename).c_str()
+			);
+			if (rc != 0) {
+				_logger->info(
+					"ERROR: failed to load user certificate from %s ", 
+					tools::wstr2str(crt_user_file.filename())
+				);
+				_logger->info("%s", tools::mbed_errmsg(rc).c_str());
+
+				goto error;
+			}
+
+			rc = mbedtls_pk_parse_keyfile(
+				&_pk_crt_user, 
+				tools::wstr2str(filename).c_str(), 
+				_cert_files.crt_user_password.c_str()
+			);
+			if (rc != 0) {
+				_logger->info(
+					"ERROR: failed to load user private key from %s ", 
+					tools::wstr2str(crt_user_file.filename()).c_str()
+				);
+				_logger->info("%s", tools::mbed_errmsg(rc).c_str());
+
+				goto error;
+			}
+
+			set_own_crt(&_crt_user, &_pk_crt_user);
+			if (rc != 0) {
+				_logger->info(
+					"ERROR: failed to assign user certificate from %s ", 
+					tools::wstr2str(crt_user_file.filename()).c_str()
+				);
+				_logger->info("%s", tools::mbed_errmsg(rc).c_str());
+
+				goto error;
+			}
+
+			_logger->info(
+				">> user certificate loaded from file '%s'", 
+				tools::wstr2str(crt_user_file.filename()).c_str()
+			);
+		}
 
 	error:
 		return rc == 0;
@@ -93,6 +160,10 @@ namespace fw {
 		http::Answer answer;
 
 		_logger->info(">> connecting to %s", host().to_string().c_str());
+
+		// initialize our certificates
+		init_ca_crt();
+		init_user_crt();
 
 		// connect to the server
 		try {
@@ -129,8 +200,8 @@ namespace fw {
 			}
 		}
 
-		// compute the thumbprint of the certificate.
-		_peer_crt_thumbprint = CrtThumbprint(get_peer_crt());
+		// compute the digest of the certificate.
+		_peer_crt_digest = CrtDigest(get_peer_crt());
 
 		// get the top page
 		if (!request(http::Request::GET_VERB, http::Url("/"), "", http::Headers(), answer, true))
@@ -175,10 +246,6 @@ namespace fw {
 		std::string body;
 		Credential credential;
 
-		// the SSLVPN cookie must be removed to be unauthenticated
-		_authenticated = false;
-		_cookies.clear();
-
 		// get the login page from the firewall web portal
 		const http::Url login_url = make_url("/remote/login", "lang=en");
 		if (!request(http::Request::GET_VERB, login_url, "", http::Headers(), answer, true))
@@ -187,6 +254,13 @@ namespace fw {
 		// check if page is available
 		if (answer.get_status_code() != HttpsClient::STATUS_OK)
 			goto http_error;
+
+		// check if the client is authenticated.
+		if (authenticated()) {
+			return portal_err::NONE;
+		}
+
+		_cookies.remove("SVPNCOOKIE");
 
 		// ask for credential to user
 		if (!ask_credential(credential))
@@ -219,16 +293,15 @@ namespace fw {
 
 			// Loop until authenticated. The loop breaks if an error (access denied,
 			// communication error) is detected.
-			while (!_authenticated) {
-				std::string redir;
-				if (!params_result.get_str("redir", redir))
-					goto redir_error;
-				const http::Url redir_url{ url_decode(redir) };
-
+			while (!authenticated()) {
 				switch (retcode) {
 				case 0: {
 					// Access denied,
 					// show the error message received from the firewall
+					http::Url redir_url;
+					if (!extract_redir_url(params_result, redir_url))
+						goto redir_error;
+
 					std::string msg;
 					if (redir_url.get_query_map().get_str("err", msg)) {
 						_logger->error("ERROR: %s", msg.c_str());
@@ -239,13 +312,15 @@ namespace fw {
 
 				case 1: {
 					// Access allowed
+					http::Url redir_url;
+					if (!extract_redir_url(params_result, redir_url))
+						goto redir_error;
+
 					if (!request(http::Request::GET_VERB, redir_url, "", http::Headers(), answer, false))
 						goto comm_error;
 
 					if (answer.get_status_code() != HttpsClient::STATUS_OK)
 						goto http_error;
-
-					_authenticated = true;
 				}
 				break;
 
@@ -381,10 +456,8 @@ namespace fw {
 		DEBUG_ENTER(_logger, "PortalClient", "logoff");
 		tools::Mutex::Lock lock{ _mutex };
 
-		if (_authenticated) {
-			_authenticated = false;
-			_cookies.clear();
-		}
+		// Delete all session cookies
+		_cookies.clear();
 	}
 
 
@@ -393,7 +466,7 @@ namespace fw {
 		DEBUG_ENTER(_logger, "PortalClient", "get_info");
 		tools::Mutex::Lock lock{ _mutex };
 
-		if (!_authenticated)
+		if (!authenticated())
 			return false;
 
 		http::Headers headers;
@@ -428,7 +501,7 @@ namespace fw {
 		DEBUG_ENTER(_logger, "PortalClient", "get_config");
 		tools::Mutex::Lock lock{ _mutex };
 
-		if (!_authenticated)
+		if (!authenticated())
 			return false;
 
 		http::Headers headers;
@@ -484,6 +557,7 @@ namespace fw {
 		return false;
 	}
 
+
 	bool PortalClient::start_tunnel_mode()
 	{
 		DEBUG_ENTER(_logger, "PortalClient", "start_tunnel_mode");
@@ -504,6 +578,12 @@ namespace fw {
 		}
 
 		return true;
+	}
+
+	bool PortalClient::authenticated() const
+	{
+		return _cookies.exists("SVPNCOOKIE") && 
+			_cookies.get("SVPNCOOKIE").get_value().length() > 0;
 	}
 
 
@@ -533,8 +613,8 @@ namespace fw {
 				return false;
 			}
 
-			// verify the thumbprint of the certificate
-			if (_peer_crt_thumbprint != CrtThumbprint(get_peer_crt())) {
+			// verify the digest of the certificate
+			if (_peer_crt_digest != CrtDigest(get_peer_crt())) {
 				_logger->error("ERROR: invalid certificate digest");
 
 				return false;
@@ -625,6 +705,17 @@ namespace fw {
 				return false;
 		}
 
+		return true;
+	}
+
+
+	bool PortalClient::extract_redir_url(const tools::StringMap& params, http::Url& url)
+	{
+		std::string redir;
+		if (!params.get_str("redir", redir))
+			return false;
+		
+		url = http::Url{ url_decode(redir) };
 		return true;
 	}
 

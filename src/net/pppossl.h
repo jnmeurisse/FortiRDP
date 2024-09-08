@@ -30,7 +30,7 @@ extern "C" {
 
 	/*
 	* Fortinet ppp header
-	*	header[0] = payload len + sizeof(ppp_header)
+	*   header[0] = payload len + sizeof(ppp_header)
 	*   header[1] = 0x5050 (tag)
 	*   hedear[2] = payload len
 	*/

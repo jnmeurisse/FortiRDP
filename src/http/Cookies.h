@@ -44,6 +44,12 @@ namespace http {
 		*/
 		const Cookies& add(const Cookies cookies);
 
+		/* Removes the cookie with the specified name from this collection
+		 *
+		 * @param name The name of the cookie
+		 */
+		void remove(const std::string& name);
+
 		/* Sets the cookie with the specified name
 		 *
 		 * @param name The name of the cookie

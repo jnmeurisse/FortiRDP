@@ -84,9 +84,6 @@
     <ClCompile Include="..\..\src\ui\SyncWaitTunnel.cpp">
       <Filter>sources\ui</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\fw\CrtThumbprint.cpp">
-      <Filter>sources\fw</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\fw\PortalClient.cpp">
       <Filter>sources\fw</Filter>
     </ClCompile>
@@ -216,6 +213,9 @@
     <ClCompile Include="..\..\src\http\UrlError.cpp">
       <Filter>sources\http</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\fw\CrtDigest.cpp">
+      <Filter>sources\fw</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\ui\AboutDialog.h">
@@ -277,9 +277,6 @@
     </ClInclude>
     <ClInclude Include="..\..\src\ui\SyncWaitTunnel.h">
       <Filter>sources\ui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\fw\CrtThumbprint.h">
-      <Filter>sources\fw</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\fw\PortalClient.h">
       <Filter>sources\fw</Filter>
@@ -421,6 +418,9 @@
     </ClInclude>
     <ClInclude Include="..\..\src\ui\ScreenSize.h">
       <Filter>sources\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\fw\CrtDigest.h">
+      <Filter>sources\fw</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

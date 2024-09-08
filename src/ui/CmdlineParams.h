@@ -37,9 +37,13 @@ public:
 	*/
 	inline const std::wstring& host_address() const { return _host_addres; }
 
-	/*! returns the ca filename
+	/*! returns the ca certificate filename
 	*/
-	inline const std::wstring& ca_filename() const { return _ca_filename; }
+	inline const std::wstring& ca_cert_filename() const { return _ca_cert_filename; }
+
+	/*! returns the user certificate filename
+	*/
+	inline const std::wstring& us_cert_filename() const { return _us_cert_filename; }
 
 	/*! returns the user name
 	*/
@@ -107,7 +111,8 @@ private:
 	std::wstring _username;
 	std::wstring _fw_address;
 	std::wstring _host_addres;
-	std::wstring _ca_filename;
+	std::wstring _ca_cert_filename;
+	std::wstring _us_cert_filename;
 	std::wstring _app_name;
 	std::wstring _rdp_filename;
 	ScreenSize _screen_size{ 0,0 };

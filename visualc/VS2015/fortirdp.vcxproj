@@ -19,7 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\src\fw\CrtThumbprint.cpp" />
+    <ClCompile Include="..\..\src\fw\CrtDigest.cpp" />
     <ClCompile Include="..\..\src\fw\PortalClient.cpp" />
     <ClCompile Include="..\..\src\http\Answer.cpp" />
     <ClCompile Include="..\..\src\http\Cookie.cpp" />
@@ -85,7 +85,7 @@
     <ClCompile Include="..\..\src\ui\SyncWaitTunnel.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\src\fw\CrtThumbprint.h" />
+    <ClInclude Include="..\..\src\fw\CrtDigest.h" />
     <ClInclude Include="..\..\src\fw\PortalClient.h" />
     <ClInclude Include="..\..\src\http\Answer.h" />
     <ClInclude Include="..\..\src\http\Cookie.h" />

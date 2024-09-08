@@ -23,3 +23,7 @@ Release/
 *.opendb
 *.aps
 *.vcxproj.user
+
+# private files
+/priv
+/server

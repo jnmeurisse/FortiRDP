@@ -14,6 +14,12 @@ AsyncMessage::AsyncMessage(UINT eventNumber):
 }
 
 
+AsyncMessage::AsyncMessage(const AsyncMessage& message) :
+	_id(message._id)
+{
+}
+
+
 AsyncMessage::~AsyncMessage()
 {
 }
