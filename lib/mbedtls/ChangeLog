@@ -1,5 +1,151 @@
 Mbed TLS ChangeLog (Sorted per branch, date)
 
+= Mbed TLS 2.28.9 branch released 2024-08-30
+
+Security
+   * Unlike previously documented, enabling MBEDTLS_PSA_HMAC_DRBG_MD_TYPE does
+     not cause the PSA subsystem to use HMAC_DRBG: it uses HMAC_DRBG only when
+     MBEDTLS_PSA_CRYPTO_EXTERNAL_RNG and MBEDTLS_CTR_DRBG_C are disabled.
+     CVE-2024-45157
+
+Bugfix
+   * Fix the build in some configurations when check_config.h is not included.
+     Fix #9152.
+   * Fix issue of redefinition warning messages for _GNU_SOURCE in
+     entropy_poll.c and sha_256.c. There was a build warning during
+     building for linux platform.
+     Resolves #9026
+   * Fix error handling when creating a key in a dynamic secure element
+     (feature enabled by MBEDTLS_PSA_CRYPTO_SE_C). In a low memory condition,
+     the creation could return PSA_SUCCESS but using or destroying the key
+     would not work. Fixes #8537.
+   * Fix a memory leak that could occur when failing to process an RSA
+     key through some PSA functions due to low memory conditions.
+   * Document and enforce the limitation of mbedtls_psa_register_se_key()
+     to persistent keys. Resolves #9253.
+
+= Mbed TLS 2.28.8 branch released 2024-03-28
+
+Features
+   * AES-NI is now supported in Windows builds with clang and clang-cl.
+     Resolves #8372.
+   * Add pc files for pkg-config, e.g.:
+     pkg-config --cflags --libs (mbedtls|mbedcrypto|mbedx509)
+
+Security
+   * Passing buffers that are stored in untrusted memory as arguments
+     to PSA functions is now secure by default.
+     The PSA core now protects against modification of inputs or exposure
+     of intermediate outputs during operations. This is currently implemented
+     by copying buffers.
+     This feature increases code size and memory usage. If buffers passed to
+     PSA functions are owned exclusively by the PSA core for the duration of
+     the function call (i.e. no buffer parameters are in shared memory),
+     copying may be disabled by setting MBEDTLS_PSA_ASSUME_EXCLUSIVE_BUFFERS.
+     Note that setting this option will cause input-output buffer overlap to
+     be only partially supported (#3266).
+     Fixes CVE-2024-28960.
+
+Bugfix
+   * Fix the build with CMake when Everest is enabled through
+     a user configuration file or the compiler command line. Fixes #8165.
+   * Fix an inconsistency between implementations and usages of `__cpuid`,
+     which mainly causes failures when building Windows target using
+     mingw or clang. Fixes #8334 & #8332.
+   * Correct initial capacities for key derivation algorithms: TLS12_PRF,
+     TLS12_PSK_TO_MS.
+   * Fix mbedtls_pk_get_bitlen() for RSA keys whose size is not a
+     multiple of 8. Fixes #868.
+   * Avoid segmentation fault caused by releasing not initialized
+     entropy resource in gen_key example. Fixes #8809.
+   * Fix missing bitflags in SSL session serialization headers. Their absence
+     allowed SSL sessions saved in one configuration to be loaded in a
+     different, incompatible configuration.
+   * Fix the restoration of the ALPN when loading serialized connection with
+     the mbedtls_ssl_context_load() API.
+   * Fully support arbitrary overlap between inputs and outputs of PSA
+     functions. Note that overlap is still only partially supported when
+     MBEDTLS_PSA_ASSUME_EXCLUSIVE_BUFFERS is set (#3266).
+
+Changes
+   * Use heap memory to allocate DER encoded public/private key.
+     This reduces stack usage significantly for writing a public/private
+     key to a PEM string.
+   * cmake: Use GnuInstallDirs to customize install directories
+     Replace custom LIB_INSTALL_DIR variable with standard CMAKE_INSTALL_LIBDIR
+     variable. For backward compatibility, set CMAKE_INSTALL_LIBDIR if
+     LIB_INSTALL_DIR is set.
+
+= Mbed TLS 2.28.7 branch released 2024-01-26
+
+Security
+   * Fix a timing side channel in private key RSA operations. This side channel
+     could be sufficient for an attacker to recover the plaintext. A local
+     attacker or a remote attacker who is close to the victim on the network
+     might have precise enough timing measurements to exploit this. It requires
+     the attacker to send a large number of messages for decryption. For
+     details, see "Everlasting ROBOT: the Marvin Attack", Hubert Kario. Reported
+     by Hubert Kario, Red Hat.
+   * Fix a failure to validate input when writing x509 extensions lengths which
+     could result in an integer overflow, causing a zero-length buffer to be
+     allocated to hold the extension. The extension would then be copied into
+     the buffer, causing a heap buffer overflow.
+
+= Mbed TLS 2.28.6 branch released 2023-11-06
+
+Changes
+   *  Mbed TLS is now released under a dual Apache-2.0 OR GPL-2.0-or-later
+      license. Users may choose which license they take the code under.
+
+= Mbed TLS 2.28.5 branch released 2023-10-05
+
+Features
+   * The documentation of mbedtls_ecp_group now describes the optimized
+     representation of A for some curves. Fixes #8045.
+
+Security
+   * Developers using mbedtls_pkcs5_pbes2() or mbedtls_pkcs12_pbe() should
+     review the size of the output buffer passed to this function, and note
+     that the output after decryption may include CBC padding. Consider moving
+     to the new functions mbedtls_pkcs5_pbes2_ext() or mbedtls_pkcs12_pbe_ext()
+     which checks for overflow of the output buffer and reports the actual
+     length of the output.
+   * Improve padding calculations in CBC decryption, NIST key unwrapping and
+     RSA OAEP decryption. With the previous implementation, some compilers
+     (notably recent versions of Clang and IAR) could produce non-constant
+     time code, which could allow a padding oracle attack if the attacker
+     has access to precise timing measurements.
+   * Fix a buffer overread when parsing short TLS application data records in
+     ARC4 or null-cipher cipher suites. Credit to OSS-Fuzz.
+
+Bugfix
+   * Fix x509 certificate generation to conform to RFC 5480 / RFC 5758 when
+     using ECC key. The certificate was rejected by some crypto frameworks.
+     Fixes #2924.
+   * Fix some cases where mbedtls_mpi_mod_exp, RSA key construction or ECDSA
+     signature can silently return an incorrect result in low memory conditions.
+   * Fix IAR compiler warnings. Fixes #7873, #4300.
+   * Fix an issue when parsing an otherName subject alternative name into a
+     mbedtls_x509_san_other_name struct. The type-id of the otherName was not
+     copied to the struct. This meant that the struct had incomplete
+     information about the otherName SAN and contained uninitialized memory.
+   * Fix the detection of HardwareModuleName otherName SANs. These were being
+     detected by comparing the wrong field and the check was erroneously
+     inverted.
+   * Fix an error when MBEDTLS_ECDSA_SIGN_ALT is defined but not
+     MBEDTLS_ECDSA_VERIFY_ALT, causing ecdsa verify to fail. Fixes #7498.
+   * Functions in the ssl_cache module now return a negative MBEDTLS_ERR_xxx
+     error code on failure. Before, they returned 1 to indicate failure in
+     some cases involving a missing entry or a full cache.
+
+Changes
+   * In configurations with ARIA or Camellia but not AES, the value of
+     MBEDTLS_CIPHER_BLKSIZE_MAX was 8, rather than 16 as the name might
+     suggest. This did not affect any library code, because this macro was
+     only used in relation with CMAC which does not support these ciphers.
+     Its value is now 16 if ARIA or Camellia are present. This may affect
+     application code that uses this macro.
+
 = Mbed TLS 2.28.4 branch released 2023-08-04
 
 Features
