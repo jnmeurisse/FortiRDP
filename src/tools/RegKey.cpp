@@ -7,6 +7,8 @@
 */
 #include <stdexcept>
 #include <vector>
+#include <system_error>
+
 #include "tools\RegKey.h"
 #include "tools\SysUtil.h"
 

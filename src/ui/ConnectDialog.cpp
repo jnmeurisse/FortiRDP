@@ -6,6 +6,8 @@
 *
 */
 #include <stdexcept>
+#include <system_error>
+
 #include "ui/ConnectDialog.h"
 #include "ui/CredentialDialog.h"
 #include "ui/AskCodeDialog.h"
