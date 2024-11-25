@@ -56,7 +56,7 @@ namespace net {
 		// Accept the connection from the local client
 		const mbed_err rc_accept = listener.accept(_local_server);
 		if (rc_accept != 0) {
-			_logger->error("ERROR: PortForwarder %x - accept error %s.",
+			_logger->error("ERROR: PortForwarder %x - accept error %s",
 				this,
 				mbed_errmsg(rc_accept).c_str());
 
@@ -94,7 +94,7 @@ namespace net {
 		// Allocate the TCP client
 		_local_client = tcp_new();
 		if (!_local_client) {
-			_logger->error("ERROR: PortForwarder %x - memory allocation failure.", this);
+			_logger->error("ERROR: PortForwarder %x - memory allocation failure", this);
 
 			_state = State::FAILED;
 			return false;
@@ -443,8 +443,7 @@ namespace net {
 				pf,
 				len,
 				err,
-				pf->_state
-				);
+				pf->_state);
 		}
 
 		return rc;

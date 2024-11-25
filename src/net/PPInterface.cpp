@@ -72,7 +72,7 @@ namespace net {
 			ppp_free(_pcb);
 			_pcb = nullptr;
 
-			_logger->error("ERROR: ppp_connect failure - %s.",
+			_logger->error("ERROR: ppp_connect failure - %s",
 				ppp_errmsg(rc_con).c_str());
 		}
 

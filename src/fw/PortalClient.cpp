@@ -418,7 +418,7 @@ namespace fw {
 				break;
 
 				default:
-					_logger->error("ERROR: unknown return code %d during authentication.", retcode);
+					_logger->error("ERROR: unknown return code %d during authentication", retcode);
 					goto terminate;
 				}
 			}
