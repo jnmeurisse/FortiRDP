@@ -146,7 +146,7 @@ namespace net {
 	mbed_err TlsSocket::connect(const Endpoint& ep)
 	{
 		if (_logger->is_debug_enabled())
-			_logger->debug("... %x enter TlsSocket::connect ep=%s", this, ep.to_string().c_str());
+			_logger->debug("... %x enter TlsSocket::connect ep=%s", (uintptr_t)this, ep.to_string().c_str());
 
 		mbed_err rc = 0;
 
@@ -165,7 +165,7 @@ namespace net {
 
 	abort:
 		if (_logger->is_debug_enabled())
-			_logger->debug("... %x leave TlsSocket::connect rc=%d", this, rc);
+			_logger->debug("... %x leave TlsSocket::connect rc=%d", (uintptr_t)this, rc);
 		return rc;
 	}
 
@@ -197,7 +197,7 @@ namespace net {
 	int TlsSocket::recv(unsigned char* buf, const size_t len)
 	{
 		if (_logger->is_trace_enabled())
-			_logger->trace(".... %x enter TlsSocket::recv buffer=%x len=%d", this, buf, len);
+			_logger->trace(".... %x enter TlsSocket::recv buffer=%x len=%d", (uintptr_t)this, (uintptr_t)buf, len);
 
 		return mbedtls_ssl_read(&_ssl_context, buf, len);
 	}
@@ -206,7 +206,7 @@ namespace net {
 	int TlsSocket::send(const unsigned char* buf, const size_t len)
 	{
 		if (_logger->is_trace_enabled())
-			_logger->trace(".... %x enter TlsSocket::send buffer=%x len=%d", this, buf, len);
+			_logger->trace(".... %x enter TlsSocket::send buffer=%x len=%d", (uintptr_t)this, (uintptr_t)buf, len);
 
 		return mbedtls_ssl_write(&_ssl_context, buf, len);
 	}

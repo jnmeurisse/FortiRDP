@@ -5,6 +5,7 @@
 * SPDX-License-Identifier: Apache-2.0
 *
 */
+#include <memory>
 #include "net/WinsOutputQueue.h"
 
 namespace net {
@@ -27,8 +28,8 @@ namespace net {
 		if (_logger->is_trace_enabled())
 			_logger->trace(
 				".... %x enter WinsOutputQueue::write tcp=%x",
-				this,
-				socket);
+				(uintptr_t)this,
+				(uintptr_t)std::addressof(socket));
 
 		int rc = 0;
 		written = 0;
@@ -60,8 +61,8 @@ namespace net {
 		if (_logger->is_trace_enabled())
 			_logger->trace(
 				".... %x leave WinsOutputQueue::write tcp=%x rc=%d written=%d",
-				this,
-				socket,
+				(uintptr_t)this,
+				(uintptr_t)std::addressof(socket),
 				rc, 
 				written);
 

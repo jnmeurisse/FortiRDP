@@ -14,10 +14,10 @@
 
 #ifdef _DEBUG
 #define DEBUG_CTOR(logger, clsname) if ((logger)->is_debug_enabled()) { \
-								(logger)->debug("... %x ctor::%s", this, clsname); \
+								(logger)->debug("... %x ctor::%s", (uintptr_t)this, clsname); \
 								}
 #define DEBUG_DTOR(logger, clsname) if ((logger)->is_debug_enabled()) { \
-								(logger)->debug("... %x dtor::%s", this, clsname); \
+								(logger)->debug("... %x dtor::%s", (uintptr_t)this, clsname); \
 								}
 #else
 #define DEBUG_CTOR(logger, clsname)
@@ -25,11 +25,11 @@
 #endif
 
 #define DEBUG_ENTER(logger, clsname, funname) if ((logger)->is_debug_enabled()) { \
-								(logger)->debug("... %x enter %s::%s", this, clsname, funname); \
+								(logger)->debug("... %x enter %s::%s", (uintptr_t)this, clsname, funname); \
 								}
 
 #define TRACE_ENTER(logger, clsname, funname) if ((logger)->is_trace_enabled()) { \
-								(logger)->trace(".... %x enter %s::%s", this, clsname, funname); \
+								(logger)->trace(".... %x enter %s::%s", (uintptr_t)this, clsname, funname); \
 								}
 
 namespace tools {

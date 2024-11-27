@@ -36,7 +36,7 @@ namespace net {
 	bool Socket::attach(const mbedtls_net_context& netctx)
 	{
 		if (_logger->is_debug_enabled())
-			_logger->debug("... %x enter Socket::attach fd=%d", this, netctx.fd);
+			_logger->debug("... %x enter Socket::attach fd=%d", (uintptr_t)this, netctx.fd);
 		Mutex::Lock lock{ _mutex };
 		_netctx = netctx;
 
@@ -67,7 +67,7 @@ namespace net {
 		bool rc = true;
 
 		if (_logger->is_debug_enabled())
-			_logger->debug("... %x enter Socket::set_timeout s=%d r=%d", this, send_timeout, recv_timeout);
+			_logger->debug("... %x enter Socket::set_timeout s=%d r=%d", (uintptr_t)this, send_timeout, recv_timeout);
 
 		if (send_timeout != _send_timeout || recv_timeout != _recv_timeout) {
 			_send_timeout = send_timeout;
@@ -85,7 +85,7 @@ namespace net {
 		bool rc = true;
 
 		if (_logger->is_debug_enabled())
-			_logger->debug("... %x enter Socket::set_nodelay=%d", this, no_delay ? 1 : 0);
+			_logger->debug("... %x enter Socket::set_nodelay=%d", (uintptr_t)this, no_delay ? 1 : 0);
 		
 		if (no_delay != _no_delay) {
 			_no_delay = no_delay;
@@ -102,7 +102,7 @@ namespace net {
 		bool rc = true;
 
 		if (_logger->is_debug_enabled())
-			_logger->debug("... %x enter Socket::set_noblocking=%d", this, blocking ? 1 : 0);
+			_logger->debug("... %x enter Socket::set_noblocking=%d", (uintptr_t)this, blocking ? 1 : 0);
 
 		if (blocking != _blocking) {
 			_blocking = blocking;
@@ -117,7 +117,7 @@ namespace net {
 	int Socket::recv(unsigned char* buf, const size_t len)
 	{
 		if (_logger->is_trace_enabled())
-			_logger->trace(".... %x enter Socket::recv buffer=%x len=%d", this, buf, len);
+			_logger->trace(".... %x enter Socket::recv buffer=%x len=%d", (uintptr_t)this, buf, len);
 
 		return mbedtls_net_recv(&_netctx, buf, len);
 	}
@@ -126,7 +126,7 @@ namespace net {
 	int Socket::send(const unsigned char* buf, const size_t len)
 	{
 		if (_logger->is_trace_enabled())
-			_logger->trace(".... %x enter Socket::send buffer=%x len=%d", this, buf, len);
+			_logger->trace(".... %x enter Socket::send buffer=%x len=%d", (uintptr_t)this, buf, len);
 
 		return mbedtls_net_send(&_netctx, buf, len);
 	}
@@ -141,7 +141,7 @@ namespace net {
 	int Socket::read(unsigned char *buf, const size_t len)
 	{
 		if (_logger->is_trace_enabled())
-			_logger->trace(".... %x enter Socket::read buffer=%x len=%d", this, buf, len);
+			_logger->trace(".... %x enter Socket::read buffer=%x len=%d", (uintptr_t)this, buf, len);
 
 		int rc = 0;
 		size_t cnt = len;
@@ -161,7 +161,7 @@ namespace net {
 	int Socket::write(const unsigned char *buf, const size_t len)
 	{
 		if (_logger->is_trace_enabled())
-			_logger->trace(".... %x enter Socket::write buffer=%x len=%d", this, buf, len);
+			_logger->trace(".... %x enter Socket::write buffer=%x len=%d", (uintptr_t)this, buf, len);
 
 		int rc = 0;
 		size_t cnt = (int)len;
@@ -187,7 +187,7 @@ namespace net {
 	mbed_err Socket::do_connect(const Endpoint& ep)
 	{
 		if (_logger->is_debug_enabled())
-			_logger->debug("... %x enter Socket::do_connect ep=%s", this, ep.to_string().c_str());
+			_logger->debug("... %x enter Socket::do_connect ep=%s", (uintptr_t)this, ep.to_string().c_str());
 
 		const std::string& host = ep.hostname();
 		const std::string port{ std::to_string(ep.port()) };
@@ -205,7 +205,7 @@ namespace net {
 
 	terminate:
 		if (_logger->is_debug_enabled())
-			_logger->debug("... %x leave Socket::do_connect fd=%d %d", this, _netctx.fd, rc);
+			_logger->debug("... %x leave Socket::do_connect fd=%d %d", (uintptr_t)this, _netctx.fd, rc);
 
 		return rc;
 	}
@@ -214,7 +214,7 @@ namespace net {
 	void Socket::do_close()
 	{
 		if (_logger->is_debug_enabled())
-			_logger->debug("... %x enter Socket::do_close fd=%d", this, _netctx.fd);
+			_logger->debug("... %x enter Socket::do_close fd=%d", (uintptr_t)this, _netctx.fd);
 
 		mbedtls_net_free(&_netctx);
 	}
@@ -226,14 +226,14 @@ namespace net {
 
 		if (connected()) {
 			if (_logger->is_debug_enabled())
-				_logger->debug("... %x enter Socket::apply_opt fd=%d", this, _netctx.fd);
+				_logger->debug("... %x enter Socket::apply_opt fd=%d", (uintptr_t)this, _netctx.fd);
 
 			if (option == SocketOptions::all || option == SocketOptions::nodelay) {
 				const int tcp_nodelay = _no_delay ? 1 : 0;
 				if (setsockopt(_netctx.fd, IPPROTO_TCP, TCP_NODELAY, (const char *)&tcp_nodelay, sizeof(tcp_nodelay)) != 0) {
 					_logger->error("ERROR : set nodelay error %x on socket %x, fd=%d",
 						::WSAGetLastError(),
-						this,
+						(uintptr_t)this,
 						_netctx.fd);
 
 					rc = false;
@@ -244,7 +244,7 @@ namespace net {
 				if (setsockopt(_netctx.fd, SOL_SOCKET, SO_RCVTIMEO, (const char *)&_recv_timeout, sizeof(_recv_timeout)) != 0) {
 					_logger->error("ERROR : set receive time-out error %x on socket %x, fd=%d",
 						::WSAGetLastError(),
-						this,
+						(uintptr_t)this,
 						_netctx.fd);
 
 					rc = false;
@@ -253,7 +253,7 @@ namespace net {
 				if (setsockopt(_netctx.fd, SOL_SOCKET, SO_SNDTIMEO, (const char *)&_send_timeout, sizeof(_send_timeout)) != 0) {
 					_logger->error("ERROR : set send time-out error %x on socket %x, fd=%d",
 						::WSAGetLastError(),
-						this,
+						(uintptr_t)this,
 						_netctx.fd);
 
 					rc = false;
@@ -268,7 +268,7 @@ namespace net {
 			if (rc) {
 				_logger->error("ERROR: set socket blocking mode error %x on socket %x, fd=%d",
 					::WSAGetLastError(),
-					this,
+					(uintptr_t)this,
 					_netctx.fd);
 
 				rc = false;

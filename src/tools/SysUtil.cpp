@@ -9,6 +9,7 @@
 #include <lmcons.h>
 #include <string>
 #include <sstream>
+#include <system_error>
 
 #include "tools/SysUtil.h"
 #include "tools/StrUtil.h"

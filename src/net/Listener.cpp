@@ -82,7 +82,7 @@ terminate:
 		if (_logger->is_debug_enabled()) {
 			_logger->debug(
 				"... %x Listener::bind endpoint=%s rc=%d",
-				this,
+				(uintptr_t)this,
 				endpoint.to_string().c_str(),
 				rc);
 		}
@@ -105,7 +105,7 @@ terminate:
 		if (_logger->is_debug_enabled()) {
 			_logger->debug(
 				"... %x Listener::accept endpoint=%s rc=%d",
-				this,
+				(uintptr_t)this,
 				_endpoint.to_string().c_str(),
 				rc);
 		}
