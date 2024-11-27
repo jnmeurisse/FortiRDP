@@ -34,10 +34,10 @@ bool SyncDisconnect::procedure()
 
 	// terminate the tunnel
 	if (_tunnel) {
-		_logger->debug("... terminate tunnel %x", _tunnel);
+		_logger->debug("... terminate tunnel %x", (uintptr_t)_tunnel);
 		_tunnel->terminate();
 
-		_logger->debug("... wait end of tunnel %x", _tunnel);
+		_logger->debug("... wait end of tunnel %x", (uintptr_t)_tunnel);
 		
 		// wait the end of the tunnel.  20 seconds should be enough to
 		// let LwIp close the ppp interface.  If not, we will forcibly close
@@ -60,12 +60,12 @@ bool SyncDisconnect::procedure()
 	
 	// Close the TLS socket
 	if (_portal && _portal->authenticated()) {
-		_logger->debug("... logoff from portal %x", _portal);
+		_logger->debug("... logoff from portal %x", (uintptr_t)_portal);
 		_portal->logoff();
 	} 
 
 	if (_portal && _portal->connected()) {
-		_logger->debug("... close portal %x", _portal);
+		_logger->debug("... close portal %x", (uintptr_t)_portal);
 		_portal->close();
 
 		status = true;

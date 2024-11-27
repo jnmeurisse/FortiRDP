@@ -31,8 +31,8 @@ namespace net {
 		if (_logger->is_trace_enabled())
 			_logger->trace(
 				".... %x enter LwipOutputQueue::write tcp=%x",
-				this,
-				socket);
+				(uintptr_t)this,
+				(uintptr_t)socket);
 		int rc = 0;
 		written = 0;
 
@@ -82,8 +82,8 @@ namespace net {
 		if (_logger->is_trace_enabled())
 			_logger->trace(
 				".... %x leave LwipOutputQueue::write tcp=%x rc=%d written=%d",
-				this,
-				socket,
+				(uintptr_t)this,
+				(uintptr_t)socket,
 				rc,
 				written);
 

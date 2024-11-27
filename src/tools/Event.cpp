@@ -26,7 +26,7 @@ namespace tools {
 			throw_winapi_error(::GetLastError(), "CreateEvent error");
 
 		if (_logger->is_debug_enabled())
-			_logger->debug("... %x create Event handle=%x", this, _handle);
+			_logger->debug("... %x create Event handle=%x", (uintptr_t)this, _handle);
 	}
 
 
@@ -47,7 +47,7 @@ namespace tools {
 			throw_winapi_error(::GetLastError(), "DuplicateHandle error");
 
 		if (_logger->is_debug_enabled())
-			_logger->debug("... %x create Event handle=%x", this, _handle);
+			_logger->debug("... %x create Event handle=%x", (uintptr_t)this, _handle);
 	}
 
 

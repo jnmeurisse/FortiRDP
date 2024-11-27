@@ -679,7 +679,7 @@ namespace fw {
 		}
 
 		_logger->debug("... %x       PortalClient::do_request : %s %s (status=%s (%d))",
-			this,
+			(uintptr_t)this,
 			verb.c_str(),
 			url.to_string(false).c_str(),
 			answer.get_reason_phrase().c_str(),

@@ -63,7 +63,7 @@ namespace http {
 		_request_count = 0;
 
 		const mbed_err rc = TlsSocket::connect(_host_ep);
-		_logger->debug("... %x       HttpsClient::connect : rc = %d", this, rc);
+		_logger->debug("... %x       HttpsClient::connect : rc = %d", (uintptr_t)this, rc);
 		if (rc < 0) {
 			throw mbed_error(rc);
 		}
@@ -83,7 +83,7 @@ namespace http {
 
 		if (_logger->is_trace_enabled())
 			_logger->trace("... %x enter HttpsClient::send_request url=%s count=%d max=%d timeout=%d",
-				this,
+				(uintptr_t)this,
 				request.url().to_string(false).c_str(),
 				_request_count,
 				_max_requests,
@@ -97,7 +97,7 @@ namespace http {
 
 		if (_logger->is_trace_enabled())
 			_logger->trace("... %x leave HttpsClient::send_request count=%d max=%d timeout=%d",
-				this,
+				(uintptr_t)this,
 				_request_count,
 				_max_requests,
 				_keepalive_timeout);
@@ -114,7 +114,7 @@ namespace http {
 		answer.clear();
 
 		const int rc = answer.recv(*this);
-		_logger->debug("... %x       HttpsClient::recv_answer : rc = %d", this, rc);
+		_logger->debug("... %x       HttpsClient::recv_answer : rc = %d", (uintptr_t)this, rc);
 		
 		if (rc != Answer::ERR_NONE) {
 			std::string message;
@@ -160,7 +160,7 @@ namespace http {
 
 		if (_logger->is_trace_enabled())
 			_logger->trace("... %x leave HttpsClient::recv_answer rc=%d max=%d timeout=%d",
-				this,
+				(uintptr_t)this,
 				rc,
 				_max_requests,
 				_keepalive_timeout);

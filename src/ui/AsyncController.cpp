@@ -36,7 +36,7 @@ bool AsyncController::connect(const net::Endpoint& firewall_endpoint, const fw::
 {
 	if (_logger->is_debug_enabled()) {
 		_logger->debug("... %x enter AsyncController::connect ep=%s",
-			this,
+			(uintptr_t)this,
 			firewall_endpoint.to_string().c_str());
 	}
 
@@ -53,7 +53,7 @@ bool AsyncController::create_tunnel(const net::Endpoint& host_endpoint, int loca
 {
 	if (_logger->is_debug_enabled()) {
 		_logger->debug("... %x enter AsyncController::create_tunnel ep=%s",
-			this,
+			(uintptr_t)this,
 			host_endpoint.to_string().c_str());
 	}
 	_tunnel.reset();
@@ -126,7 +126,7 @@ bool AsyncController::terminate()
 void AsyncController::request_action(ControllerAction action)
 {
 	_logger->debug("... %x enter AsyncController::request_action action=%s",
-		this,
+		(uintptr_t)this,
 		action_name(action));
 
 	// Only one thread can request an action
@@ -134,18 +134,18 @@ void AsyncController::request_action(ControllerAction action)
 
 	// Wait that the controller thread is ready
 	_logger->debug(".... %x AsyncController::request_action wait for action=%s", 
-		this, 
+		(uintptr_t)this,
 		action_name(action));
 	_readyEvent.wait();
 
 	// define the action and wakeup the thread
 	_logger->debug(".... %x AsyncController::request_action set event for action=%s", 
-		this, 
+		(uintptr_t)this,
 		action_name(action));
 	_action = action;
 	if (!_requestEvent.set()) {
 		_logger->error("ERROR: %x AsyncController::request_action set event error=%x", 
-			this, 
+			(uintptr_t)this,
 			::GetLastError());
 	}
 }
@@ -178,7 +178,7 @@ unsigned int AsyncController::run()
 		// We are ready to accept a new event
 		if (!_readyEvent.set()) {
 			_logger->error("ERROR: %x AsyncController::run set event error=%x", 
-				this, 
+				(uintptr_t)this,
 				::GetLastError());
 		}
 
@@ -189,13 +189,13 @@ unsigned int AsyncController::run()
 		const int eventCount = wait_eot ? 2 : 1;
 		DWORD event = WaitForMultipleObjects(eventCount, hEvents, false, INFINITE);
 
-		_logger->debug("... %x enter AsyncController::run event=%x", this, event);
+		_logger->debug("... %x enter AsyncController::run event=%x", (uintptr_t)this, event);
 
 		// Wait that a new action is requested or that a task ended.
 		switch (event) {
 			case (WAIT_OBJECT_0 + 0) : 
-				_logger->debug("... %x AsyncController::run action=%s", 
-					this, 
+				_logger->debug("... %x AsyncController::run action=%s",
+					(uintptr_t)this,
 					action_name(_action));
 
 				// Create a procedure for the requested action.
@@ -233,8 +233,8 @@ unsigned int AsyncController::run()
 				break;
 
 			case WAIT_FAILED:
-				_logger->error("ERROR: %x AsyncController::run wait failed error=%x", 
-					this, 
+				_logger->error("ERROR: %x AsyncController::run wait failed error=%x",
+					(uintptr_t)this,
 					::GetLastError());
 				terminated = true;
 				break;
@@ -251,7 +251,7 @@ unsigned int AsyncController::run()
 			}
 			catch (const std::exception& e) {
 				_logger->error("ERROR: %x AsyncController::run failure exception=%s",
-					this,
+					(uintptr_t)this,
 					e.what());
 				terminated = true;
 
@@ -260,7 +260,7 @@ unsigned int AsyncController::run()
 		}
 	}
 
-	_logger->debug("... %x leave AsyncController::run", this);
+	_logger->debug("... %x leave AsyncController::run", (uintptr_t)this);
 
 	return 0;
 }

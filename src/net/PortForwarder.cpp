@@ -49,7 +49,7 @@ namespace net {
 		DEBUG_ENTER(_logger, "PortForwarder", "connect");
 
 		if (_state != State::READY) {
-			_logger->error("ERROR: PortForwarder %x not in READY state", this);
+			_logger->error("ERROR: PortForwarder %x not in READY state", (uintptr_t)this);
 			return false;
 		}
 
@@ -57,7 +57,7 @@ namespace net {
 		const mbed_err rc_accept = listener.accept(_local_server);
 		if (rc_accept != 0) {
 			_logger->error("ERROR: PortForwarder %x - accept error %s",
-				this,
+				(uintptr_t)this,
 				mbed_errmsg(rc_accept).c_str());
 
 			_state = State::FAILED;
@@ -84,7 +84,7 @@ namespace net {
 			// Error during name resolution
 			_state = State::FAILED;
 			_logger->error("ERROR: PortForwarder %x - DNS error - %s",
-				this,
+				(uintptr_t)this,
 				lwip_errmsg(rc_query).c_str());
 		}
 
@@ -94,7 +94,7 @@ namespace net {
 		// Allocate the TCP client
 		_local_client = tcp_new();
 		if (!_local_client) {
-			_logger->error("ERROR: PortForwarder %x - memory allocation failure", this);
+			_logger->error("ERROR: PortForwarder %x - memory allocation failure", (uintptr_t)this);
 
 			_state = State::FAILED;
 			return false;
@@ -151,7 +151,7 @@ namespace net {
 		DEBUG_ENTER(_logger, "PortForwarder", "abort");
 
 		if (!(_state == State::CONNECTED || _state == State::CONNECTING)) {
-			_logger->error("ERROR: PortForwarder %x - not in connected or connecting state", this);
+			_logger->error("ERROR: PortForwarder %x - not in connected or connecting state", (uintptr_t)this);
 			return;
 		}
 		_state = State::DISCONNECTING;
@@ -183,7 +183,7 @@ namespace net {
 
 		pbuf* const data = pbuf_alloc(PBUF_RAW, rc, PBUF_RAM);
 		if (!data) {
-			_logger->error("ERROR: PortForwarder %x - memory allocation error", this);
+			_logger->error("ERROR: PortForwarder %x - memory allocation error", (uintptr_t)this);
 			return false;
 		}
 
@@ -230,7 +230,7 @@ namespace net {
 	void PortForwarder::fflush()
 	{
 		if (_state != State::DISCONNECTING) {
-			_logger->error("ERROR: PortForwarder %x - not in disconnecting state", this);
+			_logger->error("ERROR: PortForwarder %x - not in disconnecting state", (uintptr_t)this);
 			return;
 		}
 
@@ -267,7 +267,7 @@ namespace net {
 	void PortForwarder::rflush()
 	{
 		if (_state != State::DISCONNECTING) {
-			_logger->error("ERROR: PortForwarder %x - not in disconnecting state", this);
+			_logger->error("ERROR: PortForwarder %x - not in disconnecting state", (uintptr_t)this);
 			return;
 		}
 
@@ -342,7 +342,7 @@ namespace net {
 
 		Logger* logger = pf->_logger;
 		if (logger->is_debug_enabled()) {
-			logger->debug(".... %x PortForwarder tcp connected err=%d", pf, err);
+			logger->debug(".... %x PortForwarder tcp connected err=%d", (uintptr_t)pf, err);
 		}
 
 		// We are now connected.
@@ -362,7 +362,7 @@ namespace net {
 
 		Logger* logger = pf->_logger;
 		if (logger->is_debug_enabled()) {
-			logger->debug("... %x PortForwarder tcp error err=%d", pf, err);
+			logger->debug("... %x PortForwarder tcp error err=%d", (uintptr_t)pf, err);
 		}
 
 		if (err != ERR_OK) {
@@ -440,7 +440,7 @@ namespace net {
 		if (logger->is_trace_enabled()) {
 			logger->trace(
 				".... %x PortForwarder tcp rcv len=%d err=%d state=%d", 
-				pf,
+				(uintptr_t)pf,
 				len,
 				err,
 				pf->_state);

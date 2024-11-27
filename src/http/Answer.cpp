@@ -42,7 +42,11 @@ namespace http {
 	{
 		const int rc = socket.read(buf, len);
 		if (_logger->is_trace_enabled())
-			_logger->trace("... %x       Answer::read : socket=%d len=%d rc = %d", this, socket.get_fd(), len, rc);
+			_logger->trace("... %x       Answer::read : socket=%d len=%d rc = %d",
+				(uintptr_t)this,
+				socket.get_fd(),
+				len,
+				rc);
 
 		if (rc < 0)
 			throw mbed_error(rc);

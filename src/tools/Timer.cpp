@@ -22,7 +22,7 @@ namespace tools {
 			throw_winapi_error(::GetLastError(), "CreateWaitableTimer error");
 
 		if (_logger->is_debug_enabled())
-			_logger->debug( "... %x create Timer handle=%x", this, _handle);
+			_logger->debug( "... %x create Timer handle=%x", (uintptr_t)this, _handle);
 
 		start(ms);
 	}
@@ -43,7 +43,7 @@ namespace tools {
 			throw_winapi_error(::GetLastError(), "Timer DuplicateHandle error");
 
 		if (_logger->is_debug_enabled())
-			_logger->debug("... %x created Timer handle=%x", this, _handle);
+			_logger->debug("... %x created Timer handle=%x", (uintptr_t)this, _handle);
 	}
 
 
@@ -52,7 +52,7 @@ namespace tools {
 		DEBUG_DTOR(_logger, "Timer");
 
 		if (_handle != NULL) {
-			_logger->debug("... %x destroyed Timer handle=%x", this, _handle);
+			_logger->debug("... %x destroyed Timer handle=%x", (uintptr_t)this, _handle);
 			::CloseHandle(_handle);
 		}
 	}
@@ -66,7 +66,7 @@ namespace tools {
 		due_time.QuadPart = ms * -10000;
 		BOOL rc = ::SetWaitableTimer(_handle, &due_time, 0, nullptr, nullptr, false);
 		if (_logger->is_debug_enabled())
-			_logger->debug("... %x Timer::start ms=%d rc=%d", this, ms, rc);
+			_logger->debug("... %x Timer::start ms=%d rc=%d", (uintptr_t)this, ms, rc);
 
 		if (!rc)
 			throw_winapi_error(::GetLastError(), "SetWaitableTimer error");
@@ -77,7 +77,7 @@ namespace tools {
 	{
 		bool done = ::WaitForSingleObject(_handle, 0) == WAIT_OBJECT_0;
 		if (done) {
-			_logger->debug("... %x Timer::elapsed", this);
+			_logger->debug("... %x Timer::elapsed", (uintptr_t)this);
 		}
 
 		return done;

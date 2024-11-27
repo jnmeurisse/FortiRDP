@@ -170,7 +170,7 @@ namespace net {
 			if (_logger->is_trace_enabled())
 				_logger->trace(
 					".... %x       PPInterface::send socket fd=%d rc=%d",
-					this,
+					(uintptr_t)this,
 					_tunnel.get_fd(),
 					rc);
 		}
@@ -208,7 +208,7 @@ namespace net {
 		if (_logger->is_trace_enabled())
 			_logger->trace(
 				".... %x       PPInterface::recv socket fd=%d rc=%d",
-				this,
+				(uintptr_t)this,
 				_tunnel.get_fd(),
 				rc);
 
@@ -260,7 +260,7 @@ namespace net {
 
 			if (err_code == PPPERR_USER) {
 				// The ppp interface is now down.
-				logger->trace(".... %x ppp_link_status_cb interface is down", pp_interface);
+				logger->trace(".... %x ppp_link_status_cb interface is down", (uintptr_t)pp_interface);
 			} 
 			else
 			{

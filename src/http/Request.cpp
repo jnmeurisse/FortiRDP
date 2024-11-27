@@ -84,7 +84,7 @@ namespace http {
 		// Send headers to the web server
 		rc = _socket.write(buffer.cbegin(), buffer.size());
 		if (_logger->is_trace_enabled())
-			_logger->trace("... %x       Request::send : write headers rc = %d", this, rc);
+			_logger->trace("... %x       Request::send : write headers rc = %d", (uintptr_t)this, rc);
 
 		if (rc < 0)
 			throw mbed_error(rc);
@@ -96,7 +96,7 @@ namespace http {
 			// send the body to the web server
 			rc = _socket.write(_body.cbegin(), _body.size());
 			if (_logger->is_trace_enabled())
-				_logger->trace("... %x       Request::send : write body rc = %d", this, rc);
+				_logger->trace("... %x       Request::send : write body rc = %d", (uintptr_t)this, rc);
 
 			if (rc < 0)
 				throw mbed_error(rc);
@@ -105,7 +105,7 @@ namespace http {
 		// flush the output buffer
 		rc = _socket.flush();
 		if (_logger->is_trace_enabled())
-			_logger->trace("... %x       Request::send : flush rc = %d", this, rc);
+			_logger->trace("... %x       Request::send : flush rc = %d", (uintptr_t)this, rc);
 
 		if (rc < 0)
 			throw mbed_error(rc);
