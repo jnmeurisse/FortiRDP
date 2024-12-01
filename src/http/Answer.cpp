@@ -262,7 +262,7 @@ namespace http {
 					// A cookie definition
 					try {
 						const Cookie cookie{ field_value };
-						_cookies.set(cookie.get_name(), cookie);
+						_cookies.add(cookie);
 					}
 					catch (const CookieError&) {
 						// silently ignore this error

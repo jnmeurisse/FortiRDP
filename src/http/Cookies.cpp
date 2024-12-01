@@ -16,12 +16,12 @@ namespace http {
 		const std::string& valid_path = tools::trim(url.get_path());
 
 		for (auto it = cookies.cbegin(); it != cookies.cend(); it++) {
-			const Cookie cookie{ it->second };
+			const Cookie& cookie{ it->second };
 			const std::string path = tools::trim(cookie.get_path());
 
 			if (path.size() == 0 || valid_path.compare(path) == 0) {
 				// cookie without path or same path
-				set(it->first, cookie);
+				add(cookie);
 			}
 		}
 	}
@@ -36,34 +36,36 @@ namespace http {
 	const Cookies& Cookies::add(const Cookies cookies)
 	{
 		for (auto it = cookies.cbegin(); it != cookies.cend(); it++) {
-			set(it->second.get_name(), it->second);
+			add(it->second);
 		}
 
 		return *this;
 	}
+
+
+	const Cookies& Cookies::add(const Cookie& cookie)
+	{
+		// check if the name exists in this collection. 
+		auto it = _cookies.find(cookie.get_name());
+
+		if (it != _cookies.end()) {
+			// If yes, update the value
+			it->second = cookie;
+		}
+		else {
+			// If no, insert the name-value pair
+			_cookies.insert(std::pair<const std::string, Cookie>(cookie.get_name(), cookie));
+		}
+
+		return *this;
+	}
+
+
 
 
 	void Cookies::remove(const std::string& name)
 	{
 		_cookies.erase(name);
-	}
-
-
-	const Cookies& Cookies::set(const std::string& name, const Cookie& value)
-	{
-		// check if the name exists in this collection. 
-		auto it = _cookies.find(name);
-
-		if (it != _cookies.end()) {
-			// If yes, update the value
-			it->second = value;
-		}
-		else {
-			// If no, insert the name-value pair
-			_cookies.insert(std::pair<const std::string, Cookie>(name, value));
-		}
-
-		return *this;
 	}
 
 

@@ -44,18 +44,18 @@ namespace http {
 		*/
 		const Cookies& add(const Cookies cookies);
 
+		/* Add a cookie to the collection.  If a cookie with the same name exists,
+		*  it is replaced with the new cookie.
+		*
+		* @param cookie The cookie
+		*/
+		const Cookies& add(const Cookie& cookie);
+
 		/* Removes the cookie with the specified name from this collection
 		 *
 		 * @param name The name of the cookie
 		 */
 		void remove(const std::string& name);
-
-		/* Sets the cookie with the specified name
-		 *
-		 * @param name The name of the cookie
-		 * @param value The value of the cookie
-		*/
-		const Cookies& set(const std::string& name, const Cookie& value);
 
 		/* Gets the cookie with the specified name. The function throws
 		 * an out_of_range exception if the cookie name does not exist.
