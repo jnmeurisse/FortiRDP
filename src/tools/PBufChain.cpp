@@ -12,14 +12,16 @@ namespace tools {
 
 	PBufChain::PBufChain() :
 		_buffer(nullptr),
-		_tot_len(0)
+		_tot_len(0),
+		_current()
 	{
 	}
 
 
 	PBufChain::PBufChain(struct pbuf* data) :
 		_buffer(data),
-		_tot_len(0)
+		_tot_len(0),
+		_current()
 	{
 		if (data) {
 			// we keep a reference to this pbuf

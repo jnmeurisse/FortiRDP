@@ -20,6 +20,7 @@ namespace net {
 		_pcb(nullptr),
 		_tunnel(tunnel),
 		_counters(counters),
+		_nif(),
 		_output_queue(32)
 	{
 		DEBUG_CTOR(_logger, "PPInterface");
