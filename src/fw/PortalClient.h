@@ -9,14 +9,19 @@
 
 #include <functional>
 #include <string>
+#include <mbedtls/x509_crt.h>
+#include <mbedtls/pk.h>
 #include "http/HttpsClient.h"
 #include "http/Answer.h"
 #include "http/Cookies.h"
 #include "http/Url.h"
+#include "http/Request.h"
+#include "http/Headers.h"
 #include "fw/CrtDigest.h"
 #include "net/Endpoint.h"
 #include "net/Tunneler.h"
 #include "tools/Mutex.h"
+#include "tools/StringMap.h"
 #include "tools/Path.h"
 
 

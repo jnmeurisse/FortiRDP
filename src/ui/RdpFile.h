@@ -5,9 +5,10 @@
 * SPDX-License-Identifier: Apache-2.0
 *
 */
-#include <map>
-#include <list>
+#pragma once
 
+#include <string>
+#include <list>
 #include "tools/Path.h"
 
 namespace ui {

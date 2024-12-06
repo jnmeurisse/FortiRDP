@@ -8,6 +8,7 @@
 #pragma once
 
 #include <list>
+#include <lwip/pbuf.h>
 #include "tools/PBufChain.h"
 
 

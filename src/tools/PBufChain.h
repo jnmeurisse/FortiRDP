@@ -8,6 +8,7 @@
 #pragma once
 
 #include <cstdint>
+#include <lwip/arch.h>
 #include <lwip/pbuf.h>
 
 

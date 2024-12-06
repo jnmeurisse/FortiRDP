@@ -7,6 +7,7 @@
 */
 #pragma once
 
+#include "net/Endpoint.h"
 #include "net/Socket.h"
 #include "net/TlsSocket.h"
 #include "net/Listener.h"

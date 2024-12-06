@@ -8,9 +8,10 @@
 #pragma once
 
 #include <Windows.h>
-#include <mbedTLS/ssl.h>
+#include <mbedtls/x509_crt.h>
 #include "fw/PortalClient.h"
 #include "ui/SyncProc.h"
+
 
 namespace ui {
 

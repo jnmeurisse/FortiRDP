@@ -8,15 +8,18 @@
 #include "PortalClient.h"
 
 #include <mbedtls/x509_crt.h>
+#include <mbedtls/pk.h>
 #include "http/Request.h"
 #include "http/Cookie.h"
 #include "http/Cookies.h"
 #include "http/Url.h"
-#include "tools/StringMap.h"
-#include "tools/SysUtil.h"
 #include "tools/ErrUtil.h"
 #include "tools/Json11.h"
+#include "tools/Logger.h"
 #include "tools/pugixml.hpp"
+#include "tools/StringMap.h"
+#include "tools/StrUtil.h"
+#include "tools/SysUtil.h"
 
 
 namespace fw {

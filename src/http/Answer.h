@@ -11,6 +11,7 @@
 #include "http/Headers.h"
 #include "http/Cookies.h"
 #include "net/Socket.h"
+#include "tools/ByteBuffer.h"
 #include "tools/Logger.h"
 #include "tools/ObfuscatedString.h"
 

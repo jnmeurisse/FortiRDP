@@ -7,6 +7,10 @@
 */
 #pragma once
 
+#include <string>
+#include <lwip/arch.h>
+#include <lwip/pbuf.h>
+#include <lwip/netif.h>
 #include "net/pppossl.h"
 #include "net/TlsSocket.h"
 #include "net/WinsOutputQueue.h"

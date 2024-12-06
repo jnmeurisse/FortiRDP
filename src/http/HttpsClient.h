@@ -10,6 +10,7 @@
 #include <string>
 #include "http/Request.h"
 #include "http/Answer.h"
+#include "http/Url.h"
 #include "net/Endpoint.h"
 #include "net/TlsSocket.h"
 #include "tools/Timer.h"

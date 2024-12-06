@@ -9,6 +9,7 @@
 
 #include <string>
 #include <zlib.h>
+#include "http/Cookie.h"
 #include "http/CookieError.h"
 #include "tools/StrUtil.h"
 #include "tools/ErrUtil.h"
