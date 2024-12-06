@@ -9,14 +9,18 @@
 
 #include <Windows.h>
 #include <memory>
+#include <string>
+#include "net/Tunneler.h"
 #include "tools/Event.h"
 #include "tools/Logger.h"
+#include "tools/Mutex.h"
 #include "tools/ObfuscatedString.h"
 #include "tools/Thread.h"
 #include "tools/TaskInfo.h"
 #include "tools/Task.h"
 #include "net/Endpoint.h"
 #include "fw/PortalClient.h"
+
 
 namespace ui {
 

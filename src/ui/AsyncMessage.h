@@ -8,7 +8,7 @@
 #pragma once
 
 #include <Windows.h>
-#include <string>
+
 
 namespace ui {
 
@@ -64,6 +64,10 @@ namespace ui {
 		/* request to display a dialog that ask for an additional code (pin code for example)
 		*/
 		static AsyncMessage ShowPinCodeDialogRequest;
+
+		/* request to display a dialog to authenticate using SAML
+		*/
+		static AsyncMessage ShowSamlAuthDialogRequest;
 
 		/* execute the disconnection procedure
 		*/

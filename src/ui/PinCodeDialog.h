@@ -8,6 +8,7 @@
 #pragma once
 
 #include <Windows.h>
+#include <string>
 #include "ui/ModalDialog.h"
 
 namespace ui {

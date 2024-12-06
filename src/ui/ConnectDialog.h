@@ -8,15 +8,15 @@
 #pragma once
 
 #include <Windows.h>
+#include <list>
 #include <string>
 #include <memory>
 #include <chrono>
 #include "fw/PortalClient.h"
-#include "tools/Counters.h"
+#include "net/Endpoint.h"
 #include "tools/Mutex.h"
 #include "tools/Logger.h"
 #include "tools/TaskInfo.h"
-#include "tools/Task.h"
 #include "ui/CmdlineParams.h"
 #include "ui/RegistrySettings.h"
 #include "ui/ModelessDialog.h"
