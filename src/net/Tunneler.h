@@ -18,6 +18,7 @@
 
 
 namespace net {
+
 	using namespace tools;
 
 	struct tunneler_config {

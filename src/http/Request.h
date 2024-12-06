@@ -17,6 +17,7 @@
 
 
 namespace http {
+
 	using namespace tools;
 
 	class Request final

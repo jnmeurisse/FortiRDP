@@ -12,6 +12,7 @@
 
 
 namespace tools {
+
 	class Timer final
 	{
 	public:

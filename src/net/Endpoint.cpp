@@ -65,4 +65,5 @@ namespace net {
 			throw std::invalid_argument("Invalid address syntax.");
 		}
 	}
+
 }

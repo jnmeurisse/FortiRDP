@@ -14,6 +14,7 @@
 
 
 namespace net {
+
 	using namespace tools;
 
 	class WinsOutputQueue final : public OutputQueue
@@ -34,4 +35,5 @@ namespace net {
 		// a reference to the application logger
 		Logger* const _logger;
 	};
+
 }

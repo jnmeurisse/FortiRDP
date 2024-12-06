@@ -20,6 +20,7 @@
 
 
 namespace fw {
+
 	using namespace tools;
 
 	PortalClient::PortalClient(const net::Endpoint& ep, const CertFiles& cert_files):

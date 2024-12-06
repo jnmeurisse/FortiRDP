@@ -14,6 +14,7 @@
 
 
 namespace net {
+
 	using namespace tools;
 
 	class LwipOutputQueue final : public OutputQueue 
@@ -28,4 +29,5 @@ namespace net {
 		// a reference to the application logger
 		Logger* const _logger;
 	};
+
 }

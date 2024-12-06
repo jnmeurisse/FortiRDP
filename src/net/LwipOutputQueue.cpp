@@ -14,6 +14,7 @@
 
 
 namespace net {
+
 	using namespace tools;
 
 	LwipOutputQueue::LwipOutputQueue(int capacity):
@@ -97,4 +98,5 @@ namespace net {
 
 		return rc;
 	}
+
 }

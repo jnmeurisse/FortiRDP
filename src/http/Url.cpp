@@ -11,6 +11,7 @@
 
 
 namespace http {
+
 	Url::Url(const Url& url) : 
 		_scheme(url._scheme),
 		_authority(url._authority),
@@ -209,4 +210,5 @@ namespace http {
 
 		return url;
 	}
+
 }

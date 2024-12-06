@@ -12,6 +12,7 @@
 
 
 namespace net {
+
 	using namespace tools;
 
 	Socket::Socket() :
@@ -278,4 +279,5 @@ namespace net {
 		
 		return rc;
 	}
+
 }

@@ -147,4 +147,5 @@ namespace tools {
 		clock_t value = std::clock();
 		return (value % 7) + 1;
 	}
+
 }

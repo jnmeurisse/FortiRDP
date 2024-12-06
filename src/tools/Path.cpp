@@ -68,4 +68,5 @@ namespace tools {
 		
 		return Path(path, L"");
 	}
+
 }

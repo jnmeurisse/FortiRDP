@@ -16,6 +16,7 @@
 
 
 namespace http {
+
 	using namespace tools;
 
 	/**
@@ -188,4 +189,5 @@ namespace http {
 		*/
 		bool read_body(net::Socket& socket, int size, int max_size);
 	};
+
 }

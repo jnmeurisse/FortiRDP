@@ -9,6 +9,7 @@
 
 
 namespace tools {
+
 	PBufChain::PBufChain() :
 		_buffer(nullptr),
 		_tot_len(0)

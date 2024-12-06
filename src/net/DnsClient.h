@@ -44,4 +44,5 @@ namespace net {
 		*/
 		static err_t query(const std::string& hostname, ip_addr_t& addr, dns_found_callback found_callback, void* callback_arg);
 	};
+
 }

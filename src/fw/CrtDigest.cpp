@@ -37,4 +37,5 @@ namespace fw {
 	{
 		return !(*this == other);
 	}
+
 }

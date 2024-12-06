@@ -12,6 +12,7 @@
 
 
 namespace tools {
+
 	/* Internal functions */
 	static unsigned __stdcall thread_entry_point(void *);
 

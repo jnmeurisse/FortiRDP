@@ -12,6 +12,7 @@
 
 
 namespace tools {
+
 	Task::Task(const std::wstring& path) :
 		_cmdline(tools::quote(path)),
 		_logger(Logger::get_logger())
@@ -91,4 +92,5 @@ namespace tools {
 			return false;
 		}
 	}
+
 }

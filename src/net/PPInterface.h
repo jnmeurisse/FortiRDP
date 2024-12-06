@@ -109,4 +109,5 @@ namespace net {
 		// through the tunnel. 
 		WinsOutputQueue _output_queue;
 	};
+
 }

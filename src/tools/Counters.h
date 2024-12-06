@@ -9,6 +9,7 @@
 
 
 namespace tools {
+
 	/*
 	* Holds transmitted bytes
 	*/
@@ -34,4 +35,5 @@ namespace tools {
 		*/
 		size_t total() const noexcept { return sent + received; }
 	};
+
 }

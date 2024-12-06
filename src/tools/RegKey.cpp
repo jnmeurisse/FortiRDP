@@ -12,8 +12,8 @@
 #include "tools/SysUtil.h"
 
 
-namespace tools 
-{
+namespace tools {
+
 	RegKey::RegKey(HKEY root_key, const std::wstring& key_name) :
 		_key(),
 		_root_key(root_key),

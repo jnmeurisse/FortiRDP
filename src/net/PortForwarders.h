@@ -14,6 +14,7 @@
 
 
 namespace net {
+
 	using state_check_cb = std::function<bool(PortForwarder *)>;
 
 	class PortForwarders final : public std::list<PortForwarder*>
@@ -49,4 +50,5 @@ namespace net {
 		// a reference to the application logger
 		tools::Logger* const _logger;
 	};
+
 }

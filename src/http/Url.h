@@ -62,4 +62,5 @@ namespace http {
 		std::string _query;
 		std::string _fragment;
 	};
+
 }

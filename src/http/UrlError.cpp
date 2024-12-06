@@ -14,4 +14,5 @@ namespace http {
 		std::logic_error(msg)
 	{
 	}
+
 }

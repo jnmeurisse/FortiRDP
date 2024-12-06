@@ -14,4 +14,5 @@ namespace http {
 		logic_error(msg)
 	{
 	}
+
 }

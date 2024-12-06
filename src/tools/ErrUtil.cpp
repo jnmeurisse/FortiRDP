@@ -13,6 +13,7 @@
 
 
 namespace tools {
+
 	std::wstring win_errmsg(const win_err errnum)
 	{
 		wchar_t *buffer;
@@ -101,4 +102,5 @@ namespace tools {
 	{
 		return mbed_errmsg(_errnum);
 	}
+
 }

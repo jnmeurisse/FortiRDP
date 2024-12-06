@@ -47,4 +47,5 @@ namespace fw {
 		// A SHA256 hash of a certificate
 		unsigned char _digest[32];
 	};
+
 }

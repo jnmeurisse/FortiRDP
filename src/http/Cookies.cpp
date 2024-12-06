@@ -94,4 +94,5 @@ namespace http {
 
 		return buffer.size() > 0 ? buffer.substr(0, buffer.size() - 2) : tools::obfstring();
 	}
+
 }

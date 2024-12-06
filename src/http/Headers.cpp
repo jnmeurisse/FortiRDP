@@ -11,6 +11,7 @@
 
 
 namespace http {
+
 	using namespace tools;
 
 	Headers& Headers::add(const Headers& headers)
@@ -55,4 +56,5 @@ namespace http {
 			buffer.append(iter->first).append(": ").append(iter->second).append("\r\n");
 		}
 	}
+
 }

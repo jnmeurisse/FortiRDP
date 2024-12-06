@@ -39,4 +39,5 @@ namespace net {
 	{
 		return dns_gethostbyname_addrtype(hostname.c_str(), &addr, found_callback, callback_arg, LWIP_DNS_ADDRTYPE_IPV4);
 	}
+
 }

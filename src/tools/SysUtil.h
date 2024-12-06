@@ -33,5 +33,3 @@ std::string get_plaform();
 void throw_winapi_error(DWORD error_code, const std::string& func_name);
 
 }
-
-
