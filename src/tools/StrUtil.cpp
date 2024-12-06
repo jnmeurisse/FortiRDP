@@ -5,12 +5,15 @@
 * SPDX-License-Identifier: Apache-2.0
 *
 */
-#include <Windows.h>
+#include "StrUtil.h"
+
 #include <algorithm>
 #include <cctype>
-#include <stdarg.h> 
-
-#include "StrUtil.h"
+#include <stdlib.h>
+#include <codecvt>
+#include <cstdarg>
+#include <stdio.h>
+#include <vadefs.h>
 
 namespace tools {
 
@@ -333,18 +336,15 @@ namespace tools {
 
 	std::string wstr2str(const std::wstring& wstr)
 	{
-		return std::string(wstr.begin(), wstr.end());
+		std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
+		return converter.to_bytes(wstr);
 	}
 
 
 	std::wstring str2wstr(const std::string& str)
 	{
-		const int size = ::MultiByteToWideChar(CP_UTF8, 0, &str[0], (int)str.size(), NULL, 0);
-		std::wstring wstr(size, 0);
-
-		::MultiByteToWideChar(CP_UTF8, 0, &str[0], (int)str.size(), &wstr[0], size);
-
-		return wstr;
+		std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
+		return converter.from_bytes(str);
 	}
 
 }
