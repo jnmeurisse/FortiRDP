@@ -7,7 +7,7 @@
 */
 #include "CrtDigest.h"
 
-#include <string>
+#include <cstring>
 #include <mbedtls/sha256.h>
 
 

@@ -7,8 +7,8 @@
 */
 #pragma once
 
-#include <string>
 #include <Windows.h>
+#include <string>
 #include "ui/ModalDialog.h"
 
 
