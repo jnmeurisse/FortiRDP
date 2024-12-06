@@ -11,6 +11,7 @@
 #include <Windows.h>
 #include "ui/Dialog.h"
 
+
 /**
 * A modal dialog base class. The caller must call showModal to display the
 * dialog. The derived class must implement a onCreateDialogMessage to initialize

@@ -6,10 +6,10 @@
 *
 */
 #pragma once
-#include <Windows.h>
+
 #include <string>
-#include "tools\RegKey.h"
-#include "ScreenSize.h"
+#include "tools/RegKey.h"
+#include "ui/ScreenSize.h"
 
 
 /**

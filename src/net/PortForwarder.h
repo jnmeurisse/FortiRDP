@@ -7,14 +7,13 @@
 */
 #pragma once
 
+#include <lwip/tcp.h>
 #include "net/Socket.h"
 #include "net/Listener.h"
 #include "net/Endpoint.h"
 #include "net/WinsOutputQueue.h"
 #include "net/LwipOutputQueue.h"
-#include "net/DnsClient.h"
 #include "tools/Logger.h"
-#include "lwip/tcp.h"
 
 
 namespace net {

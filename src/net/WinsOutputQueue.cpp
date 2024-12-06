@@ -5,8 +5,10 @@
 * SPDX-License-Identifier: Apache-2.0
 *
 */
+#include "WinsOutputQueue.h"
+
 #include <memory>
-#include "net/WinsOutputQueue.h"
+
 
 namespace net {
 	WinsOutputQueue::WinsOutputQueue(int capacity):

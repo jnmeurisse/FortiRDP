@@ -12,6 +12,7 @@
 #include "fw/PortalClient.h"
 #include "net/Tunneler.h"
 
+
 /**
 * A synchronous procedure that disconnects this client from the firewall and terminates the tunnel
 * listeners. The procedure posts a DisconnectedEvent to the window when done.

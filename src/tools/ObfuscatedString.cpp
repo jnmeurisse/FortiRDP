@@ -5,10 +5,10 @@
 * SPDX-License-Identifier: Apache-2.0
 *
 */
-#include <Windows.h>
-#include <stdlib.h>
-#include <ctime>
 #include "ObfuscatedString.h"
+
+#include <ctime>
+
 
 namespace tools {
 

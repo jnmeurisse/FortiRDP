@@ -11,6 +11,7 @@
 #include <Windows.h>
 #include "ui/ModalDialog.h"
 
+
 class CredentialDialog final : public ModalDialog
 {
 public:

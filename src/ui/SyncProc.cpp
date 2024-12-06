@@ -7,6 +7,7 @@
 */
 #include "SyncProc.h"
 
+
 SyncProc::SyncProc(HWND hwnd, const AsyncMessage& message):
 	_message(message),
 	_hwnd(hwnd),

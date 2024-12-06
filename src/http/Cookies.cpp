@@ -5,8 +5,11 @@
 * SPDX-License-Identifier: Apache-2.0
 *
 */
-#include "http/Cookies.h"
+#include "Cookies.h"
+
+#include <string>
 #include "tools/StrUtil.h"
+
 
 namespace http {
 
@@ -59,8 +62,6 @@ namespace http {
 
 		return *this;
 	}
-
-
 
 
 	void Cookies::remove(const std::string& name)

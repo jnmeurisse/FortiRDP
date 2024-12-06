@@ -5,10 +5,10 @@
 * SPDX-License-Identifier: Apache-2.0
 *
 */
-#include <vector>
+#include "Url.h"
+
 #include <cctype>
 
-#include "http/Url.h"
 
 namespace http {
 	Url::Url(const Url& url) : 

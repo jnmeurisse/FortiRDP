@@ -10,7 +10,9 @@
 #include <string>
 #include <vector>
 #include <map>
-#include "ObfuscatedString.h"
+
+#include "tools/ObfuscatedString.h"
+
 
 namespace priv {
 

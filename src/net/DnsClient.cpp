@@ -5,8 +5,11 @@
 * SPDX-License-Identifier: Apache-2.0
 *
 */
+#include "DnsClient.h"
+
 #include <sstream>
-#include "net/DnsClient.h"
+#include <iosfwd>
+
 
 namespace net {
 

@@ -8,8 +8,10 @@
 #pragma once
 
 #include <string>
-#include "lwip/dns.h"
-#include "lwip/ip_addr.h"
+#include <lwip/dns.h>
+#include <lwip/ip_addr.h>
+#include <lwip/err.h>
+
 
 namespace net {
 

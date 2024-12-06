@@ -5,10 +5,11 @@
 * SPDX-License-Identifier: Apache-2.0
 *
 */
-#include <string>
-
 #include "CrtDigest.h"
-#include "mbedtls\sha256.h"
+
+#include <string>
+#include <mbedtls/sha256.h>
+
 
 namespace fw {
 

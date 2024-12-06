@@ -6,15 +6,16 @@
 *
 */
 
-#include "netif/ppp/ppp_opts.h"
+#include <lwipopts.h>
+#include <netif/ppp/ppp_opts.h>
 
 #if PPP_SUPPORT  /* don't build if not configured for use in lwipopts.h */
 
 #ifndef PPPOSSL_H
 #define PPPOSSL_H
 
-#include "lwip/sys.h"
-#include "netif/ppp/ppp.h"
+#include <lwip/sys.h>
+#include <netif/ppp/ppp.h>
 
 #ifdef __cplusplus
 extern "C" {

@@ -7,6 +7,7 @@
 */
 #include "ModalDialog.h"
 
+
 ModalDialog::ModalDialog(HINSTANCE hInstance, HWND hParent, int idd):
 	Dialog(hInstance, hParent, idd)
 {

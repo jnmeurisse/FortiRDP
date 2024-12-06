@@ -5,8 +5,8 @@
 * SPDX-License-Identifier: Apache-2.0
 *
 */
-#include "tools/Path.h"
-#include <stdlib.h>
+#include "Path.h"
+
 #include <ShlObj.h>
 #include <Shlwapi.h>
 #include <vector>

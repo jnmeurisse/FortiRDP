@@ -5,9 +5,11 @@
 * SPDX-License-Identifier: Apache-2.0
 *
 */
+#include "Task.h"
+
 #include <iostream>
-#include "tools/Task.h"
 #include "tools/StrUtil.h"
+
 
 namespace tools {
 	Task::Task(const std::wstring& path) :

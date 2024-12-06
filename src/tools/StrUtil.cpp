@@ -15,6 +15,7 @@
 #include <stdio.h>
 #include <vadefs.h>
 
+
 namespace tools {
 
 	int split(const char* str, const char delim, std::vector<std::string>& parts) 

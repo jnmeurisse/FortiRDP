@@ -8,8 +8,8 @@
 #pragma once
 
 #include <Windows.h>
-#include "ModalDialog.h"
-#include "ScreenSize.h"
+#include "ui/ModalDialog.h"
+#include "ui/ScreenSize.h"
 
 
 class OptionsDialog final : public ModalDialog

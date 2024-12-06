@@ -6,10 +6,11 @@
 *
 */
 #include "AsyncController.h"
-#include "SyncConnect.h"
-#include "SyncWaitTunnel.h"
-#include "SyncDisconnect.h"
-#include "SyncWaitTask.h"
+
+#include "ui/SyncConnect.h"
+#include "ui/SyncWaitTunnel.h"
+#include "ui/SyncDisconnect.h"
+#include "ui/SyncWaitTask.h"
 #include "tools/Mutex.h"
 
 

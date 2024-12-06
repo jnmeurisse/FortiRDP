@@ -5,7 +5,10 @@
 * SPDX-License-Identifier: Apache-2.0
 *
 */
-#include "ui/RegistrySettings.h"
+#include "RegistrySettings.h"
+
+#include <Windows.h>
+
 
 RegistrySettings::RegistrySettings() :
 	_key(HKEY_CURRENT_USER, L"Software\\Fortigate\\fortirdp")

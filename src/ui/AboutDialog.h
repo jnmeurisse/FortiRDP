@@ -8,7 +8,8 @@
 #pragma once
 
 #include <Windows.h>
-#include "ModalDialog.h"
+#include "ui/ModalDialog.h"
+
 
 /**
 * The FortiRDP about dialog

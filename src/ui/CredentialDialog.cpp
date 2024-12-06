@@ -5,8 +5,10 @@
 * SPDX-License-Identifier: Apache-2.0
 *
 */
-#include "ui/CredentialDialog.h"
+#include "CredentialDialog.h"
+
 #include "resources/resource.h"
+
 
 CredentialDialog::CredentialDialog(HINSTANCE hInstance, HWND hParent):
 	ModalDialog(hInstance, hParent, IDD_CREDENTIAL_DIALOG)

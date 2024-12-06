@@ -8,17 +8,17 @@
 // fortirdp.cpp : application entry point.
 //
 
-#include <iostream>
+#include "fortirdp.h"
 
+#include <iostream>
 #include <io.h>
 #include <fcntl.h>
-#include "ui\fortirdp.h"
-#include "ui\ConnectDialog.h"
-#include "ui\CmdlineParams.h"
-#include "tools\Logger.h"
-#include "tools\Path.h"
-#include "lwip\init.h"
-#include "lwip\dns.h"
+#include <lwip/init.h>
+#include <lwip/dns.h>
+#include "ui/ConnectDialog.h"
+#include "ui/CmdlineParams.h"
+#include "tools/Logger.h"
+#include "tools/Path.h"
 
 
 #pragma comment(linker,"\"/manifestdependency:type='win32' \

@@ -6,7 +6,9 @@
 *
 */
 #include "AskCodeDialog.h"
+
 #include "resources\resource.h"
+
 
 AskCodeDialog::AskCodeDialog(HINSTANCE hInstance, HWND hParent) :
 	ModalDialog(hInstance, hParent, IDD_CODE_DIALOG)

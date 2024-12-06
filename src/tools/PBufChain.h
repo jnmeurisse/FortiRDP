@@ -7,10 +7,9 @@
 */
 #pragma once
 
-#include <list>
 #include <cstdint>
+#include <lwip/pbuf.h>
 
-#include "lwip/pbuf.h"
 
 namespace tools {
 	/**

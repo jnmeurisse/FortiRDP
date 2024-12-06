@@ -8,7 +8,7 @@
 #pragma once
 
 #include <Windows.h>
-#include "ModalDialog.h"
+#include "ui/ModalDialog.h"
 
 
 class AskCodeDialog final : public ModalDialog

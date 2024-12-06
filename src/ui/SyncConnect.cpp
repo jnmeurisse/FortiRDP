@@ -5,10 +5,11 @@
 * SPDX-License-Identifier: Apache-2.0
 *
 */
+#include "SyncConnect.h"
+
 #include "tools/Path.h"
 #include "tools/SysUtil.h"
 
-#include "ui/SyncConnect.h"
 
 
 SyncConnect::SyncConnect(HWND hwnd, fw::PortalClient* portal) :

@@ -11,6 +11,7 @@
 #include "SyncProc.h"
 #include "tools/Task.h"
 
+
 /**
 * A synchronous procedure that waits the end of a task (a task is running in a
 * separate Windows process). The procedure posts a DisconnectFromFirewallRequest

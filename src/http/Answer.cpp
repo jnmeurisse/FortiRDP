@@ -5,9 +5,13 @@
 * SPDX-License-Identifier: Apache-2.0
 *
 */
-#include "http/Answer.h"
+#include "Answer.h"
+
+#include <string>
+#include <zlib.h>
+#include "http/CookieError.h"
 #include "tools/StrUtil.h"
-#include "zlib.h"
+#include "tools/ErrUtil.h"
 
 
 namespace http {

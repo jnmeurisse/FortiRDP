@@ -6,17 +6,14 @@
 *
 */
 #pragma once
-#include <string>
 
+#include <string>
 #include "http/Headers.h"
 #include "http/Cookies.h"
 #include "http/Url.h"
-
 #include "net/Socket.h"
-
 #include "tools/Logger.h"
 #include "tools/ByteBuffer.h"
-#include "tools/ErrUtil.h"
 
 
 namespace http {

@@ -5,12 +5,13 @@
 * SPDX-License-Identifier: Apache-2.0
 *
 */
-#include "http/UrlError.h"
+#include "UrlError.h"
+
 
 namespace http {
 
 	UrlError::UrlError(const std::string& msg) :
-		logic_error(msg)
+		std::logic_error(msg)
 	{
 	}
 }

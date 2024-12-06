@@ -6,17 +6,12 @@
 *
 */
 #pragma once
-#include <string>
-#include <vector>
-#include <list>
 
+#include <string>
 #include "http/Headers.h"
 #include "http/Cookies.h"
-
 #include "net/Socket.h"
-
 #include "tools/Logger.h"
-#include "tools/ErrUtil.h"
 #include "tools/ObfuscatedString.h"
 
 
@@ -194,4 +189,3 @@ namespace http {
 		bool read_body(net::Socket& socket, int size, int max_size);
 	};
 }
-

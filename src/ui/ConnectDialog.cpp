@@ -5,10 +5,10 @@
 * SPDX-License-Identifier: Apache-2.0
 *
 */
+#include "ConnectDialog.h"
+
 #include <stdexcept>
 #include <system_error>
-
-#include "ui/ConnectDialog.h"
 #include "ui/CredentialDialog.h"
 #include "ui/AskCodeDialog.h"
 #include "ui/AboutDialog.h"
@@ -19,6 +19,7 @@
 #include "tools/ErrUtil.h"
 #include "mbedtls/pem.h"
 #include "resources/resource.h"
+
 
 // ID for the system menu
 static const int SYSCMD_ABOUT = 1;

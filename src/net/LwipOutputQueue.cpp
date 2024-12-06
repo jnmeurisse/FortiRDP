@@ -5,8 +5,12 @@
 * SPDX-License-Identifier: Apache-2.0
 *
 */
+#include "LwipOutputQueue.h"
+
 #include <algorithm>
-#include "net/LwipOutputQueue.h"
+#include <tools/PBufChain.h>
+#include <cstdint>
+#include <lwip/arch.h>
 
 
 namespace net {

@@ -10,6 +10,7 @@
 #include <stdexcept>
 #include <string>
 
+
 namespace http {
 
 	/* Exception raised when the syntax of an HTTP URL is incorrect. */

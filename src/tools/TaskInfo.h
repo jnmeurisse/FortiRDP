@@ -10,6 +10,7 @@
 #include <string>
 #include <vector>
 
+
 namespace tools {
 	class TaskInfo final
 	{

@@ -6,9 +6,10 @@
 *
 */
 #pragma once
-#include <Windows.h>
 
+#include <Windows.h>
 #include "tools/Logger.h"
+
 
 namespace tools {
 	class Timer final

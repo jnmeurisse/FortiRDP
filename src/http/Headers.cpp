@@ -5,13 +5,10 @@
 * SPDX-License-Identifier: Apache-2.0
 *
 */
-#include <iostream>
-#include <algorithm>
-#include <string>
-#include <cctype>
+#include "Headers.h"
 
-#include "tools/StrUtil.h"
-#include "http/Headers.h"
+#include <string>
+
 
 namespace http {
 	using namespace tools;

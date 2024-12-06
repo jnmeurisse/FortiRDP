@@ -6,24 +6,23 @@
 *
 */
 
-#include "netif/ppp/ppp_opts.h"
+#include <netif/ppp/ppp_opts.h>
 #if PPP_SUPPORT  /* don't build if not configured for use in lwipopts.h */
 
-#include <string.h>
+#include "pppossl.h"
 
-#include "lwip/arch.h"
-#include "lwip/err.h"
-#include "lwip/pbuf.h"
-#include "lwip/sys.h"
-#include "lwip/mem.h"
-#include "lwip/netif.h"
-#include "lwip/snmp.h"
-#include "lwip/priv/tcpip_priv.h"
-#include "lwip/api.h"
-#include "lwip/def.h"
-#include "netif/ppp/ppp_impl.h"
+#include <lwip/arch.h>
+#include <lwip/err.h>
+#include <lwip/pbuf.h>
+#include <lwip/sys.h>
+#include <lwip/mem.h>
+#include <lwip/netif.h>
+#include <lwip/snmp.h>
+#include <lwip/priv/tcpip_priv.h>
+#include <lwip/api.h>
+#include <lwip/def.h>
+#include <netif/ppp/ppp_impl.h>
 
-#include "net/pppossl.h"
 
 
 /* callbacks called from PPP core */

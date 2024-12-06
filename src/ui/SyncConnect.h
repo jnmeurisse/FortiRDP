@@ -6,9 +6,9 @@
 *
 */
 #pragma once
+
 #include <Windows.h>
-#include <string>
-#include "mbedTLS/ssl.h"
+#include <mbedTLS/ssl.h>
 #include "fw/PortalClient.h"
 #include "ui/SyncProc.h"
 

@@ -8,8 +8,8 @@
 #pragma once
 
 #include <string>
-#include "http/CookieError.h"
 #include "tools/ObfuscatedString.h"
+
 
 namespace http {
 

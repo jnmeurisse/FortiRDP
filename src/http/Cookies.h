@@ -9,10 +9,10 @@
 
 #include <string>
 #include <map>
-#include "tools/ByteBuffer.h"
-#include "tools/ObfuscatedString.h"
 #include "http/Url.h"
 #include "http/Cookie.h"
+#include "tools/ObfuscatedString.h"
+
 
 namespace http {
 

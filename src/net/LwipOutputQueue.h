@@ -7,12 +7,11 @@
 */
 #pragma once
 
+#include <lwip/tcp.h>
 #include "tools/OutputQueue.h"
-#include "tools/PBufChain.h"
 #include "tools/ErrUtil.h"
 #include "tools/Logger.h"
 
-#include "lwip/tcp.h"
 
 namespace net {
 	using namespace tools;

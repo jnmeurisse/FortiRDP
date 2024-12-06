@@ -6,9 +6,11 @@
 *
 */
 #pragma once
+
 #include <Windows.h>
 #include <string>
 #include "tools/Logger.h"
+
 
 namespace tools {
 

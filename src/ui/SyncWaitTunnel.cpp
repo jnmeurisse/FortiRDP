@@ -5,7 +5,8 @@
 * SPDX-License-Identifier: Apache-2.0
 *
 */
-#include "ui/SyncWaitTunnel.h"
+#include "SyncWaitTunnel.h"
+
 
 SyncWaitTunnel::SyncWaitTunnel(HWND hwnd, net::Tunneler* tunneler) :
 	SyncProc(hwnd, AsyncMessage::TunnelListeningEvent),

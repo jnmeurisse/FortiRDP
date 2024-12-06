@@ -5,10 +5,11 @@
 * SPDX-License-Identifier: Apache-2.0
 *
 */
-
 #include "OptionsDialog.h"
-#include "tools\StrUtil.h"
-#include "resources\resource.h"
+
+#include "tools/StrUtil.h"
+#include "resources/resource.h"
+
 
 OptionsDialog::OptionsDialog(HINSTANCE hInstance, HWND hParent) :
 	ModalDialog(hInstance, hParent, IDD_PARAMS_DIALOG)

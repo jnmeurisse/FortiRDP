@@ -5,14 +5,14 @@
 * SPDX-License-Identifier: Apache-2.0
 *
 */
+#include "HttpsClient.h"
+
 #include <cctype>
+#include <iosfwd>
 #include <iostream>
 #include <sstream>
 #include <codecvt>
-
-#include "http/HttpsClient.h"
 #include "tools/StringMap.h"
-#include "tools/StrUtil.h"
 
 
 namespace http {

@@ -5,14 +5,14 @@
 * SPDX-License-Identifier: Apache-2.0
 *
 */
-#include "ui/CmdlineParams.h"
+#include "CmdlineParams.h"
 
 #include <iostream>
-
 #include "tools/Path.h"
 #include "tools/SysUtil.h"
 #include "tools/StrUtil.h"
 #include "tools/XGetopt.h"
+
 
 CmdlineParams::CmdlineParams()
 {

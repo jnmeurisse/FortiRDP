@@ -6,7 +6,9 @@
 *
 */
 #include "SyncWaitTask.h"
-#include "AsyncMessage.h"
+
+#include "ui/AsyncMessage.h"
+
 
 SyncWaitTask::SyncWaitTask(HWND hwnd, tools::Task* task) :
 	SyncProc(hwnd, AsyncMessage::DisconnectFromFirewallRequest),
@@ -31,4 +33,3 @@ bool SyncWaitTask::procedure()
 
 	return true;
 }
-

@@ -5,8 +5,12 @@
 * SPDX-License-Identifier: Apache-2.0
 *
 */
-#include "http/Cookie.h"
+#include "Cookie.h"
+
+#include <vector>
+#include "http/CookieError.h"
 #include "tools/StrUtil.h"
+
 
 namespace http {
 

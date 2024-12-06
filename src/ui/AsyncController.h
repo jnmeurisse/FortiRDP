@@ -18,6 +18,7 @@
 #include "net/Endpoint.h"
 #include "fw/PortalClient.h"
 
+
 /**
 * The AsyncController is a singleton class. This controller is responsible to execute all
 * blocking operations in a separated thread. A message is sent to the window specified by

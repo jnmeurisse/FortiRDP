@@ -10,6 +10,7 @@
 #include <Windows.h>
 #include <string>
 
+
 /*
 * A Dialog abstract base class
 */

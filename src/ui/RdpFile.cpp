@@ -5,13 +5,11 @@
 * SPDX-License-Identifier: Apache-2.0
 *
 */
+#include "RdpFile.h"
+
 #include <iostream>
 #include <fstream>
 #include <vector>
-#include <algorithm>
-
-
-#include "RdpFile.h"
 #include "tools/StrUtil.h"
 
 

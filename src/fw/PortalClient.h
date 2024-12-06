@@ -8,20 +8,18 @@
 #pragma once
 
 #include <functional>
-
+#include <string>
 #include "http/HttpsClient.h"
 #include "http/Answer.h"
 #include "http/Cookies.h"
 #include "http/Url.h"
-
 #include "fw/CrtDigest.h"
-
 #include "net/Endpoint.h"
 #include "net/Tunneler.h"
-
 #include "tools/Mutex.h"
 #include "tools/Path.h"
-#include "tools/ErrUtil.h"
+
+
 
 namespace fw {
 

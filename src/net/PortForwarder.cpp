@@ -6,10 +6,12 @@
 *
 */
 
-#include "net/PortForwarder.h"
-#include "tools/SysUtil.h"
-#include "lwip/timeouts.h"
-#include "lwip/tcp.h"
+#include "PortForwarder.h"
+
+#include <lwip/timeouts.h>
+#include <lwip/tcp.h>
+#include "net/DnsClient.h"
+
 
 namespace net {
 	using namespace tools;

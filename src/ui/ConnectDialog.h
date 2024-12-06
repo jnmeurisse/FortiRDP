@@ -6,6 +6,7 @@
 *
 */
 #pragma once
+
 #include <Windows.h>
 #include <string>
 #include <memory>
@@ -21,6 +22,7 @@
 #include "ui/ModelessDialog.h"
 #include "ui/AsyncController.h"
 #include "ui/InfoLogWriter.h"
+
 
 namespace chrono = std::chrono;
 

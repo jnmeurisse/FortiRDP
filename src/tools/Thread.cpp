@@ -5,10 +5,11 @@
 * SPDX-License-Identifier: Apache-2.0
 *
 */
-#include <process.h>
-
 #include "Thread.h"
-#include "SysUtil.h"
+
+#include <process.h>
+#include "tools/SysUtil.h"
+
 
 namespace tools {
 	/* Internal functions */

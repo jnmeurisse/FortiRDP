@@ -6,7 +6,8 @@
 *
 */
 #include "InfoLogWriter.h"
-#include "AsyncMessage.h"
+
+#include "ui/AsyncMessage.h"
 
 
 InfoLogWriter::InfoLogWriter(HWND hWnd):

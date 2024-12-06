@@ -5,8 +5,9 @@
 * SPDX-License-Identifier: Apache-2.0
 *
 */
+#include "Dialog.h"
+
 #include <vector>
-#include "ui/Dialog.h"
 #include "ui/AsyncMessage.h"
 
 

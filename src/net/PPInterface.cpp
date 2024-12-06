@@ -5,13 +5,11 @@
 * SPDX-License-Identifier: Apache-2.0
 *
 */
-#include "net/PPInterface.h"
-#include "lwip/dns.h"
+#include "PPInterface.h"
 
+#include <lwip/timeouts.h>
 #include "tools/ErrUtil.h"
-#include "tools/SysUtil.h"
 
-#include "lwip/timeouts.h"
 
 namespace net {
 	using namespace tools;

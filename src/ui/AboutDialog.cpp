@@ -5,13 +5,13 @@
 * SPDX-License-Identifier: Apache-2.0
 *
 */
-
 #include "AboutDialog.h"
+
+#include <mbedtls/version.h>
 #include "tools/SysUtil.h"
 #include "tools/StrUtil.h"
 #include "tools/Path.h"
-#include "mbedtls\version.h"
-#include "resources\resource.h"
+#include "resources/resource.h"
 
 
 AboutDialog::AboutDialog(HINSTANCE hInstance, HWND hParent) :

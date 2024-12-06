@@ -11,6 +11,7 @@
 #include "tools/Logger.h"
 #include "ui/AsyncMessage.h"
 
+
 /**
 * A synchronous procedure executes the "procedure" defined in a subclass. At the
 * end of the execution, a message is posted to a recipient window.

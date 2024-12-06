@@ -5,8 +5,10 @@
 * SPDX-License-Identifier: Apache-2.0
 *
 */
-
 #include "Request.h"
+
+#include "tools/ErrUtil.h"
+
 
 namespace http {
 

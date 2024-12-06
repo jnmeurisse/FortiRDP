@@ -10,6 +10,7 @@
 #include <Windows.h>
 #include "ui/Dialog.h"
 
+
 /*
 * A modeless dialog base class
 */
