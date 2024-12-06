@@ -23,7 +23,7 @@ namespace fw {
 		CrtDigest()
 	{
 		if (crt)
-			mbedtls_sha256_ret(crt->raw.p, crt->raw.len, _digest, 0);
+			::mbedtls_sha256_ret(crt->raw.p, crt->raw.len, _digest, 0);
 	}
 
 
