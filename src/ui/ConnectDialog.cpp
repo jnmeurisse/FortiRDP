@@ -10,15 +10,15 @@
 #include <stdexcept>
 #include <system_error>
 #include "ui/CredentialDialog.h"
-#include "ui/AskCodeDialog.h"
+#include "ui/PinCodeDialog.h"
 #include "ui/AboutDialog.h"
 #include "ui/OptionsDialog.h"
 #include "ui/AsyncMessage.h"
 #include "tools/StrUtil.h"
 #include "tools/SysUtil.h"
 #include "tools/ErrUtil.h"
-#include "mbedtls/pem.h"
 #include "resources/resource.h"
+
 
 namespace ui {
 
@@ -293,7 +293,7 @@ namespace ui {
 	}
 
 
-	void ConnectDialog::showAskCredentialDialog(fw::Credential* pCredential)
+	void ConnectDialog::showCredentialDialog(fw::Credential* pCredential)
 	{
 		CredentialDialog credentialDialog(instance_handle(), window_handle());
 		const std::string message{ "Enter user name and password to access firewall " + _controller->portal()->host().hostname() };
@@ -316,9 +316,9 @@ namespace ui {
 	}
 
 
-	void ConnectDialog::showAskCodeDialog(fw::Code2FA* pCode)
+	void ConnectDialog::showPinCodeDialog(fw::Code2FA* pCode)
 	{
-		AskCodeDialog codeDialog{ instance_handle(), window_handle() };
+		PinCodeDialog codeDialog{ instance_handle(), window_handle() };
 		const std::string message = (!pCode)
 			? "Enter code to access firewall " + _controller->portal()->host().hostname()
 			: pCode->info;
@@ -699,7 +699,7 @@ namespace ui {
 			);
 
 			if (rc == MBEDTLS_ERR_PK_PASSWORD_REQUIRED) {
-				AskCodeDialog codeDialog{ instance_handle(), window_handle() };
+				PinCodeDialog codeDialog{ instance_handle(), window_handle() };
 				codeDialog.setText(L"enter your private key password");
 
 				if (codeDialog.showModal() == TRUE) {
@@ -827,12 +827,12 @@ namespace ui {
 			outputInfoMessage(static_cast<const char*>(param));
 
 		}
-		else if (AsyncMessage::ShowAskCredentialDialogRequest == eventNumber) {
-			showAskCredentialDialog(static_cast<fw::Credential*>(param));
+		else if (AsyncMessage::ShowCredentialDialogRequest == eventNumber) {
+			showCredentialDialog(static_cast<fw::Credential*>(param));
 
 		}
-		else if (AsyncMessage::ShowAskCodeDialogRequest == eventNumber) {
-			showAskCodeDialog(static_cast<fw::Code2FA*>(param));
+		else if (AsyncMessage::ShowPinCodeDialogRequest == eventNumber) {
+			showPinCodeDialog(static_cast<fw::Code2FA*>(param));
 
 		}
 		else if (AsyncMessage::ShowInvalidCertificateDialogRequest == eventNumber) {

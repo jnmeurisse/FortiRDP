@@ -64,7 +64,7 @@
     <ClCompile Include="..\..\src\tools\Timer.cpp" />
     <ClCompile Include="..\..\src\tools\XGetopt.cpp" />
     <ClCompile Include="..\..\src\ui\AboutDialog.cpp" />
-    <ClCompile Include="..\..\src\ui\AskCodeDialog.cpp" />
+    <ClCompile Include="..\..\src\ui\PinCodeDialog.cpp" />
     <ClCompile Include="..\..\src\ui\AsyncController.cpp" />
     <ClCompile Include="..\..\src\ui\AsyncMessage.cpp" />
     <ClCompile Include="..\..\src\ui\CmdlineParams.cpp" />
@@ -133,7 +133,7 @@
     <ClInclude Include="..\..\src\tools\Timer.h" />
     <ClInclude Include="..\..\src\tools\XGetopt.h" />
     <ClInclude Include="..\..\src\ui\AboutDialog.h" />
-    <ClInclude Include="..\..\src\ui\AskCodeDialog.h" />
+    <ClInclude Include="..\..\src\ui\PinCodeDialog.h" />
     <ClInclude Include="..\..\src\ui\AsyncController.h" />
     <ClInclude Include="..\..\src\ui\AsyncMessage.h" />
     <ClInclude Include="..\..\src\ui\CmdlineParams.h" />

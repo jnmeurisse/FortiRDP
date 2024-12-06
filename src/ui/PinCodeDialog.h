@@ -12,11 +12,11 @@
 
 namespace ui {
 
-	class AskCodeDialog final : public ModalDialog
+	class PinCodeDialog final : public ModalDialog
 	{
 	public:
-		explicit AskCodeDialog(HINSTANCE hInstance, HWND hParent);
-		~AskCodeDialog();
+		explicit PinCodeDialog(HINSTANCE hInstance, HWND hParent);
+		~PinCodeDialog();
 
 		/* Initializes the text to show in the ask code dialog
 		*/

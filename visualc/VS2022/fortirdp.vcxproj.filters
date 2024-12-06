@@ -27,7 +27,7 @@
     <ClCompile Include="..\..\src\ui\AboutDialog.cpp">
       <Filter>sources\ui</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\ui\AskCodeDialog.cpp">
+    <ClCompile Include="..\..\src\ui\PinCodeDialog.cpp">
       <Filter>sources\ui</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\ui\AsyncController.cpp">
@@ -221,7 +221,7 @@
     <ClInclude Include="..\..\src\ui\AboutDialog.h">
       <Filter>sources\ui</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\ui\AskCodeDialog.h">
+    <ClInclude Include="..\..\src\ui\PinCodeDialog.h">
       <Filter>sources\ui</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\ui\AsyncController.h">

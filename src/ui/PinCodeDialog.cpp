@@ -5,36 +5,36 @@
 * SPDX-License-Identifier: Apache-2.0
 *
 */
-#include "AskCodeDialog.h"
+#include "PinCodeDialog.h"
 
 #include "resources\resource.h"
 
 namespace ui {
 
-	AskCodeDialog::AskCodeDialog(HINSTANCE hInstance, HWND hParent) :
+	PinCodeDialog::PinCodeDialog(HINSTANCE hInstance, HWND hParent) :
 		ModalDialog(hInstance, hParent, IDD_CODE_DIALOG)
 	{
 	}
 
 
-	AskCodeDialog::~AskCodeDialog()
+	PinCodeDialog::~PinCodeDialog()
 	{
 	}
 
 
-	void AskCodeDialog::setText(const std::wstring& info)
+	void PinCodeDialog::setText(const std::wstring& info)
 	{
 		_text = info;
 	}
 
 
-	const std::wstring& AskCodeDialog::getCode() const
+	const std::wstring& PinCodeDialog::getCode() const
 	{
 		return _code;
 	}
 
 
-	INT_PTR AskCodeDialog::onCreateDialogMessage(WPARAM wParam, LPARAM lParam)
+	INT_PTR PinCodeDialog::onCreateDialogMessage(WPARAM wParam, LPARAM lParam)
 	{
 		set_control_textlen(IDC_CODE, 128);
 		set_control_text(IDC_CODE_LABEL, _text);
@@ -50,7 +50,7 @@ namespace ui {
 	}
 
 
-	INT_PTR AskCodeDialog::onButtonClick(int cid, LPARAM lParam)
+	INT_PTR PinCodeDialog::onButtonClick(int cid, LPARAM lParam)
 	{
 		INT_PTR rc = FALSE;
 

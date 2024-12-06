@@ -59,11 +59,11 @@ namespace ui {
 
 		/* request to display a dialog that ask for credentials
 		*/
-		static AsyncMessage ShowAskCredentialDialogRequest;
+		static AsyncMessage ShowCredentialDialogRequest;
 
 		/* request to display a dialog that ask for an additional code (pin code for example)
 		*/
-		static AsyncMessage ShowAskCodeDialogRequest;
+		static AsyncMessage ShowPinCodeDialogRequest;
 
 		/* execute the disconnection procedure
 		*/

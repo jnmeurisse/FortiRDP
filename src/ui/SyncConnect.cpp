@@ -33,6 +33,37 @@ namespace ui {
 	}
 
 
+	bool SyncConnect::confirm_certificate(const mbedtls_x509_crt* crt, int status)
+	{
+		char buffer[4096];
+
+		mbedtls_x509_crt_verify_info(buffer, sizeof(buffer), " ** ", status);
+		_logger->info(buffer);
+
+		std::string message("The security certificate is not valid.\n");
+		message.append(buffer);
+		message.append("\n");
+
+		message.append("Security certificate problems may indicate an attempt to intercept any data including passwords you send to the firewall.\n");
+		message.append("\n");
+		message.append("Do you want to proceed ?");
+
+		return AsyncMessage::ShowInvalidCertificateDialogRequest.send(_hwnd, (void*)message.c_str()) == TRUE;
+	}
+
+
+	bool SyncConnect::ask_credential(fw::Credential& credential)
+	{
+		return AsyncMessage::ShowCredentialDialogRequest.send(_hwnd, (void*)&credential) == TRUE;
+	}
+
+
+	bool SyncConnect::ask_code(fw::Code2FA& code2fa)
+	{
+		return AsyncMessage::ShowPinCodeDialogRequest.send(_hwnd, (void*)&code2fa) == TRUE;
+	}
+
+
 	bool SyncConnect::procedure()
 	{
 		DEBUG_ENTER(_logger, "SyncConnect", "procedure");
@@ -88,37 +119,6 @@ namespace ui {
 		}
 
 		return rc == 0;
-	}
-
-
-	bool SyncConnect::confirm_certificate(const mbedtls_x509_crt* crt, int status)
-	{
-		char buffer[4096];
-
-		mbedtls_x509_crt_verify_info(buffer, sizeof(buffer), " ** ", status);
-		_logger->info(buffer);
-
-		std::string message("The security certificate is not valid.\n");
-		message.append(buffer);
-		message.append("\n");
-
-		message.append("Security certificate problems may indicate an attempt to intercept any data including passwords you send to the firewall.\n");
-		message.append("\n");
-		message.append("Do you want to proceed ?");
-
-		return AsyncMessage::ShowInvalidCertificateDialogRequest.send(_hwnd, (void*)message.c_str()) == TRUE;
-	}
-
-
-	bool SyncConnect::ask_credential(fw::Credential& credential)
-	{
-		return AsyncMessage::ShowAskCredentialDialogRequest.send(_hwnd, (void*)&credential) == TRUE;
-	}
-
-
-	bool SyncConnect::ask_code(fw::Code2FA& code2fa)
-	{
-		return AsyncMessage::ShowAskCodeDialogRequest.send(_hwnd, (void*)&code2fa) == TRUE;
 	}
 
 }

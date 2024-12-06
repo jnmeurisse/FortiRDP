@@ -115,8 +115,8 @@ namespace ui {
 		void showAboutDialog();
 		void showOptionsDialog();
 		void showErrorMessageDialog(const wchar_t* pText);
-		void showAskCredentialDialog(fw::Credential* pCredential);
-		void showAskCodeDialog(fw::Code2FA* pCode);
+		void showCredentialDialog(fw::Credential* pCredential);
+		void showPinCodeDialog(fw::Code2FA* pCode);
 		void showInvalidCertificateDialog(const char* pText);
 		void disconnectFromFirewall(bool success);
 
