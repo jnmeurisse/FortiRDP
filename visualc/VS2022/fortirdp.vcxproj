@@ -168,13 +168,13 @@
     <ResourceCompile Include="..\..\src\resources\fortirdp.rc" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\lib\lwip\visualc\VS2015\lwIP.vcxproj">
+    <ProjectReference Include="..\..\lib\lwip\visualc\VS2022\lwIP.vcxproj">
       <Project>{5b48a97c-2217-49f4-84de-0a69f6e15b75}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\..\lib\mbedtls\visualc\VS2015\mbedTLS.vcxproj">
+    <ProjectReference Include="..\..\lib\mbedtls\visualc\VS2022\mbedTLS.vcxproj">
       <Project>{46cf2d25-6a36-4189-b59c-e4815388e554}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\..\lib\zlib\visualc\VS2015\zlib\zlib.vcxproj">
+    <ProjectReference Include="..\..\lib\zlib\visualc\VS2022\zlib\zlib.vcxproj">
       <Project>{021b4bae-cdb6-42d4-823c-660531651e67}</Project>
     </ProjectReference>
   </ItemGroup>
@@ -182,32 +182,32 @@
     <ProjectGuid>{F734AC9A-37F3-4ABD-8FF6-A9D08BCD2678}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>fortirdp</RootNamespace>
-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
