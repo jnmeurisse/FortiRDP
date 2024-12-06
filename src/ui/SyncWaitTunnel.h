@@ -11,21 +11,24 @@
 #include "ui/SyncProc.h"
 #include "net/Tunneler.h"
 
+namespace ui {
 
-/**
-* A synchronous procedure that waits the listener to be active. The procedure
-* sends TunnelListeningEvent when the listener is active.
-*/
-class SyncWaitTunnel final : public SyncProc
-{
-public:
-	explicit SyncWaitTunnel(HWND hwnd, net::Tunneler* tunneler);
-	~SyncWaitTunnel();
+	/**
+	* A synchronous procedure that waits the listener to be active. The procedure
+	* sends TunnelListeningEvent when the listener is active.
+	*/
+	class SyncWaitTunnel final : public SyncProc
+	{
+	public:
+		explicit SyncWaitTunnel(HWND hwnd, net::Tunneler* tunneler);
+		~SyncWaitTunnel();
 
-private:
-	// The tunneler
-	net::Tunneler* const _tunneler;
+	private:
+		// The tunneler
+		net::Tunneler* const _tunneler;
 
-	// The wait procedure
-	virtual bool procedure() override;
-};
+		// The wait procedure
+		virtual bool procedure() override;
+	};
+
+}

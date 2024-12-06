@@ -11,40 +11,43 @@
 #include "ui/ModalDialog.h"
 #include "ui/ScreenSize.h"
 
+namespace ui {
 
-class OptionsDialog final : public ModalDialog
-{
-public:
-	explicit OptionsDialog(HINSTANCE hInstance, HWND hParent);
-	virtual ~OptionsDialog();
+	class OptionsDialog final : public ModalDialog
+	{
+	public:
+		explicit OptionsDialog(HINSTANCE hInstance, HWND hParent);
+		virtual ~OptionsDialog();
 
-	bool full_screen = false;
-	bool full_screen_updatable = false;
+		bool full_screen = false;
+		bool full_screen_updatable = false;
 
-	bool clear_rdp_username = false;
-	bool clear_rdp_username_updatable = false;
+		bool clear_rdp_username = false;
+		bool clear_rdp_username_updatable = false;
 
-	bool span_mode = false;
-	bool span_mode_updatable = false;
+		bool span_mode = false;
+		bool span_mode_updatable = false;
 
-	bool multimon_mode = false;
-	bool multimon_mode_updatable = false;
+		bool multimon_mode = false;
+		bool multimon_mode_updatable = false;
 
-	bool admin_console = false;
-	bool admin_console_updatable = false;
+		bool admin_console = false;
+		bool admin_console_updatable = false;
 
-	ScreenSize screen_size = { 0, 0 };
-	bool screen_size_updatable = false;
+		ScreenSize screen_size = { 0, 0 };
+		bool screen_size_updatable = false;
 
-	bool rdpfile_mode = false;
-	bool rdpfile_updatable = false;
+		bool rdpfile_mode = false;
+		bool rdpfile_updatable = false;
 
-	std::wstring rdp_filename;
+		std::wstring rdp_filename;
 
-private:
-	virtual INT_PTR onCreateDialogMessage(WPARAM wParam, LPARAM lParam) override;
-	virtual INT_PTR onButtonClick(int cid, LPARAM lParam) override;
+	private:
+		virtual INT_PTR onCreateDialogMessage(WPARAM wParam, LPARAM lParam) override;
+		virtual INT_PTR onButtonClick(int cid, LPARAM lParam) override;
 
-	bool select_file(std::wstring& filename);
-};
+		bool select_file(std::wstring& filename);
+	};
+
+}
 

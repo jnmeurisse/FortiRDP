@@ -10,20 +10,21 @@
 #include <Windows.h>
 #include "ui/ModalDialog.h"
 
+namespace ui {
+	/**
+	* The FortiRDP about dialog
+	*/
+	class AboutDialog final : public ModalDialog
+	{
+	public:
+		explicit AboutDialog(HINSTANCE hInstance, HWND hParent);
+		virtual ~AboutDialog();
 
-/**
-* The FortiRDP about dialog
-*/
-class AboutDialog final : public ModalDialog
-{
-public:
-	explicit AboutDialog(HINSTANCE hInstance, HWND hParent);
-	virtual ~AboutDialog();
+	private:
+		HFONT _hFont;
 
-private:
-	HFONT _hFont;
+		virtual INT_PTR onCreateDialogMessage(WPARAM wParam, LPARAM lParam) override;
+		virtual INT_PTR onButtonClick(int cid, LPARAM lParam) override;
+	};
 
-	virtual INT_PTR onCreateDialogMessage(WPARAM wParam, LPARAM lParam) override;
-	virtual INT_PTR onButtonClick(int cid, LPARAM lParam) override;
-};
-
+}

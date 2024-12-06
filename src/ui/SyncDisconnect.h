@@ -13,22 +13,26 @@
 #include "net/Tunneler.h"
 
 
-/**
-* A synchronous procedure that disconnects this client from the firewall and terminates the tunnel
-* listeners. The procedure posts a DisconnectedEvent to the window when done.
-*/
-class SyncDisconnect final : public SyncProc
-{
-public:
-	explicit SyncDisconnect(HWND hwnd, fw::PortalClient* portal, net::Tunneler* tunnel);
-	~SyncDisconnect();
+namespace ui {
 
-private:
-	//- portal to disconnect from
-	fw::PortalClient* const _portal;
+	/**
+	* A synchronous procedure that disconnects this client from the firewall and terminates the tunnel
+	* listeners. The procedure posts a DisconnectedEvent to the window when done.
+	*/
+	class SyncDisconnect final : public SyncProc
+	{
+	public:
+		explicit SyncDisconnect(HWND hwnd, fw::PortalClient* portal, net::Tunneler* tunnel);
+		~SyncDisconnect();
 
-	//- tunnel to terminate
-	net::Tunneler* const _tunnel;
+	private:
+		//- portal to disconnect from
+		fw::PortalClient* const _portal;
 
-	virtual bool procedure() override;
-};
+		//- tunnel to terminate
+		net::Tunneler* const _tunnel;
+
+		virtual bool procedure() override;
+	};
+
+}

@@ -12,31 +12,35 @@
 #include "ui/AsyncMessage.h"
 
 
-/**
-* A synchronous procedure executes the "procedure" defined in a subclass. At the
-* end of the execution, a message is posted to a recipient window.
-*/
-class SyncProc
-{
-public:
-	explicit SyncProc(HWND hwnd, const AsyncMessage& message);
-	virtual ~SyncProc();
+namespace ui {
 
-	/* Runs the procedure and then send the message
+	/**
+	* A synchronous procedure executes the "procedure" defined in a subclass. At the
+	* end of the execution, a message is posted to a recipient window.
 	*/
-	void run();
+	class SyncProc
+	{
+	public:
+		explicit SyncProc(HWND hwnd, const AsyncMessage& message);
+		virtual ~SyncProc();
 
-protected:
-	// - the logger
-	tools::Logger* const _logger;
+		/* Runs the procedure and then send the message
+		*/
+		void run();
 
-	// - the recipient window of the user even message
-	const HWND _hwnd;
+	protected:
+		// - the logger
+		tools::Logger* const _logger;
 
-private:
-	// - event message sent asynchronously when procedure execution is finished
-	const AsyncMessage _message;
+		// - the recipient window of the user even message
+		const HWND _hwnd;
 
-	// - procedure to execute
-	virtual bool procedure()=0;
-};
+	private:
+		// - event message sent asynchronously when procedure execution is finished
+		const AsyncMessage _message;
+
+		// - procedure to execute
+		virtual bool procedure() = 0;
+	};
+
+}

@@ -10,13 +10,15 @@
 #include <Windows.h>
 #include "ui/Dialog.h"
 
+namespace ui {
+	/*
+	* A modeless dialog base class
+	*/
+	class ModelessDialog : public Dialog
+	{
+	public:
+		explicit ModelessDialog(HINSTANCE hInstance, HWND hParent, int idd);
 
-/*
-* A modeless dialog base class
-*/
-class ModelessDialog : public Dialog
-{
-public:
-	explicit ModelessDialog(HINSTANCE hInstance, HWND hParent, int idd);
+	};
 
-};
+}

@@ -10,140 +10,143 @@
 #include <Windows.h>
 #include <string>
 
+namespace ui {
 
-/*
-* A Dialog abstract base class
-*/
-class Dialog
-{
-public:
-	explicit Dialog(HINSTANCE hInstance, HWND hParent, int idd);
-	virtual ~Dialog();
-
-	/* returns the handle to the current instance of this application
+	/*
+	* A Dialog abstract base class
 	*/
-	inline HINSTANCE instance_handle() const { return _hInstance; }
+	class Dialog
+	{
+	public:
+		explicit Dialog(HINSTANCE hInstance, HWND hParent, int idd);
+		virtual ~Dialog();
 
-	/* returns the handle to this dialog window. This handle is available
-	 * only after the dialog processed the OnCreateDialogMessage.
-	*/
-	inline HWND window_handle() const { return _hWindow; }
+		/* returns the handle to the current instance of this application
+		*/
+		inline HINSTANCE instance_handle() const { return _hInstance; }
 
-	/* returns the handle of the given control
-	 */
-	HWND control_handle(int idc) const;
+		/* returns the handle to this dialog window. This handle is available
+		 * only after the dialog processed the OnCreateDialogMessage.
+		*/
+		inline HWND window_handle() const { return _hWindow; }
 
-	/* centers the dialog window relative to the given window. If not specified
-	 * the function centers the dialog window relative to the screen.
-	*/
-	bool center_window(HWND hRelWindow = NULL);
+		/* returns the handle of the given control
+		 */
+		HWND control_handle(int idc) const;
 
-	/* shows the window
-	*/
-	bool show_window(int cmd_show);
+		/* centers the dialog window relative to the given window. If not specified
+		 * the function centers the dialog window relative to the screen.
+		*/
+		bool center_window(HWND hRelWindow = NULL);
 
-	/* returns true if windows is minimized
-	*/
-	bool is_minimized();
+		/* shows the window
+		*/
+		bool show_window(int cmd_show);
 
-	/* returns the dialog window title
-	*/
-	std::wstring get_title() const;
+		/* returns true if windows is minimized
+		*/
+		bool is_minimized();
 
-	/* set the dialog window title
-	*/
-	void set_title(const std::wstring& title);
+		/* returns the dialog window title
+		*/
+		std::wstring get_title() const;
 
-	/* set the text of a the given control
-	*/
-	void set_control_text(int idc, const std::wstring& text);
+		/* set the dialog window title
+		*/
+		void set_title(const std::wstring& title);
 
-	/* returns text from a specified control
-	*/
-	std::wstring get_control_text(int idc) const;
+		/* set the text of a the given control
+		*/
+		void set_control_text(int idc, const std::wstring& text);
 
-	/* set the text length limit for the specified control
-	*/
-	void set_control_textlen(int idc, int length);
+		/* returns text from a specified control
+		*/
+		std::wstring get_control_text(int idc) const;
 
-	/* enable/disable a control
-	*/
-	void set_control_enable(int idc, bool enable);
+		/* set the text length limit for the specified control
+		*/
+		void set_control_textlen(int idc, int length);
 
-	/* check if a control is enabled or not
-	*/
-	bool is_control_enabled(int idc) const;
+		/* enable/disable a control
+		*/
+		void set_control_enable(int idc, bool enable);
 
-	/* show/hide a control 
-	*/
-	void set_control_visible(int idc, bool visible);
+		/* check if a control is enabled or not
+		*/
+		bool is_control_enabled(int idc) const;
 
-	/* set control font
-	*/
-	void set_control_font(int idc, HFONT font);
+		/* show/hide a control
+		*/
+		void set_control_visible(int idc, bool visible);
 
-	/* set keyboard focus to the specified control
-	*/
-	bool set_focus(int idc);
+		/* set control font
+		*/
+		void set_control_font(int idc, HFONT font);
 
-	/* set a check box state
-	*/
-	void set_checkbox_state(int idc, int state);
+		/* set keyboard focus to the specified control
+		*/
+		bool set_focus(int idc);
 
-	/* get a check box state
-	*/
-	bool get_checkbox_state(int idc) const;
+		/* set a check box state
+		*/
+		void set_checkbox_state(int idc, int state);
 
-	/* returns the system menu
-	*/
-	HMENU get_sys_menu(bool reset);
+		/* get a check box state
+		*/
+		bool get_checkbox_state(int idc) const;
 
-	/* shows a message box
-	*/
-	int show_message_box(const std::wstring& message, UINT type);
+		/* returns the system menu
+		*/
+		HMENU get_sys_menu(bool reset);
 
-protected:
-	// Methods to create a modal or a modeless dialog
-	HWND create_modeless_dialog();
-	INT_PTR create_modal_dialog();
+		/* shows a message box
+		*/
+		int show_message_box(const std::wstring& message, UINT type);
 
-	// Method to create a font
-	HFONT create_font(int size, const std::wstring& name);
+	protected:
+		// Methods to create a modal or a modeless dialog
+		HWND create_modeless_dialog();
+		INT_PTR create_modal_dialog();
 
-	// Event handlers
-	virtual INT_PTR onCreateDialogMessage(WPARAM wParam, LPARAM lParam) { return TRUE; }
-	virtual INT_PTR onDestroyDialogMessage(WPARAM wParam, LPARAM lParam) { return FALSE; }
-	virtual INT_PTR onCloseDialogMessage(WPARAM wParam, LPARAM lParam) { return FALSE; }
-	virtual INT_PTR onCommandMessage(WPARAM wParam, LPARAM lParam);
-	virtual INT_PTR onSysCommandMessage(WPARAM wParam, LPARAM lParam) { return FALSE; }
-	virtual INT_PTR onCtlColorStaticMessage(WPARAM wParam, LPARAM lParam) { return FALSE; }
-	virtual INT_PTR onTimerMessage(WPARAM wParam, LPARAM lParam) { return FALSE; }
-	virtual INT_PTR onHotKey(WPARAM wParam, LPARAM lParam) { return FALSE; }
-	virtual INT_PTR onButtonClick(int idc, LPARAM lParam) { return FALSE; }
-	virtual INT_PTR onUserEventMessage(UINT eventNumber, void* param) { return FALSE; }
+		// Method to create a font
+		HFONT create_font(int size, const std::wstring& name);
 
-private:
-	// The application instance handle
-	const HINSTANCE _hInstance;
+		// Event handlers
+		virtual INT_PTR onCreateDialogMessage(WPARAM wParam, LPARAM lParam) { return TRUE; }
+		virtual INT_PTR onDestroyDialogMessage(WPARAM wParam, LPARAM lParam) { return FALSE; }
+		virtual INT_PTR onCloseDialogMessage(WPARAM wParam, LPARAM lParam) { return FALSE; }
+		virtual INT_PTR onCommandMessage(WPARAM wParam, LPARAM lParam);
+		virtual INT_PTR onSysCommandMessage(WPARAM wParam, LPARAM lParam) { return FALSE; }
+		virtual INT_PTR onCtlColorStaticMessage(WPARAM wParam, LPARAM lParam) { return FALSE; }
+		virtual INT_PTR onTimerMessage(WPARAM wParam, LPARAM lParam) { return FALSE; }
+		virtual INT_PTR onHotKey(WPARAM wParam, LPARAM lParam) { return FALSE; }
+		virtual INT_PTR onButtonClick(int idc, LPARAM lParam) { return FALSE; }
+		virtual INT_PTR onUserEventMessage(UINT eventNumber, void* param) { return FALSE; }
 
-	// The parent window handle
-	const HWND _hParent;
+	private:
+		// The application instance handle
+		const HINSTANCE _hInstance;
 
-	// This dialog id
-	const int _idd;
+		// The parent window handle
+		const HWND _hParent;
 
-	// This dialog handle
-	HWND _hWindow;
+		// This dialog id
+		const int _idd;
 
-	/* the global window dialog procedure dispatches events to dialogProc
-	*/
-	friend static INT_PTR CALLBACK MainDialogProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+		// This dialog handle
+		HWND _hWindow;
 
-	/* the dialog procedure dispatches events to virtual event handlers
-	*/
-	INT_PTR dialogProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+		/* the global window dialog procedure dispatches events to dialogProc
+		*/
+		friend static INT_PTR CALLBACK MainDialogProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
-	// Helper functions to get and set the window text
-	static std::wstring get_window_text(HWND hWnd);
-	static void set_window_text(HWND hWnd, const std::wstring& text);
-};
+		/* the dialog procedure dispatches events to virtual event handlers
+		*/
+		INT_PTR dialogProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+
+		// Helper functions to get and set the window text
+		static std::wstring get_window_text(HWND hWnd);
+		static void set_window_text(HWND hWnd, const std::wstring& text);
+	};
+
+}

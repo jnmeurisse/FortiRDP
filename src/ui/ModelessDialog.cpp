@@ -8,10 +8,12 @@
 #include "ModelessDialog.h"
 
 
-ModelessDialog::ModelessDialog(HINSTANCE hInstance, HWND hParent, int idd) :
-	Dialog(hInstance, hParent, idd)
-{
-	Dialog::create_modeless_dialog();
+namespace ui {
+
+	ModelessDialog::ModelessDialog(HINSTANCE hInstance, HWND hParent, int idd) :
+		Dialog(hInstance, hParent, idd)
+	{
+		Dialog::create_modeless_dialog();
+	}
+
 }
-
-

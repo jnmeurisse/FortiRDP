@@ -7,14 +7,18 @@
 */
 #pragma once
 
-struct ScreenSize {
-	static const int max_height = 32766;
-	static const int max_width = 32766;
+namespace ui {
 
-	int height;
-	int width;
+	struct ScreenSize {
+		static const int max_height = 32766;
+		static const int max_width = 32766;
 
-	bool is_valid() const {
-		return (height >= 0 && height <= ScreenSize::max_height && width >= 0 && width <= ScreenSize::max_width);
- 	}
-};
+		int height;
+		int width;
+
+		bool is_valid() const {
+			return (height >= 0 && height <= ScreenSize::max_height && width >= 0 && width <= ScreenSize::max_width);
+		}
+	};
+
+}

@@ -9,27 +9,30 @@
 
 #include "ui/AsyncMessage.h"
 
+namespace ui {
 
-SyncWaitTask::SyncWaitTask(HWND hwnd, tools::Task* task) :
-	SyncProc(hwnd, AsyncMessage::DisconnectFromFirewallRequest),
-	_task(task)
-{
-	DEBUG_CTOR(_logger, "SyncWaitTask");
-}
-
-
-SyncWaitTask::~SyncWaitTask()
-{
-	DEBUG_DTOR(_logger, "SyncWaitTask");
-}
+	SyncWaitTask::SyncWaitTask(HWND hwnd, tools::Task* task) :
+		SyncProc(hwnd, AsyncMessage::DisconnectFromFirewallRequest),
+		_task(task)
+	{
+		DEBUG_CTOR(_logger, "SyncWaitTask");
+	}
 
 
-bool SyncWaitTask::procedure()
-{
-	DEBUG_ENTER(_logger, "SyncWaitTask", "procedure");
+	SyncWaitTask::~SyncWaitTask()
+	{
+		DEBUG_DTOR(_logger, "SyncWaitTask");
+	}
 
-	if (_task)
-		_task->wait(INFINITE);
 
-	return true;
+	bool SyncWaitTask::procedure()
+	{
+		DEBUG_ENTER(_logger, "SyncWaitTask", "procedure");
+
+		if (_task)
+			_task->wait(INFINITE);
+
+		return true;
+	}
+
 }
