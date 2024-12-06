@@ -11,7 +11,7 @@
 namespace http {
 
 	CookieError::CookieError(const std::string msg) :
-		logic_error(msg)
+		std::logic_error(msg)
 	{
 	}
 
