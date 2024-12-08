@@ -182,6 +182,15 @@ namespace ui {
 	}
 
 
+	RECT Dialog::get_client_bounds() const
+	{
+		RECT bounds;
+
+		::GetClientRect(window_handle(), &bounds);
+		return bounds;
+	}
+
+
 	HMENU Dialog::get_sys_menu(bool reset)
 	{
 		return ::GetSystemMenu(window_handle(), reset);

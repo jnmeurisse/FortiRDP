@@ -95,6 +95,10 @@ namespace ui {
 		*/
 		bool get_checkbox_state(int idc) const;
 
+		/* get the client rect
+		*/
+		RECT get_client_bounds() const;
+
 		/* returns the system menu
 		*/
 		HMENU get_sys_menu(bool reset);
