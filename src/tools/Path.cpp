@@ -54,7 +54,7 @@ namespace tools {
 	Path Path::get_module_path(HMODULE hModule)
 	{
 		wchar_t filename[4096]{ 0 };
-		::GetModuleFileName(hModule, filename, sizeof(filename) - 1);
+		::GetModuleFileName(hModule, filename, sizeof(filename) - sizeof(wchar_t));
 
 		return Path(filename);
 	}
