@@ -21,7 +21,7 @@ namespace ui {
 	}
 
 
-	INT_PTR ModalDialog::showModal()
+	INT_PTR ModalDialog::show_modal()
 	{
 		return Dialog::create_modal_dialog();
 	}

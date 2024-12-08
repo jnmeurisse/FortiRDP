@@ -11,10 +11,11 @@
 #include <stdexcept>
 #include <system_error>
 #include <vector>
+#include "ui/AboutDialog.h"
 #include "ui/CredentialDialog.h"
 #include "ui/PinCodeDialog.h"
-#include "ui/AboutDialog.h"
 #include "ui/OptionsDialog.h"
+#include "ui/SamlDialog.h"
 #include "ui/AsyncMessage.h"
 #include "tools/Mutex.h"
 #include "tools/StrUtil.h"
@@ -315,7 +316,7 @@ namespace ui {
 				PinCodeDialog codeDialog{ instance_handle(), window_handle() };
 				const std::string message = "Enter your user certificate password";
 
-				const bool modal_result = codeDialog.showModal() == TRUE;
+				const bool modal_result = codeDialog.show_modal() == TRUE;
 				if (modal_result) {
 					// returns code to caller
 					passcode = tools::wstr2str(codeDialog.getCode());
@@ -331,7 +332,6 @@ namespace ui {
 
 			}
 		}
-
 
 		// Clear the information log
 		clearInfo();
@@ -366,7 +366,7 @@ namespace ui {
 		credentialDialog.setText(tools::str2wstr(message));
 		credentialDialog.setUsername(_username);
 
-		const bool modal_result = credentialDialog.showModal() == TRUE;
+		const bool modal_result = credentialDialog.show_modal() == TRUE;
 		if (modal_result && pCredential) {
 			// returns user name and password to caller
 			_username = credentialDialog.getUsername();
@@ -390,7 +390,7 @@ namespace ui {
 			: pCode->info;
 		codeDialog.setText(tools::str2wstr(message));
 
-		const bool modal_result = codeDialog.showModal() == TRUE;
+		const bool modal_result = codeDialog.show_modal() == TRUE;
 		if (modal_result && pCode) {
 			// returns code to caller
 			pCode->code = tools::wstr2str(codeDialog.getCode());
@@ -570,7 +570,7 @@ namespace ui {
 	void ConnectDialog::showAboutDialog()
 	{
 		AboutDialog aboutDialog(instance_handle(), window_handle());
-		aboutDialog.showModal();
+		aboutDialog.show_modal();
 	}
 
 
@@ -609,7 +609,7 @@ namespace ui {
 			optionsDialog.rdp_filename = _settings.get_rdp_filename();
 		}
 
-		if (optionsDialog.showModal()) {
+		if (optionsDialog.show_modal()) {
 			if (optionsDialog.full_screen_updatable)
 				_settings.set_full_screen(optionsDialog.full_screen);
 			if (optionsDialog.screen_size_updatable)

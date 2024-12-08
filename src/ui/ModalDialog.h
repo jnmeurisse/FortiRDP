@@ -27,7 +27,7 @@ namespace ui {
 		*/
 		void close(INT_PTR result);
 
-		INT_PTR showModal();
+		INT_PTR show_modal();
 	};
 
 }
