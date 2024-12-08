@@ -56,7 +56,7 @@ namespace ui {
 
 		center_window();
 
-		if (GetDlgCtrlID((HWND)wParam) != IDC_PASSWORD) {
+		if (::GetDlgCtrlID((HWND)wParam) != IDC_PASSWORD) {
 			set_focus(IDC_PASSWORD);
 			return FALSE;
 		}
