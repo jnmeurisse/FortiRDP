@@ -34,10 +34,10 @@ namespace ui {
 		// callback called to ask user to confirm certificate usage
 		bool confirm_certificate(const mbedtls_x509_crt* crt, int status);
 
-		// callback called to ask user to provide user name/password
+		// callback called to ask user to provide a user name/password
 		bool ask_credential(fw::Credential& credential);
 
-		// callback called to ask user to provide 2fa code
+		// callback called to ask user to provide a 2fa code
 		bool ask_code(fw::Code2FA& code2fa);
 
 		// connect procedure
