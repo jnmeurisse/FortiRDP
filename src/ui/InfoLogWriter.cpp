@@ -7,9 +7,11 @@
 */
 #include "InfoLogWriter.h"
 
+#include <cstring>
 #include "ui/AsyncMessage.h"
 
 namespace ui {
+
 	InfoLogWriter::InfoLogWriter(HWND hWnd) :
 		_hWnd(hWnd)
 	{
