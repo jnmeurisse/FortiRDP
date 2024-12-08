@@ -216,9 +216,6 @@
     <ClCompile Include="..\..\src\fw\CrtDigest.cpp">
       <Filter>sources\fw</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\http\AuthInfo.cpp">
-      <Filter>sources\http</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\tools\X509Crt.cpp">
       <Filter>sources\tools</Filter>
     </ClCompile>
@@ -227,6 +224,9 @@
     </ClCompile>
     <ClCompile Include="..\..\src\tools\UserCrt.cpp">
       <Filter>sources\tools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ui\SamlDialog.cpp">
+      <Filter>sources\ui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -434,9 +434,6 @@
     <ClInclude Include="..\..\src\fw\CrtDigest.h">
       <Filter>sources\fw</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\http\AuthInfo.h">
-      <Filter>sources\http</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\tools\X509Crt.h">
       <Filter>sources\tools</Filter>
     </ClInclude>
@@ -445,6 +442,9 @@
     </ClInclude>
     <ClInclude Include="..\..\src\tools\UserCrt.h">
       <Filter>sources\tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\ui\SamlDialog.h">
+      <Filter>sources\ui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -22,7 +22,6 @@
     <ClCompile Include="..\..\src\fw\CrtDigest.cpp" />
     <ClCompile Include="..\..\src\fw\PortalClient.cpp" />
     <ClCompile Include="..\..\src\http\Answer.cpp" />
-    <ClCompile Include="..\..\src\http\AuthInfo.cpp" />
     <ClCompile Include="..\..\src\http\Cookie.cpp" />
     <ClCompile Include="..\..\src\http\CookieError.cpp" />
     <ClCompile Include="..\..\src\http\Cookies.cpp" />
@@ -82,6 +81,7 @@
     <ClCompile Include="..\..\src\ui\OptionsDialog.cpp" />
     <ClCompile Include="..\..\src\ui\RdpFile.cpp" />
     <ClCompile Include="..\..\src\ui\RegistrySettings.cpp" />
+    <ClCompile Include="..\..\src\ui\SamlDialog.cpp" />
     <ClCompile Include="..\..\src\ui\SyncConnect.cpp" />
     <ClCompile Include="..\..\src\ui\SyncDisconnect.cpp" />
     <ClCompile Include="..\..\src\ui\SyncProc.cpp" />
@@ -92,7 +92,6 @@
     <ClInclude Include="..\..\src\fw\CrtDigest.h" />
     <ClInclude Include="..\..\src\fw\PortalClient.h" />
     <ClInclude Include="..\..\src\http\Answer.h" />
-    <ClInclude Include="..\..\src\http\AuthInfo.h" />
     <ClInclude Include="..\..\src\http\Cookie.h" />
     <ClInclude Include="..\..\src\http\CookieError.h" />
     <ClInclude Include="..\..\src\http\Cookies.h" />
@@ -155,6 +154,7 @@
     <ClInclude Include="..\..\src\ui\OptionsDialog.h" />
     <ClInclude Include="..\..\src\ui\RdpFile.h" />
     <ClInclude Include="..\..\src\ui\RegistrySettings.h" />
+    <ClInclude Include="..\..\src\ui\SamlDialog.h" />
     <ClInclude Include="..\..\src\ui\ScreenSize.h" />
     <ClInclude Include="..\..\src\ui\SyncConnect.h" />
     <ClInclude Include="..\..\src\ui\SyncDisconnect.h" />
