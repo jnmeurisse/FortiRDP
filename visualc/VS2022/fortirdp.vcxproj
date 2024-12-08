@@ -22,6 +22,7 @@
     <ClCompile Include="..\..\src\fw\CrtDigest.cpp" />
     <ClCompile Include="..\..\src\fw\PortalClient.cpp" />
     <ClCompile Include="..\..\src\http\Answer.cpp" />
+    <ClCompile Include="..\..\src\http\AuthInfo.cpp" />
     <ClCompile Include="..\..\src\http\Cookie.cpp" />
     <ClCompile Include="..\..\src\http\CookieError.cpp" />
     <ClCompile Include="..\..\src\http\Cookies.cpp" />
@@ -53,6 +54,7 @@
     <ClCompile Include="..\..\src\tools\OutputQueue.cpp" />
     <ClCompile Include="..\..\src\tools\Path.cpp" />
     <ClCompile Include="..\..\src\tools\PBufChain.cpp" />
+    <ClCompile Include="..\..\src\tools\PrivateKey.cpp" />
     <ClCompile Include="..\..\src\tools\pugixml.cpp" />
     <ClCompile Include="..\..\src\tools\RegKey.cpp" />
     <ClCompile Include="..\..\src\tools\StringMap.cpp" />
@@ -62,6 +64,8 @@
     <ClCompile Include="..\..\src\tools\TaskInfo.cpp" />
     <ClCompile Include="..\..\src\tools\Thread.cpp" />
     <ClCompile Include="..\..\src\tools\Timer.cpp" />
+    <ClCompile Include="..\..\src\tools\UserCrt.cpp" />
+    <ClCompile Include="..\..\src\tools\X509Crt.cpp" />
     <ClCompile Include="..\..\src\tools\XGetopt.cpp" />
     <ClCompile Include="..\..\src\ui\AboutDialog.cpp" />
     <ClCompile Include="..\..\src\ui\PinCodeDialog.cpp" />
@@ -88,6 +92,7 @@
     <ClInclude Include="..\..\src\fw\CrtDigest.h" />
     <ClInclude Include="..\..\src\fw\PortalClient.h" />
     <ClInclude Include="..\..\src\http\Answer.h" />
+    <ClInclude Include="..\..\src\http\AuthInfo.h" />
     <ClInclude Include="..\..\src\http\Cookie.h" />
     <ClInclude Include="..\..\src\http\CookieError.h" />
     <ClInclude Include="..\..\src\http\Cookies.h" />
@@ -121,6 +126,7 @@
     <ClInclude Include="..\..\src\tools\OutputQueue.h" />
     <ClInclude Include="..\..\src\tools\Path.h" />
     <ClInclude Include="..\..\src\tools\PBufChain.h" />
+    <ClInclude Include="..\..\src\tools\PrivateKey.h" />
     <ClInclude Include="..\..\src\tools\pugiconfig.hpp" />
     <ClInclude Include="..\..\src\tools\pugixml.hpp" />
     <ClInclude Include="..\..\src\tools\RegKey.h" />
@@ -131,6 +137,8 @@
     <ClInclude Include="..\..\src\tools\TaskInfo.h" />
     <ClInclude Include="..\..\src\tools\Thread.h" />
     <ClInclude Include="..\..\src\tools\Timer.h" />
+    <ClInclude Include="..\..\src\tools\UserCrt.h" />
+    <ClInclude Include="..\..\src\tools\X509Crt.h" />
     <ClInclude Include="..\..\src\tools\XGetopt.h" />
     <ClInclude Include="..\..\src\ui\AboutDialog.h" />
     <ClInclude Include="..\..\src\ui\PinCodeDialog.h" />

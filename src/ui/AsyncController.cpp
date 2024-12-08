@@ -11,7 +11,10 @@
 #include "ui/SyncWaitTunnel.h"
 #include "ui/SyncDisconnect.h"
 #include "ui/SyncWaitTask.h"
+#include "tools/Logger.h"
 #include "tools/Mutex.h"
+#include "tools/SysUtil.h"
+#include <mbedtls/pk.h>
 
 
 namespace ui {
@@ -19,10 +22,13 @@ namespace ui {
 	AsyncController::AsyncController(HWND hwnd) :
 		tools::Thread(),
 		_logger(tools::Logger::get_logger()),
-		_hwnd(hwnd),
+		_action(NONE),
 		_mutex(),
 		_requestEvent(false),
-		_readyEvent(false)
+		_readyEvent(false),
+		_hwnd(hwnd),
+		_ca_crt(),
+		_user_crt()
 	{
 		DEBUG_CTOR(_logger, "AsyncController");
 		start();
@@ -35,7 +41,88 @@ namespace ui {
 	}
 
 
-	bool AsyncController::connect(const net::Endpoint& firewall_endpoint, const fw::CertFiles& cert_files)
+	bool AsyncController::load_ca_crt(const tools::Path& filename)
+	{
+		DEBUG_ENTER(_logger, "PortalClient", "load_ca_crt");
+		bool init_status = true;
+
+		if (!_ca_crt) {
+			const std::string crt_filename = tools::wstr2str(filename.to_string());
+			const std::string compacted = tools::wstr2str(filename.compact(40));
+
+			_ca_crt = std::make_unique<tools::X509Crt>();
+
+			if (tools::file_exists(filename)) {
+				tools::mbed_err rc = _ca_crt->load(crt_filename.c_str());
+
+				if (rc != 0) {
+					_logger->info("WARNING: failed to load CA cert file %s ", compacted.c_str());
+					_logger->info("%s", tools::mbed_errmsg(rc).c_str());
+					init_status = false;
+				}
+				else {
+					_logger->info(">> CA cert loaded from file '%s'", compacted.c_str());
+					init_status = true;
+				}
+			}
+			else {
+				_logger->error("ERROR: can't find CA cert file %s", compacted.c_str());
+				init_status = false;
+			}
+		}
+
+		return init_status;
+	}
+
+
+	bool AsyncController::load_user_crt(const tools::Path& filename, ask_crt_passcode_fn ask_passcode)
+	{
+		DEBUG_ENTER(_logger, "PortalClient", "load_user_crt");
+		bool init_status = true;
+
+		if (!_user_crt) {
+			const std::string crt_filename = tools::wstr2str(filename.to_string());
+			const std::string compacted = tools::wstr2str(filename.compact(40));
+
+			_user_crt = std::make_unique<tools::UserCrt>();
+
+			if (tools::file_exists(filename)) {
+				// Load the user certificate
+				tools::mbed_err rc = _user_crt->crt.load(crt_filename.c_str());
+
+				if (rc != 0) {
+					_logger->error("ERROR: failed to load user cert file %s ", compacted.c_str());
+					_logger->info("%s", tools::mbed_errmsg(rc).c_str());
+					init_status = false;
+				}
+				else {
+					// try to load the private key without a password
+					tools::mbed_err rc = _user_crt->pk.load(crt_filename.c_str(), nullptr);
+
+					if (rc == MBEDTLS_ERR_PK_PASSWORD_REQUIRED) {
+						std::string passcode;
+
+						if (ask_passcode(passcode)) {
+							rc = _user_crt->pk.load(crt_filename.c_str(), nullptr);
+						}
+					}
+					if (rc) {
+						_logger->error("ERROR: can't load private key from file %s", compacted.c_str());
+						init_status = false;
+					}
+				}
+			}
+			else {
+				_logger->error("ERROR: can't find user cert file %s", compacted.c_str());
+				init_status = false;
+			}
+		}
+
+		return init_status;
+	}
+
+
+	bool AsyncController::connect(const net::Endpoint& firewall_endpoint)
 	{
 		if (_logger->is_debug_enabled()) {
 			_logger->debug("... %x enter AsyncController::connect ep=%s",
@@ -44,7 +131,11 @@ namespace ui {
 		}
 
 		// Start the async connect procedure
-		_portal = std::make_unique<fw::PortalClient>(firewall_endpoint, cert_files);
+		_portal = std::make_unique<fw::PortalClient>(firewall_endpoint);
+		_portal->set_ca_crt(_ca_crt->get_crt());
+		if (_user_crt)
+			_portal->set_user_crt(_user_crt->crt.get_crt(), _user_crt->pk.get_pk());
+
 		request_action(AsyncController::CONNECT);
 
 		return _portal != nullptr;

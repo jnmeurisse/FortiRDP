@@ -7,16 +7,18 @@
 */
 #include "ConnectDialog.h"
 
+#include <malloc.h>
 #include <stdexcept>
 #include <system_error>
+#include <vector>
 #include "ui/CredentialDialog.h"
 #include "ui/PinCodeDialog.h"
 #include "ui/AboutDialog.h"
 #include "ui/OptionsDialog.h"
 #include "ui/AsyncMessage.h"
+#include "tools/Mutex.h"
 #include "tools/StrUtil.h"
 #include "tools/SysUtil.h"
-#include "tools/ErrUtil.h"
 #include "resources/resource.h"
 
 
@@ -30,6 +32,7 @@ namespace ui {
 	ConnectDialog::ConnectDialog(HINSTANCE hInstance, const CmdlineParams& params) :
 		ModelessDialog(hInstance, NULL, IDD_CONNECT_DIALOG),
 		_params(params),
+		_writer(),
 		_logger(tools::Logger::get_logger())
 	{
 		// Assign application icons. Icons are automatically deleted when the 
@@ -95,8 +98,31 @@ namespace ui {
 			_username = _settings.get_username(tools::get_windows_username());
 		}
 
+		//  Load root Certificate Authority
+		tools::Path crt_ca_file;
+		if (_params.ca_cert_filename().length() == 0) {
+			// no CA file specified, use the default file located in the application folder
+			crt_ca_file = tools::Path(
+				tools::Path::get_module_path().folder(),
+				L"fortirdp.crt"
+			);
+		}
+		else {
+			// use the CA file specified in the command line
+			crt_ca_file = tools::Path(_params.ca_cert_filename());
+
+			// if no path specified, we assume that the .crt file is located next to the .exe
+			if (crt_ca_file.folder().empty()) {
+				crt_ca_file = tools::Path(
+					tools::Path::get_module_path().folder(),
+					crt_ca_file.filename()
+				);
+			}
+		}
+
 		// allocate the communication controller
 		_controller = std::make_unique<AsyncController>(window_handle());
+		_controller->load_ca_crt(crt_ca_file);
 
 		if (params.firewall_address().length() > 0 && params.host_address().length() > 0) {
 			// auto connect if both addresses are specified
@@ -115,8 +141,10 @@ namespace ui {
 		_controller->terminate();
 		_controller->wait(1000);
 
-		_logger->remove_writer(_writer);
-		delete _writer;
+		if (_writer) {
+			_logger->remove_writer(_writer);
+			delete _writer;
+		}
 	}
 
 
@@ -262,10 +290,48 @@ namespace ui {
 			return;
 		}
 
-		// Initialize all certificates
-		fw::CertFiles cert_files;
-		if (!initCertFiles(cert_files))
-			return;
+		//  Load user certificate
+		if (_params.us_cert_filename().length() > 0) {
+			tools::Path user_crt;
+
+			// use the user certificate file specified in the command line
+			user_crt = tools::Path(_params.us_cert_filename());
+
+			// if no path specified, we assume that the .crt file is located next to the .exe
+			if (user_crt.folder().empty()) {
+				user_crt = tools::Path(
+					tools::Path::get_module_path().folder(),
+					user_crt.filename()
+				);
+			}
+
+			if (!tools::file_exists(user_crt)) {
+				std::wstring message{ L"User certificate file not found : " + user_crt.to_string() };
+				showErrorMessageDialog(message.c_str());
+				return;
+			}
+
+			auto ask_password = [this](std::string& passcode) {
+				PinCodeDialog codeDialog{ instance_handle(), window_handle() };
+				const std::string message = "Enter your user certificate password";
+
+				const bool modal_result = codeDialog.showModal() == TRUE;
+				if (modal_result) {
+					// returns code to caller
+					passcode = tools::wstr2str(codeDialog.getCode());
+				}
+
+				return modal_result;
+			};
+
+			if (!_controller->load_user_crt(user_crt, ask_password)) {
+				std::wstring message{ L"User certificate file not loaded" };
+				showErrorMessageDialog(message.c_str());
+				return;
+
+			}
+		}
+
 
 		// Clear the information log
 		clearInfo();
@@ -282,7 +348,7 @@ namespace ui {
 			::EnableMenuItem(get_sys_menu(false), SYSCMD_OPTIONS, MF_BYCOMMAND | MF_DISABLED);
 
 		// start the client
-		_controller->connect(_firewall_endpoint, cert_files);
+		_controller->connect(_firewall_endpoint);
 	}
 
 
@@ -424,7 +490,6 @@ namespace ui {
 			return 0;
 		}
 	}
-
 
 
 	INT_PTR ConnectDialog::onTimerMessage(WPARAM wParam, LPARAM lParam)
@@ -645,92 +710,6 @@ namespace ui {
 			}
 		}
 	}
-
-
-	bool ConnectDialog::initCertFiles(fw::CertFiles& cert_files)
-	{
-		//  CA certificate
-		if (_params.ca_cert_filename().length() == 0) {
-			// no CA file specified, use the default file located in the application folder
-			cert_files.crt_auth_file = tools::Path(
-				tools::Path::get_module_path().folder(),
-				L"fortirdp.crt"
-			);
-		}
-		else {
-			// use the CA file specified in the command line
-			cert_files.crt_auth_file = tools::Path(_params.ca_cert_filename());
-
-			// if no path specified, we assume that the .crt file is located next to the .exe
-			if (cert_files.crt_auth_file.folder().empty()) {
-				cert_files.crt_auth_file = tools::Path(
-					tools::Path::get_module_path().folder(),
-					cert_files.crt_auth_file.filename()
-				);
-			}
-		}
-
-		//  User certificate
-		if (_params.us_cert_filename().length() > 0) {
-			// use the user certificate file specified in the command line
-			cert_files.crt_user_file = tools::Path(_params.us_cert_filename());
-
-			// if no path specified, we assume that the .crt file is located next to the .exe
-			if (cert_files.crt_user_file.folder().empty()) {
-				cert_files.crt_user_file = tools::Path(
-					tools::Path::get_module_path().folder(),
-					cert_files.crt_user_file.filename()
-				);
-			}
-
-			if (!tools::file_exists(cert_files.crt_user_file)) {
-				std::wstring message{ L"User certificate file not found : " + cert_files.crt_user_file.to_string() };
-				showErrorMessageDialog(message.c_str());
-				return false;
-			}
-
-			// try to load the private key without a password
-			mbedtls_pk_context own_key;
-			mbedtls_pk_init(&own_key);
-			tools::mbed_err rc = mbedtls_pk_parse_keyfile(
-				&own_key,
-				tools::wstr2str(cert_files.crt_user_file.to_string()).c_str(),
-				nullptr
-			);
-
-			if (rc == MBEDTLS_ERR_PK_PASSWORD_REQUIRED) {
-				PinCodeDialog codeDialog{ instance_handle(), window_handle() };
-				codeDialog.setText(L"enter your private key password");
-
-				if (codeDialog.showModal() == TRUE) {
-					const std::string passcode = tools::wstr2str(codeDialog.getCode());
-					rc = mbedtls_pk_parse_keyfile(
-						&own_key,
-						tools::wstr2str(cert_files.crt_user_file.to_string()).c_str(),
-						passcode.c_str()
-					);
-					if (rc == 0)
-						cert_files.crt_user_password = passcode;
-				}
-			}
-
-			if (rc) {
-				// can't load the private key
-				const std::wstring message =
-					L"Can't load private key from " +
-					cert_files.crt_user_file.filename()
-					+ L"\n"
-					+ tools::str2wstr(tools::mbed_errmsg(rc));
-				showErrorMessageDialog(message.c_str());
-				return false;
-			}
-
-			mbedtls_pk_free(&own_key);
-		}
-
-		return true;
-	}
-
 
 
 	void ConnectDialog::onConnectedEvent(bool success)

@@ -8,21 +8,28 @@
 #pragma once
 
 #include <Windows.h>
+#include <functional>
 #include <memory>
 #include <string>
+#include "fw/PortalClient.h"
+#include "net/Endpoint.h"
 #include "net/Tunneler.h"
 #include "tools/Event.h"
 #include "tools/Logger.h"
 #include "tools/Mutex.h"
-#include "tools/ObfuscatedString.h"
+#include "tools/Path.h"
 #include "tools/Thread.h"
 #include "tools/TaskInfo.h"
 #include "tools/Task.h"
-#include "net/Endpoint.h"
-#include "fw/PortalClient.h"
+#include "tools/UserCrt.h"
+#include "tools/X509Crt.h"
 
 
 namespace ui {
+
+	// Callback definition
+	using ask_crt_passcode_fn = std::function<bool(std::string&)>;
+
 
 	/**
 	* The AsyncController is a singleton class. This controller is responsible to execute all
@@ -36,10 +43,19 @@ namespace ui {
 		explicit AsyncController(HWND hwnd);
 		~AsyncController();
 
+		/* Initialize the CA certificate chain from the given file.
+		*  The root CA certificate isused to authenticate the server.
+		*/
+		bool load_ca_crt(const tools::Path& filename);
+
+		/* Initialize the user certificate
+		*/
+		bool load_user_crt(const tools::Path& filename, ask_crt_passcode_fn ask_passcode);
+
 		/* Connects the controller to the firewall. The methods creates a portal
 		   client and connects it to the firewall.
 		*/
-		bool connect(const net::Endpoint& firewall_endpoint, const fw::CertFiles& cert_files);
+		bool connect(const net::Endpoint& firewall_endpoint);
 
 		/* Creates a tunnel with the firewall
 		*/
@@ -74,6 +90,7 @@ namespace ui {
 
 		// - list of actions performed by the AsyncController in a background thread.
 		enum ControllerAction {
+			NONE,
 			CONNECT,		// connect to the firewall portal
 			TUNNEL,			// establish a tunnel with the firewall
 			DISCONNECT,		// close the tunnel and disconnecting from the firewall portal  
@@ -94,12 +111,11 @@ namespace ui {
 		// - the recipient window of the user event message sent at completion of an action
 		const HWND _hwnd;
 
-		// - portal sslvpn certificates
-		const fw::CertFiles _cert_files;
+		// - CA certificate chains
+		tools::X509crtPtr _ca_crt;
 
-		// - the user certificate filename and the private key password
-		const std::wstring _uscrt_file;
-		const tools::obfstring _password;
+		// - user certificate
+		tools::UserCrtPtr _user_crt;
 
 		std::unique_ptr<fw::PortalClient> _portal;
 		std::unique_ptr<net::Tunneler> _tunnel;

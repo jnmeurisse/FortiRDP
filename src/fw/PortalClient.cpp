@@ -26,19 +26,14 @@ namespace fw {
 
 	using namespace tools;
 
-	PortalClient::PortalClient(const net::Endpoint& ep, const CertFiles& cert_files):
+	PortalClient::PortalClient(const net::Endpoint& ep):
 		HttpsClient(ep),
 		_connected(false),
 		_peer_crt_digest(),
 		_mutex(),
-		_cert_files(cert_files),
 		_cookies()
 	{
 		DEBUG_CTOR(_logger, "PortalClient");
-
-		mbedtls_x509_crt_init(&_crt_auth);
-		mbedtls_x509_crt_init(&_crt_user);
-		mbedtls_pk_init(&_pk_crt_user);
 
 		set_timeout(10000, 10000);
 	}
@@ -48,49 +43,10 @@ namespace fw {
 	{
 		DEBUG_DTOR(_logger, "PortalClient");
 
-		mbedtls_x509_crt_free(&_crt_auth);
-		mbedtls_x509_crt_free(&_crt_user);
-		mbedtls_pk_free(&_pk_crt_user);
 	}
 
 
-	bool PortalClient::init_ca_crt()
-	{
-		DEBUG_ENTER(_logger, "PortalClient", "init_ca_crt");
-		tools::mbed_err rc = 0;
-
-		// free previous ca certificate
-		mbedtls_x509_crt_free(&_crt_auth);
-
-		// get full filename
-		tools::Path& crt_auth_file = _cert_files.crt_auth_file;
-		const std::wstring filename{ crt_auth_file.to_string() };
-		const std::string compacted{ tools::wstr2str(crt_auth_file.compact(40)) };
-
-		if (tools::file_exists(filename)) {
-
-			rc = mbedtls_x509_crt_parse_file(&_crt_auth, tools::wstr2str(filename).c_str());
-			if (rc != 0) {
-				_logger->info("WARNING: failed to load CA cert file %s ", compacted.c_str());
-				_logger->info("%s", tools::mbed_errmsg(rc).c_str());
-
-				goto error;
-			}
-
-			_logger->info(">> CA cert loaded from file '%s'", compacted.c_str());
-		}
-		else {
-			_logger->error("ERROR: can't find CA cert file %s", compacted.c_str());
-			mbedtls_x509_crt_init(&_crt_auth);
-		}
-
-		set_ca_crt(&_crt_auth);
-
-	error:
-		return rc == 0;
-	}
-
-
+/*
 	bool PortalClient::init_user_crt()
 	{
 		DEBUG_ENTER(_logger, "PortalClient", "init_user_crt");
@@ -134,7 +90,7 @@ namespace fw {
 				goto error;
 			}
 
-			set_own_crt(&_crt_user, &_pk_crt_user);
+			set_user_crt(&_crt_user, &_pk_crt_user);
 			if (rc != 0) {
 				_logger->info(
 					"ERROR: failed to assign user certificate from %s ", 
@@ -154,7 +110,7 @@ namespace fw {
 	error:
 		return rc == 0;
 	}
-
+*/
 
 	portal_err PortalClient::open(confirm_crt_fn confirm_crt)
 	{
@@ -163,10 +119,6 @@ namespace fw {
 		http::Answer answer;
 
 		_logger->info(">> connecting to %s", host().to_string().c_str());
-
-		// initialize our certificates
-		init_ca_crt();
-		init_user_crt();
 
 		// connect to the server
 		try {

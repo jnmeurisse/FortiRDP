@@ -98,7 +98,6 @@ namespace ui {
 		void disconnect();
 		void startTask();
 		void clearRdpHistory();
-		bool initCertFiles(fw::CertFiles& cert_files);
 
 		// Event handlers
 		virtual INT_PTR onDestroyDialogMessage(WPARAM wParam, LPARAM lParam) override;
