@@ -74,11 +74,11 @@ namespace ui {
 			_username = get_control_text(IDC_USERNAME);
 			_password = get_control_text(IDC_PASSWORD);
 
-			::EndDialog(window_handle(), TRUE);
+			close_dialog(TRUE);
 			break;
 
 		case IDCANCEL:
-			::EndDialog(window_handle(), FALSE);
+			close_dialog(FALSE);
 			break;
 
 		default:

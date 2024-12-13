@@ -99,11 +99,11 @@ namespace ui {
 			if (rdpfile_mode)
 				rdp_filename = get_control_text(IDC_EDIT_RDPFILE);
 
-			close(TRUE);
+			close_dialog(TRUE);
 			break;
 
 		case IDCANCEL:
-			close(FALSE);
+			close_dialog(FALSE);
 			break;
 
 		case IDC_CHECK_RDPFILE:

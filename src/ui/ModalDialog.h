@@ -14,7 +14,7 @@
 namespace ui {
 
 	/**
-	* A modal dialog base class. The caller must call showModal to display the
+	* A modal dialog base class. The caller must call show_modal to display the
 	* dialog. The derived class must implement a onCreateDialogMessage to initialize
 	* the dialog.
 	*/
@@ -25,8 +25,11 @@ namespace ui {
 
 		/* destroys this modal dialog.
 		*/
-		void close(INT_PTR result);
+		bool close_dialog(INT_PTR result);
 
+		/* creates and shows this modal dialog.  The function returns the value
+		*  passed in the call to close_dialog.
+		*/
 		INT_PTR show_modal();
 	};
 

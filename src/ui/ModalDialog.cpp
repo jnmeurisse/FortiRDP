@@ -15,9 +15,9 @@ namespace ui {
 	}
 
 
-	void ModalDialog::close(INT_PTR result)
+	bool ModalDialog::close_dialog(INT_PTR result)
 	{
-		::EndDialog(window_handle(), result);
+		return ::EndDialog(window_handle(), result) != 0;
 	}
 
 

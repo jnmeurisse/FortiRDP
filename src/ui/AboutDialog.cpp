@@ -74,11 +74,11 @@ namespace ui {
 
 		switch (cid) {
 		case IDOK:
-			close(TRUE);
+			close_dialog(TRUE);
 			break;
 
 		case IDCANCEL:
-			close(FALSE);
+			close_dialog(FALSE);
 			break;
 
 		default:
