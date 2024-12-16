@@ -30,9 +30,17 @@ namespace http {
 		*/
 		Url(const std::string& url);
 
+		/* Returns the scheme from this URL
+		*/
+		inline const std::string get_scheme() const noexcept { return _scheme; }
+
 		/* Returns the authority from this URL
 		*/
 		inline const std::string& get_authority() const noexcept { return _authority; }
+
+		/* Returns the hostname from the URL authority
+		*/
+		std::string get_hostname() const;
 
 		/* Returns the path from this URL
 		*/

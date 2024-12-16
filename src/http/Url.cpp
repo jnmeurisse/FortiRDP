@@ -8,6 +8,7 @@
 #include "Url.h"
 
 #include <cctype>
+#include "net/Endpoint.h"
 
 
 namespace http {
@@ -171,6 +172,14 @@ namespace http {
 			if (state >= 0)
 				p++;
 		}
+	}
+
+
+	std::string Url::get_hostname() const
+	{
+		net::Endpoint end_point{ _authority, 80 };
+
+		return end_point.hostname();
 	}
 
 
