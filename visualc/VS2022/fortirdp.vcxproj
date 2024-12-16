@@ -81,7 +81,7 @@
     <ClCompile Include="..\..\src\ui\OptionsDialog.cpp" />
     <ClCompile Include="..\..\src\ui\RdpFile.cpp" />
     <ClCompile Include="..\..\src\ui\RegistrySettings.cpp" />
-    <ClCompile Include="..\..\src\ui\SamlDialog.cpp" />
+    <ClCompile Include="..\..\src\ui\SamlAuthDialog.cpp" />
     <ClCompile Include="..\..\src\ui\SyncConnect.cpp" />
     <ClCompile Include="..\..\src\ui\SyncDisconnect.cpp" />
     <ClCompile Include="..\..\src\ui\SyncProc.cpp" />
@@ -89,6 +89,7 @@
     <ClCompile Include="..\..\src\ui\SyncWaitTunnel.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\src\fw\AuthTypes.h" />
     <ClInclude Include="..\..\src\fw\CrtDigest.h" />
     <ClInclude Include="..\..\src\fw\PortalClient.h" />
     <ClInclude Include="..\..\src\http\Answer.h" />
@@ -154,7 +155,7 @@
     <ClInclude Include="..\..\src\ui\OptionsDialog.h" />
     <ClInclude Include="..\..\src\ui\RdpFile.h" />
     <ClInclude Include="..\..\src\ui\RegistrySettings.h" />
-    <ClInclude Include="..\..\src\ui\SamlDialog.h" />
+    <ClInclude Include="..\..\src\ui\SamlAuthDialog.h" />
     <ClInclude Include="..\..\src\ui\ScreenSize.h" />
     <ClInclude Include="..\..\src\ui\SyncConnect.h" />
     <ClInclude Include="..\..\src\ui\SyncDisconnect.h" />

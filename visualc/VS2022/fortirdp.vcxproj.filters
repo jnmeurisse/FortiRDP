@@ -225,7 +225,7 @@
     <ClCompile Include="..\..\src\tools\UserCrt.cpp">
       <Filter>sources\tools</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\ui\SamlDialog.cpp">
+    <ClCompile Include="..\..\src\ui\SamlAuthDialog.cpp">
       <Filter>sources\ui</Filter>
     </ClCompile>
   </ItemGroup>
@@ -443,8 +443,11 @@
     <ClInclude Include="..\..\src\tools\UserCrt.h">
       <Filter>sources\tools</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\ui\SamlDialog.h">
+    <ClInclude Include="..\..\src\ui\SamlAuthDialog.h">
       <Filter>sources\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\fw\AuthTypes.h">
+      <Filter>sources\fw</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -480,5 +483,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="$(MSBuildThisFileDirectory)..\..\natvis\wil.natvis" />
   </ItemGroup>
 </Project>
