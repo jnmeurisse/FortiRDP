@@ -9,30 +9,10 @@
 
 #include <cctype>
 #include "net/Endpoint.h"
+#include "tools/StrUtil.h"
 
 
 namespace http {
-
-	Url::Url(const Url& url) : 
-		_scheme(url._scheme),
-		_authority(url._authority),
-		_path(url._path),
-		_query(url._query),
-		_fragment(url._fragment)
-	{
-	}
-
-
-	Url::Url(const std::string& scheme, const std::string& authority,
-		const std::string& path, const std::string& query, const std::string& fragment) :
-		_scheme(tools::trim(scheme)),
-		_authority(tools::trim(authority)),
-		_path(tools::trim(path)),
-		_query(tools::trim(query)),
-		_fragment(tools::trim(fragment))
-	{
-	}
-
 
 	Url::Url(const std::string& url) : 
 		Url()
@@ -175,9 +155,20 @@ namespace http {
 	}
 
 
+	Url::Url(const std::string& scheme, const std::string& authority,
+		const std::string& path, const std::string& query, const std::string& fragment) :
+		_scheme(tools::trim(scheme)),
+		_authority(tools::trim(authority)),
+		_path(tools::trim(path)),
+		_query(tools::trim(query)),
+		_fragment(tools::trim(fragment))
+	{
+	}
+
+
 	std::string Url::get_hostname() const
 	{
-		net::Endpoint end_point{ _authority, 80 };
+		const net::Endpoint end_point{ _authority, 80 };
 
 		return end_point.hostname();
 	}
