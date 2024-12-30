@@ -47,7 +47,7 @@ namespace tools {
 	{
 		std::vector<wchar_t> buffer(max_char + 1);
 		if (max_char > 0 && ::PathCompactPathEx(buffer.data(), to_string().c_str(), max_char, 0))
-			return std::wstring(buffer.data());
+			return buffer.data();
 		else
 			return to_string();
 	}

@@ -116,17 +116,17 @@ namespace tools {
 			value_name.c_str(),
 			RRF_RT_REG_SZ,
 			nullptr,
-			&buffer[0],
+			buffer.data(),
 			&len);
 		if (rc != ERROR_SUCCESS)
 			throw_winapi_error(rc, "RegGetValue error");
 
-		// Returns the number of wchar not including the null char
-		return std::wstring(&buffer[0], (len / sizeof(wchar_t)) - 1);
+		// Returns the string not including the null char
+		return buffer.data();
 	}
 
 
-	std::wstring RegKey::get_string(const std::wstring & value_name, const std::wstring& default_value) const
+	std::wstring RegKey::get_string(const std::wstring& value_name, const std::wstring& default_value) const
 	{
 		try {
 			return get_string(value_name);
