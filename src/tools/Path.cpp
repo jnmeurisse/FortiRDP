@@ -10,6 +10,7 @@
 #include <ShlObj.h>
 #include <Shlwapi.h>
 #include <vector>
+#include "tools/ErrUtil.h"
 
 
 namespace tools {
@@ -53,10 +54,20 @@ namespace tools {
 	
 	Path Path::get_module_path(HMODULE hModule)
 	{
-		wchar_t filename[4096]{ 0 };
-		::GetModuleFileName(hModule, filename, sizeof(filename) - sizeof(wchar_t));
+		size_t buffer_size = MAX_PATH;
 
-		return Path(filename);
+		do {
+			size_t written = 0;
+			std::vector<wchar_t> buffer(buffer_size);
+
+			int rc = ::GetModuleFileName(hModule, buffer.data(), static_cast<DWORD>(buffer.size()));
+			if (rc == buffer.size() && ::GetLastError() == ERROR_INSUFFICIENT_BUFFER)
+				buffer_size += 1024;
+			else if (rc == 0)
+				throw tools::win_errmsg(::GetLastError());
+			else
+				return Path(buffer.data());
+		} while (true);
 	}
 
 	
