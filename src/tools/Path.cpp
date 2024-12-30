@@ -43,11 +43,11 @@ namespace tools {
 	}
 
 	
-	std::wstring Path::compact(int max_char) const
+	std::wstring Path::compact(unsigned int max_char) const
 	{
 		std::vector<wchar_t> buffer(max_char + 1);
-		if (::PathCompactPathEx(&buffer[0], to_string().c_str(), max_char, 0))
-			return std::wstring(&buffer[0]);
+		if (max_char > 0 && ::PathCompactPathEx(buffer.data(), to_string().c_str(), max_char, 0))
+			return std::wstring(buffer.data());
 		else
 			return to_string();
 	}

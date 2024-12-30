@@ -38,7 +38,7 @@ namespace tools {
 
 		/* returns the path truncated to the specified number of characters
 		*/
-		std::wstring compact(int max_char) const;
+		std::wstring compact(unsigned int max_char) const;
 
 		/* returns the path to the specified module
 		*/
