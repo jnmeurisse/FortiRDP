@@ -24,11 +24,11 @@ namespace http {
 	const std::string Request::TRACE_VERB = "TRACE";
 
 
-	Request::Request(const std::string& verb, const Url& url, const Cookies& cookies) :
+	Request::Request(const std::string& verb, const Url& url, const Cookies& cookie_jar) :
 		_logger(Logger::get_logger()),
 		_verb(verb),
 		_url(url),
-		_cookies(cookies),
+		_cookies(cookie_jar),
 		_headers(),
 		_body(2048)
 	{

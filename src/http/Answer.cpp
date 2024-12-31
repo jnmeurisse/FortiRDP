@@ -20,13 +20,13 @@ namespace http {
 	const int default_code = 400;
 	const std::string default_reason = "Bad Request";
 
-	Answer::Answer() :
+	Answer::Answer(Cookies& cookie_jar) :
 		_logger(Logger::get_logger()),
 		_version(),
 		_status_code(default_code),
 		_reason_phrase(default_reason),
 		_headers(),
-		_cookies(),
+		_cookies(cookie_jar),
 		_body(4096)
 	{
 	}
@@ -266,11 +266,14 @@ namespace http {
 				if (tools::iequal(field_name, "Set-Cookie")) {
 					// A cookie definition
 					try {
-						const Cookie cookie{ field_value };
-						_cookies.add(cookie);
+						const Cookie cookie { Cookie::parse(field_value) };
+						if (cookie.is_expired())
+							_cookies.remove(cookie.get_name());
+						else
+							_cookies.add(cookie);
 					}
-					catch (const CookieError&) {
-						// silently ignore this error
+					catch (const CookieError& e) {
+						_logger->trace("ERROR : %s", e.what());
 					}
 				}
 				else {
