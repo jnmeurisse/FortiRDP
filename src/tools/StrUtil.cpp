@@ -342,10 +342,22 @@ namespace tools {
 	}
 
 
+	std::string wstr2str(const wchar_t* pwstr)
+	{
+		return pwstr ? wstr2str(std::wstring(pwstr)) : "";
+	}
+
+
 	std::wstring str2wstr(const std::string& str)
 	{
 		std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
 		return converter.from_bytes(str);
+	}
+
+
+	std::wstring str2wstr(const char* pstr)
+	{
+		return pstr ? str2wstr(std::string(pstr)) : L"";
 	}
 
 }

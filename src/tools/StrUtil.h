@@ -80,8 +80,10 @@ std::string string_format(const std::string fmt, ...);
 
 // Converts wstring to string
 std::string wstr2str(const std::wstring& wstr);
+std::string wstr2str(const wchar_t* pwstr);
 
 // Converts string to wstring
 std::wstring str2wstr(const std::string& str);
+std::wstring str2wstr(const char* pstr);
 
 }
