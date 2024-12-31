@@ -57,6 +57,7 @@
     <ClCompile Include="..\..\src\tools\pugixml.cpp" />
     <ClCompile Include="..\..\src\tools\RegKey.cpp" />
     <ClCompile Include="..\..\src\tools\StringMap.cpp" />
+    <ClCompile Include="..\..\src\tools\strptime.c" />
     <ClCompile Include="..\..\src\tools\StrUtil.cpp" />
     <ClCompile Include="..\..\src\tools\SysUtil.cpp" />
     <ClCompile Include="..\..\src\tools\Task.cpp" />
@@ -131,6 +132,7 @@
     <ClInclude Include="..\..\src\tools\pugixml.hpp" />
     <ClInclude Include="..\..\src\tools\RegKey.h" />
     <ClInclude Include="..\..\src\tools\StringMap.h" />
+    <ClInclude Include="..\..\src\tools\strptime.h" />
     <ClInclude Include="..\..\src\tools\StrUtil.h" />
     <ClInclude Include="..\..\src\tools\SysUtil.h" />
     <ClInclude Include="..\..\src\tools\Task.h" />

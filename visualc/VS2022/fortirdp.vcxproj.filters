@@ -228,6 +228,9 @@
     <ClCompile Include="..\..\src\ui\SamlAuthDialog.cpp">
       <Filter>sources\ui</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\tools\strptime.c">
+      <Filter>sources\tools</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\ui\AboutDialog.h">
@@ -448,6 +451,9 @@
     </ClInclude>
     <ClInclude Include="..\..\src\fw\AuthTypes.h">
       <Filter>sources\fw</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\tools\strptime.h">
+      <Filter>sources\tools</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
