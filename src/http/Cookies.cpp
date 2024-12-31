@@ -13,23 +13,6 @@
 
 namespace http {
 
-	Cookies::Cookies(const Cookies& cookies, const http::Url& url) :
-		_cookies()
-	{
-		const std::string& valid_path = tools::trim(url.get_path());
-
-		for (auto it = cookies.cbegin(); it != cookies.cend(); it++) {
-			const Cookie& cookie{ it->second };
-			const std::string path = tools::trim(cookie.get_path());
-
-			if (path.size() == 0 || valid_path.compare(path) == 0) {
-				// cookie without path or same path
-				add(cookie);
-			}
-		}
-	}
-
-
 	void Cookies::clear()
 	{
 		_cookies.clear();

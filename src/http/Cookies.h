@@ -29,10 +29,6 @@ namespace http {
 		*/
 		Cookies() = default;
 
-		/* Clones a cookies collection. Only copy cookies associated with a given url. 
-		*/
-		explicit Cookies(const Cookies& cookies, const http::Url& url);
-
 		/* Clears this cookies collection
 		*/
 		void clear();
