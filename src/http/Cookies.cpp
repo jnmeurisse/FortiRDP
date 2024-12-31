@@ -88,8 +88,10 @@ namespace http {
 
 		// Create the Set-Cookie header
 		for (auto it = _cookies.cbegin(); it != _cookies.cend(); it++) {
-			buffer.append(it->second.to_header());
-			buffer.append("; ");
+			if (!it->second.is_expired()) {
+				buffer.append(it->second.to_header());
+				buffer.append("; ");
+			}
 		}
 
 		return buffer.size() > 0 ? buffer.substr(0, buffer.size() - 2) : tools::obfstring();
