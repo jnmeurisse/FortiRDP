@@ -41,7 +41,7 @@ namespace http {
 
 		/* Returns the scheme from this URL
 		*/
-		inline const std::string get_scheme() const noexcept { return _scheme; }
+		inline const std::string& get_scheme() const noexcept { return _scheme; }
 
 		/* Returns the authority from this URL
 		*/
