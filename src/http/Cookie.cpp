@@ -21,6 +21,19 @@ namespace http {
 	constexpr std::time_t EXPIRES_UNSPECIFIED = -1;
 
 
+	static std::string normalize_domain(const std::string& domain)
+	{
+		return tools::trim(tools::lower(domain));
+	}
+
+
+	static std::string normalize_path(std::string path)
+	{
+		path = tools::trim(path);
+		return path.empty() ? "/" : path;
+	}
+
+
 	Cookie::Cookie(
 		const std::string& name,
 		const tools::obfstring& value,
@@ -31,8 +44,8 @@ namespace http {
 		const bool http_only) :
 		_name(name),
 		_value(value),
-		_domain(tools::trim(tools::lower(domain))),
-		_path(path),
+		_domain(normalize_domain(domain)),
+		_path(normalize_path(path)),
 		_expires(expires < 0 ? EXPIRES_UNSPECIFIED : expires),
 		_secure(secure),
 		_http_only(http_only)
@@ -63,7 +76,22 @@ namespace http {
 
 	bool Cookie::same_domain(const std::string& domain) const
 	{
-		return tools::iequal(_domain, tools::trim(domain));
+		return _domain.compare(normalize_domain(domain)) == 0;
+	}
+
+
+	bool Cookie::path_matches(const std::string& path) const
+	{
+		std::string tmp = normalize_path(path);
+
+		if (_path.compare(tmp) == 0)
+			// same path
+			return true;
+		else if (tmp.compare(0, _path.size(), _path) == 0)
+			// path starts with cookie path
+			return true;
+		else
+			return false;
 	}
 
 	
