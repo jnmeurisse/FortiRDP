@@ -58,6 +58,14 @@ namespace ui {
 		set_control_enable(IDC_EDIT_RDPFILE, rdpfile_updatable && rdpfile_mode);
 		set_control_enable(IDC_SELECT_RPDFILE, rdpfile_updatable && rdpfile_mode);
 
+		add_combo_text(IDC_AUTH_COMBO, L"BASIC");
+		add_combo_text(IDC_AUTH_COMBO, L"SAML");
+
+		if (auth_method == fw::AuthMethod::SAML)
+			set_combo_index(IDC_AUTH_COMBO, 1);
+		else
+			set_combo_index(IDC_AUTH_COMBO, 0);
+
 		center_window();
 
 		return TRUE;
@@ -98,6 +106,11 @@ namespace ui {
 			rdpfile_mode = get_checkbox_state(IDC_CHECK_RDPFILE);
 			if (rdpfile_mode)
 				rdp_filename = get_control_text(IDC_EDIT_RDPFILE);
+
+			if (get_combo_index(IDC_AUTH_COMBO) == 1)
+				auth_method = fw::AuthMethod::SAML;
+			else
+				auth_method = fw::AuthMethod::BASIC;
 
 			close_dialog(TRUE);
 			break;

@@ -8,6 +8,7 @@
 #pragma once
 
 #include <string>
+#include "fw/AuthTypes.h"
 #include "tools/RegKey.h"
 #include "ui/ScreenSize.h"
 
@@ -111,6 +112,14 @@ namespace ui {
 		*/
 		void set_screen_size(const ScreenSize& size);
 
+		/* retrieves the authentication mode
+		*/
+		fw::AuthMethod get_auth_method() const;
+
+		/* saves the authentication mode
+		*/
+		void set_auth_method(fw::AuthMethod auth_method);
+
 	private:
 		//- the registry root key
 		tools::RegKey _key;
@@ -141,6 +150,7 @@ namespace ui {
 		static const std::wstring SCREENSIZE_MODE;
 		static const std::wstring SCREEN_WIDTH;
 		static const std::wstring SCREEN_HEIGHT;
+		static const std::wstring AUTH_METHOD;
 	};
 
 }

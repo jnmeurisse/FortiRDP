@@ -9,6 +9,7 @@
 
 #include <Windows.h>
 #include <string>
+#include "fw/AuthTypes.h"
 #include "ui/ModalDialog.h"
 #include "ui/ScreenSize.h"
 
@@ -19,6 +20,8 @@ namespace ui {
 	public:
 		explicit OptionsDialog(HINSTANCE hInstance, HWND hParent);
 		virtual ~OptionsDialog();
+
+		fw::AuthMethod auth_method = fw::AuthMethod::BASIC;
 
 		bool full_screen = false;
 		bool full_screen_updatable = false;

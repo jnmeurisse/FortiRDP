@@ -135,6 +135,52 @@ namespace ui {
 		set_int(SCREEN_WIDTH, size.width);
 	}
 
+
+	fw::AuthMethod RegistrySettings::get_auth_method() const
+	{
+		switch (get_int(AUTH_METHOD, 0)) {
+		case 1:
+			return fw::AuthMethod::BASIC;
+
+		case 2:
+			return fw::AuthMethod::CERTIFICATE;
+
+		case 3:
+			return fw::AuthMethod::SAML;
+
+		default:
+			return fw::AuthMethod::DEFAULT;
+		}
+	}
+
+
+	void RegistrySettings::set_auth_method(fw::AuthMethod auth_method)
+	{
+		int auth_method_value = 0;
+
+		switch (auth_method) {
+		case fw::AuthMethod::BASIC:
+			auth_method_value = 1;
+			break;
+
+		case fw::AuthMethod::CERTIFICATE:
+			auth_method_value = 2;
+			break;
+
+		case fw::AuthMethod::SAML:
+			auth_method_value = 3;
+			break;
+
+		case fw::AuthMethod::DEFAULT:
+		default:
+			auth_method_value = 0;
+			break;
+		}
+
+		set_int(AUTH_METHOD, auth_method_value);
+	}
+
+
 	bool RegistrySettings::get_bool(const std::wstring& value_name) const
 	{
 		return _key.get_word(value_name, 0) != 0;
@@ -169,5 +215,6 @@ namespace ui {
 	const std::wstring RegistrySettings::SCREENSIZE_MODE(L"screensize");
 	const std::wstring RegistrySettings::SCREEN_WIDTH(L"width");
 	const std::wstring RegistrySettings::SCREEN_HEIGHT(L"height");
+	const std::wstring RegistrySettings::AUTH_METHOD(L"authmethod");
 
 }
