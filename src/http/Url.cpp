@@ -168,9 +168,14 @@ namespace http {
 
 	std::string Url::get_hostname() const
 	{
-		const net::Endpoint end_point{ _authority, 80 };
+		std::string hostname;
 
-		return end_point.hostname();
+		if (!_authority.empty()) {
+			const net::Endpoint end_point{ _authority, 80 };
+			hostname = end_point.hostname();
+		}
+
+		return hostname;
 	}
 
 
