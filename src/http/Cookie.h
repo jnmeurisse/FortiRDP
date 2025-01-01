@@ -87,6 +87,10 @@ namespace http {
 		*/
 		bool same_domain(const std::string& domain) const;
 
+		/* Returns true if the cookie path is a prefix of the given path.
+		*/
+		bool path_matches(const std::string& path) const;
+
 		/* Constructs a cookie from a Set-cookie header string.
 		*  @param cookie_string The cookie definition.
 		*  @return a Cookie.
