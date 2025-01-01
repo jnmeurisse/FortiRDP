@@ -96,15 +96,15 @@ namespace ui {
 	}
 
 
-	void Dialog::set_title(const std::wstring& title)
+	bool Dialog::set_title(const std::wstring& title)
 	{
-		Dialog::set_window_text(window_handle(), title);
+		return Dialog::set_window_text(window_handle(), title);
 	}
 
 
-	void Dialog::set_control_text(int idc, const std::wstring& text)
+	bool Dialog::set_control_text(int idc, const std::wstring& text)
 	{
-		Dialog::set_window_text(control_handle(idc), text);
+		return Dialog::set_window_text(control_handle(idc), text);
 	}
 
 
@@ -158,9 +158,9 @@ namespace ui {
 	}
 
 
-	void Dialog::set_window_text(HWND hWnd, const std::wstring& text)
+	bool Dialog::set_window_text(HWND hWnd, const std::wstring& text)
 	{
-		::SetWindowText(hWnd, text.c_str());
+		return ::SetWindowText(hWnd, text.c_str()) != 0;
 	}
 
 
@@ -182,7 +182,34 @@ namespace ui {
 	}
 
 
-	RECT Dialog::get_client_bounds() const
+	bool Dialog::add_combo_text(int idc, const std::wstring& text)
+	{
+		return ::SendMessage(control_handle(idc), CB_ADDSTRING, 0, (LPARAM)text.c_str()) >= 0;
+	}
+
+
+	bool Dialog::set_combo_index(int idc, int index)
+	{
+		return ::SendMessage(control_handle(idc), CB_SETCURSEL, index, 0) == index;
+	}
+
+
+	int Dialog::get_combo_index(int idc) const
+	{
+		return ::SendMessage(control_handle(idc), CB_GETCURSEL, 0, 0);
+	}
+
+
+	RECT Dialog::get_control_rect(int idc) const
+	{
+		RECT bounds;
+
+		::GetClientRect(control_handle(idc), &bounds);
+		return bounds;
+	}
+
+
+	RECT Dialog::get_client_rect() const
 	{
 		RECT bounds;
 
