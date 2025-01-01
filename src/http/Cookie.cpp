@@ -31,7 +31,7 @@ namespace http {
 		const bool http_only) :
 		_name(name),
 		_value(value),
-		_domain(tools::lower(domain)),
+		_domain(tools::trim(tools::lower(domain))),
 		_path(path),
 		_expires(expires < 0 ? EXPIRES_UNSPECIFIED : expires),
 		_secure(secure),
@@ -58,6 +58,12 @@ namespace http {
 	bool Cookie::is_session() const noexcept
 	{
 		return _expires == EXPIRES_UNSPECIFIED;
+	}
+
+
+	bool Cookie::same_domain(const std::string& domain) const
+	{
+		return tools::iequal(_domain, tools::trim(domain));
 	}
 
 	

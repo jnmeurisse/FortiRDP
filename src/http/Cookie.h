@@ -25,6 +25,9 @@ namespace http {
 
 
 		/* Allocates a cookie from the cookie attributes.
+		*
+		*  Note: when expires is < 0, the cookie is considered as
+		*  a session cookie.
 		*/
 		Cookie(
 			const std::string& name,
@@ -42,19 +45,19 @@ namespace http {
 		*/
 		tools::obfstring to_header() const;
 
-		/* Returns the cookie name 
+		/* Returns the cookie name.
 		*/
 		inline const std::string& get_name() const noexcept { return _name; }
 
-		/* Returns the cookie value as an obfuscated string
+		/* Returns the cookie value as an obfuscated string.
 		*/
 		inline const tools::obfstring& get_value() const noexcept { return _value; }
 
-		/* Returns the cookie domain attribute
+		/* Returns the cookie domain attribute.
 		*/
 		inline const std::string& get_domain() const noexcept { return _domain; }
 
-		/* Returns the cookie path attribute
+		/* Returns the cookie path attribute.
 		*/
 		inline const std::string& get_path() const noexcept{ return _path; }
 
@@ -63,21 +66,26 @@ namespace http {
 		*/
 		inline const std::time_t& get_expires() const noexcept { return _expires; }
 
-		/* Returns true if the cookie secure attribute defined
+		/* Returns true if the cookie secure attribute is defined.
 		*/
-		inline const bool is_secure() const noexcept { return _secure; }
+		inline bool is_secure() const noexcept { return _secure; }
 
-		/* Returns true if the cookie attribute httponly is defined
+		/* Returns true if the cookie attribute httponly is defined.
 		*/
-		inline const bool is_http_only() const noexcept { return _http_only; }
+		inline bool is_http_only() const noexcept { return _http_only; }
 
-		/* Returns true if the cookie is expired
+		/* Returns true if the cookie is expired.
 		*/
 		bool is_expired() const noexcept;
 
-		/* Returns true if it is a session cookie
+		/* Returns true if it is a session cookie.
 		*/
 		bool is_session() const noexcept;
+
+		/* Returns true if the cookie domain matches the given domain.
+		*  Note: the implementation deviates from rfc6265.
+		*/
+		bool same_domain(const std::string& domain) const;
 
 		/* Constructs a cookie from a Set-cookie header string.
 		*  @param cookie_string The cookie definition.
