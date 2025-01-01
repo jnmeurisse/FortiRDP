@@ -65,14 +65,27 @@ namespace http {
 	}
 
 
-	tools::obfstring Cookies::to_header() const
+	tools::obfstring Cookies::to_header(const Url& url) const
 	{
 		tools::obfstring buffer;
+		const std::string url_domain = url.get_hostname();
+		const bool secure_link = tools::iequal(url.get_scheme(), "https");
 
 		// Create the Set-Cookie header
 		for (auto it = _cookies.cbegin(); it != _cookies.cend(); it++) {
-			if (!it->second.is_expired()) {
-				buffer.append(it->second.to_header());
+			const Cookie& cookie = it->second;
+			// Filter cookies:
+			//   - do not consider expired cookies
+			//   - do not consider non-http cookies
+			//   - do not consider non-secure cookies if the url scheme is https
+			//   - apply path and domain matches
+			if (!cookie.is_expired() &&
+				cookie.is_http_only() &&
+				(!secure_link || cookie.is_secure()) &&
+				cookie.same_domain(url_domain) &&
+				cookie.path_matches(url.get_path()))
+			{
+				buffer.append(cookie.to_header());
 				buffer.append("; ");
 			}
 		}

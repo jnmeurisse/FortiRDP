@@ -71,9 +71,15 @@ namespace http {
 
 		/* Constructs a string representation of the cookies collection.
 		 * The string format is compatible with Netscape specification and
-		 * can be added to a Cookie header
+		 * can be added to a Cookie header.  Only cookies that match the
+		 * given url are added to the returned string.
+		 *
+		 * Note : The implementation only checks if the URL domain and
+		 * the cookie domain are the same.
+		 *
+		 * @param url The url used to select the cookies added to the returned string.
 		*/
-		tools::obfstring to_header() const;
+		tools::obfstring to_header(const Url &url) const;
 
 		/* Returns an iterator referring to the first element in the collection
 		*/
