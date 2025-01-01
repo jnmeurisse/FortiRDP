@@ -34,9 +34,17 @@ namespace tools {
 		*/
 		inline mbedtls_x509_crt* get_crt() { return &_crt; }
 
+		/*
+		* Returns the certificate as a string
+		*/
+		bool to_string(std::string& pem) const;
+
 	private:
 		mbedtls_x509_crt _crt;
 	};
+
+
+	bool X509crt_to_pem(const mbedtls_x509_crt* crt, std::string& pem);
 
 
 	using X509crtPtr = std::unique_ptr<X509Crt>;
