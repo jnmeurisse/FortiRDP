@@ -44,9 +44,10 @@ namespace ui {
 	AsyncMessage AsyncMessage::OutputInfoMessageRequest(1);
 	AsyncMessage AsyncMessage::ShowErrorMessageDialogRequest(2);
 	AsyncMessage AsyncMessage::ShowInvalidCertificateDialogRequest(3);
-	AsyncMessage AsyncMessage::ShowCredentialDialogRequest(4);
+	AsyncMessage AsyncMessage::ShowCredentialsDialogRequest(4);
 	AsyncMessage AsyncMessage::ShowPinCodeDialogRequest(5);
-	AsyncMessage AsyncMessage::DisconnectFromFirewallRequest(6);
+	AsyncMessage AsyncMessage::ShowSamlAuthDialogRequest(6);
+	AsyncMessage AsyncMessage::DisconnectFromFirewallRequest(7);
 
 	AsyncMessage AsyncMessage::ConnectedEvent(100);
 	AsyncMessage AsyncMessage::DisconnectedEvent(101);

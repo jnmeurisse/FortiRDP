@@ -59,7 +59,7 @@ namespace ui {
 
 		/* request to display a dialog that ask for credentials
 		*/
-		static AsyncMessage ShowCredentialDialogRequest;
+		static AsyncMessage ShowCredentialsDialogRequest;
 
 		/* request to display a dialog that ask for an additional code (pin code for example)
 		*/
