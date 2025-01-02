@@ -9,6 +9,7 @@
 
 #include <Windows.h>
 #include <string>
+#include "fw/AuthTypes.h"
 #include "ScreenSize.h"
 
 
@@ -43,6 +44,10 @@ namespace ui {
 		/*! returns the ca certificate filename
 		*/
 		inline const std::wstring& ca_cert_filename() const { return _ca_cert_filename; }
+
+		/*! returns the authentication method
+		*/
+		inline fw::AuthMethod auth_method() const { return _auth_method; }
 
 		/*! returns the user certificate filename
 		*/
@@ -111,6 +116,7 @@ namespace ui {
 
 	private:
 		// Command line arguments
+		fw::AuthMethod _auth_method = fw::AuthMethod::BASIC;
 		std::wstring _username;
 		std::wstring _fw_address;
 		std::wstring _host_addres;

@@ -37,7 +37,7 @@ namespace ui {
 			rc = initialize(argc - 1, &argv[1]);
 
 			// free storage used by the argv array
-			LocalFree(argv);
+			::LocalFree(argv);
 		}
 
 		return rc;
@@ -57,6 +57,11 @@ namespace ui {
 		_verbose = false;
 		_trace = false;
 
+		_auth_method = fw::AuthMethod::DEFAULT;
+		_username.clear();;
+		_fw_address.clear();
+		_host_addres.clear();
+		_us_cert_filename = L"";
 		_ca_cert_filename = L"";
 		_app_name = L"mstsc";
 		_local_port = 0;
@@ -64,7 +69,7 @@ namespace ui {
 		_tcp_nodelay = false;
 
 		int c;
-		while ((c = getopt(argc, argv, L"?u:famvc:tx:p:sr:lCMnw:h:U:")) != EOF) {
+		while ((c = getopt(argc, argv, L"?u:famvc:tx:p:sr:lCMnw:h:U:A:")) != EOF) {
 			switch (c) {
 			case L'?':
 				return false;
@@ -140,6 +145,16 @@ namespace ui {
 				_us_cert_filename = tools::trim(optarg);
 				break;
 
+			case L'A':
+				if (std::wstring(optarg).compare(L"basic") == 0)
+					_auth_method = fw::AuthMethod::BASIC;
+				else if (std::wstring(optarg).compare(L"cert") == 0)
+					_auth_method = fw::AuthMethod::CERTIFICATE;
+				else if (std::wstring(optarg).compare(L"saml") == 0)
+					_auth_method = fw::AuthMethod::SAML;
+				else
+					return false;
+
 			default:
 				break;
 			}
@@ -166,6 +181,27 @@ namespace ui {
 		if (_local_port < 0 || _local_port > 65535)
 			return false;
 
+		// validate authentication method
+		bool auth_method_valid = false;
+		switch (_auth_method) {
+			case fw::AuthMethod::DEFAULT:
+				auth_method_valid = _username.size() >= 0 && _us_cert_filename.size() == 0;
+				break;
+
+			case fw::AuthMethod::BASIC:
+				auth_method_valid = _username.size() >= 0 && _us_cert_filename.size() == 0;
+				break;
+
+			case fw::AuthMethod::SAML:
+				auth_method_valid = _username.size() == 0 && _us_cert_filename.size() == 0;
+				break;
+			case fw::AuthMethod::CERTIFICATE:
+				auth_method_valid = _username.size() == 0 && _us_cert_filename.size() > 0;
+				break;
+		}
+		if (!auth_method_valid)
+			return false;
+
 		// get the last two arguments
 		int i = 0;
 		for (; optind < argc; optind++) {
@@ -175,6 +211,8 @@ namespace ui {
 			else if (i == 1) {
 				_host_addres = tools::trim(argv[optind]);
 			}
+			else
+				return false;
 
 			i++;
 		}
@@ -195,12 +233,13 @@ namespace ui {
 
 		// show program parameters
 		std::cout << tools::string_format("fortirdp %s (jn.meurisse@gmail.com)\n\n", version.c_str());
-		std::cout << "fortirdp [-v [-t]] [-u username] [-c cacert_file] [-x app] [-f] [-a] [-s] [-p port]\n";
+		std::cout << "fortirdp [-v [-t]] [-A auth] [-u username] [-c cacert_file] [-x app] [-f] [-a] [-s] [-p port]\n";
 		std::cout << "         [-r rdp_file] [-m] [-l] [-C] [-M] [-n] firewall-ip[:port1] remote-ip[:port2]\n";
 		std::cout << "\n";
 		std::cout << "Options :\n";
 		std::cout << "\t-v             Verbose mode (use -t to trace tls conversation, high verbosity !)\n";
-		std::cout << "\t-u username    Specifies a user name for login to the firewall.\n";
+		std::cout << "\t-A auth        Specifies the authentication mode (basic, cert, saml)\n";
+		std::cout << "\t-u username    Specifies a user name for login basic to the firewall.\n";
 		std::cout << "\t-c cacert_file Defines the Certificate Authority.\n";
 		std::cout << "\t-x app         Specifies the application to launch instead of mstsc.\n";
 		std::cout << "\t               The application must be specified with the syntax path{;parameter;parameter...}.\n";
