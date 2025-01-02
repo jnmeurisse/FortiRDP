@@ -41,7 +41,7 @@ namespace ui {
 
 		center_window();
 
-		if (GetDlgCtrlID((HWND)wParam) != IDC_CODE) {
+		if (::GetDlgCtrlID((HWND)wParam) != IDC_CODE) {
 			set_focus(IDC_CODE);
 			return FALSE;
 		}

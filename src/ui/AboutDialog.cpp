@@ -60,7 +60,7 @@ namespace ui {
 
 		center_window();
 
-		if (GetDlgCtrlID((HWND)wParam) != IDOK) {
+		if (::GetDlgCtrlID((HWND)wParam) != IDOK) {
 			set_focus(IDOK);
 			return FALSE;
 		}
