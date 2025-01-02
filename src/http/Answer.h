@@ -41,7 +41,7 @@ namespace http {
 
 		/* Allocates an HTTP answer
 		*/
-		explicit Answer(Cookies& cookie_jar);
+		Answer();
 
 		/* Clears this HTTP Answer
 		*/
@@ -107,8 +107,8 @@ namespace http {
 		// All headers except cookies
 		Headers _headers;
 
-		// All cookies (a reference to the cookie jar)
-		Cookies& _cookies;
+		// All cookies received in the answer
+		Cookies _cookies;
 
 		// The body of the answer
 		tools::ByteBuffer _body;
