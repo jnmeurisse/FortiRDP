@@ -7,6 +7,8 @@
 */
 #include "X509Crt.h"
 
+#include <windows.h>
+#include <wincrypt.h>
 #include <vector>
 #include <mbedtls/base64.h>
 #include <mbedtls/pem.h>
@@ -41,11 +43,6 @@ namespace tools {
 	}
 
 
-	bool X509Crt::to_string(std::string& pem) const
-	{
-		return X509crt_to_pem(&_crt, pem);
-	}
-
 
 	bool X509crt_to_pem(const mbedtls_x509_crt* crt, std::string& pem)
 	{
@@ -77,6 +74,53 @@ namespace tools {
 		}
 
 		return crt && (ret == 0);
+	}
+
+
+	static DWORD WinVerifySslCert(PCCERT_CONTEXT certContext) {
+		DWORD errorStatus = -1;
+
+		static const LPCSTR usage[] = {
+			szOID_PKIX_KP_SERVER_AUTH,
+			szOID_SERVER_GATED_CRYPTO,
+			szOID_SGC_NETSCAPE
+		};
+
+		CERT_CHAIN_PARA chainParameter = {0};
+		chainParameter.cbSize = sizeof(CERT_CHAIN_PARA);
+		chainParameter.RequestedUsage.dwType = USAGE_MATCH_TYPE_OR;
+		chainParameter.RequestedUsage.Usage.cUsageIdentifier = ARRAYSIZE(usage);
+		chainParameter.RequestedUsage.Usage.rgpszUsageIdentifier = const_cast<LPSTR*>(usage);
+
+		PCCERT_CHAIN_CONTEXT chainContext = NULL;
+		if (::CertGetCertificateChain(NULL, certContext, NULL, NULL, &chainParameter, 0, NULL, &chainContext) &&
+			chainContext) {
+			errorStatus = chainContext->TrustStatus.dwErrorStatus;
+			::CertFreeCertificateChain(chainContext);
+		}
+
+		return errorStatus;
+	}
+
+
+	bool x509crt_is_trusted(const mbedtls_x509_crt* crt)
+	{
+		bool status = false;
+
+		// Create a certificate context from the DER certificate representation.
+		PCCERT_CONTEXT pCertContext = ::CertCreateCertificateContext(
+			X509_ASN_ENCODING,
+			crt->raw.p,
+			static_cast<DWORD>(crt->raw.len)
+		);
+
+		if (pCertContext) {
+			// Verify if the certificate is signed by a trusted CA.
+			status = WinVerifySslCert(pCertContext) == 0;
+			::CertFreeCertificateContext(pCertContext);
+		}
+
+		return status;
 	}
 
 }
