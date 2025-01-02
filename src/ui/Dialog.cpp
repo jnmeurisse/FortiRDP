@@ -196,7 +196,7 @@ namespace ui {
 
 	int Dialog::get_combo_index(int idc) const
 	{
-		return ::SendMessage(control_handle(idc), CB_GETCURSEL, 0, 0);
+		return static_cast<int>(::SendMessage(control_handle(idc), CB_GETCURSEL, 0, 0));
 	}
 
 
