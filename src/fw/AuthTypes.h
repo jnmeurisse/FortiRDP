@@ -8,37 +8,50 @@
 #pragma once
 
 #include <string>
+#include <functional>
 #include "http/Url.h"
-#include "http/cookie.h"
+#include "http/cookies.h"
 
 namespace fw {
 
+	// SSL VPN supported authentication methods.
 	enum class AuthMethod {
-		DEFAULT,
-		BASIC,
-		CERTIFICATE,
-		SAML
+		DEFAULT,        // Default mode configured in the user interface.
+		BASIC,          // SSL VPN with username and password (includes MFA)
+		CERTIFICATE,    // SSL VPN with certification authentication
+		SAML            // SSL VPN with SAML IdP
 	};
 
-	// User Credentials
-	struct UserCredentials
+	// SSL VPN User Credentials
+	struct AuthCredentials
 	{
 		std::wstring username;
 		std::wstring password;
 	};
 
-	// Code
-	struct PinCode
+	// SSL VPN MFA authentication code.
+	struct AuthCode
 	{
 		std::string prompt;
 		std::string code;
 	};
 
-
-	struct SamlAuthInfo {
+	// SSL VPN SAML authentication.
+	struct AuthSamlInfo {
+		// FortiGate Service provider URL
 		http::Url service_provider_url;
+
+		// FortiGate certificate.  The certificate was validated
+		// during the initial connection.
 		std::string service_provider_crt;
-		std::string service_provider_auth_cookie;
+
+		// A reference to the application cookie jar.
+		http::Cookies& cookie_jar;
+
+		// A function that returns true if the SAML service provider is
+		// authenticated.  The function checks if the session cookie has a
+		// value.
+		std::function<bool()> is_authenticated;
 	};
 
 }
