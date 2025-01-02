@@ -67,7 +67,7 @@ namespace ui {
 		case COREWEBVIEW2_WEB_ERROR_STATUS_HOST_NAME_NOT_RESOLVED:
 			return "hostname not resolved";
 		case COREWEBVIEW2_WEB_ERROR_STATUS_OPERATION_CANCELED:
-			return "Operation canceled";
+			return "Operation cancelled";
 		case COREWEBVIEW2_WEB_ERROR_STATUS_REDIRECT_FAILED:
 			return "Redirect failed";
 		case COREWEBVIEW2_WEB_ERROR_STATUS_VALID_AUTHENTICATION_CREDENTIALS_REQUIRED:
@@ -481,7 +481,7 @@ namespace ui {
 				HRESULT hr;
 
 				// Is this error detected on the SAML service provide URL ?
-				// If yes, we compare the cerficate obtained during the initial connection and
+				// If yes, we compare the certificate obtained during the initial connection and
 				// stored in the class field _service_provider_crt with the certificate provided
 				// by the web server generating the certificate detection error.  At this step, 
 				// send->get_Source returns about:blank because the connection is not yet validated.
