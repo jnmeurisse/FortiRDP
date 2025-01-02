@@ -7,6 +7,7 @@
 */
 #include "SamlAuthDialog.h"
 
+#include <cmath>
 #include <objbase.h>
 #include <stdexcept>
 #include <wrl.h>
@@ -36,15 +37,59 @@ namespace ui {
 	};
 
 
+	static char* web_error_status_message(COREWEBVIEW2_WEB_ERROR_STATUS error_status)
+	{
+		switch (error_status) {
+		case COREWEBVIEW2_WEB_ERROR_STATUS_CERTIFICATE_COMMON_NAME_IS_INCORRECT:
+			return "Certificate common name is incorrect";
+		case COREWEBVIEW2_WEB_ERROR_STATUS_CERTIFICATE_EXPIRED:
+			return "Certificate expired";
+		case COREWEBVIEW2_WEB_ERROR_STATUS_CLIENT_CERTIFICATE_CONTAINS_ERRORS:
+			return "Client certificate contains errors";
+		case COREWEBVIEW2_WEB_ERROR_STATUS_CERTIFICATE_REVOKED:
+			return "Certificate was revoked";
+		case COREWEBVIEW2_WEB_ERROR_STATUS_CERTIFICATE_IS_INVALID:
+			return "Certificate is invalid";
+		case COREWEBVIEW2_WEB_ERROR_STATUS_SERVER_UNREACHABLE:
+			return "Server unreachable";
+		case COREWEBVIEW2_WEB_ERROR_STATUS_TIMEOUT:
+			return "Server timeout";
+		case COREWEBVIEW2_WEB_ERROR_STATUS_ERROR_HTTP_INVALID_SERVER_RESPONSE:
+			return "Invalid server HTTP response";
+		case COREWEBVIEW2_WEB_ERROR_STATUS_CONNECTION_ABORTED:
+			return "Connection aborted";
+		case COREWEBVIEW2_WEB_ERROR_STATUS_CONNECTION_RESET:
+			return "Connection reset";
+		case COREWEBVIEW2_WEB_ERROR_STATUS_DISCONNECTED:
+			return "Disconnected";
+		case COREWEBVIEW2_WEB_ERROR_STATUS_CANNOT_CONNECT:
+			return "Connection error";
+		case COREWEBVIEW2_WEB_ERROR_STATUS_HOST_NAME_NOT_RESOLVED:
+			return "hostname not resolved";
+		case COREWEBVIEW2_WEB_ERROR_STATUS_OPERATION_CANCELED:
+			return "Operation canceled";
+		case COREWEBVIEW2_WEB_ERROR_STATUS_REDIRECT_FAILED:
+			return "Redirect failed";
+		case COREWEBVIEW2_WEB_ERROR_STATUS_VALID_AUTHENTICATION_CREDENTIALS_REQUIRED:
+			return "Authentication credentials required";
+		case COREWEBVIEW2_WEB_ERROR_STATUS_VALID_PROXY_AUTHENTICATION_REQUIRED:
+			return "Proxy authentication required";
+		case COREWEBVIEW2_WEB_ERROR_STATUS_UNEXPECTED_ERROR:
+		default:
+			return "Unexpected error";
 
-	SamlAuthDialog::SamlAuthDialog(HINSTANCE hInstance, HWND hParent) :
+		}
+	}
+
+
+
+	SamlAuthDialog::SamlAuthDialog(HINSTANCE hInstance, HWND hParent, fw::AuthSamlInfo* pSamlInfo) :
 		ModalDialog(hInstance, hParent, IDD_SAMLAUTH_DIALOG),
 		_logger(tools::Logger::get_logger()),
 		_web_controller(),
 		_can_close(false),
 		_last_saml_error(saml_err::NONE),
-		_service_provider_url(),
-		_service_provider_cookies()
+		_saml_auth_info{ *pSamlInfo }
 	{
 		DEBUG_CTOR(_logger, "SamlAuthDialog");
 
@@ -60,36 +105,6 @@ namespace ui {
 	{
 		DEBUG_DTOR(_logger, "SamlAuthDialog");
 		::CoUninitialize();
-	}
-
-
-	void SamlAuthDialog::set_service_provider_url(const http::Url& url)
-	{
-		_service_provider_url = url;
-	}
-
-
-	const http::Url& SamlAuthDialog::get_service_provider_url() const
-	{
-		return _service_provider_url;
-	}
-
-
-	void SamlAuthDialog::set_service_provider_crt(const std::string& crt)
-	{
-		_service_provider_crt = crt;
-	}
-
-
-	const std::string& SamlAuthDialog::get_service_provider_crt() const
-	{
-		return _service_provider_crt;
-	}
-
-
-	const http::Cookies& SamlAuthDialog::get_service_provider_cookies() const
-	{
-		return _service_provider_cookies;
 	}
 
 
@@ -160,6 +175,17 @@ namespace ui {
 					if (FAILED(hr))
 						throw webview2_error(hr, "add_SourceChanged");
 
+					EventRegistrationToken navStartingToken;
+					hr = web_view->add_NavigationStarting(
+						Callback<ICoreWebView2NavigationStartingEventHandler>(
+							this,
+							&SamlAuthDialog::onWebViewNavigationStarting
+						).Get(),
+						&navStartingToken
+					);
+					if (FAILED(hr))
+						throw webview2_error(hr, "add_NavigationStarting");
+
 					// Install a new window callback that blocks new windows
 					EventRegistrationToken newWindowToken;
 					hr = web_view->add_NewWindowRequested(
@@ -201,12 +227,12 @@ namespace ui {
 
 					// Navigate to URL
 					std::string status_message = tools::string_format("Connecting to %s://%s",
-						_service_provider_url.get_scheme().c_str(),
-						_service_provider_url.get_authority().c_str()
+						_saml_auth_info.service_provider_url.get_scheme().c_str(),
+						_saml_auth_info.service_provider_url.get_authority().c_str()
 					);
 
 					set_control_text(IDC_SAML_STATUS, tools::str2wstr(status_message));
-					hr = web_view->Navigate(tools::str2wstr(_service_provider_url.to_string(false)).c_str());
+					hr = web_view->Navigate(tools::str2wstr(_saml_auth_info.service_provider_url.to_string(false)).c_str());
 					if (FAILED(hr))
 						throw webview2_error(hr, "Navigate");
 
@@ -293,6 +319,25 @@ namespace ui {
 	}
 
 
+	HRESULT SamlAuthDialog::onWebViewNavigationStarting(ICoreWebView2* sender, ICoreWebView2NavigationStartingEventArgs* args)
+	{
+		TRACE_ENTER(_logger, "SamlAuthDialog", "onWebViewNavigationStarting");
+		if (!sender || !args) {
+			_last_saml_error = ui::saml_err::WEBVIEW_ERROR;
+			_logger->error("ERROR: invalid argument in onWebViewNavigationStarting");
+
+		}
+		else {
+			wil::unique_cotaskmem_string uri;
+			HRESULT hr = args->get_Uri(&uri);
+			if (FAILED(hr))
+				return S_FALSE;
+			set_control_text(IDC_SAML_STATUS, uri.get());
+		}
+
+		return S_OK;
+	}
+
 	HRESULT SamlAuthDialog::onWebViewNavigationCompleted(
 		ICoreWebView2* sender, 
 		ICoreWebView2NavigationCompletedEventArgs* args
@@ -339,12 +384,16 @@ namespace ui {
 					case COREWEBVIEW2_WEB_ERROR_STATUS_DISCONNECTED:
 					case COREWEBVIEW2_WEB_ERROR_STATUS_CANNOT_CONNECT:
 					case COREWEBVIEW2_WEB_ERROR_STATUS_HOST_NAME_NOT_RESOLVED:
-						_logger->error("ERROR: SAML connection failed, error=%d", web_error_status);
+						_logger->error("ERROR: SAML connection failed. %s (%d).",
+							web_error_status_message(web_error_status),
+							web_error_status);
 						_last_saml_error = ui::saml_err::COMM_ERROR;
 						break;
 
 					case COREWEBVIEW2_WEB_ERROR_STATUS_OPERATION_CANCELED:
-						_logger->error("ERROR: SAML connection cancelled, error=%d", web_error_status);
+						_logger->error("ERROR: SAML connection failed. %s (%d).",
+							web_error_status_message(web_error_status),
+							web_error_status);
 						_last_saml_error = ui::saml_err::LOGIN_CANCELLED;
 						break;
 
@@ -353,12 +402,14 @@ namespace ui {
 					case COREWEBVIEW2_WEB_ERROR_STATUS_UNEXPECTED_ERROR:
 					case COREWEBVIEW2_WEB_ERROR_STATUS_VALID_AUTHENTICATION_CREDENTIALS_REQUIRED:
 					case COREWEBVIEW2_WEB_ERROR_STATUS_VALID_PROXY_AUTHENTICATION_REQUIRED:
-						_logger->error("ERROR: SAML http failure, error=%d", web_error_status);
+						_logger->error("ERROR: SAML connection failed. %s (%d).",
+							web_error_status_message(web_error_status),
+							web_error_status);
 						_last_saml_error = ui::saml_err::HTTP_ERROR;
 						break;
 
 					default:
-						_logger->error("ERROR: SAML unexpected failure, error=%d", web_error_status);
+						_logger->error("ERROR: SAML connection failed. %s.", web_error_status_message(web_error_status));
 						_last_saml_error = ui::saml_err::HTTP_ERROR;
 						break;
 					}
@@ -371,11 +422,13 @@ namespace ui {
 						throw webview2_error(hr, "get_IsSuccess");
 
 					const http::Url source_url{ tools::wstr2str(source_uri.get()) };
-					if (tools::iequal(source_url.get_hostname(), _service_provider_url.get_hostname())) {
+					if (tools::iequal(source_url.get_hostname(), _saml_auth_info.service_provider_url.get_hostname())) {
 						hr = _web_cookie_manager->GetCookies(
-							tools::str2wstr(_service_provider_url.get_hostname()).c_str(),
+							tools::str2wstr(_saml_auth_info.service_provider_url.to_string(false)).c_str(),
 							Callback<ICoreWebView2GetCookiesCompletedHandler>(this, &SamlAuthDialog::onCookiesAvailable).Get()
 						);
+						if (FAILED(hr))
+							throw webview2_error(hr, "GetCookies");
 					}
 				}
 			}
@@ -427,21 +480,36 @@ namespace ui {
 			try {
 				HRESULT hr;
 
-				wil::com_ptr<ICoreWebView2Certificate> certificate = nullptr;
-				hr = args->get_ServerCertificate(&certificate);
-				if (FAILED(hr))
-					throw webview2_error(hr, "get_ServerCertificate");
+				// Is this error detected on the SAML service provide URL ?
+				// If yes, we compare the cerficate obtained during the initial connection and
+				// stored in the class field _service_provider_crt with the certificate provided
+				// by the web server generating the certificate detection error.  At this step, 
+				// send->get_Source returns about:blank because the connection is not yet validated.
+				// The OnSource event registered the target URI in the IDC_SAML_STATUS control.
 
-				wil::unique_cotaskmem_string pem;
-				hr = certificate->ToPemEncoding(&pem);
-				if (FAILED(hr))
-					throw webview2_error(hr, "ToPemEncoding");
-
-				if (tools::iequal(tools::wstr2str(std::wstring(pem.get())), _service_provider_crt)) {
-					hr = args->put_Action(
-						COREWEBVIEW2_SERVER_CERTIFICATE_ERROR_ACTION::COREWEBVIEW2_SERVER_CERTIFICATE_ERROR_ACTION_ALWAYS_ALLOW);
+				http::Url web_server_url{ tools::wstr2str(get_control_text(IDC_SAML_STATUS)) };
+				if (tools::iequal(web_server_url.get_authority(), _saml_auth_info.service_provider_url.get_authority())) {
+					// Get a reference to the web server certificate
+					wil::com_ptr<ICoreWebView2Certificate> certificate_ptr = nullptr;
+					hr = args->get_ServerCertificate(&certificate_ptr);
 					if (FAILED(hr))
-						throw webview2_error(hr, "put_Action");
+						throw webview2_error(hr, "get_ServerCertificate");
+
+					// convert the web server certificate to PEM format.
+					wil::unique_cotaskmem_string certificate_pem;
+					hr = certificate_ptr->ToPemEncoding(&certificate_pem);
+					if (FAILED(hr))
+						throw webview2_error(hr, "ToPemEncoding");
+
+					// Compare the web server certificate and the SAML service provider certificate.
+					// If both matches, we do not warn the user as it has been previously accepted during
+					// the initial connection.
+					if (tools::iequal(tools::wstr2str(certificate_pem.get()), _saml_auth_info.service_provider_crt)) {
+						hr = args->put_Action(
+							COREWEBVIEW2_SERVER_CERTIFICATE_ERROR_ACTION::COREWEBVIEW2_SERVER_CERTIFICATE_ERROR_ACTION_ALWAYS_ALLOW);
+						if (FAILED(hr))
+							throw webview2_error(hr, "put_Action");
+					}
 				}
 			}
 			catch (webview2_error& e) {
@@ -459,71 +527,63 @@ namespace ui {
 	}
 
 
-
-	static std::string FormatExpires(double expires) {
-		if (expires == 0) {
-			return "Session";
-		}
-
-		// Convert the Unix timestamp to time_t
-		time_t rawTime = static_cast<time_t>(expires);
-
-		// Convert to a tm structure
-		struct tm timeInfo;
-		gmtime_s(&timeInfo, &rawTime); // Use gmtime_s for thread-safe conversion
-
-		// Format as a string
-		char buffer[100];
-		strftime(buffer, sizeof(buffer) / sizeof(wchar_t), "%Y-%m-%d %H:%M:%S UTC", &timeInfo);
-
-		return std::string(buffer);
+	static std::time_t dcom_time_to_time_t(double time)
+	{
+		constexpr double unix_start_time = 25569.0f; 
+		return llround(time - unix_start_time) * 86400;
 	}
 
-	static http::Cookie WebviewCookie2Cookie(ICoreWebView2Cookie* webview2_cookie)
+
+	static http::Cookie WebviewCookie2Cookie(ICoreWebView2Cookie& webview2_cookie)
 	{
 		HRESULT hr;
 
 		wil::unique_cotaskmem_string cookie_domain;
-		hr = webview2_cookie->get_Domain(&cookie_domain);
+		hr = webview2_cookie.get_Domain(&cookie_domain);
 		if (FAILED(hr))
 			throw webview2_error(hr, "get_Domain");
 
 		wil::unique_cotaskmem_string cookie_value;
-		hr = webview2_cookie->get_Value(&cookie_value);
+		hr = webview2_cookie.get_Value(&cookie_value);
 		if (FAILED(hr))
 			throw webview2_error(hr, "get_Value");
 
 		wil::unique_cotaskmem_string cookie_name;
-		hr = webview2_cookie->get_Name(&cookie_name);
+		hr = webview2_cookie.get_Name(&cookie_name);
 		if (FAILED(hr))
 			throw webview2_error(hr, "get_Name");
 
 		wil::unique_cotaskmem_string cookie_path;
-		hr = webview2_cookie->get_Path(&cookie_path);
+		hr = webview2_cookie.get_Path(&cookie_path);
 		if (FAILED(hr))
 			throw webview2_error(hr, "get_Path");
 
 		double expires_value = 0.0;
-		hr = webview2_cookie->get_Expires(&expires_value);
+		hr = webview2_cookie.get_Expires(&expires_value);
 		if (FAILED(hr))
 			throw webview2_error(hr, "get_Expires");
 
 		BOOL isSecure = FALSE;
-		hr = webview2_cookie->get_IsSecure(&isSecure);
+		hr = webview2_cookie.get_IsSecure(&isSecure);
 		if (FAILED(hr))
 			throw webview2_error(hr, "get_IsSecure");
 
 		BOOL httpOnly = FALSE;
-		hr = webview2_cookie->get_IsHttpOnly(&httpOnly);
+		hr = webview2_cookie.get_IsHttpOnly(&httpOnly);
 		if (FAILED(hr))
 			throw webview2_error(hr, "get_IsHttpOnly");
 
+		BOOL isSession = FALSE;
+		hr = webview2_cookie.get_IsSession(&isSession);
+		if (FAILED(hr))
+			throw webview2_error(hr, "get_IsSession");
+
 		return http::Cookie(
-			tools::wstr2str(std::wstring(cookie_name.get())),
-			tools::obfstring(tools::wstr2str(std::wstring(cookie_value.get()))),
-			tools::wstr2str(std::wstring(cookie_domain.get())),
-			tools::wstr2str(std::wstring(cookie_path.get())),
-			FormatExpires(expires_value),
+			tools::wstr2str(cookie_name.get()),
+			tools::obfstring(tools::wstr2str(cookie_value.get())),
+			tools::wstr2str(cookie_domain.get()),
+			tools::wstr2str(cookie_path.get()),
+			isSession ? -1 : dcom_time_to_time_t(expires_value),
 			isSecure != 0,
 			httpOnly != 0
 		);
@@ -535,6 +595,7 @@ namespace ui {
 	)
 	{
 		TRACE_ENTER(_logger, "SamlAuthDialog", "onCookiesAvailable");
+
 		if (FAILED(result)) {
 			_last_saml_error = ui::saml_err::WEBVIEW_ERROR;
 			_logger->error("ERROR: unable to create WebView2 environment hr=%x", result);
@@ -542,28 +603,39 @@ namespace ui {
 		else {
 			try {
 				HRESULT hr;
-				UINT cookie_list_size;
+				UINT cookie_list_size =0;
 
 				hr = list->get_Count(&cookie_list_size);
+				if (FAILED(hr))
+					throw webview2_error(hr, "get_Count");
 
 				for (UINT i = 0; i < cookie_list_size; ++i)
 				{
 					wil::com_ptr<ICoreWebView2Cookie> webview2_cookie;
 					hr = list->GetValueAtIndex(i, &webview2_cookie);
+					if (FAILED(hr))
+						throw webview2_error(hr, "GetValueAtIndex");
 
-					if (webview2_cookie)
+					if (webview2_cookie.get())
 					{
-						http::Cookie cookie = WebviewCookie2Cookie(webview2_cookie.get());
-						if (tools::iequal(cookie.get_domain(), _service_provider_url.get_hostname()) && 
-							cookie.is_secure()) {
-							_service_provider_cookies.add(cookie);
+						const http::Cookie cookie{ WebviewCookie2Cookie(*webview2_cookie.get()) };
+
+						if (cookie.same_domain(_saml_auth_info.service_provider_url.get_hostname()) &&
+							cookie.is_http_only() &&
+							cookie.is_secure()) 
+						{
+							if (cookie.is_expired())
+								_saml_auth_info.cookie_jar.remove(cookie.get_name());
+							else
+								_saml_auth_info.cookie_jar.add(cookie);
+							_web_cookie_manager->DeleteCookie(webview2_cookie.get());
 						}
-
-							// We have the cookie, we can close the dialog
-							//close_dialog(1);
-
-							//_web_cookie_manager->DeleteCookie(webview2_cookie.get());
 					}
+				}
+
+				if (_saml_auth_info.is_authenticated()) {
+					// We are authenticated on the firewall portal
+					close_dialog(TRUE);
 				}
 			}
 			catch (webview2_error& e) {

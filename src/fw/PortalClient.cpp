@@ -8,7 +8,6 @@
 #include "PortalClient.h"
 
 #include <mbedtls/x509_crt.h>
-#include <mbedtls/pk.h>
 #include "http/Request.h"
 #include "http/Cookie.h"
 #include "http/Cookies.h"
@@ -19,7 +18,7 @@
 #include "tools/pugixml.hpp"
 #include "tools/StringMap.h"
 #include "tools/StrUtil.h"
-#include "tools/SysUtil.h"
+#include "tools/X509Crt.h"
 
 
 namespace fw {
@@ -28,14 +27,16 @@ namespace fw {
 
 	PortalClient::PortalClient(const net::Endpoint& ep):
 		HttpsClient(ep),
-		_connected(false),
 		_peer_crt_digest(),
 		_mutex(),
-		_cookies()
+		_cookie_jar()
 	{
 		DEBUG_CTOR(_logger, "PortalClient");
 
-		set_timeout(10000, 10000);
+		// Configure the tls client.
+		if (!set_timeout(10000, 10000))
+			_logger->error("ERROR: failed to configure timeout parameters");
+		set_hostname_verification(true);
 	}
 
 
@@ -46,72 +47,6 @@ namespace fw {
 	}
 
 
-/*
-	bool PortalClient::init_user_crt()
-	{
-		DEBUG_ENTER(_logger, "PortalClient", "init_user_crt");
-		tools::mbed_err rc = 0;
-
-		// free previous user certificate and key
-		mbedtls_x509_crt_free(&_crt_user);
-		mbedtls_pk_free(&_pk_crt_user);
-
-		// get full filename
-		const tools::Path& crt_user_file = _cert_files.crt_user_file;
-		const std::wstring filename{ crt_user_file.to_string() };
-		
-		if (tools::file_exists(filename)) {
-			rc = mbedtls_x509_crt_parse_file(
-				&_crt_user, 
-				tools::wstr2str(filename).c_str()
-			);
-			if (rc != 0) {
-				_logger->info(
-					"ERROR: failed to load user certificate from %s ", 
-					tools::wstr2str(crt_user_file.filename())
-				);
-				_logger->info("%s", tools::mbed_errmsg(rc).c_str());
-
-				goto error;
-			}
-
-			rc = mbedtls_pk_parse_keyfile(
-				&_pk_crt_user, 
-				tools::wstr2str(filename).c_str(), 
-				_cert_files.crt_user_password.c_str()
-			);
-			if (rc != 0) {
-				_logger->info(
-					"ERROR: failed to load user private key from %s ", 
-					tools::wstr2str(crt_user_file.filename()).c_str()
-				);
-				_logger->info("%s", tools::mbed_errmsg(rc).c_str());
-
-				goto error;
-			}
-
-			set_user_crt(&_crt_user, &_pk_crt_user);
-			if (rc != 0) {
-				_logger->info(
-					"ERROR: failed to assign user certificate from %s ", 
-					tools::wstr2str(crt_user_file.filename()).c_str()
-				);
-				_logger->info("%s", tools::mbed_errmsg(rc).c_str());
-
-				goto error;
-			}
-
-			_logger->info(
-				">> user certificate loaded from file '%s'", 
-				tools::wstr2str(crt_user_file.filename()).c_str()
-			);
-		}
-
-	error:
-		return rc == 0;
-	}
-*/
-
 	portal_err PortalClient::open(confirm_crt_fn confirm_crt)
 	{
 		DEBUG_ENTER(_logger, "PortalClient", "open");
@@ -120,7 +55,7 @@ namespace fw {
 
 		_logger->info(">> connecting to %s", host().to_string().c_str());
 
-		// connect to the server
+		// Connect to the server
 		try {
 			HttpsClient::connect();
 		}
@@ -136,6 +71,13 @@ namespace fw {
 
 		// Check the server certificate
 		int crt_status = get_crt_check();
+
+		if (crt_status & MBEDTLS_X509_BADCERT_NOT_TRUSTED) {
+			// The root certificate is not stored in the local certifcate files.
+			// Check if it is stored in Windows CA root store.
+			if (x509crt_is_trusted(get_peer_crt()))
+				crt_status &= ~MBEDTLS_X509_BADCERT_NOT_TRUSTED;
+		}
 
 		if (crt_status == 0) {
 			_logger->info(">> peer X.509 certificate valid");
@@ -155,14 +97,15 @@ namespace fw {
 			}
 		}
 
-		// compute the digest of the certificate.
+		// Compute the digest of the certificate.
+		// The digest is validated later when we reconnect to the server.
 		_peer_crt_digest = CrtDigest(get_peer_crt());
 
-		// get the top page
-		if (!request(http::Request::GET_VERB, http::Url("/"), "", http::Headers(), answer, true))
+		// Get the top page.
+		if (!request(http::Request::GET_VERB, make_url("/"), "", http::Headers(), answer, true))
 			return portal_err::COMM_ERROR;
 
-		// check if the web page exists
+		// Check if the web page exists.
 		if (answer.get_status_code() != HttpsClient::STATUS_OK) {
 			_logger->error("ERROR: portal connection failure");
 			_logger->error("ERROR: %s (HTTP code %d)",
@@ -188,9 +131,9 @@ namespace fw {
 	}
 
 
-	portal_err PortalClient::login(ask_credential_fn ask_credential, ask_code_fn ask_code)
+	portal_err PortalClient::login_basic(ask_credentials_fn ask_credential, ask_pincode_fn ask_code)
 	{
-		DEBUG_ENTER(_logger, "PortalClient", "login");
+		DEBUG_ENTER(_logger, "PortalClient", "login_basic");
 		tools::Mutex::Lock lock{ _mutex };
 
 		// misc initializations
@@ -199,7 +142,7 @@ namespace fw {
 		tools::StringMap params_result;
 		http::Answer answer;
 		std::string body;
-		Credential credential;
+		AuthCredentials credentials;
 
 		// get the login page from the firewall web portal
 		const http::Url login_url = make_url("/remote/login", "lang=en");
@@ -215,21 +158,19 @@ namespace fw {
 			return portal_err::NONE;
 		}
 
-		_cookies.remove("SVPNCOOKIE");
-
-		// ask for credential to user
-		if (!ask_credential(credential))
+		// Ask credentials.
+		if (!ask_credential(credentials))
 			goto terminate;
 
-		// prepare the login form
+		// Prepare the login form.
 		params_query.set("ajax", "1");
-		params_query.set("username", HttpsClient::url_encode(credential.username));
-		params_query.set("credential", HttpsClient::url_encode(credential.password));
+		params_query.set("username", HttpsClient::url_encode(credentials.username));
+		params_query.set("credential", HttpsClient::url_encode(credentials.password));
 
-		// safe erase password stored in memory
-		tools::serase(credential.password);
+		// Safe erase password stored in memory.
+		tools::serase(credentials.password);
 
-		// send the login form
+		// Send the login form.
 		if (!login_check(params_query, answer))
 			goto comm_error;
 
@@ -238,10 +179,10 @@ namespace fw {
 			answer.get_status_code() == HttpsClient::STATUS_FORBIDDEN))
 			goto http_error;
 
-		// get the body from the answer
+		// Get the body from the answer.
 		body = std::string(answer.body().cbegin(), answer.body().cend());
 
-		// check if the return code is present
+		// Check if the return code is present.
 		params_result.add(body, ',');
 		if (params_result.get_int("ret", retcode)) {
 			// firewall is running FortiOS 4 or higher
@@ -254,7 +195,7 @@ namespace fw {
 					// Access denied,
 					// show the error message received from the firewall
 					http::Url redir_url;
-					if (!extract_redir_url(params_result, redir_url))
+					if (!get_redir_url(params_result, redir_url))
 						goto redir_error;
 
 					std::string msg;
@@ -268,9 +209,10 @@ namespace fw {
 				case 1: {
 					// Access allowed
 					http::Url redir_url;
-					if (!extract_redir_url(params_result, redir_url))
+					if (!get_redir_url(params_result, redir_url))
 						goto redir_error;
 
+					redir_url = make_url(redir_url.get_path(), redir_url.get_query());
 					if (!request(http::Request::GET_VERB, redir_url, "", http::Headers(), answer, false))
 						goto comm_error;
 
@@ -284,14 +226,14 @@ namespace fw {
 					// Ask for a token value
 					// 3 = Email based two-factor authentication
 					// 4 = SMS based two-factor authentication
-					Code2FA code2fa;
+					AuthCode code2fa;
 					std::string device;
 					if (params_result.get_str("tokeninfo", device)) {
 						device = http::HttpsClient::url_decode(device);
-						code2fa.info = "Authentication code for " + device;
+						code2fa.prompt = "Authentication code for " + device;
 					}
 					else {
-						code2fa.info = "Authentication code";
+						code2fa.prompt = "Authentication code";
 					}
 					code2fa.code = "";
 					ask_code(code2fa);
@@ -327,11 +269,11 @@ namespace fw {
 					}
 					else {
 						// there is a challenge message 
-						Code2FA challenge;
+						AuthCode challenge;
 						
-						// .. assign a default message
-						challenge.info = "enter code";
-						params_result.get_str("chal_msg", challenge.info);
+						// .. assign a default prompt
+						challenge.prompt = "enter code";
+						params_result.get_str("chal_msg", challenge.prompt);
 
 						// .. ask a code the user
 						ask_code(challenge);
@@ -390,7 +332,7 @@ namespace fw {
 		return portal_err::COMM_ERROR;
 
 	http_error:
-		_logger->error("ERROR: portal login failure - %s (HTTP code %d)",
+		_logger->error("ERROR: portal login_basic failure - %s (HTTP code %d)",
 			answer.get_reason_phrase().c_str(),
 			answer.get_status_code());
 		return portal_err::HTTP_ERROR;
@@ -406,13 +348,40 @@ namespace fw {
 	}
 
 
+	portal_err PortalClient::login_saml(ask_samlauth_fn ask_samlauth)
+	{
+		DEBUG_ENTER(_logger, "PortalClient", "login_saml");
+		tools::Mutex::Lock lock{ _mutex };
+
+		std::string service_provider_crt;
+		if (!X509crt_to_pem(get_peer_crt(), service_provider_crt))
+			return portal_err::CERT_INVALID;
+
+		AuthSamlInfo saml_auth_info{
+			make_url("/remote/saml/start", "realm=").to_string(false),
+			service_provider_crt,
+			_cookie_jar,
+			[this]() -> bool { return this->authenticated(); }
+		};
+
+		if (!ask_samlauth(saml_auth_info))
+			goto terminate;
+
+		return portal_err::NONE;
+
+
+	terminate:
+		return portal_err::LOGIN_CANCELLED;
+	}
+
+
 	void PortalClient::logoff()
 	{
 		DEBUG_ENTER(_logger, "PortalClient", "logoff");
 		tools::Mutex::Lock lock{ _mutex };
 
 		// Delete all session cookies
-		_cookies.clear();
+		_cookie_jar.clear();
 	}
 
 
@@ -519,7 +488,7 @@ namespace fw {
 		Mutex::Lock lock(_mutex);
 
 		const http::Url tunnel_url = make_url("/remote/sslvpn-tunnel");
-		http::Request request{ http::Request::GET_VERB, tunnel_url, _cookies };
+		http::Request request{ http::Request::GET_VERB, tunnel_url, _cookie_jar };
 		request.headers().set("Host", "sslvpn");
 
 		try {
@@ -537,8 +506,8 @@ namespace fw {
 
 	bool PortalClient::authenticated() const
 	{
-		return _cookies.exists("SVPNCOOKIE") && 
-			_cookies.get("SVPNCOOKIE").get_value().length() > 0;
+		return _cookie_jar.exists("SVPNCOOKIE") &&
+			_cookie_jar.get("SVPNCOOKIE").get_value().length() > 0;
 	}
 
 
@@ -608,7 +577,7 @@ namespace fw {
 		DEBUG_ENTER(_logger, "PortalClient", "do_request");
 		
 		// Prepare the request
-		http::Request request{ verb, url, _cookies };
+		http::Request request{ verb, url, _cookie_jar };
 
 		request.headers()
 			.set("Accept", "text/html")
@@ -618,19 +587,41 @@ namespace fw {
 			.set("Cache-Control", "no-cache")
 			.set("Connection", "keep-alive")
 			.set("Host", host().to_string())
-			.set("User-Agent", "Mozilla/5.0")
+			.set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")
 			.add(headers);
 
 		request.set_body((unsigned char *)body.c_str(), body.length());
 
 		// Send and wait for a response
 		const bool success = PortalClient::send_and_receive(request, answer);
-		if (success) {
-			_cookies.add(answer.cookies());
-		}
-		else {
+		if (!success) {
 			// disconnect if not yet done
 			disconnect();
+		}
+		else {
+			// Copy cookies
+			for (auto it = answer.cookies().cbegin(); it != answer.cookies().cend(); it++) {
+				const http::Cookie& cookie = it->second;
+				const std::string url_domain = url.get_hostname();
+
+				if (cookie.get_domain().empty() || cookie.same_domain(url_domain)) {
+					if (cookie.is_expired())
+						_cookie_jar.remove(cookie.get_name());
+					else if (cookie.is_secure() && cookie.is_http_only())
+						_cookie_jar.add(http::Cookie(
+							cookie.get_name(),
+							cookie.get_value(),
+							url_domain,
+							cookie.get_path(),
+							cookie.get_expires(),
+							true,
+							true
+						));
+					else
+						// Do not consider this cookie
+						;
+				}
+			}
 		}
 
 		_logger->debug("... %x       PortalClient::do_request : %s %s (status=%s (%d))",
@@ -656,7 +647,7 @@ namespace fw {
 			answer.headers().get("location", location);
 
 			const http::Url redir_url{ location };
-			if (!do_request(verb, redir_url, body, http::Headers(), answer))
+			if (!do_request(verb, make_url(redir_url.get_path(), redir_url.get_query()), body, http::Headers(), answer))
 				return false;
 		}
 
@@ -664,13 +655,13 @@ namespace fw {
 	}
 
 
-	bool PortalClient::extract_redir_url(const tools::StringMap& params, http::Url& url)
+	bool PortalClient::get_redir_url(const tools::StringMap& params, http::Url& url) const
 	{
 		std::string redir;
 		if (!params.get_str("redir", redir))
 			return false;
 		
-		url = http::Url{ url_decode(redir) };
+		url = url_decode(redir);
 		return true;
 	}
 

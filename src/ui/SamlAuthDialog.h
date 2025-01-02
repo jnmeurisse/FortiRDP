@@ -11,6 +11,7 @@
 #include <Windows.h>
 #include <wil/com.h>
 #include <WebView2.h>
+#include "fw/AuthTypes.h"
 #include "http/Url.h"
 #include "http/Cookies.h"
 #include "tools/Logger.h"
@@ -33,16 +34,8 @@ namespace ui {
 	class SamlAuthDialog final : public ModalDialog
 	{
 	public:
-		explicit SamlAuthDialog(HINSTANCE hInstance, HWND hParent);
+		explicit SamlAuthDialog(HINSTANCE hInstance, HWND hParent, fw::AuthSamlInfo* pSamlInfo);
 		~SamlAuthDialog();
-
-		void set_service_provider_url(const http::Url& url);
-		const http::Url& get_service_provider_url() const;
-
-		void set_service_provider_crt(const std::string& crt);
-		const std::string& get_service_provider_crt() const;
-
-		const http::Cookies& get_service_provider_cookies() const;
 
 		ui::saml_err get_saml_error() const;
 
@@ -50,14 +43,7 @@ namespace ui {
 		// the application logger
 		tools::Logger* const _logger;
 
-		// The Service Provider URL
-		http::Url _service_provider_url;
-
-		// The Service Provider certificate
-		std::string _service_provider_crt;
-
-		// The Service Provider auth cookie
-		http::Cookies _service_provider_cookies;
+		fw::AuthSamlInfo& _saml_auth_info;
 
 		// Set to true when this dialog can be closed.
 		bool _can_close;
@@ -74,6 +60,7 @@ namespace ui {
 		virtual INT_PTR onCreateDialogMessage(WPARAM wParam, LPARAM lParam) override;
 		virtual INT_PTR onSysCommandMessage(WPARAM wParam, LPARAM lParam);
 
+		HRESULT onWebViewNavigationStarting(ICoreWebView2* sender, ICoreWebView2NavigationStartingEventArgs* args);
 		HRESULT onWebViewNavigationCompleted(ICoreWebView2* sender, ICoreWebView2NavigationCompletedEventArgs* args);
 		HRESULT onSourceChanged(ICoreWebView2* sender, ICoreWebView2SourceChangedEventArgs* args);
 		HRESULT onWebViewServerCertificateErrorDetected(ICoreWebView2* sender, ICoreWebView2ServerCertificateErrorDetectedEventArgs* args);

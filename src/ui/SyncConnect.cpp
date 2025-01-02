@@ -12,8 +12,9 @@
 
 
 namespace ui {
-	SyncConnect::SyncConnect(HWND hwnd, fw::PortalClient* portal) :
+	SyncConnect::SyncConnect(HWND hwnd, fw::AuthMethod auth_method, fw::PortalClient* portal) :
 		SyncProc(hwnd, AsyncMessage::ConnectedEvent),
+		_auth_method(auth_method),
 		_portal(portal)
 	{
 		DEBUG_CTOR(_logger, "SyncConnect");
@@ -52,15 +53,21 @@ namespace ui {
 	}
 
 
-	bool SyncConnect::ask_credential(fw::Credential& credential)
+	bool SyncConnect::ask_credentials(fw::AuthCredentials& credential)
 	{
-		return AsyncMessage::ShowCredentialDialogRequest.send(_hwnd, (void*)&credential) == TRUE;
+		return AsyncMessage::ShowCredentialsDialogRequest.send(_hwnd, (void*)&credential) == TRUE;
 	}
 
 
-	bool SyncConnect::ask_code(fw::Code2FA& code2fa)
+	bool SyncConnect::ask_pincode(fw::AuthCode& code2fa)
 	{
 		return AsyncMessage::ShowPinCodeDialogRequest.send(_hwnd, (void*)&code2fa) == TRUE;
+	}
+
+
+	bool SyncConnect::ask_saml_auth(fw::AuthSamlInfo& saml_info)
+	{
+		return AsyncMessage::ShowSamlAuthDialogRequest.send(_hwnd, (void*)&saml_info) == TRUE;
 	}
 
 
@@ -68,41 +75,71 @@ namespace ui {
 	{
 		DEBUG_ENTER(_logger, "SyncConnect", "procedure");
 
-		// Open the https connection
-		fw::confirm_crt_fn confirm_crt_callback = [this](const mbedtls_x509_crt* crt, int status) {
-			return confirm_certificate(crt, status);
-		};
-		int rc = _portal->open(confirm_crt_callback);
+		bool connected = false;
 
-		if (rc) {
-			// report errors.
-			if (rc != fw::portal_err::CERT_UNTRUSTED) {
-				showErrorMessageDialog(L"Connection error");
+		// Open an https connection with the firewall portal.
+		{
+			fw::confirm_crt_fn confirm_crt_callback = [this](const mbedtls_x509_crt* crt, int status) {
+				return confirm_certificate(crt, status);
+			};
+			fw::portal_err rc = _portal->open(confirm_crt_callback);
+
+			if (rc != fw::portal_err::NONE) {
+				// report errors.
+				if (rc != fw::portal_err::CERT_UNTRUSTED) {
+					showErrorMessageDialog(L"Connection error");
+				}
 			}
-
+			else
+				connected = true;
 		}
-		else {
-			auto ask_credential_callback = [this](fw::Credential& credential) {
-				return ask_credential(credential);
-			};
 
-			auto ask_code_callback = [this](fw::Code2FA& code) {
-				return ask_code(code);
-			};
+		// Start the authentication procedure.
+		if (connected) {
+			switch (_auth_method) {
+				case fw::AuthMethod::BASIC:
+				case fw::AuthMethod::DEFAULT:
+				{
+					auto ask_credentials_callback = [this](fw::AuthCredentials& credential) {
+						return ask_credentials(credential);
+					};
 
-			// loop while user enter wrong credentials
+					auto ask_pincode_callback = [this](fw::AuthCode& code) {
+						return ask_pincode(code);
+					};
 
-			do {
-				rc = _portal->login(ask_credential_callback, ask_code_callback);
-				if (rc) {
-					// report errors.
-					if (rc != fw::portal_err::LOGIN_CANCELLED) {
+					// loop while user enter wrong credentials
+					fw::portal_err rc;
+					do {
+						rc = _portal->login_basic(ask_credentials_callback, ask_pincode_callback);
+						if (rc != fw::portal_err::NONE) {
+							// report errors.
+							if (rc != fw::portal_err::LOGIN_CANCELLED) {
+								showErrorMessageDialog(L"Login error");
+							}
+						}
+					} while (rc == fw::portal_err::ACCESS_DENIED);
+				}
+				break;
+
+				case fw::AuthMethod::CERTIFICATE:
+					break;
+
+				case fw::AuthMethod::SAML:
+				{
+					auto ask_samlauth_callback = [this](fw::AuthSamlInfo& saml_info) {
+						return ask_saml_auth(saml_info);
+					};
+
+					fw::portal_err rc = _portal->login_saml(ask_samlauth_callback);
+					if (rc != fw::portal_err::NONE) {
 						showErrorMessageDialog(L"Login error");
 					}
 				}
-			} while (rc == fw::portal_err::ACCESS_DENIED);
+				break;
+			}
 
-			if (!rc) {
+			if (_portal->authenticated()) {
 				fw::PortalInfo portal_info;
 				if (_portal->get_info(portal_info)) {
 					_logger->info(">> portal info user=%s group=%s",
@@ -118,7 +155,7 @@ namespace ui {
 			}
 		}
 
-		return rc == 0;
+		return connected && _portal->connected() && _portal->authenticated();
 	}
 
 }

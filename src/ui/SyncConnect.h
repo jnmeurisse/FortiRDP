@@ -9,6 +9,7 @@
 
 #include <Windows.h>
 #include <mbedtls/x509_crt.h>
+#include "fw/AuthTypes.h"
 #include "fw/PortalClient.h"
 #include "ui/SyncProc.h"
 
@@ -22,10 +23,11 @@ namespace ui {
 	class SyncConnect final : public SyncProc
 	{
 	public:
-		explicit SyncConnect(HWND hwnd, fw::PortalClient* portal);
+		explicit SyncConnect(HWND hwnd, fw::AuthMethod auth_method, fw::PortalClient* portal);
 		~SyncConnect();
 
 	private:
+		const fw::AuthMethod _auth_method;
 		fw::PortalClient* const _portal;
 
 		// send a show error message command to the window specified by hwnd
@@ -35,10 +37,13 @@ namespace ui {
 		bool confirm_certificate(const mbedtls_x509_crt* crt, int status);
 
 		// callback called to ask user to provide a user name/password
-		bool ask_credential(fw::Credential& credential);
+		bool ask_credentials(fw::AuthCredentials& credential);
 
-		// callback called to ask user to provide a 2fa code
-		bool ask_code(fw::Code2FA& code2fa);
+		// callback called to ask user to provide a pin code
+		bool ask_pincode(fw::AuthCode& code2fa);
+
+		// callback called when authenticating a user with SAML.
+		bool ask_saml_auth(fw::AuthSamlInfo& saml_info);
 
 		// connect procedure
 		virtual bool procedure() override;
