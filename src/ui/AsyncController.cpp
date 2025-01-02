@@ -129,16 +129,16 @@ namespace ui {
 	}
 
 
-	bool AsyncController::connect(const net::Endpoint& firewall_endpoint)
+	bool AsyncController::connect(const net::Endpoint& firewall_endpoint, const std::string& realm)
 	{
 		if (_logger->is_debug_enabled()) {
-			_logger->debug("... %x enter AsyncController::connect ep=%s",
+			_logger->debug("... %x enter AsyncController::connect ep=%s realm=%s",
 				(uintptr_t)this,
 				firewall_endpoint.to_string().c_str());
 		}
 
 		// Start the async connect procedure
-		_portal = std::make_unique<fw::PortalClient>(firewall_endpoint);
+		_portal = std::make_unique<fw::PortalClient>(firewall_endpoint, realm);
 		_portal->set_ca_crt(_ca_crt->get_crt());
 
 		if (_auth_method == fw::AuthMethod::CERTIFICATE && _user_crt)

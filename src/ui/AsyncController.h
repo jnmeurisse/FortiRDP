@@ -59,7 +59,7 @@ namespace ui {
 		/* Connects the controller to the firewall. The methods creates a portal
 		   client and connects it to the firewall.
 		*/
-		bool connect(const net::Endpoint& firewall_endpoint);
+		bool connect(const net::Endpoint& firewall_endpoint, const std::string& realm);
 
 		/* Creates a tunnel with the firewall
 		*/

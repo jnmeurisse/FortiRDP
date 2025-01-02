@@ -203,12 +203,26 @@ namespace ui {
 	}
 
 
+	static bool in_range(int value, int min, int max)
+	{
+		return (value >= min) && (value <= max);
+	}
+
+
 	void ConnectDialog::connect(bool clear_log)
 	{
 		// Check if fw and host addresses are valid
 		try {
-			std::string fw_addr{ tools::trim(tools::wstr2str(getFirewallAddress())) };
+			// Split the address and the domain if specified
+			std::vector<std::wstring> address_parts;
+			if (!in_range(tools::split(tools::trim(getFirewallAddress()), '/', address_parts), 1, 2))
+				throw std::invalid_argument("invalid syntax");
+
+			std::string fw_addr{ tools::trim(tools::wstr2str(address_parts[0])) };
 			_firewall_endpoint = net::Endpoint(fw_addr, DEFAULT_FW_PORT);
+
+			if (address_parts.size() == 2)
+				_firewall_domain = tools::trim(tools::wstr2str(address_parts[1]));
 
 		}
 		catch (const std::invalid_argument&) {
@@ -357,7 +371,7 @@ namespace ui {
 			::EnableMenuItem(get_sys_menu(false), SYSCMD_OPTIONS, MF_BYCOMMAND | MF_DISABLED);
 
 		// start the client
-		_controller->connect(_firewall_endpoint);
+		_controller->connect(_firewall_endpoint, _firewall_domain);
 	}
 
 

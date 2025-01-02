@@ -17,6 +17,7 @@
 #include "tools/Logger.h"
 #include "tools/pugixml.hpp"
 #include "tools/StringMap.h"
+#include "tools/StringMap.h"
 #include "tools/StrUtil.h"
 #include "tools/X509Crt.h"
 
@@ -25,10 +26,11 @@ namespace fw {
 
 	using namespace tools;
 
-	PortalClient::PortalClient(const net::Endpoint& ep):
+	PortalClient::PortalClient(const net::Endpoint& ep, const std::string& realm):
 		HttpsClient(ep),
 		_peer_crt_digest(),
 		_mutex(),
+		_realm(realm),
 		_cookie_jar()
 	{
 		DEBUG_CTOR(_logger, "PortalClient");
@@ -73,7 +75,7 @@ namespace fw {
 		int crt_status = get_crt_check();
 
 		if (crt_status & MBEDTLS_X509_BADCERT_NOT_TRUSTED) {
-			// The root certificate is not stored in the local certifcate files.
+			// The root certificate is not stored in the local certificate files.
 			// Check if it is stored in Windows CA root store.
 			if (x509crt_is_trusted(get_peer_crt()))
 				crt_status &= ~MBEDTLS_X509_BADCERT_NOT_TRUSTED;
@@ -102,7 +104,8 @@ namespace fw {
 		_peer_crt_digest = CrtDigest(get_peer_crt());
 
 		// Get the top page.
-		if (!request(http::Request::GET_VERB, make_url("/"), "", http::Headers(), answer, true))
+		// Allows redirection if required.
+		if (!request(http::Request::GET_VERB, make_url("/" + _realm), "", http::Headers(), answer, 2))
 			return portal_err::COMM_ERROR;
 
 		// Check if the web page exists.
@@ -127,7 +130,7 @@ namespace fw {
 		http::Headers headers;
 		headers.set("Content-Type", "text/plain;charset=UTF-8");
 		
-		return request(http::Request::POST_VERB, make_url("/remote/logincheck"), params.join("&"), headers, answer, false);
+		return request(http::Request::POST_VERB, make_url("/remote/logincheck"), params.join("&"), headers, answer, 0);
 	}
 
 
@@ -144,9 +147,13 @@ namespace fw {
 		std::string body;
 		AuthCredentials credentials;
 
-		// get the login page from the firewall web portal
-		const http::Url login_url = make_url("/remote/login", "lang=en");
-		if (!request(http::Request::GET_VERB, login_url, "", http::Headers(), answer, true))
+
+		// Get the login form
+		if (!_realm.empty())
+			params_query.set("realm", _realm);
+		params_query.set("lang", "en");
+		const http::Url login_url = make_url("/remote/login", params_query.join("&"));
+		if (!request(http::Request::GET_VERB, login_url, "", http::Headers(), answer, 0))
 			goto comm_error;
 
 		// check if page is available
@@ -159,10 +166,14 @@ namespace fw {
 		}
 
 		// Ask credentials.
+		_logger->info(">> auth mode : basic");
 		if (!ask_credential(credentials))
 			goto terminate;
 
 		// Prepare the login form.
+		params_query.serase();
+		if (!_realm.empty())
+			params_query.set("realm", _realm);
 		params_query.set("ajax", "1");
 		params_query.set("username", HttpsClient::url_encode(credentials.username));
 		params_query.set("credential", HttpsClient::url_encode(credentials.password));
@@ -213,7 +224,7 @@ namespace fw {
 						goto redir_error;
 
 					redir_url = make_url(redir_url.get_path(), redir_url.get_query());
-					if (!request(http::Request::GET_VERB, redir_url, "", http::Headers(), answer, false))
+					if (!request(http::Request::GET_VERB, redir_url, "", http::Headers(), answer, 0))
 						goto comm_error;
 
 					if (answer.get_status_code() != HttpsClient::STATUS_OK)
@@ -358,17 +369,17 @@ namespace fw {
 			return portal_err::CERT_INVALID;
 
 		AuthSamlInfo saml_auth_info{
-			make_url("/remote/saml/start", "realm=").to_string(false),
+			make_url("/remote/saml/start", "realm=" + _realm).to_string(false),
 			service_provider_crt,
 			_cookie_jar,
 			[this]() -> bool { return this->authenticated(); }
 		};
 
+		_logger->info(">> auth mode : saml");
 		if (!ask_samlauth(saml_auth_info))
 			goto terminate;
 
 		return portal_err::NONE;
-
 
 	terminate:
 		return portal_err::LOGIN_CANCELLED;
@@ -397,7 +408,7 @@ namespace fw {
 		http::Answer answer;
 
 		const http::Url portal_url = make_url("/remote/portal", "access");
-		bool ok = request(http::Request::GET_VERB, portal_url, "", headers, answer, false);
+		bool ok = request(http::Request::GET_VERB, portal_url, "", headers, answer, 0);
 		if (ok && answer.get_status_code() == HttpsClient::STATUS_OK) {
 			const tools::ByteBuffer& body = answer.body();
 			const std::string data{ body.cbegin(), body.cend() };
@@ -434,7 +445,7 @@ namespace fw {
 		// Get the vpn configuration.  
 		// This call is mandatory, without it we don't get an IP address from the fortigate
 		const http::Url vpninfo_url = make_url("/remote/fortisslvpn_xml");
-		if (!request(http::Request::GET_VERB, vpninfo_url, "", headers, answer, false))
+		if (!request(http::Request::GET_VERB, vpninfo_url, "", headers, answer, 0))
 		{
 			// Log an error message
 			_logger->error("ERROR: portal configuration failure");
@@ -636,19 +647,25 @@ namespace fw {
 
 
 	bool PortalClient::request(const std::string& verb, const http::Url& url,
-		const std::string& body, const http::Headers& headers, http::Answer& answer, bool allow_redir)
+		const std::string& body, const http::Headers& headers, http::Answer& answer, int allow_redir)
 	{
+		if (allow_redir < 0) {
+			_logger->error("ERROR: Redirect failed");
+			return false;
+		}
+
 		if (!do_request(verb, url, body, headers, answer))
 			return false;
 
-		// redirect if required
-		if (answer.get_status_code() == HttpsClient::STATUS_FOUND && allow_redir) {
+		// Redirect if required
+		const int status_code = answer.get_status_code();
+		if ((status_code == STATUS_TEMPORARY_REDIRECT || status_code == HttpsClient::STATUS_FOUND) && allow_redir >= 0) {
 			std::string location;
-			answer.headers().get("location", location);
-
-			const http::Url redir_url{ location };
-			if (!do_request(verb, make_url(redir_url.get_path(), redir_url.get_query()), body, http::Headers(), answer))
-				return false;
+			if (answer.headers().get("Location", location)) {
+				const http::Url redir_url{ location };
+				if (!request(verb, make_url(redir_url.get_path(), redir_url.get_query()), body, headers, answer, allow_redir - 1))
+					return false;
+			}
 		}
 
 		return true;

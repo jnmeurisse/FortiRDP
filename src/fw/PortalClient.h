@@ -66,7 +66,7 @@ namespace fw {
 	class PortalClient final : public http::HttpsClient
 	{
 	public:
-		explicit PortalClient(const net::Endpoint& ep);
+		explicit PortalClient(const net::Endpoint& ep, const std::string& realm);
 		~PortalClient();
 
 		/* Opens the connection. The confirm_crt_fn function is called when
@@ -81,6 +81,10 @@ namespace fw {
 		*/
 		portal_err login_basic(ask_credentials_fn ask_credential, ask_pincode_fn ask_code);
 
+		/* Logins into the portal. The ask_samlauth function is called when
+		 * the user must enter SAML credentials.
+		 * The method returns ERR_NONE if authentication succeeds.
+		*/
 		portal_err login_saml(ask_samlauth_fn ask_samlauth);
 
 		/* Log-offs from the portal.
@@ -118,6 +122,9 @@ namespace fw {
 		// mutex to serialize calls
 		tools::Mutex _mutex;
 
+		// The fortiGate realm
+		const std::string _realm;
+
 		// Sends a request and wait for a response.
 		bool send_and_receive(http::Request& request, http::Answer& answer);
 
@@ -125,9 +132,9 @@ namespace fw {
 		bool do_request(const std::string& verb, const http::Url& url, const std::string& body,
 			const http::Headers& headers, http::Answer& answer);
 
-		// Sends a request and wait for a response, follows redirect if allow_redir is true.
+		// Sends a request and wait for a response, follows redirect if allow_redir is >= 0.
 		bool request(const std::string& verb, const http::Url& url, const std::string& body,
-			const http::Headers& headers, http::Answer& answer, bool allow_redir);
+			const http::Headers& headers, http::Answer& answer, int allow_redir);
 
 		// Sends a login check to the firewall portal.
 		bool login_check(const tools::StringMap& params, http::Answer& answer);
