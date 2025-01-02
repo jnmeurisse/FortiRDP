@@ -43,6 +43,10 @@ namespace net {
 		*/
 		mbed_err set_user_crt(mbedtls_x509_crt* own_crt, mbedtls_pk_context *own_key);
 
+		/* enable/disable client hostname verification
+		*/
+		void set_hostname_verification(bool enable_verification);
+
 		/* Initiates a connection to the specified endpoint.
 		 *
 		 * @param  ep Then endpoint to connect to
@@ -90,6 +94,7 @@ namespace net {
 		mbedtls_entropy_context _entropy_ctx;
 		mbedtls_ctr_drbg_context _ctr_drbg;
 		mbedtls_ssl_config _ssl_config;
+		bool _enable_hostname_verification;
 
 		// the ssl socket
 		mbedtls_ssl_context _ssl_context;
