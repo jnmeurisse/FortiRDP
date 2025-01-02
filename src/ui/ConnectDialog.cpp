@@ -12,11 +12,11 @@
 #include <system_error>
 #include <vector>
 #include "ui/AboutDialog.h"
-#include "ui/CredentialDialog.h"
-#include "ui/PinCodeDialog.h"
-#include "ui/OptionsDialog.h"
-#include "ui/SamlDialog.h"
 #include "ui/AsyncMessage.h"
+#include "ui/CredentialDialog.h"
+#include "ui/OptionsDialog.h"
+#include "ui/PinCodeDialog.h"
+#include "ui/SamlAuthDialog.h"
 #include "tools/Mutex.h"
 #include "tools/StrUtil.h"
 #include "tools/SysUtil.h"
@@ -50,7 +50,7 @@ namespace ui {
 		set_control_font(IDC_STATUSTEXT, _msg_font);
 
 		// create a black brush used to fill the IDC_STATUSTEXT control
-		_bg_brush = CreateSolidBrush(RGB(0, 0, 0));
+		_bg_brush = ::CreateSolidBrush(RGB(0, 0, 0));
 
 		_anim_font = create_font(10, L"Consolas");
 		if (!_anim_font)
@@ -203,7 +203,7 @@ namespace ui {
 	}
 
 
-	void ConnectDialog::connect()
+	void ConnectDialog::connect(bool clear_log)
 	{
 		// Check if fw and host addresses are valid
 		try {
@@ -291,6 +291,13 @@ namespace ui {
 			return;
 		}
 
+		// Configure the authentication method
+		fw::AuthMethod auth_method = _params.auth_method();
+		if (auth_method == fw::AuthMethod::DEFAULT) {
+			auth_method = _settings.get_auth_method();
+		}
+		_controller->set_auth_method(auth_method);
+
 		//  Load user certificate
 		if (_params.us_cert_filename().length() > 0) {
 			tools::Path user_crt;
@@ -329,12 +336,14 @@ namespace ui {
 				std::wstring message{ L"User certificate file not loaded" };
 				showErrorMessageDialog(message.c_str());
 				return;
-
 			}
+
+			_controller->set_auth_method(fw::AuthMethod::CERTIFICATE);
 		}
 
 		// Clear the information log
-		clearInfo();
+		if (clear_log)
+			clearInfo();
 
 		// Disable all controls on this dialog and show the disconnect button
 		set_control_enable(IDC_CONNECT, false);
@@ -359,7 +368,7 @@ namespace ui {
 	}
 
 
-	void ConnectDialog::showCredentialDialog(fw::Credential* pCredential)
+	void ConnectDialog::showCredentialsDialog(fw::AuthCredentials* pCredentials)
 	{
 		CredentialDialog credentialDialog(instance_handle(), window_handle());
 		const std::string message{ "Enter user name and password to access firewall " + _controller->portal()->host().hostname() };
@@ -367,11 +376,11 @@ namespace ui {
 		credentialDialog.setUsername(_username);
 
 		const bool modal_result = credentialDialog.show_modal() == TRUE;
-		if (modal_result && pCredential) {
+		if (modal_result && pCredentials) {
 			// returns user name and password to caller
 			_username = credentialDialog.getUsername();
-			pCredential->username = _username;
-			pCredential->password = credentialDialog.getPassword();
+			pCredentials->username = _username;
+			pCredentials->password = credentialDialog.getPassword();
 
 			// save user name in last usage registry but only if not specified on the command line
 			if (_params.username().empty())
@@ -382,12 +391,23 @@ namespace ui {
 	}
 
 
-	void ConnectDialog::showPinCodeDialog(fw::Code2FA* pCode)
+	void ConnectDialog::showSamlDialog(fw::AuthSamlInfo* pSamlInfo)
+	{
+		saml_err saml_error = saml_err::NONE;
+		SamlAuthDialog samlDialog{ instance_handle(), window_handle(), pSamlInfo };
+
+		const bool modal_result = samlDialog.show_modal() == TRUE;
+
+		::ReplyMessage(modal_result);
+	}
+
+
+	void ConnectDialog::showPinCodeDialog(fw::AuthCode* pCode)
 	{
 		PinCodeDialog codeDialog{ instance_handle(), window_handle() };
 		const std::string message = (!pCode)
 			? "Enter code to access firewall " + _controller->portal()->host().hostname()
-			: pCode->info;
+			: pCode->prompt;
 		codeDialog.setText(tools::str2wstr(message));
 
 		const bool modal_result = codeDialog.show_modal() == TRUE;
@@ -428,7 +448,7 @@ namespace ui {
 			break;
 
 		case IDC_CONNECT:
-			connect();
+			connect(lParam != 0);
 			break;
 
 		case IDC_DISCONNECT:
@@ -478,7 +498,7 @@ namespace ui {
 
 	INT_PTR ConnectDialog::onCtlColorStaticMessage(WPARAM wParam, LPARAM lParam)
 	{
-		if (lParam == (WPARAM)GetDlgItem(window_handle(), IDC_STATUSTEXT)) {
+		if (lParam == (WPARAM)control_handle(IDC_STATUSTEXT)) {
 			HDC static_text = (HDC)wParam;
 			::SetTextColor(static_text, RGB(0, 255, 255));
 			::SetBkColor(static_text, RGB(0, 0, 0));
@@ -609,6 +629,9 @@ namespace ui {
 			optionsDialog.rdp_filename = _settings.get_rdp_filename();
 		}
 
+		optionsDialog.auth_method = _settings.get_auth_method();
+
+
 		if (optionsDialog.show_modal()) {
 			if (optionsDialog.full_screen_updatable)
 				_settings.set_full_screen(optionsDialog.full_screen);
@@ -626,6 +649,7 @@ namespace ui {
 				_settings.set_rdpfile_mode(optionsDialog.rdpfile_mode);
 				_settings.set_rdp_filename(optionsDialog.rdp_filename);
 			}
+			_settings.set_auth_method(optionsDialog.auth_method);
 		}
 	}
 
@@ -683,7 +707,7 @@ namespace ui {
 				rdp_server.del_value(L"UsernameHint");
 			}
 			catch (std::system_error& err) {
-				_logger->debug("ERROR : ClearRdpHistory %s", err.what());
+				_logger->debug("ERROR: ClearRdpHistory %s", err.what());
 			}
 
 			tools::RegKey rdp_default{
@@ -705,7 +729,7 @@ namespace ui {
 					}
 				}
 				catch (std::system_error& err) {
-					_logger->debug("ERROR : ClearRdpHistory %s", err.what());
+					_logger->debug("ERROR: ClearRdpHistory %s", err.what());
 				}
 			}
 		}
@@ -806,12 +830,16 @@ namespace ui {
 			outputInfoMessage(static_cast<const char*>(param));
 
 		}
-		else if (AsyncMessage::ShowCredentialDialogRequest == eventNumber) {
-			showCredentialDialog(static_cast<fw::Credential*>(param));
+		else if (AsyncMessage::ShowCredentialsDialogRequest == eventNumber) {
+			showCredentialsDialog(static_cast<fw::AuthCredentials*>(param));
 
 		}
 		else if (AsyncMessage::ShowPinCodeDialogRequest == eventNumber) {
-			showPinCodeDialog(static_cast<fw::Code2FA*>(param));
+			showPinCodeDialog(static_cast<fw::AuthCode*>(param));
+
+		}
+		else if (AsyncMessage::ShowSamlAuthDialogRequest == eventNumber) {
+			showSamlDialog(static_cast<fw::AuthSamlInfo*>(param));
 
 		}
 		else if (AsyncMessage::ShowInvalidCertificateDialogRequest == eventNumber) {

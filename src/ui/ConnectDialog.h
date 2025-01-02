@@ -12,7 +12,7 @@
 #include <string>
 #include <memory>
 #include <chrono>
-#include "fw/PortalClient.h"
+#include "fw/AuthTypes.h"
 #include "net/Endpoint.h"
 #include "tools/Mutex.h"
 #include "tools/Logger.h"
@@ -94,7 +94,7 @@ namespace ui {
 		std::list<std::wstring> _msg_buffer;
 		tools::Mutex _msg_mutex;
 
-		void connect();
+		void connect(bool clear_log);
 		void disconnect();
 		void startTask();
 		void clearRdpHistory();
@@ -114,8 +114,9 @@ namespace ui {
 		void showAboutDialog();
 		void showOptionsDialog();
 		void showErrorMessageDialog(const wchar_t* pText);
-		void showCredentialDialog(fw::Credential* pCredential);
-		void showPinCodeDialog(fw::Code2FA* pCode);
+		void showCredentialsDialog(fw::AuthCredentials* pCredential);
+		void showSamlDialog(fw::AuthSamlInfo* pSamlInfo);
+		void showPinCodeDialog(fw::AuthCode* pCode);
 		void showInvalidCertificateDialog(const char* pText);
 		void disconnectFromFirewall(bool success);
 
