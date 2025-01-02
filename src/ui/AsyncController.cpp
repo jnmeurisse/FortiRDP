@@ -28,7 +28,8 @@ namespace ui {
 		_readyEvent(false),
 		_hwnd(hwnd),
 		_ca_crt(),
-		_user_crt()
+		_user_crt(),
+		_auth_method(fw::AuthMethod::BASIC)
 	{
 		DEBUG_CTOR(_logger, "AsyncController");
 		start();
@@ -122,6 +123,12 @@ namespace ui {
 	}
 
 
+	void AsyncController::set_auth_method(fw::AuthMethod auth_method)
+	{
+		_auth_method = auth_method;
+	}
+
+
 	bool AsyncController::connect(const net::Endpoint& firewall_endpoint)
 	{
 		if (_logger->is_debug_enabled()) {
@@ -133,7 +140,8 @@ namespace ui {
 		// Start the async connect procedure
 		_portal = std::make_unique<fw::PortalClient>(firewall_endpoint);
 		_portal->set_ca_crt(_ca_crt->get_crt());
-		if (_user_crt)
+
+		if (_auth_method == fw::AuthMethod::CERTIFICATE && _user_crt)
 			_portal->set_user_crt(_user_crt->crt.get_crt(), _user_crt->pk.get_pk());
 
 		request_action(AsyncController::CONNECT);
@@ -296,7 +304,7 @@ namespace ui {
 				switch (_action)
 				{
 				case AsyncController::CONNECT:
-					procedure = std::make_unique<SyncConnect>(_hwnd, _portal.get());
+					procedure = std::make_unique<SyncConnect>(_hwnd, _auth_method, _portal.get());
 					break;
 
 				case AsyncController::TUNNEL:
@@ -349,6 +357,7 @@ namespace ui {
 						e.what());
 					terminated = true;
 
+					
 					throw;
 				}
 			}

@@ -44,13 +44,17 @@ namespace ui {
 		~AsyncController();
 
 		/* Initialize the CA certificate chain from the given file.
-		*  The root CA certificate isused to authenticate the server.
+		*  The root CA certificate issued to authenticate the server.
 		*/
 		bool load_ca_crt(const tools::Path& filename);
 
 		/* Initialize the user certificate
 		*/
 		bool load_user_crt(const tools::Path& filename, ask_crt_passcode_fn ask_passcode);
+
+		/* Configure the authentication method
+		*/
+		void set_auth_method(fw::AuthMethod auth_method);
 
 		/* Connects the controller to the firewall. The methods creates a portal
 		   client and connects it to the firewall.
@@ -116,6 +120,9 @@ namespace ui {
 
 		// - user certificate
 		tools::UserCrtPtr _user_crt;
+
+		// - authentication method
+		fw::AuthMethod _auth_method;
 
 		std::unique_ptr<fw::PortalClient> _portal;
 		std::unique_ptr<net::Tunneler> _tunnel;
