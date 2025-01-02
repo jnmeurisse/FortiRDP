@@ -58,11 +58,11 @@ namespace ui {
 		case IDOK:
 			_code = get_control_text(IDC_CODE);
 
-			close(TRUE);
+			close_dialog(TRUE);
 			break;
 
 		case IDCANCEL:
-			close(FALSE);
+			close_dialog(FALSE);
 			break;
 
 		default:
