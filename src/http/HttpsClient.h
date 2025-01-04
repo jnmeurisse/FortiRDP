@@ -26,7 +26,7 @@ namespace http {
 	class HttpsClient : public net::TlsSocket
 	{
 	public:
-		explicit HttpsClient(const net::Endpoint& ep);
+		explicit HttpsClient(const net::Endpoint& ep, const net::SslConfig& config);
 		virtual ~HttpsClient();
 		
 		/* Returns the endpoint to which this client is connected.
@@ -38,13 +38,13 @@ namespace http {
 		 * The client must reconnect the server if the keep alive timer
 		 * has expired or if the number of requests has exceeded the maximum
 		 * number of requests a client can send to the server. These two
-		 * parameters are returned by the server. If not returned, we use default
+		 * parameters are returned by the server. If not provided, we use default
 		 * values (60 seconds and 100 requests).
 		*/
-		bool must_reconnect() const;
+		bool must_reconnect();
 
 		/* Connects this client to the specified endpoint.
-		*  May throw mbed_error
+		 * May throw mbed_error
 		*/
 		void connect();
 
@@ -53,12 +53,12 @@ namespace http {
 		void disconnect();
 
 		/* Sends a request to the server.
-		*  May throw mbed_error
+		 * May throw mbed_error
 		*/
 		void send_request(Request& request);
 
 		/* Receives a response from the server.
-		*  May throw mbed_error or httpcli_error
+		 * May throw mbed_error or httpcli_error
 		*/
 		void recv_answer(Answer& answer);
 

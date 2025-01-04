@@ -6,40 +6,41 @@
 *
 */
 #pragma once
-#include <Windows.h>
-
 #include "tools/Logger.h"
 
 namespace tools {
 	class Timer final
 	{
 	public:
-		/* Constructs and starts the timer for the specified number of milli-seconds.
+		/* Constructs and starts the timer for the specified delay (ms).
 		*/
-		explicit Timer(int ms);
-
-		/* Copy constructor.
-		*/
-		explicit Timer(const Timer& timer);
+		explicit Timer(uint32_t delay);
 
 		/* Destructor.
 		*/
 		~Timer();
 
-		/* Starts the timer for the specified number of milli-seconds
+		/* Restarts the timer for the specified delay (ms)
 		*/
-		void start(int ms);
+		void start(uint32_t delay) noexcept;
 
 		/* Returns true if the timer has elapsed
 		*/
-		bool elapsed() const;
+		bool is_elapsed() noexcept;
+
+		/* Returns the remaining time (ms) before the timer elapses 
+		*/
+		uint32_t remaining_delay() const noexcept;
 
 	private:
 		// A reference to the application logger
 		Logger* const _logger;
 		
-		// Handle to the windows timer
-		HANDLE _handle;
+		// End time of the timer
+		uint64_t _due_time;
+
+		// Timer elapsed
+		bool _elapsed;
 	};
 
 }

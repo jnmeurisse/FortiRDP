@@ -52,24 +52,24 @@ typedef enum netctx_poll_status_code {
 typedef struct netctx_poll_status {
 	netctx_poll_status_code  status_code;
 	netctx_poll_mode event;
-	mbed_err errnum;
+	mbed_errnum errnum;
 } netctx_poll_status;
 
 typedef struct netctx_rcv_status {
 	netctx_rcv_status_code status_code;
-	mbed_err errnum;
+	mbed_errnum errnum;
 	size_t rbytes;
 } netctx_rcv_status;
 
 
 typedef struct netctx_snd_status {
 	netctx_snd_status_code status_code;
-	mbed_err errnum;
+	mbed_errnum errnum;
 	size_t sbytes;
 } netctx_snd_status;
 
 
 typedef struct sslctx_handshake_status {
 	netctx_hdk_status_code status_code;
-	mbed_err errnum;
+	mbed_errnum errnum;
 } sslctx_handshake_status;

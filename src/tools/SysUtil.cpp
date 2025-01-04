@@ -13,8 +13,6 @@
 #include "tools/SysUtil.h"
 #include "tools/StrUtil.h"
 
-#include "mbedtls/error.h"
-
 
 namespace tools {
 

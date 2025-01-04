@@ -77,7 +77,7 @@ namespace fw {
 
 
 	// Callbacks definition
-	using confirm_crt_fn = std::function<bool (const mbedtls_x509_crt*, int)>;
+	using confirm_crt_fn = std::function<bool (const x509crt*, int)>;
 	using ask_credential_fn = std::function<bool (Credential&)>;
 	using ask_code_fn = std::function<bool (Code2FA&)>;
 
@@ -87,12 +87,8 @@ namespace fw {
 	class PortalClient final : public http::HttpsClient
 	{
 	public:
-		explicit PortalClient(const net::Endpoint& ep, const CertFiles& cert_files);
+		explicit PortalClient(const net::Endpoint& ep, const net::SslConfig& config);
 		~PortalClient();
-
-		/* Returns portal certificate files
-		*/
-		inline const CertFiles& get_cert_files() const noexcept { return _cert_files; }
 
 		/* Opens the connection. The confirm_crt_fn function is called when
 		 * the user is asked to accept the server certificate. The method returns
@@ -132,16 +128,6 @@ namespace fw {
 		bool authenticated() const;
 
 	private:
-		// Portal certificates
-		CertFiles _cert_files;
-
-		// The CA public certificate if loaded.
-		mbedtls_x509_crt _crt_auth;
-
-		// The user certificate and its private key if loaded.
-		mbedtls_x509_crt _crt_user;
-		mbedtls_pk_context _pk_crt_user;
-
 		// The peer certificate digest
 		CrtDigest _peer_crt_digest;
 

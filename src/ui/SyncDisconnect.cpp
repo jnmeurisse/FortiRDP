@@ -64,7 +64,7 @@ bool SyncDisconnect::procedure()
 		_portal->logoff();
 	} 
 
-	if (_portal && _portal->connected()) {
+	if (_portal && _portal->is_connected()) {
 		_logger->debug("... close portal %x", _portal);
 		_portal->close();
 

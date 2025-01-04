@@ -6,6 +6,7 @@
 *
 */
 #pragma once
+#include <cstdint>
 #include <string>
 
 #include "http/Headers.h"
@@ -14,6 +15,7 @@
 
 #include "net/Socket.h"
 
+#include "tools/Timer.h"
 #include "tools/Logger.h"
 #include "tools/ByteBuffer.h"
 #include "tools/ErrUtil.h"
@@ -21,10 +23,13 @@
 
 namespace http {
 	using namespace tools;
+	using namespace net;
 
 	class Request final
 	{
 	public:
+		using byte = uint8_t;
+
 		/* Allocates a HTTP request message
 		 *
 		 * @param verb The HTTP verb
@@ -36,11 +41,12 @@ namespace http {
 		/* Clears the request */
 		void clear();
 
-		/* Sets the body
+		/* Sets the request body
+		 *
 		 * @param data The buffer to send with this request
 		 * @param size The size of the specified data buffer
 		*/
-		Request& set_body(const unsigned char* data, size_t size);
+		Request& set_body(const byte* data, size_t size);
 
 		/* Returns the request's url
 		*/
@@ -59,7 +65,7 @@ namespace http {
 		 * @param socket The socket connected to the server
 		 * Throws an mbed_error in case of failure.
 		 */
-		void send(net::Socket& socket);
+		void send(Socket& socket, Timer& timer);
 
 		/* Most common HTTP verbs */
 		static const std::string GET_VERB;
@@ -71,8 +77,8 @@ namespace http {
 		static const std::string TRACE_VERB;
 
 	private:
-		// a reference to the application logger
-		tools::Logger* const _logger;
+		// A reference to the application logger
+		Logger* const _logger;
 
 		// Fixed components of the HTTP request
 		const std::string _verb;
@@ -82,6 +88,8 @@ namespace http {
 		// Dynamic components of the HTTP request
 		Headers _headers;
 		tools::ByteBuffer _body;
+
+		void write_buffer(Socket& socket, const byte* buffer, size_t len, Timer& timer);
 	};
 
 }

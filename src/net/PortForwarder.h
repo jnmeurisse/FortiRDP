@@ -18,6 +18,7 @@
 
 
 namespace net {
+	using SocketPtr = std::unique_ptr<Socket>;
 
 	class PortForwarder final {
 	public:
@@ -75,7 +76,7 @@ namespace net {
 
 		/* Returns true if this forwarder can still flush the reply queue
 		*/
-		inline bool can_rflush() const noexcept { return  _local_server.connected(); }
+		inline bool can_rflush() const noexcept { return  _local_server->is_connected(); }
 
 		/* Returns true if this forwarder can still flush the forward queue
 		*/
@@ -83,7 +84,7 @@ namespace net {
 
 		/* Returns the underlying socket file descriptor
 		*/
-		inline int get_fd() const noexcept { return _local_server.get_fd(); }
+		inline int get_fd() const noexcept { return _local_server->get_fd(); }
 		
 		/* try to receive data from the local client and store it in the 
 		*  forward queue. 
@@ -140,7 +141,7 @@ namespace net {
 		const int _keepalive;
 
 		// local endpoint acting as a server. 
-		Socket _local_server;
+		SocketPtr _local_server;
 		
 		// local endpoint acting as a client.
 		struct ::tcp_pcb* _local_client;

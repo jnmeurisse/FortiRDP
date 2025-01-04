@@ -9,17 +9,21 @@
 //
 
 #include <iostream>
-
 #include <io.h>
 #include <fcntl.h>
+
+#include "net\SslConfig.h"
 #include "ui\fortirdp.h"
 #include "ui\ConnectDialog.h"
 #include "ui\CmdlineParams.h"
 #include "tools\Logger.h"
 #include "tools\Path.h"
+
 #include "lwip\init.h"
 #include "lwip\dns.h"
 
+#include "mbedccl\init.h"
+#include "mbedccl\debug.h"
 
 #pragma comment(linker,"\"/manifestdependency:type='win32' \
 	name='Microsoft.Windows.Common-Controls' version='6.0.0.0' \
@@ -31,7 +35,8 @@ INT_PTR CALLBACK About(HWND, UINT, WPARAM, LPARAM);
 static void RedirectStdioToConsole();
 static bool is_wow64();
 static void lwip_log_cb(void *ctx, int level, const char* fmt, va_list args);
-
+static void show_fatal_error();
+static void debug_fn(int level, const char* buffer, void* data);
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	_In_opt_ HINSTANCE hPrevInstance,
@@ -87,15 +92,26 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 			logger->set_level(tools::Logger::LL_TRACE);
 	}
 
+
 	// Initialize lwip stack
 	lwip_init();
-	dns_init();
+	//TODO: remove this call, was called in lwip_init : dns_init();
 	sys_set_logger(lwip_log_cb, logger);
 
-	// Create the main dialog in a reduced scope.  This forces the
-	// compiler to destroy the ConnectDialog when the application loop
-	// ends (and before the destruction of the logger).
-	{
+	// Initialize the mbedtls c++ compatibility layer
+	mbed_errnum errnum = ::mbedccl_initialize();
+	if (errnum != 0) {
+		show_fatal_error();
+	} 
+	else {
+		// Configure a debug callback
+		::mbedccl_set_debug_cb(debug_fn, logger);
+		//TODO: mbedccl_set_debug_treshod(logger->get_level());
+		::mbedccl_set_debug_treshod(2);
+
+		// Create the main dialog in a reduced scope.  This forces the
+		// compiler to destroy the ConnectDialog when the application loop
+		// ends (and before the destruction of the logger).
 		ConnectDialog main_dialog(hInstance, cmdline_params);
 		main_dialog.show_window(nCmdShow);
 
@@ -109,6 +125,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 		}
 	}
 
+	mbedccl_terminate();
+
 	if (cmdline_params.verbose()) {
 		logger->debug("End.");
 		writer.flush();
@@ -117,7 +135,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
 	return 0;
 }
-
 
 
 static void RedirectStdioToConsole()
@@ -206,3 +223,19 @@ static void lwip_log_cb(void *ctx, int level, const char* fmt, va_list args)
 		break;
 	}
 }
+
+static void show_fatal_error()
+{
+	::MessageBox(0, L"mbedssl library initialization failure.", L"FortiRDP error", MB_SYSTEMMODAL);
+}
+
+static void debug_fn(int level, const char* buffer, void* data)
+{
+	((void)level);
+	tools::Logger* const logger = (tools::Logger *)data;
+
+	if (logger && level != 0 && strlen(buffer) > 0) {
+		logger->trace(buffer);
+	}
+}
+

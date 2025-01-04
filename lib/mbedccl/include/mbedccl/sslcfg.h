@@ -35,7 +35,7 @@ void sslcfg_free(sslcfg* cfg);
  * Configure a SSL configuration context.
  * The function initializes the context with all options required by fortirdp.
  */
-mbed_err sslcfg_configure(sslcfg* cfg, rngctx* ctx);
+mbed_errnum sslcfg_configure(sslcfg* cfg, rngctx* ctx);
 
 /**
  * Enable/disable the debug callback.
@@ -44,7 +44,7 @@ void sslcfg_enable_debug(sslcfg* cfg, int onoff);
 
 /**
 */
-mbed_err sslfcg_set_ca_chain(sslcfg* cfg, x509crt* crt);
+mbed_errnum sslfcg_set_ca_chain(sslcfg* cfg, x509crt* crt);
 
 #ifdef __cplusplus
 }

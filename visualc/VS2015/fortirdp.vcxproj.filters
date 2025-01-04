@@ -22,6 +22,9 @@
     <Filter Include="sources\tools">
       <UniqueIdentifier>{83133963-3525-430b-90be-0ad5ad076025}</UniqueIdentifier>
     </Filter>
+    <Filter Include="sources\ccl">
+      <UniqueIdentifier>{3657f767-7b29-4acd-b62c-31ecc1e5a14a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\ui\AboutDialog.cpp">
@@ -215,6 +218,12 @@
     </ClCompile>
     <ClCompile Include="..\..\src\fw\CrtDigest.cpp">
       <Filter>sources\fw</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\net\TcpSocket.cpp">
+      <Filter>sources\net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\net\SslConfig.cpp">
+      <Filter>sources\net</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -421,6 +430,30 @@
     </ClInclude>
     <ClInclude Include="..\..\src\fw\CrtDigest.h">
       <Filter>sources\fw</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\net\TcpSocket.h">
+      <Filter>sources\net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\net\SslConfig.h">
+      <Filter>sources\net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\ccl\NetCtxPtr.h">
+      <Filter>sources\ccl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\ccl\RngCtxPtr.h">
+      <Filter>sources\ccl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\ccl\SslCfgPtr.h">
+      <Filter>sources\ccl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\ccl\SslCtxPtr.h">
+      <Filter>sources\ccl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\ccl\X509CrtPtr.h">
+      <Filter>sources\ccl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\ccl\PkCtxPtr.h">
+      <Filter>sources\ccl</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

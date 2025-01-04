@@ -24,34 +24,45 @@ static const int default_ciphers[] = {
 
 sslcfg* sslcfg_alloc()
 {
-	sslcfg* cfg = malloc(sizeof(mbedtls_ssl_config));
-	if (cfg) {
-		mbedtls_ssl_config* const ssl_config = (mbedtls_ssl_config*)cfg;
-		mbedtls_ssl_config_init(ssl_config);
-	}
+	mbedtls_ssl_config* const ssl_config = malloc(sizeof(mbedtls_ssl_config));
 
-	return cfg;
+	if (ssl_config)
+		mbedtls_ssl_config_init(ssl_config);
+
+	return (sslcfg*)ssl_config;
 }
 
 
-mbed_err sslcfg_config(sslcfg* cfg, rngctx* ctx)
+void sslcfg_free(sslcfg* cfg)
 {
-	mbed_err rc = MBEDTLS_ERR_SSL_BAD_INPUT_DATA;
+	mbedtls_ssl_config* const ssl_config = (mbedtls_ssl_config*)cfg;
+
+	if (ssl_config) {
+		// free all memory allocated by MBED tls library
+		mbedtls_ssl_config_free(ssl_config);
+		free(ssl_config);
+	}
+}
+
+
+mbed_errnum sslcfg_configure(sslcfg* cfg, rngctx* ctx)
+{
+	mbed_errnum errnum = MBEDTLS_ERR_SSL_BAD_INPUT_DATA;
 	mbedtls_ssl_config* const ssl_config = (mbedtls_ssl_config*)cfg;
 
 	if (ssl_config && ctx) {
-		rc = mbedtls_ssl_config_defaults(
+		errnum = mbedtls_ssl_config_defaults(
 			ssl_config,
 			MBEDTLS_SSL_IS_CLIENT,
 			MBEDTLS_SSL_TRANSPORT_STREAM,
 			MBEDTLS_SSL_PRESET_DEFAULT);
-		if (rc)
+		if (errnum)
 			goto terminate;
 
 		// override defaults
 		mbedtls_ssl_conf_authmode(
 			ssl_config,
-			MBEDTLS_SSL_VERIFY_OPTIONAL);
+			MBEDTLS_SSL_VERIFY_REQUIRED);
 		mbedtls_ssl_conf_rng(
 			ssl_config,
 			mbedtls_ctr_drbg_random,
@@ -74,21 +85,8 @@ mbed_err sslcfg_config(sslcfg* cfg, rngctx* ctx)
 	}
 
 terminate:
-	return rc;
+	return errnum;
 }
-
-
-void sslcfg_free(sslcfg* cfg)
-{
-	mbedtls_ssl_config* const ssl_config = (mbedtls_ssl_config*)cfg;
-
-	if (ssl_config) {
-		// free all memory allocated by SSL library
-		mbedtls_ssl_config_free(ssl_config);
-		free(ssl_config);
-	}
-}
-
 
 
 void sslcfg_enable_debug(sslcfg* cfg, int onoff)
@@ -104,17 +102,18 @@ void sslcfg_enable_debug(sslcfg* cfg, int onoff)
 }
 
 
-mbed_err sslfcg_set_ca_chain(sslcfg* cfg, x509crt* crt)
+mbed_errnum sslfcg_set_ca_chain(sslcfg* cfg, x509crt* crt)
 {
-	mbed_err rc = MBEDTLS_ERR_SSL_BAD_INPUT_DATA;
+	mbed_errnum errnum = MBEDTLS_ERR_SSL_BAD_INPUT_DATA;
 	mbedtls_ssl_config* const ssl_config = (mbedtls_ssl_config*)cfg;
 	mbedtls_x509_crt* const x509_crt = (mbedtls_x509_crt *)crt;
 
 	if (ssl_config && x509_crt) {
 		mbedtls_ssl_conf_ca_chain(ssl_config, x509_crt, 0);
+		errnum = 0;
 	}
 
-	return rc;
+	return errnum;
 }
 
 

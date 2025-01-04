@@ -5,9 +5,15 @@
 * SPDX-License-Identifier: Apache-2.0
 *
 */
+#include <memory>
 
+#include "ccl/NetCtxPtr.h"
+
+#include "net/TcpSocket.h"
 #include "net/PortForwarder.h"
+
 #include "tools/SysUtil.h"
+
 #include "lwip/timeouts.h"
 #include "lwip/tcp.h"
 
@@ -17,7 +23,6 @@ namespace net {
 	PortForwarder::PortForwarder(const Endpoint& endpoint, bool tcp_nodelay, int keepalive) :
 		_logger(Logger::get_logger()),
 		_endpoint(endpoint),
-		_local_server(),
 		_local_client(nullptr),
 		_tcp_nodelay(tcp_nodelay),
 		_keepalive(keepalive),
@@ -49,32 +54,40 @@ namespace net {
 		DEBUG_ENTER(_logger, "PortForwarder", "connect");
 
 		if (_state != State::READY) {
-			_logger->error("ERROR: PortForwarder %x not in READY state", this);
+			_logger->error(
+				"ERROR: PortForwarder %x not in READY state", 
+				std::addressof(this));
+
 			return false;
 		}
 
-		// Accept the connection from the local client
-		const mbed_err rc_accept = listener.accept(_local_server);
-		if (rc_accept != 0) {
+		// Accept the connection initiated by a local client
+		ccl::netctx_ptr accepting_ctx{ ::netctx_alloc(), ::netctx_free };
+		if (!accepting_ctx.get())
+			throw std::bad_alloc();
+
+		const mbed_errnum errnum_accept = listener.accept(*accepting_ctx.get());
+		if (errnum_accept != 0) {
 			_logger->error("ERROR: PortForwarder %x - accept error %s.",
-				this,
-				mbed_errmsg(rc_accept).c_str());
+				std::addressof(this),
+				mbed_errmsg(errnum_accept).c_str());
 
 			_state = State::FAILED;
 			return false;
 		}
 
+		_local_server = std::make_unique<TcpSocket>(accepting_ctx.release());
 		// Disable nagle algorithm on the local server
-		_local_server.set_nodelay(_tcp_nodelay);
+		_local_server->set_nodelay(_tcp_nodelay);
 
-		// Resolve the end point host name to an ip address
+		// Resolve the end point host name to an IP address
 		ip_addr_t addr;
-		const mbed_err rc_query = DnsClient::query(_endpoint.hostname(), addr, dns_found_cb, this);
-		if (rc_query == ERR_OK || rc_query == ERR_INPROGRESS) {
+		const mbed_errnum errnum_query = DnsClient::query(_endpoint.hostname(), addr, dns_found_cb, this);
+		if (errnum_query == ERR_OK || errnum_query == ERR_INPROGRESS) {
 			// Name is resolved or not yet resolved
 			_state = State::CONNECTING;
 		}
-		else if (rc_query == ERR_VAL) {
+		else if (errnum_query == ERR_VAL) {
 			// DNS server not configured
 			_state = State::FAILED;
 			_logger->error("ERROR: DNS server not configured, can not resolve %s",
@@ -84,8 +97,8 @@ namespace net {
 			// Error during name resolution
 			_state = State::FAILED;
 			_logger->error("ERROR: PortForwarder %x - DNS error - %s",
-				this,
-				lwip_errmsg(rc_query).c_str());
+				std::addressof(this),
+				lwip_errmsg(errnum_query).c_str());
 		}
 
 		if (_state == State::FAILED)
@@ -94,7 +107,8 @@ namespace net {
 		// Allocate the TCP client
 		_local_client = tcp_new();
 		if (!_local_client) {
-			_logger->error("ERROR: PortForwarder %x - memory allocation failure.", this);
+			_logger->error("ERROR: PortForwarder %x - memory allocation failure.", 
+				std::addressof(this));
 
 			_state = State::FAILED;
 			return false;
@@ -113,7 +127,7 @@ namespace net {
 			_local_client->keep_intvl = _keepalive;
 		}
 
-		if (rc_query == ERR_OK) {
+		if (errnum_query == ERR_OK) {
 			// Host name is resolved
 			dns_found_cb(_endpoint.hostname().c_str(), &addr, this);
 		}
@@ -134,7 +148,7 @@ namespace net {
 		_state = State::DISCONNECTING;
 
 		// Close our server.
-		_local_server.close();
+		_local_server->close();
 
 		// It is not possible to reply to the server anymore, we can clear the reply queue.
 		_reply_queue.clear();
@@ -151,7 +165,8 @@ namespace net {
 		DEBUG_ENTER(_logger, "PortForwarder", "abort");
 
 		if (!(_state == State::CONNECTED || _state == State::CONNECTING)) {
-			_logger->error("ERROR: PortForwarder %x - not in connected or connecting state", this);
+			_logger->error("ERROR: PortForwarder %x - not in connected or connecting state", 
+				std::addressof(this));
 			return;
 		}
 		_state = State::DISCONNECTING;
@@ -176,18 +191,21 @@ namespace net {
 			return false;
 
 		byte buffer[2048];
-		int rc = _local_server.recv(buffer, sizeof(buffer));
-		if (rc <= 0) {
+		netctx_rcv_status rc = _local_server->recv(buffer, sizeof(buffer));
+		if (rc.status_code != NETCTX_RCV_OK) {
 			return false;
 		}
 
-		pbuf* const data = pbuf_alloc(PBUF_RAW, rc, PBUF_RAM);
+		// received bytes is lower than 2048, cast is safe.
+		u16_t length = static_cast<u16_t>(rc.rbytes);
+		pbuf* const data = pbuf_alloc(PBUF_RAW, length, PBUF_RAM);
 		if (!data) {
-			_logger->error("ERROR: PortForwarder %x - memory allocation error", this);
+			_logger->error("ERROR: PortForwarder %x - memory allocation error", 
+				std::addressof(this));
 			return false;
 		}
 
-		pbuf_take(data, buffer, rc);
+		pbuf_take(data, buffer, length);
 		_forward_queue.append(data);
 		pbuf_free(data);
 
@@ -222,8 +240,7 @@ namespace net {
 		if (_state != State::CONNECTED) 
 			return false;
 
-		size_t written;
-		return _reply_queue.write(_local_server, written) == 0;
+		return _reply_queue.write(*_local_server).status_code != NETCTX_SND_ERROR;
 	}
 
 
@@ -272,16 +289,15 @@ namespace net {
 		}
 
 		// send what we can
-		size_t written;
-		mbed_err rc = _reply_queue.write(_local_server, written);
+		netctx_snd_status rc = _reply_queue.write(*_local_server);
 
 		// Stop to reply 
 		//        if an error has occurred, 
 		//     or if all data has been forwarded
 		//     or if we are not able to forward in a fixed delay. 
-		if (rc < 0 || _rflush_timeout || _forward_queue.empty()) {
+		if (rc.status_code == NETCTX_SND_ERROR || _rflush_timeout || _forward_queue.empty()) {
 			_forward_queue.clear();
-			_local_server.close();
+			_local_server->close();
 			_state = State::DISCONNECTED;
 		}
 	}
@@ -331,7 +347,7 @@ namespace net {
 			tcp_close(pf->_local_client);
 
 			// close the local server socket
-			pf->_local_server.close();
+			pf->_local_server->close();
 		}
 	}
 
@@ -380,8 +396,8 @@ namespace net {
 		pf->_state = PortForwarder::State::DISCONNECTED;
 
 		// Close our server if not yet done
-		if (pf->_local_server.connected())
-			pf->_local_server.close();
+		if (pf->_local_server->is_connected())
+			pf->_local_server->close();
 	}
 
 
@@ -401,7 +417,7 @@ namespace net {
 		int len = 0;
 
 		if (p) {
-			if (!pf->_local_server.connected()) {
+			if (!pf->_local_server->is_connected()) {
 				// The local server is disconnected, we can discard any received data.
 				// It is no longer possible to forward it.
 				tcp_recved(tpcb, p->tot_len);

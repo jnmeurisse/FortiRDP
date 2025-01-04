@@ -7,12 +7,15 @@
 */
 #pragma once
 
+#include <memory>
 #include <string>
-#include "mbedTLS/net_sockets.h"
+
+#include "ccl/NetCtxPtr.h"
 
 #include "net/Endpoint.h"
+
 #include "tools/ErrUtil.h"
-#include "tools/Mutex.h"
+#include "tools/Timer.h"
 #include "tools/Logger.h"
 
 namespace net {
@@ -22,35 +25,21 @@ namespace net {
 	class Socket
 	{
 	public:
-		Socket();
 		virtual ~Socket();
 
 		/* Connects this socket to the specified end point
 		*/
-		mbed_err connect(const Endpoint& ep);
-
-		/* Attaches the net context to this socket
-		*/
-		bool attach(const mbedtls_net_context& netctx);
+		virtual mbed_errnum connect(const Endpoint& ep) = 0;
 
 		/* Closes gracefully the socket
 		*/
-		void close();
-
-		/* Sets time-outs involved in send and receive operations.
-		 * Time-out values are expressed in milliseconds. 
-		*/
-		bool set_timeout(DWORD send_timeout, DWORD recv_timeout);
+		virtual mbed_errnum close() = 0;
 
 		/* Sets no delay option (disable Nagle algorithm)
 		*/
-		bool set_nodelay(bool no_delay);
+		virtual mbed_errnum set_nodelay(bool no_delay) = 0;
 
-		/* Sets the socket blocking mode
-		*/
-		bool set_blocking(bool blocking);
-
-		/* Receives data from the socket. The buffer pointed to by the
+		/* Receives data from the socket. The buffer pointed by the
 		 * buf parameter will contain the data received. The maximum amount
 		 * of data to be received at once is specified by len.
 		 *
@@ -59,9 +48,9 @@ namespace net {
 		 * returns 0 if the socket has been closed, or a negative error code
 		 * if an error has occurred.
 		*/
-		virtual int recv(unsigned char* buf, const size_t len);
+		virtual netctx_rcv_status recv(unsigned char* buf, size_t len) = 0;
 
-		/* Sends data to the socket. The buffer pointed to by the by buf
+		/* Sends data to the socket. The buffer pointed by buf
 		 * parameter must contain the data. The amount of data to sent is
 		 * specified by the parameter len.
 		 *
@@ -69,74 +58,37 @@ namespace net {
 		 * than the number requested to be sent. If an error has occurred,
 		 * the function returns a negative error code.
 		*/
-		virtual int send(const unsigned char* buf, const size_t len);
+		virtual netctx_snd_status send(const unsigned char* buf, size_t len) = 0;
 
-		/* Flushes data that can be in the local socket buffer and forces
-		 * to send it to the server.
+		/* Reads a sequence of bytes from the socket. The buffer pointed by
+		* the buffer parameter will contain the data received. The number of bytes to
+		* read is specified by the len parameter.
+		*
+		* @param buf The buffer to store received data
+		* @param len Number of bytes to read
+		*
 		*/
-		virtual mbed_err flush();
+		virtual netctx_rcv_status read(unsigned char* buf, size_t len, Timer& timer) = 0;
 
-		/* Reads data from the socket. The buffer pointed to by the buf
-		 * parameter will contain the data received. The number of bytes to
-		 * read is specified by the len parameter.
-		 *
-		 * The function returns 0 if the socket has been closed, or a negative
-		 * error code if an error has occurred.
-		*/
-		int read(unsigned char* buf, const size_t len);
-
-		/* Writes data from the socket. The buffer pointed to by the buf
-		 * parameter must contain the data. The number of bytes to write is
-		 * specified by the parameter len.
-		 *
-		 * The function returns the number of bytes sent or a negative error
-		 * code if an error has occurred.
-		*/
-		int write(const unsigned char* buf, const size_t len);
+		virtual netctx_snd_status write(const unsigned char* buf, size_t len, Timer& timer) = 0;
 
 		/* Returns true if the socket is connected
 		*/
-		bool connected() const noexcept;
+		bool is_connected() const;
 
 		/* Returns the socket descriptor
 		*/
-		inline int get_fd() const noexcept { return _netctx.fd; };
+		virtual int get_fd() const = 0;
 
 	protected:
-		virtual mbed_err do_connect(const Endpoint& ep);
-		virtual void do_close();
+		Socket(::netctx* netctx);
+		inline netctx* get_ctx() const noexcept { return _netctx.get(); }
 
-	protected:
 		// a reference to the application logger
 		tools::Logger* const _logger;
 
-		// the ssl socket 
-		mbedtls_net_context _netctx;
-
 	private:
-		// a mutex to guarantee thread safety
-		tools::Mutex _mutex;
-
-		// send and receive time-out values
-		DWORD _send_timeout;
-		DWORD _recv_timeout;
-
-		// Disable Naggle algorithm if true
-		bool _no_delay;
-
-		// Blocking mode
-		bool _blocking;
-
-		// Apply configured option to this socket
-		enum SocketOptions
-		{
-			all,
-			nodelay,
-			blocking,
-			timeout
-		};
-
-		bool apply_opt(enum SocketOptions option);
+		// the network context 
+		const ccl::netctx_ptr _netctx;
 	};
-
 }

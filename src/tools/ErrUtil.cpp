@@ -10,7 +10,7 @@
 #include "tools/ErrUtil.h"
 #include "tools/StrUtil.h"
 
-#include "mbedtls/error.h"
+#include "mbedccl/error.h"
 #include "lwip/def.h"
 
 namespace tools {
@@ -36,13 +36,13 @@ namespace tools {
 	}
 
 
-	std::string mbed_errmsg(const mbed_err errnum)
+	std::string mbed_errmsg(const mbed_errnum errnum)
 	{
 		std::ostringstream os;
 		char buffer[2048] = { 0 };
 
 		// get mbedtls error
-		mbedtls_strerror(errnum, buffer, sizeof(buffer) - 1);
+		mbedccl_strerror(errnum, buffer, sizeof(buffer) - 1);
 
 		// format the error message
 		os << buffer << " (-0x" << std::hex << -errnum << ")";
