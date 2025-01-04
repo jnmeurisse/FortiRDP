@@ -6,20 +6,18 @@
 *
 */
 #pragma once
-#include <string>
 
+#include <string>
 #include "http/Headers.h"
 #include "http/Cookies.h"
 #include "http/Url.h"
-
 #include "net/Socket.h"
-
 #include "tools/Logger.h"
 #include "tools/ByteBuffer.h"
-#include "tools/ErrUtil.h"
 
 
 namespace http {
+
 	using namespace tools;
 
 	class Request final
@@ -29,9 +27,9 @@ namespace http {
 		 *
 		 * @param verb The HTTP verb
 		 * @param url  The url
-		 * @param cookies the cookies store
+		 * @param cookies The cookie jar
 		*/
-		explicit Request(const std::string& verb, const Url& url, const Cookies& cookies);
+		explicit Request(const std::string& verb, const Url& url, const Cookies& cookie_jar);
 
 		/* Clears the request */
 		void clear();
@@ -50,10 +48,6 @@ namespace http {
 		*/
 		inline Headers& headers() { return _headers; }
 		
-		/* The request's cookies
-		*/
-		inline const Cookies& cookies() const noexcept { return _cookies; }
-
 		/* Sends this request to the server
 		 *
 		 * @param socket The socket connected to the server
@@ -74,10 +68,12 @@ namespace http {
 		// a reference to the application logger
 		tools::Logger* const _logger;
 
+		// All cookies (a reference to the cookie jar)
+		const Cookies& _cookies;
+
 		// Fixed components of the HTTP request
 		const std::string _verb;
 		const Url _url;
-		const Cookies _cookies;
 
 		// Dynamic components of the HTTP request
 		Headers _headers;

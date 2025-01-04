@@ -5,12 +5,14 @@
 * SPDX-License-Identifier: Apache-2.0
 *
 */
-#include <iostream>
+#include "Socket.h"
 
+#include <iostream>
 #include "tools/Logger.h"
-#include "net/Socket.h"
+
 
 namespace net {
+
 	using namespace tools;
 
 	Socket::Socket() :
@@ -231,7 +233,7 @@ namespace net {
 			if (option == SocketOptions::all || option == SocketOptions::nodelay) {
 				const int tcp_nodelay = _no_delay ? 1 : 0;
 				if (setsockopt(_netctx.fd, IPPROTO_TCP, TCP_NODELAY, (const char *)&tcp_nodelay, sizeof(tcp_nodelay)) != 0) {
-					_logger->error("ERROR : set nodelay error %x on socket %x, fd=%d",
+					_logger->error("ERROR: set nodelay error %x on socket %x, fd=%d",
 						::WSAGetLastError(),
 						(uintptr_t)this,
 						_netctx.fd);
@@ -242,7 +244,7 @@ namespace net {
 
 			if (option == SocketOptions::all || option == SocketOptions::timeout) {
 				if (setsockopt(_netctx.fd, SOL_SOCKET, SO_RCVTIMEO, (const char *)&_recv_timeout, sizeof(_recv_timeout)) != 0) {
-					_logger->error("ERROR : set receive time-out error %x on socket %x, fd=%d",
+					_logger->error("ERROR: set receive time-out error %x on socket %x, fd=%d",
 						::WSAGetLastError(),
 						(uintptr_t)this,
 						_netctx.fd);
@@ -251,7 +253,7 @@ namespace net {
 				}
 
 				if (setsockopt(_netctx.fd, SOL_SOCKET, SO_SNDTIMEO, (const char *)&_send_timeout, sizeof(_send_timeout)) != 0) {
-					_logger->error("ERROR : set send time-out error %x on socket %x, fd=%d",
+					_logger->error("ERROR: set send time-out error %x on socket %x, fd=%d",
 						::WSAGetLastError(),
 						(uintptr_t)this,
 						_netctx.fd);
@@ -277,4 +279,5 @@ namespace net {
 		
 		return rc;
 	}
+
 }

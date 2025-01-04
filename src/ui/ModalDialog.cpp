@@ -7,19 +7,23 @@
 */
 #include "ModalDialog.h"
 
-ModalDialog::ModalDialog(HINSTANCE hInstance, HWND hParent, int idd):
-	Dialog(hInstance, hParent, idd)
-{
-}
+namespace ui {
+
+	ModalDialog::ModalDialog(HINSTANCE hInstance, HWND hParent, int idd) :
+		Dialog(hInstance, hParent, idd)
+	{
+	}
 
 
-void ModalDialog::close(INT_PTR result)
-{
-	::EndDialog(window_handle(), result);
-}
+	bool ModalDialog::close_dialog(INT_PTR result)
+	{
+		return ::EndDialog(window_handle(), result) != 0;
+	}
 
 
-INT_PTR ModalDialog::showModal()
-{
-	return Dialog::create_modal_dialog();
+	INT_PTR ModalDialog::show_modal()
+	{
+		return Dialog::create_modal_dialog();
+	}
+
 }

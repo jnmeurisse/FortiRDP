@@ -11,19 +11,26 @@
 #include <Windows.h>
 #include "ui/Dialog.h"
 
-/**
-* A modal dialog base class. The caller must call showModal to display the
-* dialog. The derived class must implement a onCreateDialogMessage to initialize
-* the dialog.
-*/
-class ModalDialog : public Dialog
-{
-public:
-	explicit ModalDialog(HINSTANCE hInstance, HWND hParent, int idd);
+namespace ui {
 
-	/* destroys this modal dialog.
+	/**
+	* A modal dialog base class. The caller must call show_modal to display the
+	* dialog. The derived class must implement a onCreateDialogMessage to initialize
+	* the dialog.
 	*/
-	void close(INT_PTR result);
+	class ModalDialog : public Dialog
+	{
+	public:
+		explicit ModalDialog(HINSTANCE hInstance, HWND hParent, int idd);
 
-	INT_PTR showModal();
-};
+		/* destroys this modal dialog.
+		*/
+		bool close_dialog(INT_PTR result);
+
+		/* creates and shows this modal dialog.  The function returns the value
+		*  passed in the call to close_dialog.
+		*/
+		INT_PTR show_modal();
+	};
+
+}

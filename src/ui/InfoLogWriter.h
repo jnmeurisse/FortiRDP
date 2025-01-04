@@ -6,19 +6,23 @@
 *
 */
 #pragma once
+
 #include <Windows.h>
 #include "tools/Logger.h"
 
 
-class InfoLogWriter final : public tools::LogWriter
-{
-public:
-	explicit InfoLogWriter(HWND hWnd);
-	virtual ~InfoLogWriter();
+namespace ui {
 
-	virtual void write(tools::Logger::Level level, const char* text) override;
+	class InfoLogWriter final : public tools::LogWriter
+	{
+	public:
+		explicit InfoLogWriter(HWND hWnd);
+		virtual ~InfoLogWriter();
 
-private:
-	const HWND _hWnd;
-};
+		virtual void write(tools::Logger::Level level, const char* text) override;
 
+	private:
+		const HWND _hWnd;
+	};
+
+}

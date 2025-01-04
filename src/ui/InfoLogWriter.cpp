@@ -6,23 +6,28 @@
 *
 */
 #include "InfoLogWriter.h"
-#include "AsyncMessage.h"
 
+#include <cstring>
+#include "ui/AsyncMessage.h"
 
-InfoLogWriter::InfoLogWriter(HWND hWnd):
-	_hWnd(hWnd)
-{
-}
+namespace ui {
 
-
-InfoLogWriter::~InfoLogWriter()
-{
-}
-
-
-void InfoLogWriter::write(tools::Logger::Level level, const char* text)
-{
-	if (level >= tools::Logger::LL_INFO) {
-		AsyncMessage::OutputInfoMessageRequest.post(_hWnd, (void *)_strdup(text));
+	InfoLogWriter::InfoLogWriter(HWND hWnd) :
+		_hWnd(hWnd)
+	{
 	}
+
+
+	InfoLogWriter::~InfoLogWriter()
+	{
+	}
+
+
+	void InfoLogWriter::write(tools::Logger::Level level, const char* text)
+	{
+		if (level >= tools::Logger::LL_INFO) {
+			AsyncMessage::OutputInfoMessageRequest.post(_hWnd, (void*)_strdup(text));
+		}
+	}
+
 }

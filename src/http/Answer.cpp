@@ -5,9 +5,14 @@
 * SPDX-License-Identifier: Apache-2.0
 *
 */
-#include "http/Answer.h"
+#include "Answer.h"
+
+#include <string>
+#include <zlib.h>
+#include "http/Cookie.h"
+#include "http/CookieError.h"
 #include "tools/StrUtil.h"
-#include "zlib.h"
+#include "tools/ErrUtil.h"
 
 
 namespace http {
@@ -261,11 +266,10 @@ namespace http {
 				if (tools::iequal(field_name, "Set-Cookie")) {
 					// A cookie definition
 					try {
-						const Cookie cookie{ field_value };
-						_cookies.set(cookie.get_name(), cookie);
+						_cookies.add(Cookie::parse(field_value));
 					}
-					catch (const CookieError&) {
-						// silently ignore this error
+					catch (const CookieError& e) {
+						_logger->trace("ERROR: %s", e.what());
 					}
 				}
 				else {
@@ -355,4 +359,5 @@ namespace http {
 
 		return ERR_NONE;
 	}
+
 }

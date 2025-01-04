@@ -6,10 +6,11 @@
 *
 */
 #pragma once
-#include "tools/Path.h"
 
 #include <Windows.h>
 #include <string>
+#include "tools/Path.h"
+
 
 namespace tools {
 
@@ -32,5 +33,3 @@ std::string get_plaform();
 void throw_winapi_error(DWORD error_code, const std::string& func_name);
 
 }
-
-

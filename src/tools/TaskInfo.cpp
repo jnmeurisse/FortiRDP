@@ -7,6 +7,7 @@
 */
 #include "TaskInfo.h"
 
+
 namespace tools {
 
 	TaskInfo::TaskInfo(const std::wstring& path, const std::vector<std::wstring>& params) :

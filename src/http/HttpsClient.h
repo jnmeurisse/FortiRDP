@@ -8,19 +8,16 @@
 #pragma once
 
 #include <string>
-
 #include "http/Request.h"
 #include "http/Answer.h"
-
+#include "http/Url.h"
 #include "net/Endpoint.h"
 #include "net/TlsSocket.h"
-
 #include "tools/Timer.h"
-#include "tools/Logger.h"
-#include "tools/ErrUtil.h"
 
 
 namespace http {
+
 	using namespace tools;
 
 	class HttpsClient : public net::TlsSocket

@@ -8,9 +8,12 @@
 #pragma once
 
 #include <list>
+#include <lwip/pbuf.h>
 #include "tools/PBufChain.h"
 
+
 namespace tools {
+
 	class OutputQueue
 	{
 	public:
@@ -71,4 +74,5 @@ namespace tools {
 		// Capacity of the buffer
 		const int _capacity;
 	};
+
 }

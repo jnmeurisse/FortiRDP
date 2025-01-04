@@ -7,37 +7,42 @@
 */
 #pragma once
 
-#include <string>
 #include <Windows.h>
+#include <string>
 #include "ui/ModalDialog.h"
 
-class CredentialDialog final : public ModalDialog
-{
-public:
-	explicit CredentialDialog(HINSTANCE hInstance, HWND hParent);
-	virtual ~CredentialDialog();
 
-	/* Initializes the text to show in the login dialog
-	*/
-	void setText(const std::wstring& text);
+namespace ui {
 
-	/* Initializes the user name
-	*/
-	void setUsername(const std::wstring& username);
+	class CredentialDialog final : public ModalDialog
+	{
+	public:
+		explicit CredentialDialog(HINSTANCE hInstance, HWND hParent);
+		virtual ~CredentialDialog();
 
-	/* Returns the user name from the login dialog
-	*/
-	const std::wstring& getUsername() const;
-	
-	/* Returns the password from the login dialog
-	*/
-	const std::wstring& getPassword() const;
+		/* Initializes the text to show in the login dialog
+		*/
+		void setText(const std::wstring& text);
 
-private:
-	std::wstring _text;
-	std::wstring _username;
-	std::wstring _password;
+		/* Initializes the user name
+		*/
+		void setUsername(const std::wstring& username);
 
-	virtual INT_PTR onCreateDialogMessage(WPARAM wParam, LPARAM lParam) override;
-	virtual INT_PTR onButtonClick(int cid, LPARAM lParam) override;
-};
+		/* Returns the user name from the login dialog
+		*/
+		const std::wstring& getUsername() const;
+
+		/* Returns the password from the login dialog
+		*/
+		const std::wstring& getPassword() const;
+
+	private:
+		std::wstring _text;
+		std::wstring _username;
+		std::wstring _password;
+
+		virtual INT_PTR onCreateDialogMessage(WPARAM wParam, LPARAM lParam) override;
+		virtual INT_PTR onButtonClick(int cid, LPARAM lParam) override;
+	};
+
+}

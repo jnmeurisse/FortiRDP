@@ -5,11 +5,11 @@
 * SPDX-License-Identifier: Apache-2.0
 *
 */
+#include "TlsSocket.h"
 
-#include "tools/Path.h"
-#include "mbedtls/ssl_internal.h"
-#include "mbedtls/ssl_ciphersuites.h"
-#include "net/TlsSocket.h"
+#include <mbedtls/ssl_internal.h>
+#include <mbedtls/ssl_ciphersuites.h>
+#include <mbedtls/debug.h>
 
 
 namespace net {
@@ -104,6 +104,7 @@ namespace net {
 		}
 
 		mbedtls_ssl_init(&_ssl_context);
+		_enable_hostname_verification = false;
 	}
 
 
@@ -137,9 +138,15 @@ namespace net {
 	}
 
 
-	mbed_err TlsSocket::set_own_crt(mbedtls_x509_crt* own_crt, mbedtls_pk_context *own_key)
+	mbed_err TlsSocket::set_user_crt(mbedtls_x509_crt* own_crt, mbedtls_pk_context *own_key)
 	{
 		return mbedtls_ssl_conf_own_cert(&_ssl_config, own_crt, own_key);
+	}
+
+
+	void TlsSocket::set_hostname_verification(bool enable_verification)
+	{
+		_enable_hostname_verification = enable_verification;
 	}
 
 
@@ -158,6 +165,10 @@ namespace net {
 		if ((rc = mbedtls_ssl_setup(&_ssl_context, &_ssl_config)) != 0)
 			goto abort;
 		mbedtls_ssl_set_bio(&_ssl_context, &_netctx, mbedtls_net_send, mbedtls_net_recv, NULL);
+
+		// enable/disable hostname verification
+		if ((rc = mbedtls_ssl_set_hostname(&_ssl_context, _enable_hostname_verification? ep.hostname().c_str() : nullptr)) != 0)
+			goto abort;
 
 		// perform handshake with the SSL server
 		if ((rc = mbedtls_ssl_handshake(&_ssl_context)) != 0)
@@ -230,4 +241,5 @@ namespace net {
 
 		Socket::do_close();
 	}
+
 }

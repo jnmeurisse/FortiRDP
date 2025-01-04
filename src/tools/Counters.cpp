@@ -7,6 +7,7 @@
 */
 #include "Counters.h"
 
+
 namespace tools {
 
 	void Counters::clear() noexcept

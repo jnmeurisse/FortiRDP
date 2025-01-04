@@ -8,8 +8,10 @@
 #pragma once
 
 #include <string>
-#include "lwip/dns.h"
-#include "lwip/ip_addr.h"
+#include <lwip/dns.h>
+#include <lwip/ip_addr.h>
+#include <lwip/err.h>
+
 
 namespace net {
 
@@ -42,4 +44,5 @@ namespace net {
 		*/
 		static err_t query(const std::string& hostname, ip_addr_t& addr, dns_found_callback found_callback, void* callback_arg);
 	};
+
 }

@@ -5,10 +5,11 @@
 * SPDX-License-Identifier: Apache-2.0
 *
 */
-#include <stdexcept>
+#include "Endpoint.h"
 
-#include "net/Endpoint.h"
+#include <stdexcept>
 #include "tools/StrUtil.h"
+
 
 namespace net {
 
@@ -64,4 +65,5 @@ namespace net {
 			throw std::invalid_argument("Invalid address syntax.");
 		}
 	}
+
 }

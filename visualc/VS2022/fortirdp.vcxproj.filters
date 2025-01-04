@@ -27,7 +27,7 @@
     <ClCompile Include="..\..\src\ui\AboutDialog.cpp">
       <Filter>sources\ui</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\ui\AskCodeDialog.cpp">
+    <ClCompile Include="..\..\src\ui\PinCodeDialog.cpp">
       <Filter>sources\ui</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\ui\AsyncController.cpp">
@@ -216,12 +216,27 @@
     <ClCompile Include="..\..\src\fw\CrtDigest.cpp">
       <Filter>sources\fw</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\tools\X509Crt.cpp">
+      <Filter>sources\tools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\tools\PrivateKey.cpp">
+      <Filter>sources\tools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\tools\UserCrt.cpp">
+      <Filter>sources\tools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ui\SamlAuthDialog.cpp">
+      <Filter>sources\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\tools\strptime.c">
+      <Filter>sources\tools</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\ui\AboutDialog.h">
       <Filter>sources\ui</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\ui\AskCodeDialog.h">
+    <ClInclude Include="..\..\src\ui\PinCodeDialog.h">
       <Filter>sources\ui</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\ui\AsyncController.h">
@@ -422,6 +437,24 @@
     <ClInclude Include="..\..\src\fw\CrtDigest.h">
       <Filter>sources\fw</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\tools\X509Crt.h">
+      <Filter>sources\tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\tools\PrivateKey.h">
+      <Filter>sources\tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\tools\UserCrt.h">
+      <Filter>sources\tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\ui\SamlAuthDialog.h">
+      <Filter>sources\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\fw\AuthTypes.h">
+      <Filter>sources\fw</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\tools\strptime.h">
+      <Filter>sources\tools</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\..\src\resources\avatar.png">
@@ -453,5 +486,11 @@
     <ResourceCompile Include="..\..\src\resources\fortirdp.rc">
       <Filter>resources</Filter>
     </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="$(MSBuildThisFileDirectory)..\..\natvis\wil.natvis" />
   </ItemGroup>
 </Project>

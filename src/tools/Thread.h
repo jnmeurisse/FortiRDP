@@ -6,10 +6,10 @@
 *
 */
 #pragma once
-#include <crtdefs.h>
-#include <Windows.h>
 
+#include <Windows.h>
 #include "tools/Logger.h"
+
 
 namespace tools {
 

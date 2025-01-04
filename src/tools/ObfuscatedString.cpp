@@ -5,10 +5,10 @@
 * SPDX-License-Identifier: Apache-2.0
 *
 */
-#include <Windows.h>
-#include <stdlib.h>
-#include <ctime>
 #include "ObfuscatedString.h"
+
+#include <ctime>
+
 
 namespace tools {
 
@@ -147,4 +147,5 @@ namespace tools {
 		clock_t value = std::clock();
 		return (value % 7) + 1;
 	}
+
 }

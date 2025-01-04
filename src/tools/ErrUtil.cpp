@@ -5,15 +5,15 @@
 * SPDX-License-Identifier: Apache-2.0
 *
 */
+#include "ErrUtil.h"
+
 #include <sstream>
+#include <mbedtls/error.h>
+#include <lwip/def.h>
 
-#include "tools/ErrUtil.h"
-#include "tools/StrUtil.h"
-
-#include "mbedtls/error.h"
-#include "lwip/def.h"
 
 namespace tools {
+
 	std::wstring win_errmsg(const win_err errnum)
 	{
 		wchar_t *buffer;
@@ -102,4 +102,5 @@ namespace tools {
 	{
 		return mbed_errmsg(_errnum);
 	}
+
 }

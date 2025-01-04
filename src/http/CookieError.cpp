@@ -5,12 +5,14 @@
 * SPDX-License-Identifier: Apache-2.0
 *
 */
-#include "http/CookieError.h"
+#include "CookieError.h"
+
 
 namespace http {
 
 	CookieError::CookieError(const std::string msg) :
-		logic_error(msg)
+		std::logic_error(msg)
 	{
 	}
+
 }

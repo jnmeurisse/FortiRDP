@@ -9,10 +9,10 @@
 
 #include <string>
 #include <map>
-#include "tools/ByteBuffer.h"
-#include "tools/ObfuscatedString.h"
 #include "http/Url.h"
 #include "http/Cookie.h"
+#include "tools/ObfuscatedString.h"
+
 
 namespace http {
 
@@ -29,10 +29,6 @@ namespace http {
 		*/
 		Cookies() = default;
 
-		/* Clones a cookies collection. Only copy cookies associated with a given url. 
-		*/
-		explicit Cookies(const Cookies& cookies, const http::Url& url);
-
 		/* Clears this cookies collection
 		*/
 		void clear();
@@ -44,18 +40,18 @@ namespace http {
 		*/
 		const Cookies& add(const Cookies cookies);
 
+		/* Add a cookie to the collection.  If a cookie with the same name exists,
+		*  it is replaced with the new cookie.
+		*
+		* @param cookie The cookie
+		*/
+		const Cookies& add(const Cookie& cookie);
+
 		/* Removes the cookie with the specified name from this collection
 		 *
 		 * @param name The name of the cookie
 		 */
 		void remove(const std::string& name);
-
-		/* Sets the cookie with the specified name
-		 *
-		 * @param name The name of the cookie
-		 * @param value The value of the cookie
-		*/
-		const Cookies& set(const std::string& name, const Cookie& value);
 
 		/* Gets the cookie with the specified name. The function throws
 		 * an out_of_range exception if the cookie name does not exist.
@@ -75,9 +71,15 @@ namespace http {
 
 		/* Constructs a string representation of the cookies collection.
 		 * The string format is compatible with Netscape specification and
-		 * can be added to a Cookie header
+		 * can be added to a Cookie header.  Only cookies that match the
+		 * given url are added to the returned string.
+		 *
+		 * Note : The implementation only checks if the URL domain and
+		 * the cookie domain are the same.
+		 *
+		 * @param url The url used to select the cookies added to the returned string.
 		*/
-		tools::obfstring to_header() const;
+		tools::obfstring to_header(const Url &url) const;
 
 		/* Returns an iterator referring to the first element in the collection
 		*/

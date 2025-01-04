@@ -5,10 +5,10 @@
 * SPDX-License-Identifier: Apache-2.0
 *
 */
-#include <iostream>
+#include "Timer.h"
 
-#include "tools/Timer.h"
 #include "tools/SysUtil.h"
+
 
 namespace tools {
 

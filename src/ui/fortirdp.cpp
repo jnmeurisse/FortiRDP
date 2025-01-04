@@ -8,17 +8,17 @@
 // fortirdp.cpp : application entry point.
 //
 
-#include <iostream>
+#include "fortirdp.h"
 
+#include <iostream>
 #include <io.h>
 #include <fcntl.h>
-#include "ui\fortirdp.h"
-#include "ui\ConnectDialog.h"
-#include "ui\CmdlineParams.h"
-#include "tools\Logger.h"
-#include "tools\Path.h"
-#include "lwip\init.h"
-#include "lwip\dns.h"
+#include <lwip/init.h>
+#include <lwip/dns.h>
+#include "ui/ConnectDialog.h"
+#include "ui/CmdlineParams.h"
+#include "tools/Logger.h"
+#include "tools/Path.h"
 
 
 #pragma comment(linker,"\"/manifestdependency:type='win32' \
@@ -42,7 +42,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
 	tools::Logger* const logger = tools::Logger::get_logger();
 	MSG msg;
-	CmdlineParams cmdline_params;
+	ui::CmdlineParams cmdline_params;
 	tools::FileLogWriter writer;
 
 	// Stop running if a 32 Bits application is running in the wow64. The 
@@ -96,7 +96,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	// compiler to destroy the ConnectDialog when the application loop
 	// ends (and before the destruction of the logger).
 	{
-		ConnectDialog main_dialog(hInstance, cmdline_params);
+		ui::ConnectDialog main_dialog(hInstance, cmdline_params);
 		main_dialog.show_window(nCmdShow);
 
 		// Main application loop

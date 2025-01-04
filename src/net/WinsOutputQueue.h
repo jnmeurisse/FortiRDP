@@ -7,13 +7,14 @@
 */
 #pragma once
 
-#include <list>
 #include "net/Socket.h"
-#include "tools/PBufChain.h"
-#include "tools/OutputQueue.h"
+#include "tools/ErrUtil.h"
 #include "tools/Logger.h"
+#include "tools/OutputQueue.h"
+
 
 namespace net {
+
 	using namespace tools;
 
 	class WinsOutputQueue final : public OutputQueue
@@ -34,4 +35,5 @@ namespace net {
 		// a reference to the application logger
 		Logger* const _logger;
 	};
+
 }

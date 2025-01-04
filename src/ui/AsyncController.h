@@ -8,107 +8,137 @@
 #pragma once
 
 #include <Windows.h>
+#include <functional>
 #include <memory>
+#include <string>
+#include "fw/PortalClient.h"
+#include "net/Endpoint.h"
+#include "net/Tunneler.h"
 #include "tools/Event.h"
 #include "tools/Logger.h"
-#include "tools/ObfuscatedString.h"
+#include "tools/Mutex.h"
+#include "tools/Path.h"
 #include "tools/Thread.h"
 #include "tools/TaskInfo.h"
 #include "tools/Task.h"
-#include "net/Endpoint.h"
-#include "fw/PortalClient.h"
+#include "tools/UserCrt.h"
+#include "tools/X509Crt.h"
 
-/**
-* The AsyncController is a singleton class. This controller is responsible to execute all
-* blocking operations in a separated thread. A message is sent to the window specified by
-* the hwnd parameter when the blocking operation is finished. A blocking operation is
-* implemented in a SyncProcedure sub class.
-*/
-class AsyncController final : public tools::Thread
-{
-public:
-	explicit AsyncController(HWND hwnd);
-	~AsyncController();
 
-	/* Connects the controller to the firewall. The methods creates a portal
-	   client and connects it to the firewall. 
+namespace ui {
+
+	// Callback definition
+	using ask_crt_passcode_fn = std::function<bool(std::string&)>;
+
+
+	/**
+	* The AsyncController is a singleton class. This controller is responsible to execute all
+	* blocking operations in a separated thread. A message is sent to the window specified by
+	* the hwnd parameter when the blocking operation is finished. A blocking operation is
+	* implemented in a SyncProcedure sub class.
 	*/
-	bool connect(const net::Endpoint& firewall_endpoint, const fw::CertFiles& cert_files);
+	class AsyncController final : public tools::Thread
+	{
+	public:
+		explicit AsyncController(HWND hwnd);
+		~AsyncController();
 
-	/* Creates a tunnel with the firewall 
-	*/
-	bool create_tunnel(const net::Endpoint& host_endpoint, int local_port, bool multi_clients, bool tcp_nodelay);
+		/* Initialize the CA certificate chain from the given file.
+		*  The root CA certificate issued to authenticate the server.
+		*/
+		bool load_ca_crt(const tools::Path& filename);
 
-	/* Starts the external task. The monitor flag indicates that the async
-	   controller is monitoring the completion of the external task.
-	*/
-	bool start_task(const tools::TaskInfo& task_info, bool monitor);
+		/* Initialize the user certificate
+		*/
+		bool load_user_crt(const tools::Path& filename, ask_crt_passcode_fn ask_passcode);
 
-	/* Disconnects the controller from the firewall.
-	*/
-	bool disconnect();
+		/* Configure the authentication method
+		*/
+		void set_auth_method(fw::AuthMethod auth_method);
 
-	/* Terminates this async controller
-	*/
-	bool terminate();
+		/* Connects the controller to the firewall. The methods creates a portal
+		   client and connects it to the firewall.
+		*/
+		bool connect(const net::Endpoint& firewall_endpoint, const std::string& realm);
 
-	/* Returns a reference to the PortalClient. The method returns a null pointer
-	   if the portal is not yet allocated.
-	*/
-	inline fw::PortalClient* portal() const { return _portal.get();};
+		/* Creates a tunnel with the firewall
+		*/
+		bool create_tunnel(const net::Endpoint& host_endpoint, int local_port, bool multi_clients, bool tcp_nodelay);
 
-	/* Returns a reference to the tunnel.  The method returns a null pointer
-	   if the tunneler is not yet allocated.
-	*/
-	inline net::Tunneler* tunnel() const { return _tunnel.get(); }
+		/* Starts the external task. The monitor flag indicates that the async
+		   controller is monitoring the completion of the external task.
+		*/
+		bool start_task(const tools::TaskInfo& task_info, bool monitor);
 
-private:
-	// - the application logger
-	tools::Logger* const _logger;
+		/* Disconnects the controller from the firewall.
+		*/
+		bool disconnect();
 
-	// - list of actions performed by the AsyncController in a background thread.
-	enum ControllerAction {
-		CONNECT,		// connect to the firewall portal
-		TUNNEL,			// establish a tunnel with the firewall
-		DISCONNECT,		// close the tunnel and disconnecting from the firewall portal  
-		MONITOR_TASK,	// monitor the external task
-		TERMINATE		// terminate this controller
+		/* Terminates this async controller
+		*/
+		bool terminate();
+
+		/* Returns a reference to the PortalClient. The method returns a null pointer
+		   if the portal is not yet allocated.
+		*/
+		inline fw::PortalClient* portal() const { return _portal.get(); };
+
+		/* Returns a reference to the tunnel.  The method returns a null pointer
+		   if the tunneler is not yet allocated.
+		*/
+		inline net::Tunneler* tunnel() const { return _tunnel.get(); }
+
+	private:
+		// - the application logger
+		tools::Logger* const _logger;
+
+		// - list of actions performed by the AsyncController in a background thread.
+		enum ControllerAction {
+			NONE,
+			CONNECT,		// connect to the firewall portal
+			TUNNEL,			// establish a tunnel with the firewall
+			DISCONNECT,		// close the tunnel and disconnecting from the firewall portal  
+			MONITOR_TASK,	// monitor the external task
+			TERMINATE		// terminate this controller
+		};
+
+		// - action to execute by the controller
+		volatile ControllerAction _action;
+
+		// - Mutex to serialize execution of action
+		tools::Mutex _mutex;
+
+		// - event set to execute an action 
+		tools::Event _requestEvent;
+		tools::Event _readyEvent;
+
+		// - the recipient window of the user event message sent at completion of an action
+		const HWND _hwnd;
+
+		// - CA certificate chains
+		tools::X509crtPtr _ca_crt;
+
+		// - user certificate
+		tools::UserCrtPtr _user_crt;
+
+		// - authentication method
+		fw::AuthMethod _auth_method;
+
+		std::unique_ptr<fw::PortalClient> _portal;
+		std::unique_ptr<net::Tunneler> _tunnel;
+		std::unique_ptr<tools::Task> _task;
+
+		/* Requests an action and wake up the thread
+		*/
+		void request_action(ControllerAction task);
+
+		/* Convert action to string
+		*/
+		const char* action_name(ControllerAction action) const;
+
+		/* The thread procedure
+		*/
+		virtual unsigned int run() override;
 	};
 
-	// - action to execute by the controller
-	volatile ControllerAction _action;
-
-	// - Mutex to serialize execution of action
-	tools::Mutex _mutex;
-
-	// - event set to execute an action 
-	tools::Event _requestEvent;
-	tools::Event _readyEvent;
-
-	// - the recipient window of the user event message sent at completion of an action
-	const HWND _hwnd;
-
-	// - portal sslvpn certificates
-	const fw::CertFiles _cert_files;
-
-	// - the user certificate filename and the private key password
-	const std::wstring _uscrt_file;
-	const tools::obfstring _password;
-
-	std::unique_ptr<fw::PortalClient> _portal;
-	std::unique_ptr<net::Tunneler> _tunnel;
-	std::unique_ptr<tools::Task> _task;
-
-	/* Requests an action and wake up the thread
-	*/
-	void request_action(ControllerAction task);
-
-	/* Convert action to string
-	*/
-	const char* action_name(ControllerAction action) const;
-
-	/* The thread procedure
-	*/
-	virtual unsigned int run() override;
-};
-
+}

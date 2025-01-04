@@ -5,8 +5,9 @@
 * SPDX-License-Identifier: Apache-2.0
 *
 */
-#include <Windows.h>
 #include "ByteBuffer.h"
+
+#include <Windows.h>
 
 
 namespace tools {
@@ -64,4 +65,5 @@ namespace tools {
 
 		return *this;
 	}
+
 }

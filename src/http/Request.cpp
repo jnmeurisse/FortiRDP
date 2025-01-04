@@ -5,8 +5,10 @@
 * SPDX-License-Identifier: Apache-2.0
 *
 */
-
 #include "Request.h"
+
+#include "tools/ErrUtil.h"
+
 
 namespace http {
 
@@ -22,11 +24,11 @@ namespace http {
 	const std::string Request::TRACE_VERB = "TRACE";
 
 
-	Request::Request(const std::string& verb, const Url& url, const Cookies& cookies) :
+	Request::Request(const std::string& verb, const Url& url, const Cookies& cookie_jar) :
 		_logger(Logger::get_logger()),
 		_verb(verb),
 		_url(url),
-		_cookies(cookies),
+		_cookies(cookie_jar),
 		_headers(),
 		_body(2048)
 	{
@@ -71,7 +73,7 @@ namespace http {
 		_headers.write(buffer);
 
 		// add cookies, cookies are still obfuscated at this stage
-		tools::obfstring cookie_header{ _cookies.to_header() };
+		tools::obfstring cookie_header{ _cookies.to_header(_url) };
 		if (cookie_header.size() > 0) {
 			// cookies are appended decrypted in the buffer
 			buffer

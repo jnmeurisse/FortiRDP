@@ -7,10 +7,11 @@
 */
 #pragma once
 
-#include <Windows.h>
 #include <string>
 
+
 namespace tools {
+
 	/*
 	* Represents an obfuscated string.  This class is used to avoid keeping session cookies
 	* in clear text in the program memory.  The string is obfuscated using bit rotation.

@@ -6,13 +6,15 @@
 *
 */
 #pragma once
+
 #include <string>
 #include <vector>
 #include <cstdint>
-
 #include "tools/ObfuscatedString.h"
 
+
 namespace tools {
+
 	/**
 	* A byte buffer holds a sequence of bytes. This class provides
 	* methods to append bytes at the end of the buffer.
@@ -99,4 +101,5 @@ namespace tools {
 		// the buffer
 		std::vector<byte> _buffer;
 	};
+
 }

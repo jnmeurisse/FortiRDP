@@ -6,12 +6,15 @@
 *
 */
 
-#include "net/PortForwarder.h"
-#include "tools/SysUtil.h"
-#include "lwip/timeouts.h"
-#include "lwip/tcp.h"
+#include "PortForwarder.h"
+
+#include <lwip/timeouts.h>
+#include <lwip/tcp.h>
+#include "net/DnsClient.h"
+
 
 namespace net {
+
 	using namespace tools;
 
 	PortForwarder::PortForwarder(const Endpoint& endpoint, bool tcp_nodelay, int keepalive) :
@@ -456,4 +459,5 @@ namespace net {
 
 		*timeout = true;
 	}
+
 }

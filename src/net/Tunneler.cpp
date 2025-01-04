@@ -5,14 +5,12 @@
 * SPDX-License-Identifier: Apache-2.0
 *
 */
+#include "Tunneler.h"
+
 #include <windows.h>
-#include <iostream>
 #include <list>
-
 #include "net/DnsClient.h"
-#include "net/Tunneler.h"
 #include "net/PortForwarders.h"
-
 #include "tools/ErrUtil.h"
 
 
@@ -372,4 +370,5 @@ namespace net {
 
 		*timeout = true;
 	}
+
 }

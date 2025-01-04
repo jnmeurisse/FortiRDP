@@ -5,11 +5,13 @@
 * SPDX-License-Identifier: Apache-2.0
 *
 */
-#include "tools/Path.h"
-#include <stdlib.h>
+#include "Path.h"
+
+#include <wil/com.h>
 #include <ShlObj.h>
 #include <Shlwapi.h>
 #include <vector>
+#include "tools/ErrUtil.h"
 
 
 namespace tools {
@@ -41,11 +43,11 @@ namespace tools {
 	}
 
 	
-	std::wstring Path::compact(int max_char) const
+	std::wstring Path::compact(unsigned int max_char) const
 	{
 		std::vector<wchar_t> buffer(max_char + 1);
-		if (::PathCompactPathEx(&buffer[0], to_string().c_str(), max_char, 0))
-			return std::wstring(&buffer[0]);
+		if (max_char > 0 && ::PathCompactPathEx(buffer.data(), to_string().c_str(), max_char, 0))
+			return buffer.data();
 		else
 			return to_string();
 	}
@@ -53,19 +55,37 @@ namespace tools {
 	
 	Path Path::get_module_path(HMODULE hModule)
 	{
-		wchar_t filename[4096]{ 0 };
-		::GetModuleFileName(hModule, filename, sizeof(filename) - 1);
+		size_t buffer_size = MAX_PATH;
 
-		return Path(filename);
+		do {
+			size_t written = 0;
+			std::vector<wchar_t> buffer(buffer_size);
+
+			int rc = ::GetModuleFileName(hModule, buffer.data(), static_cast<DWORD>(buffer.size()));
+			if (rc == buffer.size() && ::GetLastError() == ERROR_INSUFFICIENT_BUFFER)
+				buffer_size += 1024;
+			else if (rc == 0)
+				throw tools::win_errmsg(::GetLastError());
+			else
+				return Path(buffer.data());
+		} while (true);
 	}
 
 	
 	Path Path::get_desktop_path()
 	{
-		wchar_t path[_MAX_PATH + 1]{ 0 };
-		::SHGetSpecialFolderPath(NULL, &path[0], CSIDL_DESKTOP, FALSE);
-		wcscat_s(path, L"\\");
+		wil::unique_cotaskmem_string buffer;
+
+		// Get the path to the desktop folder for the current user.
+		HRESULT hr = ::SHGetKnownFolderPath(FOLDERID_Desktop, KF_FLAG_DEFAULT, NULL, &buffer);
+		if (FAILED(hr))
+			throw tools::win_errmsg(::GetLastError());
+
+		// The returned path does not include a trailing backslash, add one.
+		std::wstring path{ buffer.get() };
+		path.append(L"\\");
 		
 		return Path(path, L"");
 	}
+
 }

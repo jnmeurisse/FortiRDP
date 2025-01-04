@@ -5,10 +5,11 @@
 * SPDX-License-Identifier: Apache-2.0
 *
 */
-#include <string>
-
 #include "CrtDigest.h"
-#include "mbedtls\sha256.h"
+
+#include <cstring>
+#include <mbedtls/sha256.h>
+
 
 namespace fw {
 
@@ -22,7 +23,7 @@ namespace fw {
 		CrtDigest()
 	{
 		if (crt)
-			mbedtls_sha256_ret(crt->raw.p, crt->raw.len, _digest, 0);
+			::mbedtls_sha256_ret(crt->raw.p, crt->raw.len, _digest, 0);
 	}
 
 
@@ -36,4 +37,5 @@ namespace fw {
 	{
 		return !(*this == other);
 	}
+
 }

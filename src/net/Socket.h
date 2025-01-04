@@ -7,13 +7,12 @@
 */
 #pragma once
 
-#include <string>
-#include "mbedTLS/net_sockets.h"
-
+#include <mbedTLS/net_sockets.h>
 #include "net/Endpoint.h"
 #include "tools/ErrUtil.h"
 #include "tools/Mutex.h"
 #include "tools/Logger.h"
+
 
 namespace net {
 

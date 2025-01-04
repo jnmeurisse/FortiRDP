@@ -5,8 +5,8 @@
 * SPDX-License-Identifier: Apache-2.0
 *
 */
-#include <sstream>
-#include "net/DnsClient.h"
+#include "DnsClient.h"
+#include <string>
 
 namespace net {
 
@@ -18,17 +18,20 @@ namespace net {
 
 	std::string DnsClient::dns()
 	{
-		std::ostringstream os;
+		std::string buffer;
 		const ip_addr_t *addr1 = dns_getserver(0);
 		const ip_addr_t *addr2 = dns_getserver(1);
 
 		if (!ip4_addr_isany_val(*addr1))
-			os << ip4addr_ntoa(addr1);
+			buffer = ip4addr_ntoa(addr1);
 
-		if (!ip4_addr_isany_val(*addr1) && !ip4_addr_cmp(addr1, addr2))
-			os << ip4addr_ntoa(addr2);
+		if (!ip4_addr_isany_val(*addr1) && !ip4_addr_cmp(addr1, addr2)) {
+			if (!buffer.empty())
+				buffer += ", ";
+			buffer += ip4addr_ntoa(addr2);
+		}
 
-		return os.str();
+		return buffer;
 	}
 
 
@@ -36,4 +39,5 @@ namespace net {
 	{
 		return dns_gethostbyname_addrtype(hostname.c_str(), &addr, found_callback, callback_arg, LWIP_DNS_ADDRTYPE_IPV4);
 	}
+
 }

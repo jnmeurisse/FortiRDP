@@ -7,12 +7,13 @@
 */
 #pragma once
 
-#include <list>
 #include <cstdint>
+#include <lwip/arch.h>
+#include <lwip/pbuf.h>
 
-#include "lwip/pbuf.h"
 
 namespace tools {
+
 	/**
 	* A PBufChain is a wrapper around LWIP pbuf chain.  A "pbuf chain" is 
 	* a singly linked list of pbuf. pbuf chain are reference counted.
@@ -96,4 +97,5 @@ namespace tools {
 			u16_t len;					// length of the remaining data in the current pbuf
 		} _current;
 	};
+
 }

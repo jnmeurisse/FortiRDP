@@ -10,9 +10,11 @@
 #include <Windows.h>
 #include <string>
 #include <exception>
-#include "lwip/err.h"
+#include <lwip/err.h>
+
 
 namespace tools {
+
 	// Windows error codes
 	using win_err = DWORD;
 
@@ -62,4 +64,5 @@ namespace tools {
 	private:
 		const std::string _message;
 	};
+
 }

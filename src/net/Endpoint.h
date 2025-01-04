@@ -61,4 +61,5 @@ namespace net {
 		*/
 		void init(const std::string& address, int default_port);
 	};
+
 }

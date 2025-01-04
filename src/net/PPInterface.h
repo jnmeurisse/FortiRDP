@@ -7,12 +7,16 @@
 */
 #pragma once
 
+#include <string>
+#include <lwip/arch.h>
+#include <lwip/pbuf.h>
+#include <lwip/netif.h>
 #include "net/pppossl.h"
 #include "net/TlsSocket.h"
 #include "net/WinsOutputQueue.h"
-
 #include "tools/Logger.h"
 #include "tools/Counters.h"
+
 
 namespace net {
 
@@ -109,4 +113,5 @@ namespace net {
 		// through the tunnel. 
 		WinsOutputQueue _output_queue;
 	};
+
 }

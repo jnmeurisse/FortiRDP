@@ -12,6 +12,7 @@
 #include <fstream>
 #include "tools/Mutex.h"
 
+
 #ifdef _DEBUG
 #define DEBUG_CTOR(logger, clsname) if ((logger)->is_debug_enabled()) { \
 								(logger)->debug("... %x ctor::%s", (uintptr_t)this, clsname); \

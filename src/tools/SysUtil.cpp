@@ -5,16 +5,12 @@
 * SPDX-License-Identifier: Apache-2.0
 *
 */
-#include <Windows.h>
+#include "SysUtil.h"
+
 #include <lmcons.h>
 #include <string>
-#include <sstream>
 #include <system_error>
-
-#include "tools/SysUtil.h"
 #include "tools/StrUtil.h"
-
-#include "mbedtls/error.h"
 
 
 namespace tools {
