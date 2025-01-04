@@ -5,7 +5,8 @@
 * SPDX-License-Identifier: Apache-2.0
 *
 */
-#include "mbedtls/x509.h"
+//TODO: Configure timeout const instead of using literal 
+//TODO: Configure timeout during connection
 
 #include "PortalClient.h"
 #include "http/Request.h"
@@ -23,21 +24,20 @@
 namespace fw {
 	using namespace tools;
 
-	PortalClient::PortalClient(const net::Endpoint& ep, const CertFiles& cert_files):
-		HttpsClient(ep),
+	PortalClient::PortalClient(const net::Endpoint& ep, const net::SslConfig& config):
+		HttpsClient(ep, config),
 		_connected(false),
 		_peer_crt_digest(),
 		_mutex(),
-		_cert_files(cert_files),
 		_cookies()
 	{
 		DEBUG_CTOR(_logger, "PortalClient");
 
-		mbedtls_x509_crt_init(&_crt_auth);
-		mbedtls_x509_crt_init(&_crt_user);
-		mbedtls_pk_init(&_pk_crt_user);
+		//mbedtls_x509_crt_init(&_crt_auth);
+		//mbedtls_x509_crt_init(&_crt_user);
+		//mbedtls_pk_init(&_pk_crt_user);
 
-		set_timeout(10000, 10000);
+		//set_timeout(10000, 10000);
 	}
 
 
@@ -45,16 +45,16 @@ namespace fw {
 	{
 		DEBUG_DTOR(_logger, "PortalClient");
 
-		mbedtls_x509_crt_free(&_crt_auth);
-		mbedtls_x509_crt_free(&_crt_user);
-		mbedtls_pk_free(&_pk_crt_user);
+		//mbedtls_x509_crt_free(&_crt_auth);
+		//mbedtls_x509_crt_free(&_crt_user);
+		//mbedtls_pk_free(&_pk_crt_user);
 	}
 
 
 	bool PortalClient::init_ca_crt()
 	{
 		DEBUG_ENTER(_logger, "PortalClient", "init_ca_crt");
-		tools::mbed_err rc = 0;
+/*		tools::mbed_err rc = 0;
 
 		// free previous ca certificate
 		mbedtls_x509_crt_free(&_crt_auth);
@@ -85,13 +85,15 @@ namespace fw {
 
 	error:
 		return rc == 0;
+*/
+		return false;
 	}
 
 
 	bool PortalClient::init_user_crt()
 	{
 		DEBUG_ENTER(_logger, "PortalClient", "init_user_crt");
-		tools::mbed_err rc = 0;
+/*		tools::mbed_err rc = 0;
 
 		// free previous user certificate and key
 		mbedtls_x509_crt_free(&_crt_user);
@@ -150,6 +152,8 @@ namespace fw {
 
 	error:
 		return rc == 0;
+*/
+		return false;
 	}
 
 
@@ -160,9 +164,6 @@ namespace fw {
 		http::Answer answer;
 
 		_logger->info(">> connecting to %s", host().to_string().c_str());
-
-		// define the type of cipher used to encrypt and sign all traffic 
-		set_cipher(Cipher::HIGH_SEC);
 
 		// initialize our certificates
 		init_ca_crt();
@@ -183,8 +184,7 @@ namespace fw {
 		_logger->info(">> cipher : %s", get_ciphersuite().c_str());
 
 		// Check the server certificate
-		int crt_status = get_crt_check();
-
+		const int crt_status = get_crt_check();
 		if (crt_status == 0) {
 			_logger->info(">> peer X.509 certificate valid");
 
@@ -194,7 +194,7 @@ namespace fw {
 
 			if (_logger->is_debug_enabled()) {
 				char buffer[4096] = { 0 };
-				mbedtls_x509_crt_info(buffer, sizeof(buffer) - 1, "   ", get_peer_crt());
+				x509crt_info(buffer, sizeof(buffer), "   ", get_peer_crt());
 				_logger->debug(buffer);
 			}
 

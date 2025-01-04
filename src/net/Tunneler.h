@@ -7,8 +7,6 @@
 */
 #pragma once
 
-#include "mbedTLS/ssl.h"
-
 #include "net/Socket.h"
 #include "net/TlsSocket.h"
 #include "net/Listener.h"

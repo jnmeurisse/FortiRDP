@@ -9,14 +9,18 @@
 
 #include <Windows.h>
 #include <memory>
+
+#include "fw/PortalClient.h"
+
+#include "net/Endpoint.h"
+#include "net/SslConfig.h"
+
 #include "tools/Event.h"
 #include "tools/Logger.h"
 #include "tools/ObfuscatedString.h"
 #include "tools/Thread.h"
 #include "tools/TaskInfo.h"
 #include "tools/Task.h"
-#include "net/Endpoint.h"
-#include "fw/PortalClient.h"
 
 /**
 * The AsyncController is a singleton class. This controller is responsible to execute all
@@ -33,7 +37,7 @@ public:
 	/* Connects the controller to the firewall. The methods creates a portal
 	   client and connects it to the firewall. 
 	*/
-	bool connect(const net::Endpoint& firewall_endpoint, const fw::CertFiles& cert_files);
+	bool connect(const net::Endpoint& firewall_endpoint, const net::SslConfig& ssl_config);
 
 	/* Creates a tunnel with the firewall 
 	*/

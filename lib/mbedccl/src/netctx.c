@@ -36,31 +36,31 @@ void netctx_free(netctx* ctx)
 }
 
 
-mbed_err netctx_close(netctx* ctx)
+mbed_errnum netctx_close(netctx* ctx)
 {
-	mbed_err rc = MBEDTLS_ERR_SSL_BAD_INPUT_DATA;
+	mbed_errnum errnum = MBEDTLS_ERR_SSL_BAD_INPUT_DATA;
 	mbedtls_net_context* const net_context = (mbedtls_net_context*)ctx;
 
 	if (net_context) {
 		mbedtls_net_close(net_context);
-		rc = 0;
+		errnum = 0;
 	}
 
-	return rc;
+	return errnum;
 }
 
 
-mbed_err netctx_shutdown(netctx* ctx)
+mbed_errnum netctx_shutdown(netctx* ctx)
 {
-	mbed_err rc = MBEDTLS_ERR_SSL_BAD_INPUT_DATA;
+	mbed_errnum errnum = MBEDTLS_ERR_SSL_BAD_INPUT_DATA;
 	mbedtls_net_context* const net_context = (mbedtls_net_context*)ctx;
 
 	if (net_context) {
 		mbedtls_net_free(net_context);
-		rc = 0;
+		errnum = 0;
 	}
 
-	return rc;
+	return errnum;
 }
 
 
@@ -71,53 +71,53 @@ int netctx_getfd(netctx* ctx)
 }
 
 
-mbed_err netctx_connect(netctx* ctx, const char* hostname, const char* port, netctx_protocol protocol)
+mbed_errnum netctx_connect(netctx* ctx, const char* hostname, const char* port, netctx_protocol protocol)
 {
-	mbed_err rc = MBEDTLS_ERR_SSL_BAD_INPUT_DATA;
+	mbed_errnum errnum = MBEDTLS_ERR_SSL_BAD_INPUT_DATA;
 	mbedtls_net_context* const net_context = (mbedtls_net_context*)ctx;
 
 	//TODO: https://github.com/Mbed-TLS/mbedtls/issues/8027
 
 	if (net_context && hostname && port) {
-		rc = mbedtls_net_connect(net_context, hostname, port, protocol);
+		errnum = mbedtls_net_connect(net_context, hostname, port, protocol);
 		
-		if (rc) { 
+		if (errnum) { 
 			// mbedtls_net_connect should call mbedtls_net_close instead of close in 
 			// case of error.
 			net_context->fd = -1;
 		}
 	}
 
-	return rc;
+	return errnum;
 }
 
 
-mbed_err netctx_bind(netctx* ctx, const char* hostname, const char* port, netctx_protocol protocol)
+mbed_errnum netctx_bind(netctx* ctx, const char* hostname, const char* port, netctx_protocol protocol)
 {
-	mbed_err rc = MBEDTLS_ERR_SSL_BAD_INPUT_DATA;
+	mbed_errnum errnum = MBEDTLS_ERR_SSL_BAD_INPUT_DATA;
 	mbedtls_net_context* const net_context = (mbedtls_net_context*)ctx;
 
 	if (net_context && hostname && port)
-		rc = mbedtls_net_bind(net_context, hostname, port, protocol);
+		errnum = mbedtls_net_bind(net_context, hostname, port, protocol);
 
-	return rc;
+	return errnum;
 }
 
 
-mbed_err netctx_accept(netctx* bind_ctx, netctx* accepting_ctx)
+mbed_errnum netctx_accept(netctx* bind_ctx, netctx* accepting_ctx)
 {
-	mbed_err rc = MBEDTLS_ERR_SSL_BAD_INPUT_DATA;
+	mbed_errnum errnum = MBEDTLS_ERR_SSL_BAD_INPUT_DATA;
 	mbedtls_net_context* const bind_net_context = (mbedtls_net_context*)bind_ctx;
 	mbedtls_net_context* const client_net_context = (mbedtls_net_context*)accepting_ctx;
 
 	if (bind_net_context && (netctx_getfd(accepting_ctx) != -1))
-		rc = mbedtls_net_accept(bind_net_context, client_net_context, 0, 0, 0);
+		errnum = mbedtls_net_accept(bind_net_context, client_net_context, 0, 0, 0);
 
-	return rc;
+	return errnum;
 }
 
 
-mbed_err netctx_set_blocking(netctx* ctx, int blocking)
+mbed_errnum netctx_set_blocking(netctx* ctx, int blocking)
 {
 	int rc = INVALID_SOCKET;
 	mbedtls_net_context* const net_context = (mbedtls_net_context*)ctx;
@@ -132,7 +132,7 @@ mbed_err netctx_set_blocking(netctx* ctx, int blocking)
 }
 
 
-mbed_err netctx_set_nodelay(netctx* ctx, int nodelay)
+mbed_errnum netctx_set_nodelay(netctx* ctx, int nodelay)
 {
 	int rc = INVALID_SOCKET;
 	mbedtls_net_context* const net_context = (mbedtls_net_context*)ctx;
@@ -228,11 +228,11 @@ netctx_snd_status netctx_send(netctx* ctx, const unsigned char* buf, size_t len)
 		}
 		else if (rc == MBEDTLS_ERR_SSL_WANT_WRITE) {
 			status.status_code = NETCTX_SND_RETRY;
-			status.errnum = (mbed_err)rc;
+			status.errnum = (mbed_errnum)rc;
 		}
 		else {
 			status.status_code = NETCTX_SND_ERROR;
-			status.errnum = (mbed_err)rc;
+			status.errnum = (mbed_errnum)rc;
 		}
 	}
 
@@ -259,11 +259,11 @@ netctx_rcv_status netctx_recv(netctx* ctx, unsigned char* buf, size_t len)
 		}
 		else if (rc == MBEDTLS_ERR_SSL_WANT_READ) {
 			status.status_code = NETCTX_RCV_RETRY;
-			status.errnum = (mbed_err)rc;
+			status.errnum = (mbed_errnum)rc;
 		}
 		else {
 			status.status_code = NETCTX_RCV_ERROR;
-			status.errnum = (mbed_err)rc;
+			status.errnum = (mbed_errnum)rc;
 		}
 	}
 

@@ -5,12 +5,10 @@
 * SPDX-License-Identifier: Apache-2.0
 *
 */
-
 #include "Request.h"
 
 namespace http {
 
-	using namespace tools;
 
 	/* Initialization of common HTTP Verbs */
 	const std::string Request::GET_VERB = "GET";
@@ -40,7 +38,7 @@ namespace http {
 	}
 
 
-	Request& Request::set_body(const unsigned char* data, size_t size)
+	Request& Request::set_body(const byte* data, size_t size)
 	{
 		_body.clear();
 		_body.append(data, size);
@@ -49,12 +47,11 @@ namespace http {
 	}
 
 
-	void Request::send(net::Socket& _socket)
+	void Request::send(Socket& socket, Timer& timer)
 	{
 		DEBUG_ENTER(_logger, "Request", "send");
 
-		tools::ByteBuffer buffer(1024);
-		int rc;
+		ByteBuffer buffer(1024);
 
 		if (_body.size() > 0) {
 			// add a content-length header if there is a body.
@@ -71,7 +68,7 @@ namespace http {
 		_headers.write(buffer);
 
 		// add cookies, cookies are still obfuscated at this stage
-		tools::obfstring cookie_header{ _cookies.to_header() };
+		obfstring cookie_header{ _cookies.to_header() };
 		if (cookie_header.size() > 0) {
 			// cookies are appended decrypted in the buffer
 			buffer
@@ -82,35 +79,52 @@ namespace http {
 		buffer.append("\r\n");
 
 		// Send headers to the web server
-		rc = _socket.write(buffer.cbegin(), buffer.size());
 		if (_logger->is_trace_enabled())
-			_logger->trace("... %x       Request::send : write headers rc = %d", this, rc);
-
-		if (rc < 0)
-			throw mbed_error(rc);
+			_logger->trace(
+				"... %x       Request::send : write headers",
+				std::addressof(this)
+			);
+		write_buffer(socket, buffer.cbegin(), buffer.size(), timer);
 
 		// Erase sensitive data
 		buffer.clear();
 
 		if (_body.size() > 0) {
 			// send the body to the web server
-			rc = _socket.write(_body.cbegin(), _body.size());
 			if (_logger->is_trace_enabled())
-				_logger->trace("... %x       Request::send : write body rc = %d", this, rc);
-
-			if (rc < 0)
-				throw mbed_error(rc);
+				_logger->trace(
+					"... %x       Request::send : write body",
+					std::addressof(this)
+				);
+			write_buffer(socket, _body.cbegin(), _body.size(), timer);
 		}
 
 		// flush the output buffer
-		rc = _socket.flush();
 		if (_logger->is_trace_enabled())
-			_logger->trace("... %x       Request::send : flush rc = %d", this, rc);
+			_logger->trace(
+				"... %x       Request::send : flush",
+				std::addressof(this)
+			);
 
-		if (rc < 0)
-			throw mbed_error(rc);
+		//TODO : is flush needed ?
+		//mbed_err rc = socket.flush();
+		//if (!rc)
+		//	throw tools::mbed_error(rc);
 
 		return;
+	}
+
+
+	void Request::write_buffer(Socket& socket, const byte* buffer, size_t len, Timer& timer)
+	{
+		const netctx_snd_status snd_status = socket.write(buffer, len, timer);
+
+		if (snd_status.status_code == NETCTX_SND_ERROR) {
+			// send failed or timed out
+			throw mbed_error(snd_status.errnum);
+		} 
+		
+		//TODO: Do we have to do something here ?
 	}
 
 }

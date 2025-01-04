@@ -10,12 +10,15 @@
 #include <string>
 #include <memory>
 #include <chrono>
+
 #include "fw/PortalClient.h"
+
 #include "tools/Counters.h"
 #include "tools/Mutex.h"
 #include "tools/Logger.h"
 #include "tools/TaskInfo.h"
 #include "tools/Task.h"
+
 #include "ui/CmdlineParams.h"
 #include "ui/RegistrySettings.h"
 #include "ui/ModelessDialog.h"
@@ -78,6 +81,9 @@ private:
 
 	// - Running controller
 	std::unique_ptr<AsyncController> _controller;
+
+	//- SSL configuration
+	net::SslConfig _ssl_config;
 
 	// - Activity animation
 	HFONT _anim_font;

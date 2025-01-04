@@ -23,12 +23,8 @@ namespace net {
 		~WinsOutputQueue();
 
 		/* Writes next chunk of data available in this output queue.
-		*
-		* The function returns the number of bytes sent, which can be less
-		* than the used space in the queue. If an error has occurred, the 
-		* function returns a negative error code. 
 		*/
-		mbed_err write(Socket& socket, size_t& written);
+		netctx_snd_status write(Socket& socket);
 
 	private:
 		// a reference to the application logger

@@ -22,9 +22,9 @@ namespace fw {
 		CrtDigest()
 	{
 		if (crt) {
-			const mbed_err rc = x509crt_digest(crt, _digest, sizeof(_digest));
-			if (rc != 0)
-				throw tools::mbed_error(rc);
+			const mbed_errnum errnum = x509crt_digest(crt, _digest, sizeof(_digest));
+			if (errnum != 0)
+				throw tools::mbed_error(errnum);
 		}
 	}
 

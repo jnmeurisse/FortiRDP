@@ -29,7 +29,7 @@ void rngctx_free(rngctx* ctx);
 /**
  * Configure a Random Generator Context.
  */
-mbed_err rngctx_configure(rngctx* ctx);
+mbed_errnum rngctx_configure(rngctx* ctx);
 
 
 #ifdef __cplusplus

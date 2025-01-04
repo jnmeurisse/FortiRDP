@@ -19,43 +19,40 @@
 #define MBEDCCL_INIT_PSA      0x02
 
 static int initialization_flag = 0;
-static char mbedtls_version[10] = "unknown";
+static const char* mbedtls_version = MBEDTLS_VERSION_STRING;
 
-mbed_err mbedccl_initialize()
+mbed_errnum mbedccl_initialize()
 {
-	mbed_err rc = 0;
+	mbed_errnum errnum = 0;
 
 	if (initialization_flag == 0) {
-		mbedtls_version_get_string(mbedtls_version);
-
 		// configure the platform.
-		rc = mbedtls_platform_setup(NULL);
-		if (rc != 0)
+		errnum = mbedtls_platform_setup(NULL);
+		if (errnum != 0)
 			goto abort;
 		initialization_flag = MBEDCCL_INIT_PLATFORM;
 
-		// configure the PSA crypto layer only if compiled with MBEDTLS_USE_PSA_CRYPTO
-#ifdef MBEDTLS_USE_PSA_CRYPTO
+		// configure the PSA crypto layer only
 		int psa_err = psa_crypto_init();
 		if (psa_err != 0) {
 			//TODO : convert psa error code to mbedtls error code
+			// mbedtls_pk_error_from_psa is deprecated so we return
+			// a generic error message.
+			errnum = MBEDTLS_ERR_ERROR_CORRUPTION_DETECTED;
 			goto abort;
 		}
 		initialization_flag |= MBEDCCL_INIT_PSA;
-#endif
 	}
 
 abort:
-	return rc;
+	return errnum;
 }
 
 
 void mbedccl_terminate()
 {
-#ifdef MBEDTLS_USE_PSA_CRYPTO
 	if ((initialization_flag & MBEDCCL_INIT_PSA) != 0)
 		mbedtls_psa_crypto_free();
-#endif
 
 	if ((initialization_flag & MBEDCCL_INIT_PLATFORM) != 0) 
 		mbedtls_platform_teardown(NULL);
@@ -71,18 +68,20 @@ const char* mbedccl_get_version()
 }
 
 
-mbed_err mbedccl_get_verify_info(char *buf, size_t size, const char *prefix, uint32_t status)
+mbed_errnum mbedccl_get_verify_info(char *buf, size_t size, const char *prefix, uint32_t status)
 {
-	mbed_err rc = MBEDTLS_ERR_SSL_BAD_INPUT_DATA;
+	mbed_errnum errnum = MBEDTLS_ERR_SSL_BAD_INPUT_DATA;
 
 	if (buf && prefix) {
-		rc = mbedtls_x509_crt_verify_info(buf, size, prefix, status);
+		const int rc = mbedtls_x509_crt_verify_info(buf, size, prefix, status);
 
-		// Return only error cod
+		// TODO: explain why this
 		if (rc > 0)
-			rc = 0;
+			errnum = 0;
+		else
+			errnum = rc;
 	}
 
-	return rc;
+	return errnum;
 }
 

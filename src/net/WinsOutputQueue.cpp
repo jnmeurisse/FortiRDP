@@ -22,51 +22,44 @@ namespace net {
 	}
 
 
-	mbed_err WinsOutputQueue::write(Socket& socket, size_t& written)
+	netctx_snd_status WinsOutputQueue::write(Socket& socket)
 	{
+		netctx_snd_status snd_status = { NETCTX_SND_OK, 0, 0 };
+
 		if (_logger->is_trace_enabled())
 			_logger->trace(
 				".... %x enter WinsOutputQueue::write tcp=%x",
-				this,
+				std::addressof(this),
 				socket);
-
-		int rc = 0;
-		written = 0;
 
 		if (!empty()) {
 			PBufChain* const pbuf = front();
 
 			// send what we can 
-			rc = socket.send(pbuf->cbegin(), pbuf->cend() - pbuf->cbegin());
+			snd_status = socket.send(pbuf->cbegin(), pbuf->cend() - pbuf->cbegin());
 
-			if (rc > 0) {
-				// reports the number of sent bytes.
-				written = rc;
-
+			if (snd_status.status_code == NETCTX_SND_OK) {
 				// move our pointer into the payload if bytes have been sent
-				pbuf->move(rc);
+				pbuf->move(snd_status.sbytes);
 
 				// unlink the first chain if no more data
 				if (pbuf->empty()) {
 					pop_front();
 					delete pbuf;
 				}
-
-				// no error detected 
-				rc = 0;
 			}
 		}
 
 		if (_logger->is_trace_enabled())
 			_logger->trace(
-				".... %x leave WinsOutputQueue::write tcp=%x rc=%d written=%d",
-				this,
+				".... %x leave WinsOutputQueue::write tcp=%x rc.errnum=%d rc.sbytes=%d",
+				std::addressof(this),
 				socket,
-				rc, 
-				written);
+				snd_status.errnum, 
+				snd_status.sbytes);
 
 
-		// return the error code
-		return rc;
+		// return the send status
+		return snd_status;
 	}
 }

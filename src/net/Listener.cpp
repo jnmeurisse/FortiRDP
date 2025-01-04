@@ -8,15 +8,19 @@
 #include <winsock2.h>
 #include "net/Listener.h"
 
+
 namespace net {
 	using namespace tools;
 
 	Listener::Listener() :
 		_logger(Logger::get_logger()),
-		_endpoint()
+		_endpoint(),
+		_bind_context(::netctx_alloc(), ::netctx_free)
 	{
 		DEBUG_CTOR(_logger, "Listener");
-		mbedtls_net_init(&_netctx);
+
+		if (!_bind_context.get())
+			throw std::bad_alloc();
 	}
 
 
@@ -27,11 +31,11 @@ namespace net {
 	}
 
 
-	mbed_err Listener::bind(const Endpoint& endpoint)
+	mbed_errnum Listener::bind(const Endpoint& endpoint)
 	{
 		DEBUG_ENTER(_logger, "Listener", "bind");
 
-		mbed_err rc = 0;
+		mbed_errnum errnum = 0;
 		std::string host{ endpoint.hostname() };
 		std::string port{ std::to_string(endpoint.port()) };
 
@@ -51,32 +55,30 @@ namespace net {
 		* }
 		*/
 
-		rc = mbedtls_net_bind(&_netctx, host.c_str(), port.c_str(), MBEDTLS_NET_PROTO_TCP);
-		if (rc) {
+		errnum = netctx_bind(_bind_context.get(), host.c_str(), port.c_str(), NETCTX_PROTO_TCP);
+		if (errnum) {
 			// Unable to bind this host
 			_endpoint = endpoint;
 			goto terminate;
 		}
 
 		// get the port that has been assigned during the bind.
-		struct sockaddr_in addr;
-		int len = sizeof(sockaddr_in);
-		if (getsockname(_netctx.fd, (SOCKADDR*)&addr, &len)) {
+		const int bind_port = netctx_get_port(_bind_context.get());
+		if (bind_port == -1) {
 			_logger->error("ERROR: Listener::bind getsockname error %d", WSAGetLastError());
 
-			rc = MBEDTLS_ERR_NET_BIND_FAILED;
+			errnum = mbedccl_get_bind_error();
 			goto terminate;
 		}
-		_endpoint = Endpoint(endpoint.hostname(), ntohs(addr.sin_port));
+		_endpoint = Endpoint(endpoint.hostname(), ntohs(bind_port));
 
 		// set the socket in non blocking mode
-		if (mbedtls_net_set_nonblock(&_netctx)) {
-			_logger->error("ERROR: Listener::bind ioctlsocket error %d", WSAGetLastError());
+		if (netctx_set_blocking(_bind_context.get(), false) != 0) {
+			_logger->error("ERROR: Listener::bind set_blocking error %d", WSAGetLastError());
 
-			rc = MBEDTLS_ERR_NET_BIND_FAILED;
+			errnum = mbedccl_get_bind_error();
 			goto terminate;
 		}
-
 
 terminate:
 		if (_logger->is_debug_enabled()) {
@@ -84,41 +86,35 @@ terminate:
 				"... %x Listener::bind endpoint=%s rc=%d",
 				this,
 				endpoint.to_string().c_str(),
-				rc);
+				errnum);
 		}
 
-		return rc;
+		return errnum;
 	}
 
 
-	mbed_err Listener::accept(Socket& socket)
+	mbed_errnum Listener::accept(netctx& accepting_ctx)
 	{
 		DEBUG_ENTER(_logger, "Listener", "accept");
 
-		int rc = 0;
-		mbedtls_net_context client_ctx;
-
-		rc = mbedtls_net_accept(&_netctx, &client_ctx, nullptr, 0, nullptr);
-		if (rc == 0)
-			socket.attach(client_ctx);
+		mbed_errnum errnum = netctx_accept(_bind_context.get(), &accepting_ctx);
 
 		if (_logger->is_debug_enabled()) {
 			_logger->debug(
 				"... %x Listener::accept endpoint=%s rc=%d",
-				this,
+				std::addressof(this),
 				_endpoint.to_string().c_str(),
-				rc);
+				errnum);
 		}
 
-		return rc;
+		return errnum;
 	}
 
 
 	void Listener::close()
 	{
 		DEBUG_ENTER(_logger, "Listener", "close");
-
-		mbedtls_net_free(&_netctx);
+		netctx_close(_bind_context.get());
 	}
 
 
@@ -127,7 +123,7 @@ terminate:
 		int opt_val;
 		int opt_len = sizeof(opt_val);
 
-		if (getsockopt(_netctx.fd,
+		if (getsockopt(get_fd(),
 			SOL_SOCKET,
 			SO_ACCEPTCONN,
 			(char*)&opt_val,
@@ -137,4 +133,9 @@ terminate:
 		return opt_val != 0;
 	}
 
+
+	int Listener::get_fd() const
+	{
+		return ::netctx_getfd(_bind_context.get());
+	}
 }

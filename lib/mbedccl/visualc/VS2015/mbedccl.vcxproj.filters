@@ -1,0 +1,84 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Fichiers de ressources">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="sources">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="headers">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\src\netctx.c">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\sslctx.c">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\sslcfg.c">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\x509.c">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rngctx.c">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\init.c">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\debug.c">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\error.c">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pkctx.c">
+      <Filter>sources</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\include\mbedccl\netctx.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\mbedccl\sslcfg.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\mbedccl\sslctx.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\mbedccl\x509.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\mbedccl\nettypes.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\mbedccl\rngctx.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\mbedccl\debug.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\debug_private.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\mbedccl\error.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\rngctx_private.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\mbedccl\pkctx.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\mbedccl\init.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

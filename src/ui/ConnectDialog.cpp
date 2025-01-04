@@ -5,16 +5,18 @@
 * SPDX-License-Identifier: Apache-2.0
 *
 */
+
 #include "ui/ConnectDialog.h"
 #include "ui/CredentialDialog.h"
 #include "ui/AskCodeDialog.h"
 #include "ui/AboutDialog.h"
 #include "ui/OptionsDialog.h"
 #include "ui/AsyncMessage.h"
+
 #include "tools/StrUtil.h"
 #include "tools/SysUtil.h"
 #include "tools/ErrUtil.h"
-#include "mbedtls/pem.h"
+
 #include "resources/resource.h"
 
 // ID for the system menu
@@ -25,6 +27,8 @@ static const int SYSCMD_OPTIONS = 3;
 ConnectDialog::ConnectDialog(HINSTANCE hInstance, const CmdlineParams& params):
 	ModelessDialog(hInstance, NULL, IDD_CONNECT_DIALOG),
 	_params(params),
+	_ssl_config(),
+	_controller(),
 	_logger(tools::Logger::get_logger())
 {
 	// Assign application icons. Icons are automatically deleted when the 
@@ -67,7 +71,6 @@ ConnectDialog::ConnectDialog(HINSTANCE hInstance, const CmdlineParams& params):
 	_writer = new InfoLogWriter(window_handle());
 	_logger->add_writer(_writer);
 
-
 	// configure the maximum length for address text fields
 	set_control_textlen(IDC_ADDR_FW, MAX_ADDR_LENGTH);
 	set_control_textlen(IDC_ADDR_HOST, MAX_ADDR_LENGTH);
@@ -108,7 +111,8 @@ ConnectDialog::~ConnectDialog()
 	::DeleteObject(_anim_font);
 
 	_controller->terminate();
-	_controller->wait(1000);
+	if (_controller->wait(5000))
+		_controller.reset();
 
 	_logger->remove_writer(_writer);
 	delete _writer;
@@ -277,7 +281,7 @@ void ConnectDialog::connect()
 		::EnableMenuItem(get_sys_menu(false), SYSCMD_OPTIONS, MF_BYCOMMAND | MF_DISABLED);
 
 	// start the client
-	_controller->connect(_firewall_endpoint, cert_files);
+	_controller->connect(_firewall_endpoint, _ssl_config);
 }
 
 
@@ -506,7 +510,7 @@ void ConnectDialog::showOptionsDialog()
 {
 	OptionsDialog optionsDialog{ instance_handle(), window_handle() };
 
-	// options are not updatable in the gui when specified on the command line
+	// options are not updatable in the GUI when specified on the command line
 	optionsDialog.full_screen = _params.full_screen() || _settings.get_full_screen();
 	optionsDialog.full_screen_updatable = !_params.full_screen();
 
@@ -663,6 +667,12 @@ bool ConnectDialog::initCertFiles(fw::CertFiles& cert_files)
 		}
 	}
 
+	// Load the CA cert chain and ignore the return status.
+	_ssl_config.load_ca_cert(cert_files.crt_auth_file);
+
+//	_ssl_config.load_user_cert(cert_files.crt_user_file, )
+
+/* TODO
 	//  User certificate
 	if (_params.us_cert_filename().length() > 0) {
 		// use the user certificate file specified in the command line
@@ -720,6 +730,7 @@ bool ConnectDialog::initCertFiles(fw::CertFiles& cert_files)
 
 		mbedtls_pk_free(&own_key);
 	}
+*/
 
 	return true;
 }

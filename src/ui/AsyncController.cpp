@@ -32,7 +32,7 @@ AsyncController::~AsyncController()
 }
 
 
-bool AsyncController::connect(const net::Endpoint& firewall_endpoint, const fw::CertFiles& cert_files)
+bool AsyncController::connect(const net::Endpoint& firewall_endpoint, const net::SslConfig& ssl_config)
 {
 	if (_logger->is_debug_enabled()) {
 		_logger->debug("... %x enter AsyncController::connect ep=%s",
@@ -41,7 +41,7 @@ bool AsyncController::connect(const net::Endpoint& firewall_endpoint, const fw::
 	}
 
 	// Start the async connect procedure
-	_portal = std::make_unique<fw::PortalClient>(firewall_endpoint, cert_files);
+	_portal = std::make_unique<fw::PortalClient>(firewall_endpoint, ssl_config);
 	request_action(AsyncController::CONNECT);
 
 	return _portal != nullptr;
@@ -113,7 +113,6 @@ bool AsyncController::disconnect()
 }
 
 
-
 bool AsyncController::terminate()
 {
 	DEBUG_ENTER(_logger, "AsyncController", "terminate");
@@ -149,6 +148,7 @@ void AsyncController::request_action(ControllerAction action)
 			::GetLastError());
 	}
 }
+
 
 const char* AsyncController::action_name(ControllerAction action) const
 {
@@ -242,7 +242,6 @@ unsigned int AsyncController::run()
 			default:
 				break;
 		}
-
 
 		if (procedure != nullptr) {
 			// Execute the procedure

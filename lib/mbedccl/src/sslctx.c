@@ -17,28 +17,12 @@
 
 sslctx* sslctx_alloc()
 {
-	mbedtls_ssl_context* ctx = malloc(sizeof(mbedtls_ssl_context));
+	mbedtls_ssl_context* const ctx = malloc(sizeof(mbedtls_ssl_context));
 
-	if (ctx) {
+	if (ctx)
 		mbedtls_ssl_init(ctx);
-	}
 
 	return (sslctx*) ctx;
-}
-
-
-mbed_err sslctx_config(sslctx* ctx, sslcfg* cfg)
-{
-	int rc = MBEDTLS_ERR_SSL_BAD_INPUT_DATA;
-	mbedtls_ssl_context* const ssl_context = (mbedtls_ssl_context*)ctx;
-	mbedtls_ssl_config* const ssl_config = (mbedtls_ssl_config *)cfg;
-
-	if (ssl_context && ssl_config) {
-		//TODO: Do we need to call psa_crypto_init() ?
-		rc = mbedtls_ssl_setup(ssl_context, ssl_config);
-	}
-
-	return rc;
 }
 
 
@@ -53,18 +37,32 @@ void sslctx_free(sslctx* ctx)
 }
 
 
-mbed_err sslctx_set_netctx(sslctx* ctx, netctx* netctx)
+mbed_errnum sslctx_configure(sslctx* ctx, sslcfg* cfg)
 {
-	mbed_err rc = MBEDTLS_ERR_SSL_BAD_INPUT_DATA;
+	mbed_errnum errnum = MBEDTLS_ERR_SSL_BAD_INPUT_DATA;
+	mbedtls_ssl_context* const ssl_context = (mbedtls_ssl_context*)ctx;
+	mbedtls_ssl_config* const ssl_config = (mbedtls_ssl_config *)cfg;
+
+	if (ssl_context && ssl_config) {
+		errnum = mbedtls_ssl_setup(ssl_context, ssl_config);
+	}
+
+	return errnum;
+}
+
+
+mbed_errnum sslctx_set_netctx(sslctx* ctx, netctx* netctx)
+{
+	mbed_errnum errnum = MBEDTLS_ERR_SSL_BAD_INPUT_DATA;
 	mbedtls_ssl_context* const ssl_context = (mbedtls_ssl_context*)ctx;
 	mbedtls_net_context* const net_context = (mbedtls_net_context*)netctx;
 
 	if (ssl_context && net_context) {
 		mbedtls_ssl_set_bio(ssl_context, net_context, mbedtls_net_send, mbedtls_net_recv, NULL);
-		rc = 0;
+		errnum = 0;
 	}
 
-	return rc;
+	return errnum;
 }
 
 
@@ -99,21 +97,20 @@ sslctx_handshake_status sslctx_handshake(sslctx* ctx)
 }
 
 
-mbed_err sslctx_close(sslctx* ctx)
+mbed_errnum sslctx_close(sslctx* ctx)
 {
-	mbed_err rc = MBEDTLS_ERR_SSL_BAD_INPUT_DATA;
+	mbed_errnum errnum = MBEDTLS_ERR_SSL_BAD_INPUT_DATA;
 	mbedtls_ssl_context* const ssl_context = (mbedtls_ssl_context*)ctx;
 
 	if (ssl_context) {
-		rc = mbedtls_ssl_close_notify(ssl_context);
-		if (rc)
+		errnum = mbedtls_ssl_close_notify(ssl_context);
+		if (errnum)
 			goto terminate;
 	}
 
 terminate:
-	return rc;
+	return errnum;
 }
-
 
 
 x509crt* sslctx_get_peer_x509crt(sslctx* ctx)
@@ -144,11 +141,11 @@ netctx_snd_status sslctx_send(sslctx* ctx, const unsigned char* buf, size_t len)
 		}
 		else if (rc == MBEDTLS_ERR_SSL_WANT_READ || rc == MBEDTLS_ERR_SSL_WANT_WRITE) {
 			status.status_code = NETCTX_SND_RETRY;
-			status.errnum = (mbed_err)rc;
+			status.errnum = (mbed_errnum)rc;
 		}
 		else {
 			status.status_code = NETCTX_SND_ERROR;
-			status.errnum = (mbed_err)rc;
+			status.errnum = (mbed_errnum)rc;
 		}
 	}
 
@@ -175,11 +172,11 @@ netctx_rcv_status sslctx_recv(sslctx* ctx, unsigned char* buf, size_t len)
 		}
 		else if (rc == MBEDTLS_ERR_SSL_WANT_READ || rc == MBEDTLS_ERR_SSL_WANT_WRITE) {
 			status.status_code = NETCTX_RCV_RETRY;
-			status.errnum = (mbed_err)rc;
+			status.errnum = (mbed_errnum)rc;
 		}
 		else {
 			status.status_code = NETCTX_RCV_ERROR;
-			status.errnum = (mbed_err)rc;
+			status.errnum = (mbed_errnum)rc;
 		}
 	}
 
@@ -216,5 +213,4 @@ const char* sslctx_get_version(sslctx* ctx)
 		? mbedtls_ssl_get_version(ssl_context)
 		: "not available";
 }
-
 

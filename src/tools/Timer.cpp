@@ -12,75 +12,48 @@
 
 namespace tools {
 
-	Timer::Timer(int ms) :
+	Timer::Timer(uint32_t delay) :
 		_logger(Logger::get_logger())
 	{
 		DEBUG_CTOR(_logger, "Timer");
 
-		_handle = ::CreateWaitableTimer(NULL, TRUE, NULL);
-		if (_handle == NULL)
-			throw_winapi_error(::GetLastError(), "CreateWaitableTimer error");
-
-		if (_logger->is_debug_enabled())
-			_logger->debug( "... %x create Timer handle=%x", this, _handle);
-
-		start(ms);
-	}
-
-
-	Timer::Timer(const Timer& timer) : 
-		_logger(Logger::get_logger())
-	{
-		DEBUG_CTOR(_logger, "Timer");
-
-		if (!::DuplicateHandle(GetCurrentProcess(),
-			timer._handle,
-			GetCurrentProcess(),
-			&_handle,
-			0,
-			FALSE,
-			DUPLICATE_SAME_ACCESS))
-			throw_winapi_error(::GetLastError(), "Timer DuplicateHandle error");
-
-		if (_logger->is_debug_enabled())
-			_logger->debug("... %x created Timer handle=%x", this, _handle);
+		start(delay);
 	}
 
 
 	Timer::~Timer()
 	{
 		DEBUG_DTOR(_logger, "Timer");
-
-		if (_handle != NULL) {
-			_logger->debug("... %x destroyed Timer handle=%x", this, _handle);
-			::CloseHandle(_handle);
-		}
 	}
 
 
-	void Timer::start(int ms)
+	void Timer::start(uint32_t delay) noexcept
 	{
 		DEBUG_ENTER(_logger, "Timer", "start");
 
-		LARGE_INTEGER due_time;
-		due_time.QuadPart = ms * -10000;
-		BOOL rc = ::SetWaitableTimer(_handle, &due_time, 0, nullptr, nullptr, false);
 		if (_logger->is_debug_enabled())
-			_logger->debug("... %x Timer::start ms=%d rc=%d", this, ms, rc);
+			_logger->debug(
+				"... %x Timer::start delay=%d",
+				std::addressof(this),
+				delay);
 
-		if (!rc)
-			throw_winapi_error(::GetLastError(), "SetWaitableTimer error");
+		_due_time = GetTickCount64() + delay;
+		_elapsed = false;
 	}
 
 
-	bool Timer::elapsed() const
+	bool Timer::is_elapsed() noexcept
 	{
-		bool done = ::WaitForSingleObject(_handle, 0) == WAIT_OBJECT_0;
-		if (done) {
-			_logger->debug("... %x Timer::elapsed", this);
-		}
+		if (!_elapsed && GetTickCount64() > _due_time)
+			_elapsed = true;
 
-		return done;
+		return _elapsed;
 	}
 
+
+	uint32_t Timer::remaining_delay() const noexcept
+	{
+		uint64_t remaining_time = max(0, _due_time - GetTickCount64());
+		return static_cast<uint32_t>(remaining_time);
+	}
 }

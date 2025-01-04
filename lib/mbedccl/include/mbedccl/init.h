@@ -14,11 +14,12 @@
 extern "C" {
 #endif
 
-/** 
+
+/**
  * Initialize the Mbed TLS library.
  * The function initializes the threading and the psa modules.
  */
-mbed_err mbedccl_initialize();
+mbed_errnum mbedccl_initialize();
 
 /**
  * Un-initialize the Mbed TLS library.
@@ -36,7 +37,7 @@ const char* mbedccl_get_version();
  * 
  * The function returns an error code if the buffer is too small.
  */
-mbed_err mbedccl_get_verify_info(char *buf, size_t size, const char *prefix, uint32_t status);
+mbed_errnum mbedccl_get_verify_info(char *buf, size_t size, const char *prefix, uint32_t status);
 
 #ifdef __cplusplus
 }

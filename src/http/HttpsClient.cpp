@@ -13,6 +13,7 @@
 #include "http/HttpsClient.h"
 #include "tools/StringMap.h"
 #include "tools/StrUtil.h"
+#include "tools/ErrUtil.h"
 
 
 namespace http {
@@ -29,8 +30,8 @@ namespace http {
 	const int HttpsClient::STATUS_FORBIDDEN = 403;
 
 
-	HttpsClient::HttpsClient(const net::Endpoint& ep) :
-		TlsSocket(),
+	HttpsClient::HttpsClient(const net::Endpoint& ep, const net::SslConfig& config) :
+		TlsSocket(config),
 		_host_ep(ep),
 		_keepalive_timeout(10),
 		_keepalive_timer(_keepalive_timeout * 1000),
@@ -47,10 +48,10 @@ namespace http {
 	}
 
 
-	bool HttpsClient::must_reconnect() const
+	bool HttpsClient::must_reconnect()
 	{
-		return (!connected())
-			|| _keepalive_timer.elapsed()
+		return (!TlsSocket::is_connected())
+			|| _keepalive_timer.is_elapsed()
 			|| (_request_count >= _max_requests);
 	}
 
@@ -59,21 +60,33 @@ namespace http {
 	{
 		DEBUG_ENTER(_logger, "HttpsClient", "connect");
 
-		_keepalive_timer.start(10000);
+		_keepalive_timer.start(_keepalive_timeout * 1000);
 		_request_count = 0;
 
-		const mbed_err rc = TlsSocket::connect(_host_ep);
-		_logger->debug("... %x       HttpsClient::connect : rc = %d", this, rc);
-		if (rc < 0) {
-			throw mbed_error(rc);
+		const mbed_errnum errnum = TlsSocket::connect(_host_ep);
+		_logger->debug(
+			"... %x       HttpsClient::connect : rc = %d", 
+			std::addressof(this), 
+			errnum);
+		if (errnum < 0) {
+			throw mbed_error(errnum);
 		}
+
+		//TODO: improve timer configuration
+		tools::Timer timer(10 * 1000);
+		sslctx_handshake_status status = handshake(timer);
+
+		//TODO: manage return code
+		if (status.status_code != SSLCTX_HDK_OK)
+			throw mbed_error(status.errnum);
 	}
+
 
 	void HttpsClient::disconnect()
 	{
 		DEBUG_ENTER(_logger, "HttpsClient", "disconnect");
 
-		Socket::close();
+		TcpSocket::close();
 	}
 
 
@@ -82,22 +95,27 @@ namespace http {
 		DEBUG_ENTER(_logger, "HttpsClient", "send_request");
 
 		if (_logger->is_trace_enabled())
-			_logger->trace("... %x enter HttpsClient::send_request url=%s count=%d max=%d timeout=%d",
-				this,
+			_logger->trace(
+				"... %x enter HttpsClient::send_request url=%s count=%d max=%d timeout=%d",
+				std::addressof(this),
 				request.url().to_string(false).c_str(),
 				_request_count,
 				_max_requests,
-				_keepalive_timeout);
+				_keepalive_timeout
+			);
 
-		request.send(*this);
+		//TODO: improve timer configuration
+		tools::Timer timer(10 * 1000);
+		request.send(*this, timer);
 
 		// update the number of requests and restart the keep alive timer
 		_request_count++;
 		_keepalive_timer.start(_keepalive_timeout * 1000);
 
 		if (_logger->is_trace_enabled())
-			_logger->trace("... %x leave HttpsClient::send_request count=%d max=%d timeout=%d",
-				this,
+			_logger->trace(
+				"... %x leave HttpsClient::send_request count=%d max=%d timeout=%d",
+				std::addressof(this),
 				_request_count,
 				_max_requests,
 				_keepalive_timeout);
@@ -113,14 +131,21 @@ namespace http {
 		// Make sure the answer holder is empty
 		answer.clear();
 
-		const int rc = answer.recv(*this);
-		_logger->debug("... %x       HttpsClient::recv_answer : rc = %d", this, rc);
+		//TODO: improve timer configuration
+		tools::Timer timer(10 * 1000);
+		const int rc = answer.recv(*this, timer);
+
+		_logger->debug(
+			"... %x       HttpsClient::recv_answer : rc=%d", 
+			std::addressof(this),
+			rc
+		);
 		
 		if (rc != Answer::ERR_NONE) {
 			std::string message;
 			switch (rc) {
 			case Answer::ERR_INVALID_STATUS_LINE:;
-				message = "Invalid HTTP Status line"; break;
+				message = "HTTP Status line not available"; break;
 			case Answer::ERR_INVALID_VERSION:
 				message = "Invalid HTTP version"; break;
 			case Answer::ERR_INVALID_STATUS_CODE:
@@ -159,11 +184,13 @@ namespace http {
 		_keepalive_timeout = max(0, timeout);
 
 		if (_logger->is_trace_enabled())
-			_logger->trace("... %x leave HttpsClient::recv_answer rc=%d max=%d timeout=%d",
-				this,
+			_logger->trace(
+				"... %x leave HttpsClient::recv_answer rc=%d max=%d timeout=%d",
+				std::addressof(this),
 				rc,
 				_max_requests,
-				_keepalive_timeout);
+				_keepalive_timeout
+			);
 
 		return;
 	}
@@ -251,4 +278,5 @@ namespace http {
 			path,
 			query);
 	}
+
 }
