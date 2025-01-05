@@ -7,7 +7,7 @@
 */
 #include "TlsSocket.h"
 
-#include <mbedtls/ssl_internal.h>
+#include <mbedtls/ssl.h>
 #include <mbedtls/ssl_ciphersuites.h>
 #include <mbedtls/debug.h>
 
@@ -86,9 +86,8 @@ namespace net {
 		mbedtls_ssl_conf_authmode(&_ssl_config, MBEDTLS_SSL_VERIFY_REQUIRED);
 		mbedtls_ssl_conf_rng(&_ssl_config, mbedtls_ctr_drbg_random, &_ctr_drbg);
 
-		// 1.1 and 1.2 are accepted
-		mbedtls_ssl_conf_min_version(&_ssl_config, MBEDTLS_SSL_MAJOR_VERSION_3, MBEDTLS_SSL_MINOR_VERSION_2);
-		mbedtls_ssl_conf_max_version(&_ssl_config, MBEDTLS_SSL_MAJOR_VERSION_3, MBEDTLS_SSL_MINOR_VERSION_3);
+		// 1.2 and 1.3 are accepted
+		mbedtls_ssl_conf_min_tls_version(&_ssl_config, MBEDTLS_SSL_VERSION_TLS1_2);
 
 		// set cipher list
 		mbedtls_ssl_conf_ciphersuites(&_ssl_config, default_ciphers);
@@ -129,12 +128,6 @@ namespace net {
 
 		mbedtls_ssl_conf_ca_chain(&_ssl_config, ca_crt, nullptr);
 		mbedtls_ssl_conf_authmode(&_ssl_config, MBEDTLS_SSL_VERIFY_OPTIONAL);
-	}
-
-
-	const mbedtls_x509_crt* TlsSocket::get_ca_crt() const
-	{
-		return _ssl_config.ca_chain;
 	}
 
 
@@ -226,7 +219,8 @@ namespace net {
 	mbed_err TlsSocket::flush()
 	{
 		DEBUG_ENTER(_logger, "TlsSocket", "flush");
-		return mbedtls_ssl_flush_output(&_ssl_context);
+		//TODO return mbedtls_ssl_flush_output(&_ssl_context);
+		return 0;
 	}
 
 
@@ -234,7 +228,7 @@ namespace net {
 	{
 		DEBUG_ENTER(_logger, "TlsSocket", "do_close");
 
-		if (connected() && _ssl_context.p_bio) {
+		if (connected()) { //TODO  && _ssl_context.p_bio) {
 			mbedtls_ssl_close_notify(&_ssl_context);
 			mbedtls_ssl_session_reset(&_ssl_context);
 		}

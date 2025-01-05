@@ -7,6 +7,7 @@
 */
 #pragma once
 #include <memory>
+#include <mbedtls/ctr_drbg.h>
 #include <mbedtls/pk.h>
 #include "tools/ErrUtil.h"
 
@@ -27,6 +28,7 @@ namespace tools {
 		inline mbedtls_pk_context* get_pk() { return &_key; }
 
 	private:
+		mbedtls_ctr_drbg_context _ctr_drbg;
 		mbedtls_pk_context _key;
 	};
 
