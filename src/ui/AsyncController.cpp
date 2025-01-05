@@ -134,7 +134,8 @@ namespace ui {
 		if (_logger->is_debug_enabled()) {
 			_logger->debug("... %x enter AsyncController::connect ep=%s realm=%s",
 				(uintptr_t)this,
-				firewall_endpoint.to_string().c_str());
+				firewall_endpoint.to_string().c_str(),
+				realm.c_str());
 		}
 
 		// Start the async connect procedure
