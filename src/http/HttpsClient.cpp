@@ -63,7 +63,7 @@ namespace http {
 		_request_count = 0;
 
 		const mbed_err rc = TlsSocket::connect(_host_ep);
-		_logger->debug("... %x       HttpsClient::connect : rc = %d", (uintptr_t)this, rc);
+		_logger->debug("... %x       HttpsClient::connect : rc=%d", (uintptr_t)this, rc);
 		if (rc < 0) {
 			throw mbed_error(rc);
 		}
@@ -114,7 +114,7 @@ namespace http {
 		answer.clear();
 
 		const int rc = answer.recv(*this);
-		_logger->debug("... %x       HttpsClient::recv_answer : rc = %d", (uintptr_t)this, rc);
+		_logger->debug("... %x       HttpsClient::recv_answer : rc=%d", (uintptr_t)this, rc);
 		
 		if (rc != Answer::ERR_NONE) {
 			std::string message;

@@ -207,7 +207,7 @@ namespace net {
 
 	terminate:
 		if (_logger->is_debug_enabled())
-			_logger->debug("... %x leave Socket::do_connect fd=%d %d", (uintptr_t)this, _netctx.fd, rc);
+			_logger->debug("... %x leave Socket::do_connect fd=%d rc=%d", (uintptr_t)this, _netctx.fd, rc);
 
 		return rc;
 	}
