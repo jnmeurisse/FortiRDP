@@ -140,15 +140,22 @@ namespace tools {
 
 	char* Logger::fmt(const char* format, va_list args)
 	{
-		char* text = nullptr;
-		int size = 0;
+		va_list args_copy;
 
 		// compute the number of characters
-		size = _vscprintf(format, args) + 1;
+		va_copy(args_copy, args);
+		const int size = vsnprintf(nullptr, 0, format, args_copy);
+		va_end(args_copy);
+
+		if (size < 0)
+			return nullptr;
 
 		// allocate and format
-		text = new char[size];
-		vsprintf_s(text, size, format, args);
+		char* text = new char[size + 1];
+		if (vsnprintf(text, size + 1, format, args) < 0) {
+			delete[] text;
+			return nullptr;
+		}
 
 		// return the formated text
 		return text;
@@ -158,8 +165,14 @@ namespace tools {
 	void Logger::log(Level level, const char* format, va_list args)
 	{
 		const char* const text = fmt(format, args);
-		write(level, text);
-		delete[] text;
+
+		if (text) {
+			write(level, text);
+			delete[] text;
+		}
+		else {
+			write(Level::LL_ERROR, "internal error : fmt returned nullptr");
+		}
 	}
 
 
