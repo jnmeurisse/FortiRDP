@@ -16,6 +16,7 @@
  *
  *  [SIRO] https://cabforum.org/wp-content/uploads/Chunghwatelecom201503cabforumV4.pdf
  */
+#include <ws2tcpip.h>
 
 #include "common.h"
 
@@ -51,6 +52,7 @@
 #include <time.h>
 #endif
 #endif
+
 
 #if defined(MBEDTLS_FS_IO)
 #include <stdio.h>
@@ -2991,6 +2993,25 @@ find_parent:
     }
 }
 
+
+static int x509_inet_pton_ipv6(const char* src, void* dst)
+{
+	return inet_pton(AF_INET6, src, dst) == 1 ? 0 : -1;
+}
+
+static int x509_inet_pton_ipv4(const char* src, void* dst)
+{
+	return inet_pton(AF_INET, src, dst) == 1 ? 0 : -1;
+}
+
+
+static size_t mbedtls_x509_crt_parse_cn_inet_pton(const char* cn, void* dst)
+{
+	return strchr(cn, ':') == NULL
+		? x509_inet_pton_ipv4(cn, dst) == 0 ? 4 : 0
+		: x509_inet_pton_ipv6(cn, dst) == 0 ? 16 : 0;
+}
+
 /*
  * Check for CN match
  */
@@ -3011,59 +3032,84 @@ static int x509_crt_check_cn(const mbedtls_x509_buf *name,
     return -1;
 }
 
-/*
- * Check for SAN match, see RFC 5280 Section 4.2.1.6
- */
-static int x509_crt_check_san(const mbedtls_x509_buf *name,
-                              const char *cn, size_t cn_len)
+static int x509_crt_check_san_ip(const mbedtls_x509_sequence* san,
+	const char* cn, size_t cn_len)
 {
-    const unsigned char san_type = (unsigned char) name->tag &
-                                   MBEDTLS_ASN1_TAG_VALUE_MASK;
+	uint32_t ip[4];
+	cn_len = mbedtls_x509_crt_parse_cn_inet_pton(cn, ip);
+	if (cn_len == 0) {
+		return -1;
+	}
 
-    /* dNSName */
-    if (san_type == MBEDTLS_X509_SAN_DNS_NAME) {
-        return x509_crt_check_cn(name, cn, cn_len);
-    }
+	for (const mbedtls_x509_sequence* cur = san; cur != NULL; cur = cur->next) {
+		const unsigned char san_type = (unsigned char)cur->buf.tag &
+			MBEDTLS_ASN1_TAG_VALUE_MASK;
+		if (san_type == MBEDTLS_X509_SAN_IP_ADDRESS &&
+			cur->buf.len == cn_len && memcmp(cur->buf.p, ip, cn_len) == 0) {
+			return 0;
+		}
+	}
 
-    /* (We may handle other types here later.) */
-
-    /* Unrecognized type */
-    return -1;
+	return -1;
 }
 
+ /*
+  * Check for SAN match, see RFC 5280 Section 4.2.1.6
+  */
+static int x509_crt_check_san(const mbedtls_x509_sequence* san,
+	const char* cn, size_t cn_len)
+{
+	int san_ip = 0;
+	/* Prioritize DNS name over other subtypes due to popularity */
+	for (const mbedtls_x509_sequence* cur = san; cur != NULL; cur = cur->next) {
+		switch ((unsigned char)cur->buf.tag & MBEDTLS_ASN1_TAG_VALUE_MASK) {
+		case MBEDTLS_X509_SAN_DNS_NAME:
+			if (x509_crt_check_cn(&cur->buf, cn, cn_len) == 0) {
+				return 0;
+			}
+			break;
+		case MBEDTLS_X509_SAN_IP_ADDRESS:
+			san_ip = 1;
+			break;
+			/* (We may handle other types here later.) */
+		default: /* Unrecognized type */
+			break;
+		}
+	}
+	if (san_ip) {
+		if (x509_crt_check_san_ip(san, cn, cn_len) == 0) {
+			return 0;
+		}
+	}
+
+	return -1;
+}
 /*
  * Verify the requested CN - only call this if cn is not NULL!
  */
-static void x509_crt_verify_name(const mbedtls_x509_crt *crt,
-                                 const char *cn,
-                                 uint32_t *flags)
+static void x509_crt_verify_name(const mbedtls_x509_crt* crt,
+	const char* cn,
+	uint32_t* flags)
 {
-    const mbedtls_x509_name *name;
-    const mbedtls_x509_sequence *cur;
-    size_t cn_len = strlen(cn);
+	const mbedtls_x509_name* name;
+	size_t cn_len = strlen(cn);
 
-    if (crt->ext_types & MBEDTLS_X509_EXT_SUBJECT_ALT_NAME) {
-        for (cur = &crt->subject_alt_names; cur != NULL; cur = cur->next) {
-            if (x509_crt_check_san(&cur->buf, cn, cn_len) == 0) {
-                break;
-            }
-        }
+	if (crt->ext_types & MBEDTLS_X509_EXT_SUBJECT_ALT_NAME) {
+		if (x509_crt_check_san(&crt->subject_alt_names, cn, cn_len) == 0) {
+			return;
+		}
+	}
+	else {
+		for (name = &crt->subject; name != NULL; name = name->next) {
+			if (MBEDTLS_OID_CMP(MBEDTLS_OID_AT_CN, &name->oid) == 0 &&
+				x509_crt_check_cn(&name->val, cn, cn_len) == 0) {
+				return;
+			}
+		}
 
-        if (cur == NULL) {
-            *flags |= MBEDTLS_X509_BADCERT_CN_MISMATCH;
-        }
-    } else {
-        for (name = &crt->subject; name != NULL; name = name->next) {
-            if (MBEDTLS_OID_CMP(MBEDTLS_OID_AT_CN, &name->oid) == 0 &&
-                x509_crt_check_cn(&name->val, cn, cn_len) == 0) {
-                break;
-            }
-        }
+	}
 
-        if (name == NULL) {
-            *flags |= MBEDTLS_X509_BADCERT_CN_MISMATCH;
-        }
-    }
+	*flags |= MBEDTLS_X509_BADCERT_CN_MISMATCH;
 }
 
 /*
