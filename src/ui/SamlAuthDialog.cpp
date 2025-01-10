@@ -13,6 +13,7 @@
 #include <wrl.h>
 #include "resources/resource.h"
 #include "tools/ErrUtil.h"
+#include "tools/Path.h"
 #include "tools/Strutil.h"
 
 
@@ -277,10 +278,13 @@ namespace ui {
 		};
 
 
+		std::wstring app_data_path = tools::Path::get_appdata_path().folder() + L"FortiRDP\\";
+
+
 		set_control_text(IDC_SAML_STATUS, L"Initializing a web browser");
 		HRESULT hr = CreateCoreWebView2EnvironmentWithOptions(
 			nullptr,
-			nullptr,
+			app_data_path.c_str(),
 			nullptr,
 			Callback<ICoreWebView2CreateCoreWebView2EnvironmentCompletedHandler>(web_env_created).Get()
 		);

@@ -8,7 +8,9 @@
 #pragma once
 
 #include <Windows.h>
+#include <ShlObj.h>
 #include <string>
+
 
 
 namespace tools {
@@ -48,12 +50,19 @@ namespace tools {
 		*/
 		static Path get_desktop_path();
 
+		/* returns the path to AppData/local
+		*/
+		static Path get_appdata_path();
+
 	private:
 		// The folder name (including the last \ delimiter)
 		std::wstring _folder;
 
 		// The filename
 		std::wstring _fname;
+
+		// returns the path to a windows known folder.
+		static Path get_known_folder_path(REFKNOWNFOLDERID rfid);
 	};
 
 }

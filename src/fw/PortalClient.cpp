@@ -659,7 +659,9 @@ namespace fw {
 
 		// Redirect if required
 		const int status_code = answer.get_status_code();
-		if ((status_code == STATUS_TEMPORARY_REDIRECT || status_code == HttpsClient::STATUS_FOUND) && allow_redir >= 0) {
+		if ((status_code == HttpsClient::STATUS_TEMPORARY_REDIRECT ||
+			status_code == HttpsClient::STATUS_FOUND ||
+			status_code == HttpsClient::STATUS_SEE_OTHER) && allow_redir >= 0) {
 			std::string location;
 			if (answer.headers().get("Location", location)) {
 				const http::Url redir_url{ location };

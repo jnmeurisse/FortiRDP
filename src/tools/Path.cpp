@@ -8,7 +8,6 @@
 #include "Path.h"
 
 #include <wil/com.h>
-#include <ShlObj.h>
 #include <Shlwapi.h>
 #include <vector>
 #include "tools/ErrUtil.h"
@@ -74,17 +73,29 @@ namespace tools {
 	
 	Path Path::get_desktop_path()
 	{
+		return get_known_folder_path(FOLDERID_Desktop);
+	}
+
+
+	Path Path::get_appdata_path()
+	{
+		return get_known_folder_path(FOLDERID_LocalAppData);
+	}
+
+
+	Path Path::get_known_folder_path(REFKNOWNFOLDERID rfid)
+	{
 		wil::unique_cotaskmem_string buffer;
 
-		// Get the path to the desktop folder for the current user.
-		HRESULT hr = ::SHGetKnownFolderPath(FOLDERID_Desktop, KF_FLAG_DEFAULT, NULL, &buffer);
+		// Get the path to the folder for the current user.
+		const HRESULT hr = ::SHGetKnownFolderPath(rfid, KF_FLAG_DEFAULT, NULL, &buffer);
 		if (FAILED(hr))
 			throw tools::win_errmsg(::GetLastError());
 
 		// The returned path does not include a trailing backslash, add one.
 		std::wstring path{ buffer.get() };
 		path.append(L"\\");
-		
+
 		return Path(path, L"");
 	}
 
