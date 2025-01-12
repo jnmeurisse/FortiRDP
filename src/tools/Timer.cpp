@@ -5,82 +5,50 @@
 * SPDX-License-Identifier: Apache-2.0
 *
 */
+#include <Windows.h>
 #include "Timer.h"
-
-#include "tools/SysUtil.h"
-
 
 namespace tools {
 
-	Timer::Timer(int ms) :
+	Timer::Timer(uint32_t duration) :
 		_logger(Logger::get_logger())
 	{
 		DEBUG_CTOR(_logger, "Timer");
 
-		_handle = ::CreateWaitableTimer(NULL, TRUE, NULL);
-		if (_handle == NULL)
-			throw_winapi_error(::GetLastError(), "CreateWaitableTimer error");
-
-		if (_logger->is_debug_enabled())
-			_logger->debug( "... %x create Timer handle=%x", (uintptr_t)this, _handle);
-
-		start(ms);
-	}
-
-
-	Timer::Timer(const Timer& timer) : 
-		_logger(Logger::get_logger())
-	{
-		DEBUG_CTOR(_logger, "Timer");
-
-		if (!::DuplicateHandle(GetCurrentProcess(),
-			timer._handle,
-			GetCurrentProcess(),
-			&_handle,
-			0,
-			FALSE,
-			DUPLICATE_SAME_ACCESS))
-			throw_winapi_error(::GetLastError(), "Timer DuplicateHandle error");
-
-		if (_logger->is_debug_enabled())
-			_logger->debug("... %x created Timer handle=%x", (uintptr_t)this, _handle);
+		start(duration);
 	}
 
 
 	Timer::~Timer()
 	{
 		DEBUG_DTOR(_logger, "Timer");
-
-		if (_handle != NULL) {
-			_logger->debug("... %x destroyed Timer handle=%x", (uintptr_t)this, _handle);
-			::CloseHandle(_handle);
-		}
 	}
 
 
-	void Timer::start(int ms)
+	void Timer::start(uint32_t durtion) noexcept
 	{
 		DEBUG_ENTER(_logger, "Timer", "start");
 
-		LARGE_INTEGER due_time;
-		due_time.QuadPart = ms * -10000;
-		BOOL rc = ::SetWaitableTimer(_handle, &due_time, 0, nullptr, nullptr, false);
 		if (_logger->is_debug_enabled())
-			_logger->debug("... %x Timer::start ms=%d rc=%d", (uintptr_t)this, ms, rc);
+			_logger->debug(
+				"... %x Timer::start duration=%d",
+				(uintptr_t)this,
+				durtion);
 
-		if (!rc)
-			throw_winapi_error(::GetLastError(), "SetWaitableTimer error");
+		_due_time = ::GetTickCount64() + durtion;
 	}
 
 
-	bool Timer::elapsed() const
+	bool Timer::is_elapsed() const noexcept
 	{
-		bool done = ::WaitForSingleObject(_handle, 0) == WAIT_OBJECT_0;
-		if (done) {
-			_logger->debug("... %x Timer::elapsed", (uintptr_t)this);
-		}
+		return ::GetTickCount64() > _due_time;
+	}
 
-		return done;
+
+	uint32_t Timer::remaining_delay() const noexcept
+	{
+		static ULONGLONG now = ::GetTickCount64();
+		return now >= _due_time ? 0 : static_cast<uint32_t>(_due_time - now);
 	}
 
 }
