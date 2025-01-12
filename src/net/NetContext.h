@@ -7,6 +7,7 @@
 */
 #pragma once
 
+#include <stdint.h>
 #include <mbedtls/net_sockets.h>
 
 #ifdef __cplusplus

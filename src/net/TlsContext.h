@@ -6,6 +6,8 @@
 *
 */
 #pragma once
+
+#include <stdint.h>
 #include <mbedtls/ssl.h>
 #include "net/NetContext.h"
 
@@ -149,7 +151,8 @@ netctx_snd_status tlsctx_send(mbedtls_ssl_context* ctx, const unsigned char* buf
  *     rbytes      | > 0    | = 0       | = 0       | = 0
  *     errnum      | 0      | < 0       | < 0       | = 0
  *
- */netctx_rcv_status tlsctx_recv(mbedtls_ssl_context* ctx, unsigned char* buf, size_t len);
+ */
+netctx_rcv_status tlsctx_recv(mbedtls_ssl_context* ctx, unsigned char* buf, size_t len);
 
 
 #ifdef __cplusplus
