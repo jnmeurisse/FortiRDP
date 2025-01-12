@@ -24,6 +24,7 @@ namespace net {
 
 	/**
 	* Socket  - an abstract socket.
+	* Base class of TcpSocket and UdpSocket.
 	*
 	*/
 	class Socket
