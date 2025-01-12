@@ -2846,7 +2846,7 @@
  *
  * Requires: MBEDTLS_GCM_C
  */
-//#define MBEDTLS_GCM_LARGE_TABLE
+#define MBEDTLS_GCM_LARGE_TABLE
 
 /**
  * \def MBEDTLS_HKDF_C
