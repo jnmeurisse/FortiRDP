@@ -50,22 +50,22 @@ typedef enum netctx_poll_status_code {
 
 typedef struct netctx_poll_status {
 	netctx_poll_status_code code;
-	netctx_poll_mode event;
 	int errnum;
+	netctx_poll_mode event;
 } netctx_poll_status;
 
 
 typedef struct netctx_snd_status {
 	netctx_snd_status_code code;
-	size_t sbytes;
 	int errnum;
+	size_t sbytes;
 } netctx_snd_status;
 
 
 typedef struct netctx_rcv_status {
 	netctx_rcv_status_code code;
-	size_t rbytes;
 	int errnum;
+	size_t rbytes;
 } netctx_rcv_status;
 
 
@@ -176,11 +176,12 @@ int netctx_get_port(mbedtls_net_context* ctx);
  *          An error has occurred.  The errnum field contains the
  *          error code.
  *
+ *    errnum : A mbedTLS error code if an error or if a timeout
+ *             occurred.
+
  *    event : Read and write flags indicate if the context is ready
  *            for reading or writing.
  *
- *    errnum : A mbedTLS error code if an error or if a timeout
- *             occurred.
  */
 netctx_poll_status netctx_poll(mbedtls_net_context* ctx, netctx_poll_mode mode, uint32_t timeout);
 
@@ -199,10 +200,11 @@ netctx_poll_status netctx_poll(mbedtls_net_context* ctx, netctx_poll_mode mode, 
  *           No bytes have been sent, the send operation failed.
  *           The errnum field contains the mbedTLS error code.
  *
- *    sbytes : The number of bytes sent.
- * 
  *    errnum : A mbedTLS error code if an error or if a timeout
  *             occurred.
+ * 
+ *    sbytes : The number of bytes sent.
+ * 
  *
  * Possible values :
  *     code        | SND_OK | SND_RETRY | SND_ERROR
@@ -229,10 +231,11 @@ netctx_snd_status netctx_send(mbedtls_net_context* ctx, const unsigned char* buf
  *       RCV_EOF :
  *          No bytes have been received, the peer closed the network connection.
  * 
- *    rbytes : The number of bytes received.
- *
  *    errnum : A mbedTLS error code if an error or if a timeout
  *             occurred.
+ * 
+ *    rbytes : The number of bytes received.
+ *
  *
  * Possible values :
  *

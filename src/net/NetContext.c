@@ -156,7 +156,7 @@ int netctx_get_port(mbedtls_net_context* ctx)
 
 netctx_poll_status netctx_poll(mbedtls_net_context* ctx, netctx_poll_mode mode, uint32_t timeout)
 {
-	netctx_poll_status status = { NETCTX_POLL_ERROR, 0, MBEDTLS_ERR_NET_INVALID_CONTEXT };
+	netctx_poll_status status = { NETCTX_POLL_ERROR, MBEDTLS_ERR_NET_INVALID_CONTEXT, 0 };
 	uint32_t rw = 0;
 
 	// build the read/write flag
@@ -244,4 +244,3 @@ netctx_rcv_status netctx_recv(mbedtls_net_context* ctx, unsigned char* buf, size
 
 	return status;
 }
-
