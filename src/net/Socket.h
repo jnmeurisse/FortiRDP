@@ -7,135 +7,111 @@
 */
 #pragma once
 
-#include <mbedTLS/net_sockets.h>
+#include <memory>
+#include <cstdint>
+
+#include "net/NetContext.h"
 #include "net/Endpoint.h"
+
 #include "tools/ErrUtil.h"
-#include "tools/Mutex.h"
+#include "tools/Timer.h"
 #include "tools/Logger.h"
 
 
 namespace net {
-
+	using netctx_ptr = std::unique_ptr<struct mbedtls_net_context, decltype(&netctx_free)>;
 	using namespace tools;
 
+	/**
+	* Socket  - an abstract socket.
+	*
+	*/
 	class Socket
 	{
 	public:
-		Socket();
 		virtual ~Socket();
 
-		/* Connects this socket to the specified end point
+		/* Connects this socket to the specified end point.
 		*/
-		mbed_err connect(const Endpoint& ep);
+		virtual mbed_err connect(const Endpoint& ep) = 0;
 
-		/* Attaches the net context to this socket
+		/* Closes gracefully the socket.
 		*/
-		bool attach(const mbedtls_net_context& netctx);
-
-		/* Closes gracefully the socket
-		*/
-		void close();
-
-		/* Sets time-outs involved in send and receive operations.
-		 * Time-out values are expressed in milliseconds. 
-		*/
-		bool set_timeout(DWORD send_timeout, DWORD recv_timeout);
+		virtual mbed_err close() = 0;
 
 		/* Sets no delay option (disable Nagle algorithm)
 		*/
-		bool set_nodelay(bool no_delay);
+		virtual mbed_err set_nodelay(bool no_delay) = 0;
 
-		/* Sets the socket blocking mode
-		*/
-		bool set_blocking(bool blocking);
-
-		/* Receives data from the socket. The buffer pointed to by the
+		/* Receives data from the socket. The buffer pointed by the
 		 * buf parameter will contain the data received. The maximum amount
 		 * of data to be received at once is specified by len.
 		 *
-		 * The function returns the number of bytes received, which can
-		 * be less than the number requested to be received. The function
-		 * returns 0 if the socket has been closed, or a negative error code
-		 * if an error has occurred.
+		 * The function returns a netctx_rcv_status.
 		*/
-		virtual int recv(unsigned char* buf, const size_t len);
+		virtual netctx_rcv_status recv(unsigned char* buf, size_t len) = 0;
 
-		/* Sends data to the socket. The buffer pointed to by the by buf
+		/* Sends data to the socket. The buffer pointed by buf
 		 * parameter must contain the data. The amount of data to sent is
 		 * specified by the parameter len.
 		 *
-		 * The function returns the number of bytes sent, which can be less
-		 * than the number requested to be sent. If an error has occurred,
-		 * the function returns a negative error code.
+		 * The function returns a netctx_snd_status.
 		*/
-		virtual int send(const unsigned char* buf, const size_t len);
+		virtual netctx_snd_status send(const unsigned char* buf, size_t len) = 0;
 
-		/* Flushes data that can be in the local socket buffer and forces
-		 * to send it to the server.
-		*/
-		virtual mbed_err flush();
-
-		/* Reads data from the socket. The buffer pointed to by the buf
-		 * parameter will contain the data received. The number of bytes to
-		 * read is specified by the len parameter.
+		/* Reads a sequence of bytes from the socket. The buffer pointed by
+		 * the buffer parameter will contain the data received. The number of bytes to
+		 * read is specified by the len parameter.  The function stops reading when the
+		 * given timer is elapsed.
 		 *
-		 * The function returns 0 if the socket has been closed, or a negative
-		 * error code if an error has occurred.
-		*/
-		int read(unsigned char* buf, const size_t len);
-
-		/* Writes data from the socket. The buffer pointed to by the buf
-		 * parameter must contain the data. The number of bytes to write is
-		 * specified by the parameter len.
+		 * @param buf The buffer to store received data.
+		 * @param len Number of bytes to read.
+		 * @param timer Maximal amount of time to wait before returning.
 		 *
-		 * The function returns the number of bytes sent or a negative error
-		 * code if an error has occurred.
+		 * @return a netctx_rcv_status.
+		 *
 		*/
-		int write(const unsigned char* buf, const size_t len);
+		virtual netctx_rcv_status read(unsigned char* buf, size_t len, tools::Timer& timer) = 0;
 
-		/* Returns true if the socket is connected
-		*/
-		bool connected() const noexcept;
+		/* Writes a sequence of bytes to the socket. The buffer pointed by buf
+		 * parameter must contain the data. The amount of data to sent is
+		 * specified by the parameter len.  The function stops writing when the
+		 * given timer is elapsed.
+		 *
+		 * @param buf The buffer storing send data.
+		 * @param len Number of bytes to write.
+		 * @param timer Maximal amount of time to wait before returning.
+		 *
+		 * @return a netctx_snd_status.
+		 *
+		 */
+		virtual netctx_snd_status write(const unsigned char* buf, size_t len, tools::Timer& timer) = 0;
 
-		/* Returns the socket descriptor
+		/* Returns true if the socket is connected.
 		*/
-		inline int get_fd() const noexcept { return _netctx.fd; };
+		bool is_connected() const;
+
+		/* Returns the socket file descriptor.
+		 * 
+		 * The function returns -1 if the socket is not connected.
+		*/
+		virtual int get_fd() const = 0;
 
 	protected:
-		virtual mbed_err do_connect(const Endpoint& ep);
-		virtual void do_close();
+		/* Allocates a socket from a network context
+		*/
+		Socket(mbedtls_net_context* netctx);
 
-	protected:
-		// a reference to the application logger
+		/* Returns the network context.
+		*/
+		inline mbedtls_net_context* get_ctx() const noexcept { return _netctx.get(); }
+
+		// A reference to the application logger.
 		tools::Logger* const _logger;
 
-		// the ssl socket 
-		mbedtls_net_context _netctx;
-
 	private:
-		// a mutex to guarantee thread safety
-		tools::Mutex _mutex;
-
-		// send and receive time-out values
-		DWORD _send_timeout;
-		DWORD _recv_timeout;
-
-		// Disable Naggle algorithm if true
-		bool _no_delay;
-
-		// Blocking mode
-		bool _blocking;
-
-		// Apply configured option to this socket
-		enum SocketOptions
-		{
-			all,
-			nodelay,
-			blocking,
-			timeout
-		};
-
-		bool apply_opt(enum SocketOptions option);
+		// The network context.
+		const netctx_ptr _netctx;
 	};
 
 }
