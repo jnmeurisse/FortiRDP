@@ -34,11 +34,15 @@
     <ClCompile Include="..\..\src\net\Endpoint.cpp" />
     <ClCompile Include="..\..\src\net\Listener.cpp" />
     <ClCompile Include="..\..\src\net\LwipOutputQueue.cpp" />
+    <ClCompile Include="..\..\src\net\NetContext.c" />
     <ClCompile Include="..\..\src\net\PortForwarder.cpp" />
     <ClCompile Include="..\..\src\net\PortForwarders.cpp" />
     <ClCompile Include="..\..\src\net\PPInterface.cpp" />
     <ClCompile Include="..\..\src\net\pppossl.c" />
     <ClCompile Include="..\..\src\net\Socket.cpp" />
+    <ClCompile Include="..\..\src\net\TcpSocket.cpp" />
+    <ClCompile Include="..\..\src\net\TlsConfig.cpp" />
+    <ClCompile Include="..\..\src\net\TlsContext.c" />
     <ClCompile Include="..\..\src\net\TlsSocket.cpp" />
     <ClCompile Include="..\..\src\net\Tunneler.cpp" />
     <ClCompile Include="..\..\src\net\WinsOutputQueue.cpp" />
@@ -106,11 +110,15 @@
     <ClInclude Include="..\..\src\net\Endpoint.h" />
     <ClInclude Include="..\..\src\net\Listener.h" />
     <ClInclude Include="..\..\src\net\LwipOutputQueue.h" />
+    <ClInclude Include="..\..\src\net\NetContext.h" />
     <ClInclude Include="..\..\src\net\PortForwarder.h" />
     <ClInclude Include="..\..\src\net\PortForwarders.h" />
     <ClInclude Include="..\..\src\net\PPInterface.h" />
     <ClInclude Include="..\..\src\net\pppossl.h" />
     <ClInclude Include="..\..\src\net\Socket.h" />
+    <ClInclude Include="..\..\src\net\TcpSocket.h" />
+    <ClInclude Include="..\..\src\net\TlsConfig.h" />
+    <ClInclude Include="..\..\src\net\TlsContext.h" />
     <ClInclude Include="..\..\src\net\TlsSocket.h" />
     <ClInclude Include="..\..\src\net\Tunneler.h" />
     <ClInclude Include="..\..\src\net\WinsOutputQueue.h" />
@@ -346,7 +354,7 @@
     <Error Condition="!Exists('packages\Microsoft.Web.WebView2.1.0.2903.40\build\native\Microsoft.Web.WebView2.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Microsoft.Web.WebView2.1.0.2903.40\build\native\Microsoft.Web.WebView2.targets'))" />
     <Error Condition="!Exists('packages\Microsoft.Windows.ImplementationLibrary.1.0.240803.1\build\native\Microsoft.Windows.ImplementationLibrary.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Microsoft.Windows.ImplementationLibrary.1.0.240803.1\build\native\Microsoft.Windows.ImplementationLibrary.targets'))" />
   </Target>
-<PropertyGroup>
+  <PropertyGroup>
     <WebView2LoaderPreference>Static</WebView2LoaderPreference>
-</PropertyGroup>
+  </PropertyGroup>
 </Project>

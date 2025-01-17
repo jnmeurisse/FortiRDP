@@ -231,6 +231,18 @@
     <ClCompile Include="..\..\src\tools\strptime.c">
       <Filter>sources\tools</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\net\NetContext.c">
+      <Filter>sources\net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\net\TcpSocket.cpp">
+      <Filter>sources\net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\net\TlsContext.c">
+      <Filter>sources\net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\net\TlsConfig.cpp">
+      <Filter>sources\net</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\ui\AboutDialog.h">
@@ -454,6 +466,18 @@
     </ClInclude>
     <ClInclude Include="..\..\src\tools\strptime.h">
       <Filter>sources\tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\net\NetContext.h">
+      <Filter>sources\net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\net\TcpSocket.h">
+      <Filter>sources\net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\net\TlsContext.h">
+      <Filter>sources\net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\net\TlsConfig.h">
+      <Filter>sources\net</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
