@@ -5,19 +5,20 @@
 * SPDX-License-Identifier: Apache-2.0
 *
 */
-#include <iostream>
-
-#include "tools/Logger.h"
-#include "net/Socket.h"
+#include <new>
+#include "Socket.h"
 
 namespace net {
 	using namespace tools;
 
 	Socket::Socket(mbedtls_net_context* netctx) :
 		_logger(Logger::get_logger()),
-		_netctx(netctx, &netctx_free)
+		_netctx(netctx, &::netctx_free)
 	{
 		DEBUG_CTOR(_logger, "Socket");
+
+		if (!_netctx.get())
+			throw std::bad_alloc();
 	}
 
 
