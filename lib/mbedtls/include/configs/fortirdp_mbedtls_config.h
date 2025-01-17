@@ -3158,7 +3158,7 @@
  *
  * This module is required for the PKCS #7 parsing modules.
  */
-#define MBEDTLS_PKCS7_C
+ //--** #define MBEDTLS_PKCS7_C
 
 /**
  * \def MBEDTLS_PKCS12_C
@@ -3713,7 +3713,7 @@
  *
  * This module is required for X.509 CRL parsing.
  */
-#define MBEDTLS_X509_CRL_PARSE_C
+ //--** #define MBEDTLS_X509_CRL_PARSE_C
 
 /**
  * \def MBEDTLS_X509_CSR_PARSE_C
@@ -3727,7 +3727,7 @@
  *
  * This module is used for reading X.509 certificate request.
  */
-#define MBEDTLS_X509_CSR_PARSE_C
+ //--** #define MBEDTLS_X509_CSR_PARSE_C
 
 /**
  * \def MBEDTLS_X509_CREATE_C
@@ -3770,7 +3770,7 @@
  *
  * This module is required for X.509 certificate request writing.
  */
-#define MBEDTLS_X509_CSR_WRITE_C
+ //--** #define MBEDTLS_X509_CSR_WRITE_C
 
 /** \} name SECTION: Mbed TLS modules */
 
