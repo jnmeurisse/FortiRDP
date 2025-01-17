@@ -1,11 +1,12 @@
 /**
- * \file mbedtls_config.h
+ * \file fortirdp_mbedtls_config.h
  *
  * \brief Configuration options (set of defines)
  *
- *  This set of compile-time options may be used to enable
- *  or disable features selectively, and reduce the global
- *  memory footprint.
+ * This file is a copy of mbedtls_config.h where unused features
+ * are disabled to reduce the global memory footprint.
+ * Disable options are prefixed with //--** marker.
+ * 
  */
 /*
  *  Copyright The Mbed TLS Contributors
@@ -1054,7 +1055,7 @@
  *      MBEDTLS_TLS_ECDHE_ECDSA_WITH_CAMELLIA_128_GCM_SHA256
  *      MBEDTLS_TLS_ECDHE_ECDSA_WITH_CAMELLIA_128_CBC_SHA256
  */
-//--** #define MBEDTLS_KEY_EXCHANGE_ECDHE_ECDSA_ENABLED
+#define MBEDTLS_KEY_EXCHANGE_ECDHE_ECDSA_ENABLED
 
 /**
  * \def MBEDTLS_KEY_EXCHANGE_ECDH_ECDSA_ENABLED
@@ -1915,7 +1916,7 @@
  *
  * Comment this macro to disable support for ALPN.
  */
-#define MBEDTLS_SSL_ALPN
+ //--** #define MBEDTLS_SSL_ALPN
 
 /**
  * \def MBEDTLS_SSL_DTLS_ANTI_REPLAY
@@ -2572,7 +2573,7 @@
  * This module enables the AES-CCM ciphersuites, if other requisites are
  * enabled as well.
  */
-#define MBEDTLS_CCM_C
+ //--** #define MBEDTLS_CCM_C
 
 /**
  * \def MBEDTLS_CHACHA20_C
@@ -2718,7 +2719,7 @@
  *             See dhm.h for more details.
  *
  */
-#define MBEDTLS_DHM_C
+ //--** #define MBEDTLS_DHM_C
 
 /**
  * \def MBEDTLS_ECDH_C
@@ -2775,7 +2776,7 @@
  * \warning If using a hash that is only provided by PSA drivers, you must
  * call psa_crypto_init() before doing any EC J-PAKE operations.
  */
-#define MBEDTLS_ECJPAKE_C
+ //--** #define MBEDTLS_ECJPAKE_C
 
 /**
  * \def MBEDTLS_ECP_C
