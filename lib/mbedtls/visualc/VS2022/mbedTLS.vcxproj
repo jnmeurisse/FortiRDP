@@ -19,7 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\include\configs\fortirdp.h" />
+    <ClInclude Include="..\..\include\configs\fortirdp_mbedtls_config.h" />
     <ClInclude Include="..\..\include\mbedtls\aes.h" />
     <ClInclude Include="..\..\include\mbedtls\aria.h" />
     <ClInclude Include="..\..\include\mbedtls\asn1.h" />
@@ -385,7 +385,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN64;_WINDOWS;MBEDTLS_CONFIG_FILE="../include/configs/fortirdp.h";NDEBUG;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN64;_WINDOWS;MBEDTLS_CONFIG_FILE="../include/configs/fortirdp_mbedtls_config.h";NDEBUG;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>../../include</AdditionalIncludeDirectories>
       <CompileAs>CompileAsC</CompileAs>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -425,7 +425,7 @@
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN64;MBEDTLS_CONFIG_FILE="../include/configs/fortirdp.h";_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN64;MBEDTLS_CONFIG_FILE="../include/configs/fortirdp_mbedtls_config.h";_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>../../include</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>

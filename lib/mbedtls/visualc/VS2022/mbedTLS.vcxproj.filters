@@ -11,7 +11,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\include\configs\fortirdp.h" />
+    <ClInclude Include="..\..\include\configs\fortirdp_mbedtls_config.h" />
     <ClInclude Include="..\..\include\psa\build_info.h">
       <Filter>headers</Filter>
     </ClInclude>
