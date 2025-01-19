@@ -54,7 +54,8 @@ int netctx_connect(mbedtls_net_context* ctx, const char* hostname, const char* p
 {
 	int rc = MBEDTLS_ERR_NET_INVALID_CONTEXT;
 
-	//TODO: https://github.com/Mbed-TLS/mbedtls/issues/8027
+	//TODO: pass a timeout value when MbedTls issue #8027 is fixed.
+	// https://github.com/Mbed-TLS/mbedtls/issues/8027
 
 	if (ctx && hostname && port) {
 		rc = mbedtls_net_connect(ctx, hostname, port, protocol);
@@ -74,7 +75,7 @@ int netctx_bind(mbedtls_net_context* ctx, const char* hostname, const char* port
 {
 	int rc = MBEDTLS_ERR_NET_INVALID_CONTEXT;
 
-	if (ctx && hostname && port)
+	if (ctx)
 		rc = mbedtls_net_bind(ctx, hostname, port, protocol);
 
 	return rc;
