@@ -86,8 +86,11 @@ int netctx_accept(mbedtls_net_context* bind_ctx, mbedtls_net_context* accepting_
 {
 	int rc = MBEDTLS_ERR_NET_INVALID_CONTEXT;
 
-	if (bind_ctx && (netctx_getfd(accepting_ctx) != -1))
-		rc = mbedtls_net_accept(bind_ctx, accepting_ctx, 0, 0, 0);
+	if (bind_ctx && (netctx_getfd(accepting_ctx) != -1)) {
+		do {
+			rc = mbedtls_net_accept(bind_ctx, accepting_ctx, 0, 0, 0);
+		} while (rc == MBEDTLS_ERR_SSL_WANT_READ);
+	}
 
 	return rc;
 }
