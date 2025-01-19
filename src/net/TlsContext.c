@@ -90,8 +90,11 @@ int tlsctx_close(mbedtls_ssl_context* ctx)
 {
 	int rc = MBEDTLS_ERR_SSL_BAD_INPUT_DATA;
 
-	if (ctx)
-		rc = mbedtls_ssl_close_notify(ctx);
+	if (ctx) {
+		do {
+			rc = mbedtls_ssl_close_notify(ctx);
+		} while (rc == MBEDTLS_ERR_SSL_WANT_WRITE);
+	}
 
 	return rc;
 }
