@@ -105,9 +105,9 @@ namespace http {
 	}
 
 
-	int Answer::read_status(net::Socket& socket, tools::Timer& timer)
+	int Answer::read_http_status(net::Socket& socket, tools::Timer& timer)
 	{
-		DEBUG_ENTER(_logger, "Answer", "read_status");
+		DEBUG_ENTER(_logger, "Answer", "read_http_status");
 		tools::obfstring line;
 
 		// We assume that the server did not understand our request
@@ -247,7 +247,7 @@ namespace http {
 		//         the semantics of the field value
 
 		// Read status-line.
-		if ((rc = read_status(socket, timer)) != ERR_NONE)
+		if ((rc = read_http_status(socket, timer)) != ERR_NONE)
 			return rc;
 
 		// Read message-headers. 
