@@ -51,12 +51,11 @@ namespace http {
 	}
 
 
-	void Request::send(net::Socket& _socket)
+	void Request::send(net::Socket& socket, tools::Timer& timer)
 	{
 		DEBUG_ENTER(_logger, "Request", "send");
 
 		tools::ByteBuffer buffer(1024);
-		int rc;
 
 		if (_body.size() > 0) {
 			// add a content-length header if there is a body.
@@ -84,35 +83,50 @@ namespace http {
 		buffer.append("\r\n");
 
 		// Send headers to the web server
-		rc = _socket.write(buffer.cbegin(), buffer.size());
 		if (_logger->is_trace_enabled())
-			_logger->trace("... %x       Request::send : write headers rc = %d", (uintptr_t)this, rc);
-
-		if (rc < 0)
-			throw mbed_error(rc);
+			_logger->trace(
+				"... %x       Request::send : write headers",
+				(uintptr_t)this
+			);
+		write_buffer(socket, buffer.cbegin(), buffer.size(), timer);
 
 		// Erase sensitive data
 		buffer.clear();
 
 		if (_body.size() > 0) {
 			// send the body to the web server
-			rc = _socket.write(_body.cbegin(), _body.size());
 			if (_logger->is_trace_enabled())
-				_logger->trace("... %x       Request::send : write body rc = %d", (uintptr_t)this, rc);
-
-			if (rc < 0)
-				throw mbed_error(rc);
+				_logger->trace(
+					"... %x       Request::send : write body",
+					(uintptr_t)this
+				);
+			write_buffer(socket, _body.cbegin(), _body.size(), timer);
 		}
 
 		// flush the output buffer
-		rc = _socket.flush();
-		if (_logger->is_trace_enabled())
-			_logger->trace("... %x       Request::send : flush rc = %d", (uintptr_t)this, rc);
-
-		if (rc < 0)
-			throw mbed_error(rc);
+		// TODO: find an alternative ?
+		//rc = _socket.flush();
+		//if (_logger->is_trace_enabled())
+		//	_logger->trace("... %x       Request::send : flush rc = %d", (uintptr_t)this, rc);
 
 		return;
+	}
+
+
+	void Request::write_buffer(net::Socket& socket, const byte* buffer, size_t len, Timer& timer)
+	{
+		const netctx_snd_status snd_status = socket.write(buffer, len, timer);
+
+		if (_logger->is_trace_enabled())
+			_logger->trace(
+				"... %x       Request::send : write buffer rc = %d",
+				(uintptr_t)this,
+				snd_status.errnum);
+
+		if (snd_status.code == NETCTX_SND_ERROR) {
+			// send failed or timed out
+			throw mbed_error(snd_status.errnum);
+		}
 	}
 
 }
