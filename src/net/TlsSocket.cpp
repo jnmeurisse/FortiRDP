@@ -104,7 +104,6 @@ namespace net {
 					handshake_status.errnum = MBEDTLS_ERR_SSL_TIMEOUT;
 				}
 				else {
-					//TODO: replace by a call to mbedtls_net_usleep
 					::Sleep(100);
 				}
 			}
