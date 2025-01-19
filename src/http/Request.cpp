@@ -103,12 +103,6 @@ namespace http {
 			write_buffer(socket, _body.cbegin(), _body.size(), timer);
 		}
 
-		// flush the output buffer
-		// TODO: find an alternative ?
-		//rc = _socket.flush();
-		//if (_logger->is_trace_enabled())
-		//	_logger->trace("... %x       Request::send : flush rc = %d", (uintptr_t)this, rc);
-
 		return;
 	}
 
