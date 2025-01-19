@@ -32,21 +32,33 @@ namespace net {
 		TlsSocket(const TlsConfig& tls_config);
 		virtual ~TlsSocket();
 
-		/* enable/disable client host name verification
-		*/
+		/* Enables or disables host name verification.
+		 *
+		 * Enabling host name verification ensures that the server's certificate matches
+		 * the host name specified in the connect call, helping to prevent man-in-the-middle
+		 * attacks. This must be configured before initiating the connection to the endpoint.
+		 *
+		 * @param enable If `true`, enables host name verification; if `false`, disables it.
+		 */
 		void set_hostname_verification(bool enable_verification);
 
-		/* Initiate a connection to the specified endpoint.
-		 *
-		 * @param ep An endpoint to connect to.
+		/* Initiates a connection to the specified endpoint.
+		 * See base class.
 		*/
-		mbed_err connect(const Endpoint& ep);
+		mbed_err connect(const Endpoint& ep, Timer& timer) override;
 
-		/* Perform the SSL handshake.
+		/* Performs the SSL/TLS handshake.
 		 *
-		 * @param timer A timer that specifies the time-out value to use during the 
-		 *              handshake process. If the handshake takes longer than the
-		 *              remaining time of the time, the handshake is canceled.
+		 * This function initiates the SSL/TLS handshake process to establish a secure
+		 * connection. The handshake will proceed until it either completes successfully
+		 * or the specified timeout (`timer`) is reached. If the handshake takes longer
+		 * than the specified time, it will be canceled.
+		 *
+		 * @param timer A timer that specifies the timeout duration for the handshake process.
+		 *              If the handshake is not completed within the given time, the operation
+		 *              is canceled.
+		 *
+		 * @return A `tls_handshake_status` indicating the result of the handshake.
 		 */
 		tls_handshake_status handshake(Timer& timer);
 
@@ -70,7 +82,7 @@ namespace net {
 		*/
 		std::string get_tls_version() const;
 
-		/* Return a pointer to the X509 certificate of the ssl server. The peer
+		/* Return a pointer to the X509 certificate of the Tls server. The peer
 		 * certificate is obtained during the connection.  This pointer remains
 		 * valid until the socket is closed.
 		*/
@@ -79,12 +91,12 @@ namespace net {
 		/* Receive data from the socket.
 		 * See Socket::recv
 		*/
-		virtual netctx_rcv_status recv(unsigned char* buf, size_t len) override;
+		virtual netctx_rcv_status recv_data(unsigned char* buf, size_t len) override;
 
 		/* Send data to the socket.
 		 * See Socket::send
 		*/
-		virtual netctx_snd_status send(const unsigned char* buf, size_t len) override;
+		virtual netctx_snd_status send_data(const unsigned char* buf, size_t len) override;
 
 	protected:
 		virtual netctx_poll_status poll_rcv(uint32_t timeout) override;

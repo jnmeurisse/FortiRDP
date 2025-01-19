@@ -32,59 +32,91 @@ namespace net {
 	public:
 		virtual ~Socket();
 
-		/* Connects this socket to the specified end point.
-		*/
-		virtual mbed_err connect(const Endpoint& ep) = 0;
+		/* Initiates a connection to the specified endpoint.
+		 *
+		 * This function attempts to establish a connection to the given endpoint within
+		 * the time specified by the `timer` parameter. If the connection process exceeds
+		 * the remaining time on the timer, the connection is canceled, and the function
+		 * returns a negative error code.
+		 *
+		 * @param ep The endpoint to connect to.
+		 * @param timer A timer specifying the timeout duration for the connection. If the
+		 *              connection cannot be established within the timer's remaining time,
+		 *              the operation is aborted.
+		 *
+		 * @return A status code indicating the success or failure of the connection attempt.
+		 */
+		virtual mbed_err connect(const Endpoint& ep, Timer& timer) = 0;
 
 		/* Closes gracefully the socket.
 		*/
 		virtual mbed_err close() = 0;
 
-		/* Sets no delay option (disable Nagle algorithm)
-		*/
+		/* Configures the no-delay option for the socket.
+		 *
+		 * This function enables or disables the Nagle algorithm, which controls the
+		 * behavior of small packet transmission. When enabled (`no_delay` is `true`),
+		 * the algorithm is disabled, allowing small packets to be sent immediately without
+		 * waiting for more data. When disabled (`no_delay` is `false`), the algorithm is
+		 * enabled, and small packets may be buffered until a larger packet can be sent.
+		 *
+		 * @param no_delay If `true`, disables the Nagle algorithm (enables immediate
+		 *                 sending of small packets). If `false`, enables the Nagle
+		 *                 algorithm (buffers small packets).
+		 *
+		 * @return An error code of type `mbed_err` indicating the success or failure
+		 *         of setting the option.
+		 */
 		virtual mbed_err set_nodelay(bool no_delay) = 0;
 
-		/* Receives data from the socket. The buffer pointed by the
-		 * buf parameter will contain the data received. The maximum amount
-		 * of data to be received at once is specified by len.
+		/* Receives data from the socket.
 		 *
-		 * The function returns a netctx_rcv_status.
-		*/
-		virtual netctx_rcv_status recv(unsigned char* buf, size_t len) = 0;
+		 * The received data is stored in the buffer pointed to by the `buf` parameter.
+		 * The `len` parameter specifies the maximum amount of data to be received in a
+		 * single call.
+		 *
+		 * This function returns a value of type `netctx_rcv_status`, indicating the status
+		 * of the receive operation.
+		 */
+		virtual netctx_rcv_status recv_data(unsigned char* buf, size_t len) = 0;
 
-		/* Sends data to the socket. The buffer pointed by buf
-		 * parameter must contain the data. The amount of data to sent is
-		 * specified by the parameter len.
+		/* Sends data to the socket.
 		 *
-		 * The function returns a netctx_snd_status.
-		*/
-		virtual netctx_snd_status send(const unsigned char* buf, size_t len) = 0;
+		 * The buffer pointed to by the `buf` parameter must contain the data to be sent.
+		 * The `len` parameter specifies the amount of data to send.
+		 *
+		 * This function returns a value of type `netctx_snd_status`, indicating the status
+		 * of the send operation.
+		 */
+		virtual netctx_snd_status send_data(const unsigned char* buf, size_t len) = 0;
 
-		/* Reads a sequence of bytes from the socket. The buffer pointed by
-		 * the buffer parameter will contain the data received. The number of bytes to
-		 * read is specified by the len parameter.  The function stops reading when the
-		 * given timer is elapsed.
+		/* Reads a sequence of bytes from the socket.
 		 *
-		 * @param buf The buffer to store received data.
-		 * @param len Number of bytes to read.
-		 * @param timer Maximal amount of time to wait before returning.
+		 * The function reads data and stores it in the buffer pointed to by the `buf` parameter.
+		 * Reading continues until either the buffer is completely filled (as specified by the
+		 * `len` parameter) or the specified `timer` elapses, whichever occurs first.
 		 *
-		 * @return a netctx_rcv_status.
+		 * @param buf Pointer to the buffer where received data will be stored.
+		 * @param len The number of bytes to read (i.e., the size of the buffer).
+		 * @param timer The maximum amount of time to wait for the operation to complete.
 		 *
-		*/
+		 * @return A value of type `netctx_rcv_status` indicating the status of the
+		 *         read operation.
+		 */
 		virtual netctx_rcv_status read(unsigned char* buf, size_t len, tools::Timer& timer) = 0;
 
-		/* Writes a sequence of bytes to the socket. The buffer pointed by buf
-		 * parameter must contain the data. The amount of data to sent is
-		 * specified by the parameter len.  The function stops writing when the
-		 * given timer is elapsed.
+		/* Writes a sequence of bytes to the socket.
 		 *
-		 * @param buf The buffer storing send data.
-		 * @param len Number of bytes to write.
-		 * @param timer Maximal amount of time to wait before returning.
+		 * The function sends data from the buffer pointed to by the `buf` parameter to the socket.
+		 * Writing continues until all bytes specified by the `len` parameter have been sent, or
+		 * the specified `timer` elapses, whichever occurs first.
 		 *
-		 * @return a netctx_snd_status.
+		 * @param buf Pointer to the buffer containing the data to be sent.
+		 * @param len The number of bytes to send (i.e., the size of the data).
+		 * @param timer The maximum amount of time to attempt the write operation.
 		 *
+		 * @return A value of type `netctx_snd_status` indicating the status of the
+		 *         write operation.
 		 */
 		virtual netctx_snd_status write(const unsigned char* buf, size_t len, tools::Timer& timer) = 0;
 

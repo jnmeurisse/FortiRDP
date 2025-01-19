@@ -32,7 +32,7 @@ namespace net {
 	}
 
 
-	mbed_err TcpSocket::connect(const Endpoint& ep)
+	mbed_err TcpSocket::connect(const Endpoint& ep, Timer& timer)
 	{
 		DEBUG_ENTER(_logger, "TcpSocket", "connect");
 
@@ -90,7 +90,7 @@ namespace net {
 	}
 
 
-	netctx_rcv_status TcpSocket::recv(unsigned char* buf, size_t len)
+	netctx_rcv_status TcpSocket::recv_data(unsigned char* buf, size_t len)
 	{
 		if (_logger->is_trace_enabled())
 			_logger->trace(
@@ -104,7 +104,7 @@ namespace net {
 	}
 
 
-	netctx_snd_status TcpSocket::send(const unsigned char* buf, size_t len)
+	netctx_snd_status TcpSocket::send_data(const unsigned char* buf, size_t len)
 	{
 		if (_logger->is_trace_enabled())
 			_logger->trace(
@@ -123,7 +123,7 @@ namespace net {
 		netctx_rcv_status read_status = { NETCTX_RCV_ERROR, 0, 0 };
 
 		do {
-			const netctx_rcv_status rcv_status = recv(buf, len);
+			const netctx_rcv_status rcv_status = recv_data(buf, len);
 
 			buf += rcv_status.rbytes;
 			len -= rcv_status.rbytes;
@@ -151,7 +151,7 @@ namespace net {
 		netctx_snd_status write_status = { NETCTX_SND_ERROR, 0, 0 };
 
 		do {
-			const netctx_snd_status snd_status = send(buf, len);
+			const netctx_snd_status snd_status = send_data(buf, len);
 
 			buf += snd_status.sbytes;
 			len -= snd_status.sbytes;

@@ -43,7 +43,7 @@ namespace net {
 	}
 
 
-	mbed_err TlsSocket::connect(const Endpoint& ep)
+	mbed_err TlsSocket::connect(const Endpoint& ep, Timer& timer)
 	{
 		if (_logger->is_debug_enabled())
 			_logger->debug(
@@ -55,7 +55,7 @@ namespace net {
 		mbed_err rc = 0;
 
 		// connect the socket to the specified end point
-		if ((rc = TcpSocket::connect(ep)) < 0)
+		if ((rc = TcpSocket::connect(ep, timer)) < 0)
 			goto abort;
 
 		if ((rc = ::tlsctx_configure(_tlsctx.get(), _tlscfg.get_cfg())) != 0)
@@ -158,7 +158,7 @@ namespace net {
 	}
 
 
-	netctx_rcv_status TlsSocket::recv(unsigned char* buf, const size_t len)
+	netctx_rcv_status TlsSocket::recv_data(unsigned char* buf, const size_t len)
 	{
 		if (_logger->is_trace_enabled())
 			_logger->trace(".... %x enter TlsSocket::recv buffer=%x len=%d", this, buf, len);
@@ -167,7 +167,7 @@ namespace net {
 	}
 
 
-	netctx_snd_status TlsSocket::send(const unsigned char* buf, const size_t len)
+	netctx_snd_status TlsSocket::send_data(const unsigned char* buf, const size_t len)
 	{
 		if (_logger->is_trace_enabled())
 			_logger->trace(".... %x enter TlsSocket::send buffer=%x len=%d", this, buf, len);
