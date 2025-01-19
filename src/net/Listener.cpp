@@ -6,6 +6,7 @@
 *
 */
 #include <winsock2.h>
+#include <new>
 #include "Listener.h"
 
 
@@ -15,10 +16,13 @@ namespace net {
 
 	Listener::Listener() :
 		_logger(Logger::get_logger()),
-		_endpoint()
+		_endpoint(),
+		_bind_context(::netctx_alloc(), ::netctx_free)
 	{
 		DEBUG_CTOR(_logger, "Listener");
-		mbedtls_net_init(&_netctx);
+
+		if (!_bind_context.get())
+			throw std::bad_alloc();
 	}
 
 
@@ -53,7 +57,7 @@ namespace net {
 		* }
 		*/
 
-		rc = mbedtls_net_bind(&_netctx, host.c_str(), port.c_str(), MBEDTLS_NET_PROTO_TCP);
+		rc = ::netctx_bind(_bind_context.get(), host.c_str(), port.c_str(), NETCTX_PROTO_TCP);
 		if (rc) {
 			// Unable to bind this host
 			_endpoint = endpoint;
@@ -61,24 +65,22 @@ namespace net {
 		}
 
 		// get the port that has been assigned during the bind.
-		struct sockaddr_in addr;
-		int len = sizeof(sockaddr_in);
-		if (getsockname(_netctx.fd, (SOCKADDR*)&addr, &len)) {
+		const int bind_port = ::netctx_get_port(_bind_context.get());
+		if (bind_port == -1) {
 			_logger->error("ERROR: Listener::bind getsockname error %d", WSAGetLastError());
 
 			rc = MBEDTLS_ERR_NET_BIND_FAILED;
 			goto terminate;
 		}
-		_endpoint = Endpoint(endpoint.hostname(), ntohs(addr.sin_port));
+		_endpoint = Endpoint(endpoint.hostname(), bind_port);
 
 		// set the socket in non blocking mode
-		if (mbedtls_net_set_nonblock(&_netctx)) {
-			_logger->error("ERROR: Listener::bind ioctlsocket error %d", WSAGetLastError());
+		if (::netctx_set_blocking(_bind_context.get(), false) != 0) {
+			_logger->error("ERROR: Listener::bind set_blocking error %d", WSAGetLastError());
 
 			rc = MBEDTLS_ERR_NET_BIND_FAILED;
 			goto terminate;
 		}
-
 
 terminate:
 		if (_logger->is_debug_enabled()) {
@@ -93,16 +95,11 @@ terminate:
 	}
 
 
-	mbed_err Listener::accept(Socket& socket)
+	mbed_err Listener::accept(mbedtls_net_context& accepting_ctx)
 	{
 		DEBUG_ENTER(_logger, "Listener", "accept");
 
-		int rc = 0;
-		mbedtls_net_context client_ctx;
-
-		rc = mbedtls_net_accept(&_netctx, &client_ctx, nullptr, 0, nullptr);
-		if (rc == 0)
-			socket.attach(client_ctx);
+		const int rc = ::netctx_accept(_bind_context.get(), &accepting_ctx);
 
 		if (_logger->is_debug_enabled()) {
 			_logger->debug(
@@ -120,7 +117,7 @@ terminate:
 	{
 		DEBUG_ENTER(_logger, "Listener", "close");
 
-		mbedtls_net_free(&_netctx);
+		::netctx_close(_bind_context.get());
 	}
 
 
@@ -129,7 +126,7 @@ terminate:
 		int opt_val;
 		int opt_len = sizeof(opt_val);
 
-		if (getsockopt(_netctx.fd,
+		if (::getsockopt(get_fd(),
 			SOL_SOCKET,
 			SO_ACCEPTCONN,
 			(char*)&opt_val,
@@ -137,6 +134,12 @@ terminate:
 			return false;
 
 		return opt_val != 0;
+	}
+
+
+	int Listener::get_fd() const
+	{
+		return ::netctx_getfd(_bind_context.get());
 	}
 
 }
