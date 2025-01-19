@@ -26,8 +26,8 @@ namespace fw {
 
 	using namespace tools;
 
-	PortalClient::PortalClient(const net::Endpoint& ep, const std::string& realm):
-		HttpsClient(ep),
+	PortalClient::PortalClient(const net::Endpoint& ep, const std::string& realm, const net::TlsConfig& config):
+		HttpsClient(ep, config),
 		_peer_crt_digest(),
 		_mutex(),
 		_realm(realm),
@@ -35,9 +35,6 @@ namespace fw {
 	{
 		DEBUG_CTOR(_logger, "PortalClient");
 
-		// Configure the tls client.
-		if (!set_timeout(10000, 10000))
-			_logger->error("ERROR: failed to configure timeout parameters");
 		set_hostname_verification(true);
 	}
 
@@ -161,7 +158,7 @@ namespace fw {
 			goto http_error;
 
 		// check if the client is authenticated.
-		if (authenticated()) {
+		if (is_authenticated()) {
 			return portal_err::NONE;
 		}
 
@@ -175,8 +172,8 @@ namespace fw {
 		if (!_realm.empty())
 			params_query.set("realm", _realm);
 		params_query.set("ajax", "1");
-		params_query.set("username", HttpsClient::url_encode(credentials.username));
-		params_query.set("credential", HttpsClient::url_encode(credentials.password));
+		params_query.set("username", HttpsClient::encode_url(credentials.username));
+		params_query.set("credential", HttpsClient::encode_url(credentials.password));
 
 		// Safe erase password stored in memory.
 		tools::serase(credentials.password);
@@ -200,7 +197,7 @@ namespace fw {
 
 			// Loop until authenticated. The loop breaks if an error (access denied,
 			// communication error) is detected.
-			while (!authenticated()) {
+			while (!is_authenticated()) {
 				switch (retcode) {
 				case 0: {
 					// Access denied,
@@ -240,7 +237,7 @@ namespace fw {
 					AuthCode code2fa;
 					std::string device;
 					if (params_result.get_str("tokeninfo", device)) {
-						device = http::HttpsClient::url_decode(device);
+						device = http::HttpsClient::decode_url(device);
 						code2fa.prompt = "Authentication code for " + device;
 					}
 					else {
@@ -372,7 +369,7 @@ namespace fw {
 			make_url("/remote/saml/start", "realm=" + _realm).to_string(false),
 			service_provider_crt,
 			_cookie_jar,
-			[this]() -> bool { return this->authenticated(); }
+			[this]() -> bool { return this->is_authenticated(); }
 		};
 
 		_logger->info(">> auth mode : saml");
@@ -401,7 +398,7 @@ namespace fw {
 		DEBUG_ENTER(_logger, "PortalClient", "get_info");
 		tools::Mutex::Lock lock{ _mutex };
 
-		if (!authenticated())
+		if (!is_authenticated())
 			return false;
 
 		http::Headers headers;
@@ -436,7 +433,7 @@ namespace fw {
 		DEBUG_ENTER(_logger, "PortalClient", "get_config");
 		tools::Mutex::Lock lock{ _mutex };
 
-		if (!authenticated())
+		if (!is_authenticated())
 			return false;
 
 		http::Headers headers;
@@ -515,7 +512,8 @@ namespace fw {
 		return true;
 	}
 
-	bool PortalClient::authenticated() const
+
+	bool PortalClient::is_authenticated() const
 	{
 		return _cookie_jar.exists("SVPNCOOKIE") &&
 			_cookie_jar.get("SVPNCOOKIE").get_value().length() > 0;
@@ -535,7 +533,7 @@ namespace fw {
 	{
 		DEBUG_ENTER(_logger, "PortalClient", "send_and_receive");
 
-		if (must_reconnect()) {
+		if (is_reconnection_required()) {
 			disconnect();
 
 			try {
@@ -680,7 +678,7 @@ namespace fw {
 		if (!params.get_str("redir", redir))
 			return false;
 		
-		url = url_decode(redir);
+		url = decode_url(redir);
 		return true;
 	}
 
