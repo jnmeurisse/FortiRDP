@@ -57,7 +57,11 @@ namespace net {
 		}
 
 		// Accept the connection from the local client
-		const mbed_err rc_accept = listener.accept(_local_server);
+		netctx_ptr accepting_ctx{ ::netctx_alloc(), ::netctx_free };
+		if (!accepting_ctx.get())
+			throw std::bad_alloc();
+
+		const mbed_err rc_accept = listener.accept(*accepting_ctx.get());
 		if (rc_accept != 0) {
 			_logger->error("ERROR: PortForwarder %x - accept error %s",
 				(uintptr_t)this,
@@ -67,8 +71,9 @@ namespace net {
 			return false;
 		}
 
+
 		// Disable nagle algorithm on the local server
-		_local_server.set_nodelay(_tcp_nodelay);
+		_local_server->set_nodelay(_tcp_nodelay);
 
 		// Resolve the end point host name to an ip address
 		ip_addr_t addr;
@@ -137,7 +142,7 @@ namespace net {
 		_state = State::DISCONNECTING;
 
 		// Close our server.
-		_local_server.close();
+		_local_server->close();
 
 		// It is not possible to reply to the server anymore, we can clear the reply queue.
 		_reply_queue.clear();
@@ -179,18 +184,20 @@ namespace net {
 			return false;
 
 		byte buffer[2048];
-		int rc = _local_server.recv(buffer, sizeof(buffer));
-		if (rc <= 0) {
+		netctx_rcv_status rc = _local_server->recv_data(buffer, sizeof(buffer));
+		if (rc.code != NETCTX_RCV_OK) {
 			return false;
 		}
 
-		pbuf* const data = pbuf_alloc(PBUF_RAW, rc, PBUF_RAM);
+		// received bytes is lower than 2048, cast is safe.
+		const u16_t length = static_cast<u16_t>(rc.rbytes);
+		pbuf* const data = pbuf_alloc(PBUF_RAW, length, PBUF_RAM);
 		if (!data) {
 			_logger->error("ERROR: PortForwarder %x - memory allocation error", (uintptr_t)this);
 			return false;
 		}
 
-		pbuf_take(data, buffer, rc);
+		pbuf_take(data, buffer, length);
 		_forward_queue.append(data);
 		pbuf_free(data);
 
@@ -225,8 +232,7 @@ namespace net {
 		if (_state != State::CONNECTED) 
 			return false;
 
-		size_t written;
-		return _reply_queue.write(_local_server, written) == 0;
+		return _reply_queue.write(*_local_server).code != NETCTX_SND_ERROR;
 	}
 
 
@@ -275,16 +281,15 @@ namespace net {
 		}
 
 		// send what we can
-		size_t written;
-		mbed_err rc = _reply_queue.write(_local_server, written);
+		netctx_snd_status rc = _reply_queue.write(*_local_server);
 
 		// Stop to reply 
 		//        if an error has occurred, 
 		//     or if all data has been forwarded
 		//     or if we are not able to forward in a fixed delay. 
-		if (rc < 0 || _rflush_timeout || _forward_queue.empty()) {
+		if (rc.code == NETCTX_SND_ERROR || _rflush_timeout || _forward_queue.empty()) {
 			_forward_queue.clear();
-			_local_server.close();
+			_local_server->close();
 			_state = State::DISCONNECTED;
 		}
 	}
@@ -334,7 +339,7 @@ namespace net {
 			tcp_close(pf->_local_client);
 
 			// close the local server socket
-			pf->_local_server.close();
+			pf->_local_server->close();
 		}
 	}
 
@@ -383,8 +388,8 @@ namespace net {
 		pf->_state = PortForwarder::State::DISCONNECTED;
 
 		// Close our server if not yet done
-		if (pf->_local_server.connected())
-			pf->_local_server.close();
+		if (pf->_local_server->is_connected())
+			pf->_local_server->close();
 	}
 
 
@@ -404,7 +409,7 @@ namespace net {
 		int len = 0;
 
 		if (p) {
-			if (!pf->_local_server.connected()) {
+			if (!pf->_local_server->is_connected()) {
 				// The local server is disconnected, we can discard any received data.
 				// It is no longer possible to forward it.
 				tcp_recved(tpcb, p->tot_len);
