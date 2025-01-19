@@ -14,6 +14,7 @@
 #include "tools/ByteBuffer.h"
 #include "tools/Logger.h"
 #include "tools/ObfuscatedString.h"
+#include "tools/Timer.h"
 
 
 namespace http {
@@ -47,7 +48,7 @@ namespace http {
 		*/
 		void clear();
 
-		/* Reads the response for the HTTP server and initialize this object.
+		/* Reads the response from the HTTP server and initialize this object.
 		*
 		* @param socket The socket connected to the server
 		* @return ERR_NONE if answer is valid
@@ -64,7 +65,7 @@ namespace http {
 		* Throws an mbed_error in case of failure.
 		*
 		*/
-		int recv(net::Socket& socket);
+		int recv(net::Socket& socket, tools::Timer& timer);
 
 		/* Returns the HTTP version
 		*/
@@ -130,7 +131,7 @@ namespace http {
 		*
 		* Throws an mbed_error in case of failure.
 		*/
-		int read(net::Socket& socket, unsigned char* buf, const size_t len);
+		int read_buffer(net::Socket& socket, unsigned char* buf, const size_t len, tools::Timer& timer);
 
 		/* Reads a single character.
 		*
@@ -139,7 +140,7 @@ namespace http {
 		*
 		* Throws an mbed_error in case of failure.
 		*/
-		int read_char(net::Socket& socket, char& c);
+		int read_char(net::Socket& socket, char& c, tools::Timer& timer);
 
 		/* Reads a string until \r\n is found. The \r\n are not included
 		 * in the line.
@@ -152,7 +153,7 @@ namespace http {
 		 *
 		 * Throws an mbed_error in case of failure.
 		 */
-		int read_line(net::Socket& socket, int max_len, tools::obfstring& line);
+		int read_line(net::Socket& socket, int max_len, tools::obfstring& line, tools::Timer& timer);
 
 		/* Reads the HTTP status response
 		*
@@ -166,7 +167,7 @@ namespace http {
 		*
 		* Throws an mbed_error in case of failure.
 		*/
-		int read_status(net::Socket& socket);
+		int read_status(net::Socket& socket, tools::Timer& timer);
 
 		/* Reads a gzip body
 		*
@@ -177,7 +178,7 @@ namespace http {
 		* @return
 		* Throws an mbed_error in case of failure.
 		*/
-		bool read_gzip_body(net::Socket& socket, int size, int max_size);
+		bool read_gzip_body(net::Socket& socket, size_t size, size_t max_size, tools::Timer& timer);
 
 		/* Reads the body
 		*
@@ -188,7 +189,7 @@ namespace http {
 		* @return 
 		* Throws an mbed_error in case of failure.
 		*/
-		bool read_body(net::Socket& socket, int size, int max_size);
+		bool read_body(net::Socket& socket, size_t size, size_t max_size, tools::Timer& timer);
 	};
 
 }
