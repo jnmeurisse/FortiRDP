@@ -14,6 +14,11 @@ namespace tools {
 	class Timer final
 	{
 	public:
+		/* Constructs a timer.
+		 * The timer must be started by calling start.
+		*/
+		Timer();
+
 		/* Constructs and starts the timer for the specified duration (ms).
 		*/
 		explicit Timer(uint32_t duration);
@@ -32,7 +37,7 @@ namespace tools {
 
 		/* Returns the remaining time (ms) before the timer elapses.
 		*/
-		uint32_t remaining_delay() const noexcept;
+		uint32_t remaining_time() const noexcept;
 
 	private:
 		// A reference to the application logger

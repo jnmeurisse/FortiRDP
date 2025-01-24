@@ -9,8 +9,13 @@
 #include "Timer.h"
 
 namespace tools {
+	Timer::Timer() :
+		Timer(0)
+    {
+    }
 
-	Timer::Timer(uint32_t duration) :
+
+    Timer::Timer(uint32_t duration) :
 		_logger(Logger::get_logger())
 	{
 		DEBUG_CTOR(_logger, "Timer");
@@ -25,17 +30,17 @@ namespace tools {
 	}
 
 
-	void Timer::start(uint32_t durtion) noexcept
+	void Timer::start(uint32_t duration) noexcept
 	{
 		DEBUG_ENTER(_logger, "Timer", "start");
 
 		if (_logger->is_debug_enabled())
 			_logger->debug(
-				"... %x Timer::start duration=%d",
+				"... %x Timer::start duration=%lu",
 				(uintptr_t)this,
-				durtion);
+				duration);
 
-		_due_time = ::GetTickCount64() + durtion;
+		_due_time = ::GetTickCount64() + (uint64_t) duration;
 	}
 
 
@@ -45,9 +50,9 @@ namespace tools {
 	}
 
 
-	uint32_t Timer::remaining_delay() const noexcept
+	uint32_t Timer::remaining_time() const noexcept
 	{
-		static ULONGLONG now = ::GetTickCount64();
+		const uint64_t now = ::GetTickCount64();
 		return now >= _due_time ? 0 : static_cast<uint32_t>(_due_time - now);
 	}
 
