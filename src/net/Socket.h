@@ -109,6 +109,12 @@ namespace net {
 	class Socket
 	{
 	public:
+		/* Destroys a Socket object.
+		 *
+		 * Ensures the socket is closed and resources are released. If connected,
+		 * the destructor terminates the connection and cleans up the underlying
+		 * context to prevent resource leaks.
+		 */
 		virtual ~Socket();
 
 		/* Initiates a connection to the specified endpoint.
