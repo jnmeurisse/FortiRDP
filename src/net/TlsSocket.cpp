@@ -7,8 +7,6 @@
 */
 #include "TlsSocket.h"
 
-#include <new>
-
 
 namespace net {
 
@@ -18,22 +16,15 @@ namespace net {
 	TlsSocket::TlsSocket(const TlsConfig& tls_config) :
 		TcpSocket(),
 		_tlscfg{ tls_config },
-		_tlsctx{ ::tlsctx_alloc(), &::tlsctx_free },
 		_enable_hostname_verification{ false }
 	{
 		DEBUG_CTOR(_logger, "TlsSocket");
-
-		if (!_tlsctx.get())
-			throw std::bad_alloc();
 	}
 
 
 	TlsSocket::~TlsSocket()
 	{
 		DEBUG_DTOR(_logger, "TlsSocket");
-
-		// close the socket if not yet done
-		close();
 	}
 
 
@@ -55,13 +46,16 @@ namespace net {
 		mbed_err rc = 0;
 
 		// connect the socket to the specified end point
-		if ((rc = TcpSocket::connect(ep, timer)) < 0)
+		rc = TcpSocket::connect(ep, timer);
+		if (rc)
 			goto abort;
 
-		if ((rc = ::tlsctx_configure(_tlsctx.get(), _tlscfg.get_cfg())) != 0)
+		rc = _tlsctx.configure(*_tlscfg.get_cfg(), *netctx());
+		if (rc)
 			goto abort;
 
-		if ((rc = ::tlsctx_set_netctx(_tlsctx.get(), get_ctx())) != 0)
+		(rc = _tlsctx.set_hostname(ep.hostname()));
+		if (rc)
 			goto abort;
 
 	abort:
@@ -76,6 +70,7 @@ namespace net {
 		return rc;
 	}
 
+
 	tls_handshake_status TlsSocket::handshake(Timer& timer)
 	{
 		DEBUG_ENTER(_logger, "TlsSocket", "handshake");
@@ -83,114 +78,124 @@ namespace net {
 		tls_handshake_status handshake_status;
 
 		do {
+			if (_logger->is_trace_enabled())
+				_logger->trace(
+					".... %x TlsSocket  - call tlsctx_handshake",
+					(uintptr_t)this
+				);
+
 			// perform handshake with the SSL server
-			handshake_status = ::tlsctx_handshake(_tlsctx.get());
+			handshake_status = _tlsctx.handshake();
 
-			if (handshake_status.status_code == SSLCTX_HDK_WAIT_IO) {
-				const netctx_poll_status poll_status = poll(true, true, timer.remaining_delay());
+			if (_logger->is_trace_enabled())
+				_logger->trace(
+					".... %x TlsSocket - return tlsctx.handshake, status_code=%d rc=%d",
+					(uintptr_t)this,
+					handshake_status.status_code,
+					handshake_status.rc
+				);
 
-				if (poll_status.code != NETCTX_POLL_OK) {
+			if (handshake_status.status_code == hdk_status_code::SSLCTX_HDK_WAIT_IO) {
+				const poll_status poll_status = poll(handshake_status.rc, timer.remaining_time());
+
+				if (poll_status.code != poll_status_code::NETCTX_POLL_OK) {
 					// Polling error
-					handshake_status.status_code = SSLCTX_HDK_ERROR;
-					handshake_status.errnum = poll_status.errnum;
+					handshake_status.status_code = hdk_status_code::SSLCTX_HDK_ERROR;
+					handshake_status.rc = poll_status.rc;
 				}
 				else
 					// Noop, poll succeeded
 					;
 			}
-			else if (handshake_status.status_code == SSLCTX_HDK_WAIT_ASYNC) {
+			else if (handshake_status.status_code == hdk_status_code::SSLCTX_HDK_WAIT_ASYNC) {
 				if (timer.is_elapsed()) {
-					handshake_status.status_code = SSLCTX_HDK_ERROR;
-					handshake_status.errnum = MBEDTLS_ERR_SSL_TIMEOUT;
+					handshake_status.status_code = hdk_status_code::SSLCTX_HDK_ERROR;
+					handshake_status.rc = MBEDTLS_ERR_SSL_TIMEOUT;
 				}
 				else {
 					::Sleep(100);
 				}
 			}
-		} while (handshake_status.status_code == SSLCTX_HDK_WAIT_IO ||
-			handshake_status.status_code == SSLCTX_HDK_WAIT_ASYNC);
+		} while (handshake_status.status_code == hdk_status_code::SSLCTX_HDK_WAIT_IO ||
+			handshake_status.status_code == hdk_status_code::SSLCTX_HDK_WAIT_ASYNC);
 
 		if (_logger->is_debug_enabled())
 			_logger->debug(
 				"... %x leave TlsSocket::handshake status=%d error=%d",
 				(uintptr_t)this,
 				handshake_status.status_code,
-				handshake_status.errnum
+				handshake_status.rc
 			);
 
 		return handshake_status;
 	}
 
 
-    mbed_err TlsSocket::close()
+    void TlsSocket::shutdown()
     {
-		DEBUG_ENTER(_logger, "TlsSocket", "close");
+		if (_logger->is_debug_enabled())
+			_logger->debug(
+				"... %x enter TlsSocket::shutdown fd=%d",
+				(uintptr_t)this,
+				get_fd()
+			);
 
-		// ignore all errors while closing the connection
-		::tlsctx_close(_tlsctx.get());
-		TcpSocket::close();
+		if (is_connected()) {
+			// Notify the peer that the connection is being closed.
+			mbed_err rc = _tlsctx.close();
+			if (rc)
+				_logger->error("ERROR: close notify error %d", rc);
 
-		return 0;
+			// shutdown and close the socket.
+			TcpSocket::shutdown();
+		}
+
+		// Free all memory allocated by the library to manage the tls context.
+		_tlsctx.clear();
+
+		return;
 	}
 
 
 	mbed_err TlsSocket::get_crt_check() const
 	{
-		return mbedtls_ssl_get_verify_result(_tlsctx.get());
+		return _tlsctx.get_crt_check();
 	}
 
 
 	std::string TlsSocket::get_ciphersuite() const
 	{
-		return mbedtls_ssl_get_ciphersuite(_tlsctx.get());
+		return _tlsctx.get_ciphersuite();
 	}
 
 
 	std::string TlsSocket::get_tls_version() const
 	{
-		return mbedtls_ssl_get_version(_tlsctx.get());
+		return _tlsctx.get_tls_version();
 	}
 
 
 	const mbedtls_x509_crt* TlsSocket::get_peer_crt() const
 	{
-		return mbedtls_ssl_get_peer_cert(_tlsctx.get());
+		return _tlsctx.get_peer_crt();
 	}
 
 
-	netctx_rcv_status TlsSocket::recv_data(unsigned char* buf, const size_t len)
+	net::rcv_status TlsSocket::recv_data(unsigned char* buf, const size_t len)
 	{
 		if (_logger->is_trace_enabled())
-			_logger->trace(".... %x enter TlsSocket::recv buffer=%x len=%d", this, buf, len);
+			_logger->trace(".... %x enter TlsSocket::recv_data buffer=%x len=%zu", this, buf, len);
 
-		return ::tlsctx_recv(_tlsctx.get(), buf, len);
+		return _tlsctx.recv_data(buf, len);
 	}
 
 
-	netctx_snd_status TlsSocket::send_data(const unsigned char* buf, const size_t len)
+	net::snd_status TlsSocket::send_data(const unsigned char* buf, const size_t len)
 	{
 		if (_logger->is_trace_enabled())
-			_logger->trace(".... %x enter TlsSocket::send buffer=%x len=%d", this, buf, len);
+			_logger->trace(".... %x enter TlsSocket::send_data buffer=%x len=%zu", this, buf, len);
 
-		return ::tlsctx_send(_tlsctx.get(), buf, len);
-	}
-
-
-	netctx_poll_status TlsSocket::poll_rcv(uint32_t timeout)
-	{
-		if (_logger->is_trace_enabled())
-			_logger->trace(".... %x enter TlsSocket::poll_rcv timeout=%d", this, timeout);
-
-		return poll(true, true, timeout);
-	}
-
-
-	netctx_poll_status TlsSocket::poll_snd(uint32_t timeout)
-	{
-		if (_logger->is_trace_enabled())
-			_logger->trace(".... %x enter TlsSocket::poll_snd timeout=%d", this, timeout);
-
-		return poll(true, true, timeout);
+		return _tlsctx.send_data(buf, len);
 	}
 
 }

@@ -8,20 +8,15 @@
 #pragma once
 
 #include <string>
-#include <mbedtls/pk.h>
-#include <mbedtls/ssl.h>
 #include <mbedtls/x509_crt.h>
-#include "net/NetContext.h"
 #include "net/TlsContext.h"
 #include "net/TlsConfig.h"
 #include "net/TcpSocket.h"
 #include "net/Endpoint.h"
-#
+
 
 namespace net {
-	using tlsctx_ptr = std::unique_ptr<struct mbedtls_ssl_context, decltype(&tlsctx_free)>;
 	using namespace tools;
-
 
 	/*
 	 * The client side of a network TLS socket
@@ -29,14 +24,27 @@ namespace net {
 	class TlsSocket : public TcpSocket
 	{
 	public:
-		TlsSocket(const TlsConfig& tls_config);
+		/* Constructs a TlsSocket with the provided TLS configuration.
+		 *
+		 * This constructor initializes a TlsSocket instance using the given
+		 * TlsConfig object, setting up the necessary parameters for secure
+		 * communication over a TLS connection.
+		 *
+		 * @param tls_config The configuration object containing TLS settings.
+		*/
+		explicit TlsSocket(const TlsConfig& tls_config);
+
+		/* Destroys a TlsSocket object.
+		 * See base class.
+		*/
 		virtual ~TlsSocket();
 
 		/* Enables or disables host name verification.
 		 *
-		 * Enabling host name verification ensures that the server's certificate matches
-		 * the host name specified in the connect call, helping to prevent man-in-the-middle
-		 * attacks. This must be configured before initiating the connection to the endpoint.
+		 * Enabling host name verification ensures that the server's certificate
+		 * matches the host name specified in the connect call, helping to prevent
+		 * man-in-the-middle attacks. This flag must be configured before initiating
+		 * the connection to the endpoint.
 		 *
 		 * @param enable If `true`, enables host name verification; if `false`, disables it.
 		 */
@@ -64,9 +72,9 @@ namespace net {
 
 		/* Close gracefully the socket.
 		*/
-		virtual mbed_err close() override;
+		virtual void shutdown() override;
 
-		/* Return the result of the certificate verification.
+		/* Returns the result of the certificate verification.
 		 *
 		 * The verification process takes place during the open. The result
 		 * of this method is undefined until the connect method has been
@@ -74,41 +82,39 @@ namespace net {
 		*/
 		mbed_err get_crt_check() const;
 
-		/* Return the cipher suite selected to encrypt the Tls communication.
+		/* Returns the cipher suite selected to encrypt the Tls communication.
 		*/
 		std::string get_ciphersuite() const;
 
-		/* Return the TLS version.
+		/* Returns the TLS version.
 		*/
 		std::string get_tls_version() const;
 
-		/* Return a pointer to the X509 certificate of the Tls server. The peer
+		/* Returns a pointer to the X509 certificate of the Tls server. The peer
 		 * certificate is obtained during the connection.  This pointer remains
 		 * valid until the socket is closed.
 		*/
 		const mbedtls_x509_crt* get_peer_crt() const;
 
-		/* Receive data from the socket.
-		 * See Socket::recv
+		/* Receives data from the socket.
+		 * See Socket::recv_data
 		*/
-		virtual netctx_rcv_status recv_data(unsigned char* buf, size_t len) override;
+		virtual net::rcv_status recv_data(unsigned char* buf, size_t len) override;
 
-		/* Send data to the socket.
-		 * See Socket::send
+		/* Sends data to the socket.
+		 * See Socket::send_data
 		*/
-		virtual netctx_snd_status send_data(const unsigned char* buf, size_t len) override;
-
-	protected:
-		virtual netctx_poll_status poll_rcv(uint32_t timeout) override;
-		virtual netctx_poll_status poll_snd(uint32_t timeout) override;
+		virtual net::snd_status send_data(const unsigned char* buf, size_t len) override;
 
 	private:
-		// TLS configuration
+		// A reference to the TLS configuration
 		const TlsConfig& _tlscfg;
-		bool _enable_hostname_verification;
 
-		// the Tls socket
-		const tlsctx_ptr _tlsctx;
+		// The TLS context
+		TlsContext _tlsctx;
+
+		// True if the host name verification must be validated.
+		bool _enable_hostname_verification;
 	};
 
 }
