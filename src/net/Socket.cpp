@@ -24,6 +24,7 @@ namespace net {
 		::mbedtls_net_init(&_netctx);
 	}
 
+
 	Socket::~Socket()
 	{
 		DEBUG_DTOR(_logger, "Socket");
@@ -53,6 +54,7 @@ namespace net {
 
 		return rc;
 	}
+
 
 	mbed_err Socket::bind(const Endpoint& ep, net::net_protocol protocol)
 	{
