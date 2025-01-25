@@ -8,7 +8,6 @@
 #pragma once
 
 #include "net/Endpoint.h"
-#include "net/NetContext.h"
 #include "net/Socket.h"
 #include "tools/Logger.h"
 
@@ -20,7 +19,7 @@ namespace net {
 	/**
 	* A socket listener
 	*/
-	class Listener final
+	class Listener : public Socket
 	{
 	public:
 		Listener();
@@ -33,10 +32,6 @@ namespace net {
 		 * proper error handling and logging during the binding process.
 		 *
 		 * Notes:
-		 * - The `SO_EXCLUSIVEADDRUSE` option is not enabled due to a limitation in
-		 *   `mbedtls_net_bind`, which sets `SO_REUSEADDR`. This limitation prevents
-		 *   exclusive address use and may allow other processes to bind to the same port.
-		 *
 		 * - If the bind operation is successful, the assigned port is retrieved and
 		 *   stored in the `_endpoint` member.
 		 *
@@ -61,7 +56,7 @@ namespace net {
 
 		 * @param accepting_ctx Reference to an `mbedtls_net_context` object that
 		 *                      will be initialized with the context of the
-		 *                       accepted connection.
+		 *                      accepted connection.
 		 *
 		 * @return mbed_err Returns 0 on success, or a non-zero error code if the
 		 *                  operation fails. The error codes are typically returned by
@@ -69,13 +64,13 @@ namespace net {
 		 *
 		 *
 		 */
-		mbed_err accept(mbedtls_net_context& accepting_ctx);
+		virtual mbed_err accept(Socket& client_socket) override;
 
 		/* Closes the listener.
 		 *
 		 * The listener stops immediately to listen for incoming connection.
 		*/
-		void close();
+		virtual void close() override;
 
 		/* Returns the end point to which this listener was bound.
 		*/
@@ -85,15 +80,7 @@ namespace net {
 		*/
 		bool is_ready() const;
 
-		/* Returns the socket descriptor
-		*/
-		int get_fd() const;
-
 	private:
-		// a reference to the application logger
-		tools::Logger* const _logger;
-
-		netctx_ptr _bind_context;
 		Endpoint _endpoint;
 	};
 
