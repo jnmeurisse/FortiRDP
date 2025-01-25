@@ -29,7 +29,7 @@ namespace ui {
 		bool status = false;
 
 
-		if (_portal && _portal->authenticated())
+		if (_portal && _portal->is_authenticated())
 			_logger->info(">> disconnecting");
 
 		// terminate the tunnel
@@ -59,12 +59,12 @@ namespace ui {
 		}
 
 		// Close the TLS socket
-		if (_portal && _portal->authenticated()) {
+		if (_portal && _portal->is_authenticated()) {
 			_logger->debug("... logoff from portal %x", (uintptr_t)_portal);
 			_portal->logoff();
 		}
 
-		if (_portal && _portal->connected()) {
+		if (_portal && _portal->is_connected()) {
 			_logger->debug("... close portal %x", (uintptr_t)_portal);
 			_portal->close();
 

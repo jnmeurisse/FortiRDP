@@ -139,7 +139,7 @@ namespace ui {
 				break;
 			}
 
-			if (_portal->authenticated()) {
+			if (_portal->is_authenticated()) {
 				fw::PortalInfo portal_info;
 				if (_portal->get_info(portal_info)) {
 					_logger->info(">> portal info user=%s group=%s",
@@ -155,7 +155,7 @@ namespace ui {
 			}
 		}
 
-		return connected && _portal->connected() && _portal->authenticated();
+		return connected && _portal->is_connected() && _portal->is_authenticated();
 	}
 
 }
