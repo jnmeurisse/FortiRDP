@@ -7,154 +7,162 @@
 */
 #pragma once
 
-#include <stdint.h>
+#include <string>
+#include <mbedtls/net_sockets.h>
 #include <mbedtls/ssl.h>
-#include "net/NetContext.h"
+
+#include "net/Socket.h"
+#include "tools/ErrUtil.h"
 
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+namespace net {
+	/**
+	 * @enum hdk_status_code
+	 * Enum representing the status codes for the TLS handshake.
+	 *
+	 * This enum defines different states or outcomes during the TLS handshake process.
+	 * - `SSLCTX_HDK_ERROR`     : Indicates an error occurred during the handshake.
+	 * - `SSLCTX_HDK_OK`        : Indicates the handshake was successful.
+	 * - `SSLCTX_HDK_WAIT_IO`   : Indicates that the handshake is waiting for I/O operations.
+	 * - `SSLCTX_HDK_WAIT_ASYNC`: Indicates that the handshake is waiting for asynchronous
+	 *                            operations to complete.
+	*/
+
+	enum class hdk_status_code {
+		SSLCTX_HDK_ERROR,
+		SSLCTX_HDK_OK,
+		SSLCTX_HDK_WAIT_IO,
+		SSLCTX_HDK_WAIT_ASYNC,
+	};
+
+	/**
+	 * @struct tls_handshake_status
+	 * Struct holding the status of the TLS handshake.
+	 *
+	 * This struct represents the result of a TLS handshake operation. It includes:
+	 * - `status_code` : The status of the handshake (based on the `hdk_status_code` enum).
+	 * - `rc`          : A return code that provides additional information, such as error codes or
+	 *                   operation success codes.
+	 * Possible combinations :
+	 *     code        | HDK_ERROR   | HDK_OK     | HDK_WAIT_IO   | HDK_WAIT_ASYNC
+	 *     rc          | error code  |    0       | r/w bit mask  | error code
+	
+	 */
+	struct tls_handshake_status {
+		hdk_status_code status_code;
+		int rc;
+	};
 
 
-typedef enum tlsctx_hdk_status_code {
-	SSLCTX_HDK_OK = 0,
-	SSLCTX_HDK_WAIT_IO = 1,
-	SSLCTX_HDK_WAIT_ASYNC = 2,
-	SSLCTX_HDK_ERROR = 3
-} tlsctx_hdk_status_code;
+	class TlsContext {
+	public:
+		/**
+		 * Constructs and initialize a TlContext.
+		*/
+		TlsContext();
 
-typedef struct tlsctx_handshake_status {
-	tlsctx_hdk_status_code status_code;
-	int errnum;
-} tls_handshake_status;
+		/**
+		 * Destroys a TlsContext object.
+		 *
+		 * The destructor ensures all resources are released.
+		*/
+		~TlsContext();
+		
+		/**
+		 * Configures the TLS context with the specified SSL configuration and network context.
+		 *
+		 * This function sets up the BIO callbacks for the TLS context, linking it to the
+		 * provided network context for sending and receiving data. It then applies the
+		 * given SSL configuration to the context, completing its setup.
+		 *
+		 * @param config The SSL configuration to be applied to the TLS context.
+		 * @param netctx The network context used for I/O operations in the TLS handshake
+		 *               and secure communication.
+		 * @return mbed_err The result of the configuration process. Returns 0 on success
+		 *                  or a specific error code from the mbedTLS library on failure.
+		 */
+		mbed_err configure(const mbedtls_ssl_config& config, mbedtls_net_context& netctx);
 
+		/**
+		 * Cleans up the TLS context by freeing its resources.
+		 *
+		 * This function releases any resources allocated to the TLS context.  After
+		 * calling this function, the context is ready for reconfiguration via the
+		 * `configure` method.
+		 */
+		void clear();
 
-/**
- * Allocate a TLS context.
- * 
- * Return a pointer to a mbedtls_ssl_context or NULL if memory allocation failed.
- */
-mbedtls_ssl_context* tlsctx_alloc();
+		/**
+		 *  Sets hostname to check against the received server certificate.
+		 * 
+		 * @param hostname 
+		 * @return 
+		 */
 
-/**
-* Free a TLS context.
-*/
-void tlsctx_free(mbedtls_ssl_context* ctx);
+		mbed_err set_hostname(const std::string& hostname);
 
-/**
- * Configure a TLS context.
- * 
- * Return 0 if successful, or one of:
- *			MBEDTLS_ERR_SSL_BAD_INPUT_DATA,
- *          MBEDTLS_ERR_SSL_ALLOC_FAILED
- */
-int tlsctx_configure(mbedtls_ssl_context* ctx, const mbedtls_ssl_config* cfg);
+		/**
+		 * Notifies the peer that the connection is being closed.
+		 *
+		 */
+		mbed_err close();
 
-/**
- * Configure the TLS context for read and write operation.
- * 
- * Return 0 if successful, or MBEDTLS_ERR_SSL_BAD_INPUT_DATA.
- */
-int tlsctx_set_netctx(mbedtls_ssl_context* ctx, mbedtls_net_context* netctx);
+		/**
+		 * Performs the TLS handshake.
+		 *
+		 * The function must be called multiple times until the handshake is complete
+		 * or an error occurs.
+		 *
+		 */
+		net::tls_handshake_status handshake();
 
-/**
- * Perform the TLS handshake.
- *
- * The function must be called multiple times until the handshake is complete
- * or an error occurs.
- * 
- * The function returns a compound status.
- *    code
- *       SSLCTX_HDK_OK :
- *          The handshake succeeded.
- *
- *       SSLCTX_HDK_WAIT_IO :
- *          The handshake is incomplete and waiting for data to	be available
- *          for reading from or writing.  The function must be called again
- *          when data are available.
- * 
- *       SSLCTX_HDK_WAIT_ASYNC :
- *          An asynchronous operation is in progress.  The function must be
- *          called again.
- *
- *       SSLCTX_HDK_ERROR :
- *          The handshake failed. The errnum field contains the
- *          error code.
- */
-tls_handshake_status tlsctx_handshake(mbedtls_ssl_context* ctx);
+		/**
+		 * Receives data from the network context configured for this object.
+		 *
+		 * The received data will be stored in the buffer pointed to by the `buf` parameter,
+		 * and the `len` parameter specifies the size of the buffer.
+		 *
+		 * This function returns a `rcv_status` value, which indicates the result of the
+		 * receive operation.
+		*/
+		net::rcv_status recv_data(unsigned char* buf, size_t len);
 
-/*
- * Notify the peer that the connection is being closed.
- * 
- * Return 0 if successful, or one of:
- *			MBEDTLS_ERR_SSL_BAD_INPUT_DATA,
- *          see mbedtls_ssl_close_notify
- */
-int tlsctx_close(mbedtls_ssl_context* ctx);
-
-/**
- * Send data.
- *
- * The function returns a compound status.
- *    code :
- *       SND_OK :
- *          The send operation succeeded, sbytes contains the number of
- *          bytes effectively sent.
- *       SND_RETRY :
- *          No bytes have been sent, the send operation must be retried.
- *          The errnum field contains the mbedTLS error code.
- *       SND_ERROR :
- *           No bytes have been sent, the send operation failed.
- *           The errnum field contains the mbedTLS error code.
- *
- *    errnum : A mbedTLS error code if an error or if a timeout
- *             occurred.
-
- *    sbytes : The number of bytes sent.
- *
- *
- * Possible values :
- *     code        | SND_OK | SND_RETRY | SND_ERROR
- *     sbytes      | > 0    | = 0       | = 0
- *     errnum      | 0      | < 0       | < 0
- *
- */
-netctx_snd_status tlsctx_send(mbedtls_ssl_context* ctx, const unsigned char* buf, size_t len);
-
-/**
- * Receive data.
- *
- * The function returns a compound status.
- *    code :
- *       RCV_OK :
- *          The receive operation succeeded, rbytes contains the number of
- *          bytes received.
- *       RCV_RETRY :
- *          No bytes have been received, the receive operation must be retried.
- *          The errnum field contains the mbedTLS error code
- *       RCV_ERROR :
- *          No bytes have been received, the receive operation failed.
- *          The errnum field contains the mbedTLS error code.
- *       RCV_EOF :
- *          No bytes have been received, the peer closed the network connection.
- *
- *    errnum : A mbedTLS error code if an error or if a timeout
- *             occurred.
- *
- * 
- *    rbytes : The number of bytes received.
- *
- * Possible values :
- *
- *     code        | RCV_OK | RCV_RETRY | RCV_ERROR | RCV_EOF
- *     rbytes      | > 0    | = 0       | = 0       | = 0
- *     errnum      | 0      | < 0       | < 0       | = 0
- *
- */
-netctx_rcv_status tlsctx_recv(mbedtls_ssl_context* ctx, unsigned char* buf, size_t len);
+		/**
+		 * Transmits data through the network context set during object configuration.
+		 *
+		 * The `buf` parameter must point to the data to be transmitted, and the `len`
+		 * parameter specifies the size of the data to be sent.
+		 *
+		 * This method returns a `snd_status` value, which indicates the result of the
+		 * send operation.
+		 */
+		net::snd_status send_data(const unsigned char* buf, size_t len);
 
 
-#ifdef __cplusplus
+		/* Return the result of the certificate verification.
+		 *
+		 * The verification process takes place during the open. The result
+		 * of this method is undefined until the connect method has been
+		 * executed.
+		*/
+		mbed_err get_crt_check() const;
+
+		/* Return the cipher suite selected to encrypt the Tls communication.
+		*/
+		std::string get_ciphersuite() const;
+
+		/* Return the TLS version.
+		*/
+		std::string get_tls_version() const;
+
+		/* Return a pointer to the X509 certificate of the Tls server. The peer
+		 * certificate is obtained during the connection.  This pointer remains
+		 * valid until the context is cleared.
+		*/
+		const mbedtls_x509_crt* get_peer_crt() const;
+
+	private:
+		mbedtls_ssl_context _sslctx;
+	};
+
 }
-#endif
