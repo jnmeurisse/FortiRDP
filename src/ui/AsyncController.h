@@ -12,8 +12,10 @@
 #include <memory>
 #include <string>
 #include "fw/PortalClient.h"
+#include "net/TlsConfig.h"
 #include "net/Endpoint.h"
 #include "net/Tunneler.h"
+#include "net/TlsConfig.h"
 #include "tools/Event.h"
 #include "tools/Logger.h"
 #include "tools/Mutex.h"
@@ -123,6 +125,9 @@ namespace ui {
 
 		// - authentication method
 		fw::AuthMethod _auth_method;
+
+		// - the Tls configuration
+		net::TlsConfig _tls_config;
 
 		std::unique_ptr<fw::PortalClient> _portal;
 		std::unique_ptr<net::Tunneler> _tunnel;

@@ -29,7 +29,8 @@ namespace ui {
 		_hwnd(hwnd),
 		_ca_crt(),
 		_user_crt(),
-		_auth_method(fw::AuthMethod::BASIC)
+		_auth_method(fw::AuthMethod::BASIC),
+		_tls_config()
 	{
 		DEBUG_CTOR(_logger, "AsyncController");
 		start();
@@ -139,11 +140,10 @@ namespace ui {
 		}
 
 		// Start the async connect procedure
-		_portal = std::make_unique<fw::PortalClient>(firewall_endpoint, realm);
-		_portal->set_ca_crt(_ca_crt->get_crt());
-
+		_tls_config.set_ca_crt(_ca_crt->get_crt());
 		if (_auth_method == fw::AuthMethod::CERTIFICATE && _user_crt)
-			_portal->set_user_crt(_user_crt->crt.get_crt(), _user_crt->pk.get_pk());
+			_tls_config.set_user_crt(_user_crt->crt.get_crt(), _user_crt->pk.get_pk());
+		_portal = std::make_unique<fw::PortalClient>(firewall_endpoint, realm, _tls_config);
 
 		request_action(AsyncController::CONNECT);
 
