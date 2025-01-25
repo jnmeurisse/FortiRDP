@@ -9,15 +9,8 @@
 
 namespace net {
 
-
 	TcpSocket::TcpSocket() : 
-		TcpSocket(::netctx_alloc())
-	{
-	}
-
-	
-	TcpSocket::TcpSocket(mbedtls_net_context* ctx) :
-		Socket(ctx)
+		Socket()
 	{
 		DEBUG_CTOR(_logger, "TcpSocket");
 	}
@@ -26,38 +19,30 @@ namespace net {
 	TcpSocket::~TcpSocket()
 	{
 		DEBUG_DTOR(_logger, "TcpSocket");
-
-		// close the network context if not yet done
-		close();
 	}
 
 
 	mbed_err TcpSocket::connect(const Endpoint& ep, Timer& timer)
 	{
-		DEBUG_ENTER(_logger, "TcpSocket", "connect");
-
 		if (_logger->is_debug_enabled())
-			_logger->debug("... %x enter TcpSocket::connect ep=%s", 
+			_logger->debug("... %x enter TcpSocket::connect ep=%s",
 				(uintptr_t)this, 
 				ep.to_string().c_str()
 			);
 
-		const std::string host{ ep.hostname() };
-		const std::string port{ std::to_string(ep.port()) };
-		mbed_err rc;
-
-		rc = ::netctx_connect(get_ctx(), host.c_str(), port.c_str(), NETCTX_PROTO_TCP);
+		// open a tcp socket.
+		mbed_err rc = Socket::connect(ep, net_protocol::NETCTX_PROTO_TCP, timer);
 		if (rc)
 			goto terminate;
 
-		// configure as a non blocking socket
-		rc = ::netctx_set_blocking(get_ctx(), false);
+		// configure it as a non blocking.
+		rc = Socket::set_blocking_mode(false);
 		if (rc)
 			goto terminate;
 
 	terminate:
 		if (_logger->is_debug_enabled())
-			_logger->debug("... %x leave TcpSocket::connect fd=%d rc=%d", 
+			_logger->debug("... %x leave TcpSocket::connect fd=%d rc=%d",
 				(uintptr_t)this, get_fd(),
 				rc
 			);
@@ -66,139 +51,101 @@ namespace net {
 	}
 
 
-	mbed_err TcpSocket::close()
-	{
-		DEBUG_ENTER(_logger, "TcpSocket", "close");
-
-		if (_logger->is_debug_enabled())
-			_logger->debug(
-				"... %x enter TcpSocket::close fd=%d", 
-				(uintptr_t)this, 
-				get_fd()
-			);
-
-		// netctx_close always succeed.
-		::netctx_close(get_ctx());
-
-		return 0;
-	}
-
-
-	mbed_err TcpSocket::set_nodelay(bool no_delay)
-	{
-		return ::netctx_set_nodelay(get_ctx(), no_delay);
-	}
-
-
-	netctx_rcv_status TcpSocket::recv_data(unsigned char* buf, size_t len)
+	net::rcv_status TcpSocket::read(unsigned char* buf, size_t len, Timer& timer)
 	{
 		if (_logger->is_trace_enabled())
 			_logger->trace(
-				".... %x enter Socket::recv buffer=%x len=%d", 
+				".... %x enter TcpSocket::read buffer=%x len=%zu",
 				(uintptr_t)this,
 				buf,
 				len
 			);
 
-		return ::netctx_recv(get_ctx(), buf, len);
-	}
-
-
-	netctx_snd_status TcpSocket::send_data(const unsigned char* buf, size_t len)
-	{
-		if (_logger->is_trace_enabled())
-			_logger->trace(
-				".... %x enter Socket::send buffer=%x len=%d", 
-				(uintptr_t)this,
-				buf,
-				len
-			);
-
-		return ::netctx_send(get_ctx(), buf, len);
-	}
-
-
-	netctx_rcv_status TcpSocket::read(unsigned char* buf, size_t len, Timer& timer)
-	{
-		netctx_rcv_status read_status = { NETCTX_RCV_ERROR, 0, 0 };
+		rcv_status read_status { rcv_status_code::NETCTX_RCV_ERROR, 0, 0 };
 
 		do {
-			const netctx_rcv_status rcv_status = recv_data(buf, len);
+			const rcv_status rcv_data_status{ recv_data(buf, len) };
 
-			buf += rcv_status.rbytes;
-			len -= rcv_status.rbytes;
+			buf += rcv_data_status.rbytes;
+			len -= rcv_data_status.rbytes;
 
-			read_status.code = rcv_status.code;
-			read_status.rbytes += rcv_status.rbytes;
-			read_status.errnum = rcv_status.errnum;
+			read_status.code = rcv_data_status.code;
+			read_status.rbytes += rcv_data_status.rbytes;
+			read_status.rc = rcv_data_status.rc;
 
-			if (rcv_status.code == NETCTX_RCV_RETRY) {
-				const netctx_poll_status poll_status = poll_rcv(timer.remaining_delay());
+			if (rcv_data_status.code == rcv_status_code::NETCTX_RCV_RETRY) {
+				const poll_status poll_rcv_status = poll(rcv_data_status.rc, timer.remaining_time());
 
-				if (poll_status.code != NETCTX_POLL_OK) {
-					read_status.code = NETCTX_RCV_ERROR;
-					read_status.errnum = poll_status.errnum;
+				if (poll_rcv_status.code != poll_status_code::NETCTX_POLL_OK) {
+					read_status.code = rcv_status_code::NETCTX_RCV_ERROR;
+					read_status.rc = poll_rcv_status.rc;
 				}
 			}
-		} while (len >= 0 && read_status.code == NETCTX_RCV_RETRY);
+		} while (len >= 0 && read_status.code == rcv_status_code::NETCTX_RCV_RETRY);
 
 		return read_status;
 	}
 
 
-	netctx_snd_status TcpSocket::write(const unsigned char* buf, size_t len, Timer& timer)
+	net::snd_status TcpSocket::write(const unsigned char* buf, size_t len, Timer& timer)
 	{
-		netctx_snd_status write_status = { NETCTX_SND_ERROR, 0, 0 };
+		if (_logger->is_trace_enabled())
+			_logger->trace(
+				".... %x enter TcpSocket::write buffer=%x len=%zu",
+				(uintptr_t)this,
+				buf,
+				len
+			);
+
+		snd_status write_status { NETCTX_SND_ERROR, 0, 0 };
 
 		do {
-			const netctx_snd_status snd_status = send_data(buf, len);
+			const snd_status snd_data_status{ send_data(buf, len) };
 
-			buf += snd_status.sbytes;
-			len -= snd_status.sbytes;
+			buf += snd_data_status.sbytes;
+			len -= snd_data_status.sbytes;
 
-			write_status.code = snd_status.code;
-			write_status.sbytes += snd_status.sbytes;
-			write_status.errnum = snd_status.errnum;
+			write_status.code = snd_data_status.code;
+			write_status.sbytes += snd_data_status.sbytes;
+			write_status.rc = snd_data_status.rc;
 
-			if (snd_status.code == NETCTX_SND_RETRY) {
-				const netctx_poll_status poll_status = poll_snd(timer.remaining_delay());
+			if (snd_data_status.code == NETCTX_SND_RETRY) {
+				const poll_status poll_snd_status{ poll(snd_data_status.rc, timer.remaining_time()) };
 
-				if (poll_status.code != NETCTX_POLL_OK) {
-					write_status.code = NETCTX_SND_ERROR;
-					write_status.errnum = poll_status.errnum;
+				if (poll_snd_status.code != poll_status_code::NETCTX_POLL_OK) {
+					write_status.code = snd_status_code::NETCTX_SND_ERROR;
+					write_status.rc = poll_snd_status.rc;
 				}
 			}
-		} while (len >= 0 && write_status.code == NETCTX_SND_RETRY);
+		} while (len >= 0 && write_status.code == snd_status_code::NETCTX_SND_RETRY);
 
 		return write_status;
 	}
 
 
-	int net::TcpSocket::get_fd() const noexcept
+	net::Socket::poll_status TcpSocket::poll(int rw, uint32_t timeout)
 	{
-		return ::netctx_getfd(get_ctx());
-	}
+		if (_logger->is_trace_enabled())
+			_logger->trace(
+				".... %x enter TcpSocket::poll read=%x write=%d timeout=%lu",
+				(uintptr_t)this,
+				(rw & 1) != 0 ? 1 : 0,
+				(rw & 2) != 0 ? 1 : 0,
+				timeout
+			);
 
+		const poll_status status{ Socket::poll(rw, timeout) };
 
-	netctx_poll_status TcpSocket::poll(bool read, bool write, uint32_t timeout)
-	{
-		netctx_poll_mode mode;
-		mode.read = read ? 1 : 0;
-		mode.write = write ? 1 : 0;
+		if (_logger->is_trace_enabled())
+			_logger->trace(
+				".... %x leave TcpSocket::poll status=%d read=%x write=%d",
+				(uintptr_t)this,
+				status.code,
+				(status.rc & 1) != 0 ? 1 : 0,
+				(status.rc & 2) != 0 ? 1 : 0
+			);
 
-		return ::netctx_poll(get_ctx(), mode, timeout);
-	}
-
-
-	netctx_poll_status TcpSocket::poll_rcv(uint32_t timeout)
-	{
-		return poll(true, false, timeout);
-	}
-
-
-	netctx_poll_status TcpSocket::poll_snd(uint32_t timeout)
-	{
-		return poll(false, true, timeout);
+		return status;
 	}
 
 };

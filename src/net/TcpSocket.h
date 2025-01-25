@@ -9,6 +9,7 @@
 
 #include <cstdint>
 #include "tools/Timer.h"
+#include "net/Endpoint.h"
 #include "net/Socket.h"
 
 
@@ -20,6 +21,10 @@ namespace net {
 		/* Constructs a TcpSocket.
 		*/
 		explicit TcpSocket();
+
+		/* Destroys a TcpSocket object.
+		 * See base class.
+		*/
 		virtual ~TcpSocket();
 
 		/* Connects this socket to the specified end point.
@@ -29,93 +34,44 @@ namespace net {
 		 * 	      https://github.com/Mbed-TLS/mbedtls/issues/8027
 		 *
 		*/
-		virtual mbed_err connect(const Endpoint& ep, Timer& timer) override;
+		virtual mbed_err connect(const Endpoint& ep, Timer& timer);
 
-		/* Closes gracefully the socket.
-		 * See base class.
-		*/
-		virtual mbed_err close() override;
-
-		/* Sets no delay option.
-		 * See base class.
-		*/
-		virtual mbed_err set_nodelay(bool no_delay) override;
-
-		/* Receives data from the socket.
-		 * See base class.
-		*/
-		virtual netctx_rcv_status recv_data(unsigned char* buf, size_t len) override;
-
-		/* Sends data from the socket.
-		 * See base class.
-		*/
-		virtual netctx_snd_status send_data(const unsigned char* buf, size_t len) override;
-
-		/* Reads data from the socket.
-		 * See base class.
-		*/
-		virtual netctx_rcv_status read(unsigned char* buf, size_t len, Timer& timer) override;
-
-		/* Writes data to the socket.
-		 * See base class.
-		*/
-		virtual netctx_snd_status write(const unsigned char* buf, size_t len, Timer& timer) override;
-
-		/* Returns the socket file descriptor.
+		/* Reads a sequence of bytes from the socket.
 		 *
-		 * The function returns -1 if the socket is not connected.
-		*/
-		virtual int get_fd() const noexcept override;
+		 * The function reads data and stores it in the buffer pointed to by the `buf` parameter.
+		 * Reading continues until either the buffer is completely filled (as specified by the
+		 * `len` parameter) or the specified `timer` elapses, whichever occurs first.
+		 *
+		 * @param buf Pointer to the buffer where received data will be stored.
+		 * @param len The number of bytes to read (i.e., the size of the buffer).
+		 * @param timer The maximum amount of time to wait for the operation to complete.
+		 *
+		 * @return A value of type `rcv_status` indicating the status of the
+		 *         read operation.
+		 */
+		virtual net::rcv_status read(unsigned char* buf, size_t len, Timer& timer);
+
+		/* Writes a sequence of bytes to the socket.
+		 *
+		 * The function sends data from the buffer pointed to by the `buf` parameter to the socket.
+		 * Writing continues until all bytes specified by the `len` parameter have been sent, or
+		 * the specified `timer` elapses, whichever occurs first.
+		 *
+		 * @param buf Pointer to the buffer containing the data to be sent.
+		 * @param len The number of bytes to send (i.e., the size of the data).
+		 * @param timer The maximum amount of time to attempt the write operation.
+		 *
+		 * @return A value of type `snd_status` indicating the status of the
+		 *         write operation.
+		 */
+		virtual net::snd_status write(const unsigned char* buf, size_t len, Timer& timer);
 
 	protected:
-		/* Constructs a socket from a network context.
+		/* Checks and waits for the socket to be ready for reading and/or writing data.
+		 * See base class.
 		*/
-		explicit TcpSocket(mbedtls_net_context* ctx);
+		virtual net::Socket::poll_status poll(int rw, uint32_t timeout) override;
 
-		/* Checks and waits for the context to be ready for reading and/or writing data.
-		 *
-		 * This function monitors the context and waits for either read or write operations
-		 * to be possible. If `read` is `true`, it waits until data is available for reading.
-		 * If `write` is `true`, it waits until data can be sent. The function will also
-		 * respect the specified `timeout`. If the timeout is reached before either
-		 * condition is met, the function will return without performing the requested
-		 * operation.
-		 *
-		 * @param read If `true`, the function waits for data to be available for reading.
-		 * @param write If `true`, the function waits for the ability to send data.
-		 * @param timeout The maximum amount of time (in milliseconds) to wait before
-		 *                returning, regardless of whether the requested conditions are met.
-		 *
-		 * @return A value of type `netctx_poll_status`, indicating the status of the
-		 *         polling operation (e.g., success, timeout, etc.).
-		 */
-		netctx_poll_status poll(bool read, bool write, uint32_t timeout);
-
-		/* Checks and waits for the context to be ready for reading data.
-		 *
-		 * This function waits until data is available for reading or until the specified
-		 * `timeout` has elapsed.
-		 *
-		 * @param timeout The maximum amount of time (in milliseconds) to wait for data
-		 *                to be available before returning.
-		 *
-		 * @return A value of type `netctx_poll_status`, indicating the status of the
-		 *         polling operation (e.g., success, timeout, etc.).
-		 */
-		virtual netctx_poll_status poll_rcv(uint32_t timeout);
-
-		/* Checks and waits for the context to be ready for writing data.
-		 *
-		 * This function waits until the context is ready to send data, or until the
-		 * specified `timeout` has elapsed.
-		 *
-		 * @param timeout The maximum amount of time (in milliseconds) to wait for the
-		 *                context to be ready for writing before returning.
-		 *
-		 * @return A value of type `netctx_poll_status`, indicating the status of the
-		 *         polling operation (e.g., success, timeout, etc.).
-		 */
-		virtual netctx_poll_status poll_snd(uint32_t timeout);
 	};
 
 }
