@@ -28,16 +28,20 @@ namespace http {
 	const int HttpsClient::STATUS_UNAUTHORIZED = 401;
 	const int HttpsClient::STATUS_FORBIDDEN = 403;
 
+	const int DEFAULT_KEEP_ALIVE_TIMEOUT = 60;
+	const int DEFAULT_CONNECT_TIMEOUT = 10;
+	const int DEFAULT_SND_TIMEOUT = 10;
+	const int DEFAULT_RCV_TIMEOUT = 10;
 
 	HttpsClient::HttpsClient(const net::Endpoint& ep, const net::TlsConfig& config) :
 		TlsSocket(config),
 		_host_ep(ep),
-		_keepalive_timeout(10),
-		_keepalive_timer(_keepalive_timeout * 1000),
+		_keepalive_timeout(DEFAULT_KEEP_ALIVE_TIMEOUT),
+		_keepalive_timer(),
 		_max_requests(100),
-		_connect_timeout(10 * 1000),
-		_send_timeout(10 * 1000),
-		_receive_timeout(10 * 1000),
+		_connect_timeout(DEFAULT_CONNECT_TIMEOUT * 1000),
+		_send_timeout(DEFAULT_SND_TIMEOUT * 1000),
+		_receive_timeout(DEFAULT_RCV_TIMEOUT * 1000),
 		_request_count(0)
 	{
 		DEBUG_CTOR(_logger, "HttpsClient");
@@ -85,7 +89,7 @@ namespace http {
 
 		const mbed_err rc = TlsSocket::connect(_host_ep, connect_timer);
 		_logger->debug(
-			"... %x       HttpsClient::connect : rc=%d",
+			"... %x       HttpsClient::connect - TlsSocket::call returns rc=%d",
 			(uintptr_t)this,
 			rc);
 
@@ -93,8 +97,8 @@ namespace http {
 			throw mbed_error(rc);
 
 		const tls_handshake_status status = handshake(connect_timer);
-		if (status.status_code != SSLCTX_HDK_OK)
-			throw mbed_error(status.errnum);
+		if (status.status_code != hdk_status_code::SSLCTX_HDK_OK)
+			throw mbed_error(status.rc);
 	}
 
 
@@ -102,7 +106,7 @@ namespace http {
 	{
 		DEBUG_ENTER(_logger, "HttpsClient", "disconnect");
 
-		TlsSocket::close();
+		TlsSocket::shutdown();
 	}
 
 
@@ -111,7 +115,7 @@ namespace http {
 		DEBUG_ENTER(_logger, "HttpsClient", "send_request");
 
 		if (_logger->is_trace_enabled())
-			_logger->trace("... %x enter HttpsClient::send_request url=%s count=%d max=%d timeout=%d",
+			_logger->trace("... %x       HttpsClient::send_request send url=%s count=%d max=%d timeout=%d",
 				(uintptr_t)this,
 				request.url().to_string(false).c_str(),
 				_request_count,
@@ -140,9 +144,10 @@ namespace http {
 	{
 		DEBUG_ENTER(_logger, "HttpsClient", "recv_answer");
 
-		// Make sure the answer holder is empty
+		// make sure the answer buffer is empty.
 		answer.clear();
 
+		// receive the answer from the server.
 		const int rc = answer.recv(*this, tools::Timer{ _receive_timeout });
 
 		_logger->debug(
@@ -179,7 +184,8 @@ namespace http {
 			throw httpcli_error(message);
 		}
 
-		int timeout = 60;
+		// update the keep alive timeout and max requests.
+		int timeout = DEFAULT_KEEP_ALIVE_TIMEOUT;
 		int max_requests = 100;
 		std::string keep_alive;
 
