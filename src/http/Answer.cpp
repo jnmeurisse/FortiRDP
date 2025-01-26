@@ -306,6 +306,9 @@ namespace http {
 		// Read the body.
 		// Are we using the chunked-style of transfer encoding?
 		if (transfer_encoding.compare("chunked") == 0) {
+			if (gzip)
+				return ERR_CONTENT_ENCODING;
+
 			// chucked message
 			long chunck_size = 0;
 

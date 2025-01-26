@@ -17,7 +17,6 @@
 #include "tools/Logger.h"
 #include "tools/pugixml.hpp"
 #include "tools/StringMap.h"
-#include "tools/StringMap.h"
 #include "tools/StrUtil.h"
 #include "tools/X509Crt.h"
 
@@ -590,7 +589,6 @@ namespace fw {
 
 		request.headers()
 			.set("Accept", "text/html")
-			.set("Accept-Encoding", "gzip")
 			.set("Accept-Encoding", "identity")
 			.set("Accept-Language", "en")
 			.set("Cache-Control", "no-cache")
