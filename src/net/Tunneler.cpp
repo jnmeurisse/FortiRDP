@@ -94,13 +94,6 @@ namespace net {
 		_logger->info(">> starting tunnel");
 		_state = State::CONNECTING;
 
-		// The socket was in blocking mode during the authentication phase. 
-		if (!_tunnel.set_blocking(false)) {
-			_logger->error("ERROR: Tunneler unable to change socket blocking mode");
-
-			_state = State::STOPPED;
-			return 0;
-		}
 
 		// Disable Nagle algorithm if required
 		_tunnel.set_nodelay(_config.tcp_nodelay);
@@ -115,7 +108,7 @@ namespace net {
 			FD_ZERO(&write_set);
 
 			// Define select conditions only if the tunnel is still connected 
-			if (_tunnel.connected()) {
+			if (_tunnel.is_connected()) {
 				if (_pp_interface.must_transmit()) {
 					// data is available in the output queue, check if we can write 
 					FD_SET(_tunnel.get_fd(), &write_set);
@@ -159,7 +152,7 @@ namespace net {
 					if (FD_ISSET(_tunnel.get_fd(), &write_set)) {
 						// Send PPP through the tunnel 
 						if (!_pp_interface.send()) {
-							_tunnel.close();
+							_tunnel.shutdown();
 							terminate();
 						}
 					}
@@ -167,7 +160,7 @@ namespace net {
 					if (FD_ISSET(_tunnel.get_fd(), &read_set)) {
 						// Receive PPP data from the tunnel
 						if (!_pp_interface.recv()) {
-							_tunnel.close();
+							_tunnel.shutdown();
 							terminate();
 						}
 					}
@@ -333,10 +326,6 @@ namespace net {
 		_pp_interface.release();
 		sys_untimeout(timeout_cb, &abort_timeout);
 		sys_untimeout(timeout_cb, &disconnect_timeout);
-
-		// restore the blocking mode
-		if (_tunnel.connected())
-			_tunnel.set_blocking(true);
 
 		_logger->debug("... closing tunneler stop=%d terminate=%d", 
 				stop,
