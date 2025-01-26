@@ -13,6 +13,7 @@
 
 namespace net {
 
+	using namespace net;
 	using namespace tools;
 
 	PPInterface::PPInterface(TlsSocket& tunnel, Counters& counters) :
@@ -40,7 +41,7 @@ namespace net {
 	{
 		DEBUG_ENTER(_logger, "PPInterface", "open");
 
-		if (!_tunnel.connected()) {
+		if (!_tunnel.is_connected()) {
 			_logger->error("ERROR: PP Interface - tunnel not connected.");
 			return false;
 		}
@@ -150,61 +151,90 @@ namespace net {
 	bool PPInterface::send()
 	{
 		TRACE_ENTER(_logger, "PPInterface", "send");
+		bool rc;
 
 		if (!_output_queue.empty()) {
-			size_t written;
-			const int rc = _output_queue.write(_tunnel, written);
+			const snd_status status{ _output_queue.write(_tunnel) };
 
-			if (rc == MBEDTLS_ERR_SSL_WANT_READ || rc == MBEDTLS_ERR_SSL_WANT_WRITE)
-				return true;
+			switch (status.code) {
+			case snd_status_code::NETCTX_SND_OK:
+				rc = true;
+				_counters.sent += status.sbytes;
+				break;
 
-			if (rc < 0) {
+			case snd_status_code::NETCTX_SND_RETRY:
+				rc = true;
+				break;
+
+			case snd_status_code::NETCTX_SND_ERROR:
+			default:
 				// an error has occurred
+				rc = false;
 				_logger->error("ERROR: tunnel send failure");
-				_logger->error(mbed_errmsg(rc).c_str());
-
-				return false;
+				_logger->error(mbed_errmsg(status.rc).c_str());
+				break;
 			}
-
-			_counters.sent += written;
-			if (_logger->is_trace_enabled())
-				_logger->trace(
-					".... %x       PPInterface::send socket fd=%d rc=%d",
-					(uintptr_t)this,
-					_tunnel.get_fd(),
-					rc);
+		}
+		else {
+			rc = true;
 		}
 
-		return true;
+		if (_logger->is_trace_enabled())
+			_logger->trace(
+				".... %x       PPInterface::send socket fd=%d rc=%d",
+				(uintptr_t)this,
+				_tunnel.get_fd(),
+				rc);
+
+		return rc;
 	}
 
 
 	bool PPInterface::recv()
 	{
 		TRACE_ENTER(_logger, "PPInterface", "recv");
+
 		byte buffer[4096];
+		bool rc;
 
 		// read what is available from the tunnel
-		const int rc = _tunnel.recv(buffer, sizeof(buffer));
+		const rcv_status status{ _tunnel.recv_data(buffer, sizeof(buffer)) };
 
-		if (rc == MBEDTLS_ERR_SSL_WANT_READ || rc == MBEDTLS_ERR_SSL_WANT_WRITE)
-			return true;
+		switch (status.code) {
+		case rcv_status_code::NETCTX_RCV_OK: {
+			rc = true;
+			_counters.received += status.rbytes;
 
-		if (rc == 0) {
+			// PPP data available, pass it to the stack.
+			const ppp_err ppp_rc = pppossl_input(_pcb, buffer, status.rbytes);
+			if (ppp_rc) {
+				_logger->error("ERROR: pppossl_input failure - %s",
+					ppp_errmsg(ppp_rc).c_str());
+
+				rc = false;
+			}
+		}
+		break;
+
+		case rcv_status_code::NETCTX_RCV_RETRY:
+			rc = true;
+			break;
+
+		case rcv_status_code::NETCTX_RCV_EOF:
 			// socket was closed by peer
-			_logger->error("ERROR: tunnel closed by peer.");
-			return false;
-		}
+			rc = false;
+			_logger->error("ERROR: tunnel closed by peer");
+			break;
 
-		if (rc < 0) {
+		case rcv_status_code::NETCTX_RCV_ERROR:
+		default:
 			// an error has occurred
+			rc = false;
 			_logger->error("ERROR: tunnel receive failure");
-			_logger->error(mbed_errmsg(rc).c_str());
-
-			return false;
+			_logger->error(mbed_errmsg(status.rc).c_str());
+			break;
 		}
 
-		_counters.received += rc;
 		if (_logger->is_trace_enabled())
 			_logger->trace(
 				".... %x       PPInterface::recv socket fd=%d rc=%d",
@@ -212,16 +242,7 @@ namespace net {
 				_tunnel.get_fd(),
 				rc);
 
-		// PPP data available, pass it to the stack.
-		const ppp_err ppp_rc = pppossl_input(_pcb, buffer, rc);
-		if (ppp_rc) {
-			_logger->error("ERROR: pppossl_input failure - %s",
-				ppp_errmsg(ppp_rc).c_str());
-
-			return false;
-		}
-
-		return true;
+		return rc;
 	}
 
 

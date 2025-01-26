@@ -8,7 +8,6 @@
 #pragma once
 
 #include "net/Socket.h"
-#include "tools/ErrUtil.h"
 #include "tools/Logger.h"
 #include "tools/OutputQueue.h"
 
@@ -20,7 +19,7 @@ namespace net {
 	class WinsOutputQueue final : public OutputQueue
 	{
 	public:
-		explicit WinsOutputQueue(int capacity);
+		explicit WinsOutputQueue(size_t capacity);
 		~WinsOutputQueue();
 
 		/* Writes next chunk of data available in this output queue.
@@ -29,7 +28,7 @@ namespace net {
 		* than the used space in the queue. If an error has occurred, the 
 		* function returns a negative error code. 
 		*/
-		mbed_err write(Socket& socket, size_t& written);
+		net::snd_status write(Socket& socket);
 
 	private:
 		// a reference to the application logger

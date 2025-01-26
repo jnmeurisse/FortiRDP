@@ -57,11 +57,7 @@ namespace net {
 		}
 
 		// Accept the connection from the local client
-		netctx_ptr accepting_ctx{ ::netctx_alloc(), ::netctx_free };
-		if (!accepting_ctx.get())
-			throw std::bad_alloc();
-
-		const mbed_err rc_accept = listener.accept(*accepting_ctx.get());
+		const mbed_err rc_accept = listener.accept(*_local_server);
 		if (rc_accept != 0) {
 			_logger->error("ERROR: PortForwarder %x - accept error %s",
 				(uintptr_t)this,
@@ -70,7 +66,6 @@ namespace net {
 			_state = State::FAILED;
 			return false;
 		}
-
 
 		// Disable nagle algorithm on the local server
 		_local_server->set_nodelay(_tcp_nodelay);
@@ -184,13 +179,13 @@ namespace net {
 			return false;
 
 		byte buffer[2048];
-		netctx_rcv_status rc = _local_server->recv_data(buffer, sizeof(buffer));
-		if (rc.code != NETCTX_RCV_OK) {
+		const rcv_status status{ _local_server->recv_data(buffer, sizeof(buffer)) };
+		if (status.code != rcv_status_code::NETCTX_RCV_OK) {
 			return false;
 		}
 
 		// received bytes is lower than 2048, cast is safe.
-		const u16_t length = static_cast<u16_t>(rc.rbytes);
+		const u16_t length = static_cast<u16_t>(status.rbytes);
 		pbuf* const data = pbuf_alloc(PBUF_RAW, length, PBUF_RAM);
 		if (!data) {
 			_logger->error("ERROR: PortForwarder %x - memory allocation error", (uintptr_t)this);
@@ -281,13 +276,13 @@ namespace net {
 		}
 
 		// send what we can
-		netctx_snd_status rc = _reply_queue.write(*_local_server);
+		const snd_status status{ _reply_queue.write(*_local_server) };
 
 		// Stop to reply 
 		//        if an error has occurred, 
 		//     or if all data has been forwarded
 		//     or if we are not able to forward in a fixed delay. 
-		if (rc.code == NETCTX_SND_ERROR || _rflush_timeout || _forward_queue.empty()) {
+		if (status.code == snd_status_code::NETCTX_SND_ERROR || _rflush_timeout || _forward_queue.empty()) {
 			_forward_queue.clear();
 			_local_server->close();
 			_state = State::DISCONNECTED;
