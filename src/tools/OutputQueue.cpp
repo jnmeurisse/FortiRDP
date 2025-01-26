@@ -10,7 +10,7 @@
 
 namespace tools {
 
-	OutputQueue::OutputQueue(int capacity) :
+	OutputQueue::OutputQueue(size_t capacity) :
 		_chain_list(),
 		_capacity(capacity)
 	{
@@ -58,10 +58,9 @@ namespace tools {
 	}
 
 
-
-	int OutputQueue::len() const noexcept
+	size_t OutputQueue::len() const noexcept
 	{
-		int tot_len = 0;
+		size_t tot_len = 0;
 
 		for (auto chain : _chain_list) {
 			tot_len += chain->len();

@@ -7,6 +7,7 @@
 */
 #pragma once
 
+#include <cstdint>
 #include <list>
 #include <lwip/pbuf.h>
 #include "tools/PBufChain.h"
@@ -19,9 +20,10 @@ namespace tools {
 	public:
 		/* Allocates a new queue having the specified capacity.  
 		*
-		* @param capacity The queue's capacity
+		* @param capacity The maximum number of pbuf chain the
+		*                 queue can contains.
 		*/
-		explicit OutputQueue(int capacity);
+		explicit OutputQueue(size_t capacity);
 
 		/* Destroy this buffer
 		*/
@@ -45,11 +47,11 @@ namespace tools {
 
 		/* Returns the queue's capacity
 		*/
-		inline int capacity() const noexcept { return _capacity; }
+		inline size_t capacity() const noexcept { return _capacity; }
 
 		/* Returns the number of bytes remaining in the queue
 		*/
-		int len() const noexcept;
+		size_t len() const noexcept;
 
 		/* Returns true if queue is over its capacity
 		*/
@@ -72,7 +74,7 @@ namespace tools {
 		std::list<PBufChain*> _chain_list;
 
 		// Capacity of the buffer
-		const int _capacity;
+		const size_t _capacity;
 	};
 
 }

@@ -20,7 +20,7 @@ namespace net {
 	class LwipOutputQueue final : public OutputQueue 
 	{
 	public:
-		explicit LwipOutputQueue(int capacity);
+		explicit LwipOutputQueue(size_t capacity);
 		~LwipOutputQueue();
 
 		lwip_err write(::tcp_pcb* socket, size_t& written);

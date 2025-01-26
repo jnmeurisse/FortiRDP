@@ -17,7 +17,7 @@ namespace net {
 
 	using namespace tools;
 
-	LwipOutputQueue::LwipOutputQueue(int capacity):
+	LwipOutputQueue::LwipOutputQueue(size_t capacity):
 		OutputQueue(capacity),
 		_logger(Logger::get_logger())
 	{
