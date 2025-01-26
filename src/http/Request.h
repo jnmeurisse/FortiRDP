@@ -11,7 +11,7 @@
 #include "http/Headers.h"
 #include "http/Cookies.h"
 #include "http/Url.h"
-#include "net/Socket.h"
+#include "net/TcpSocket.h"
 #include "tools/Logger.h"
 #include "tools/ByteBuffer.h"
 #include "tools/Timer.h"
@@ -20,6 +20,7 @@
 namespace http {
 
 	using namespace tools;
+	using namespace net;
 
 	class Request final
 	{
@@ -82,7 +83,7 @@ namespace http {
 		 * @throws mbed_error If an error occurs while sending the request, such as network
 		 *                    issues or socket failure.
 		 */
-		void send(net::Socket& socket, tools::Timer& timer);
+		void send(net::TcpSocket& socket, tools::Timer& timer);
 
 		/* Most common HTTP verbs */
 		static const std::string GET_VERB;
@@ -108,7 +109,7 @@ namespace http {
 		Headers _headers;
 		tools::ByteBuffer _body;
 
-		void write_buffer(net::Socket& socket, const byte* buffer, size_t len, Timer& timer);
+		void write_buffer(net::TcpSocket& socket, const byte* buffer, size_t len, Timer& timer);
 	};
 
 }

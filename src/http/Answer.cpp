@@ -16,6 +16,7 @@
 
 
 namespace http {
+	using namespace net;
 
 	const int default_code = 400;
 	const std::string default_reason = "Bad Request";
@@ -43,27 +44,27 @@ namespace http {
 	}
 
 
-	int Answer::read_buffer(net::Socket& socket, unsigned char* buf, const size_t len, tools::Timer& timer)
+	int Answer::read_buffer(net::TcpSocket& socket, unsigned char* buf, const size_t len, tools::Timer& timer)
 	{
-		netctx_rcv_status rcv_status = socket.read(buf, len, timer);
+		const rcv_status status{ socket.read(buf, len, timer) };
 
-		if (rcv_status.code == NETCTX_RCV_ERROR || rcv_status.code == NETCTX_RCV_RETRY) {
+		if (status.code == rcv_status_code::NETCTX_RCV_ERROR || status.code == rcv_status_code::NETCTX_RCV_RETRY) {
 			// read failed or timed out
-			throw mbed_error(rcv_status.errnum);
+			throw mbed_error(status.rc);
 		}
 
 		// Returns false in case of EOF
-		return rcv_status.code == NETCTX_RCV_OK;
+		return status.code == rcv_status_code::NETCTX_RCV_OK;
 	}
 
 
-	int Answer::read_char(net::Socket& socket, char& c, tools::Timer& timer)
+	int Answer::read_char(net::TcpSocket& socket, char& c, tools::Timer& timer)
 	{
 		return read_buffer(socket, (unsigned char *)&c, sizeof(char), timer);
 	}
 
 
-	int Answer::read_line(net::Socket& socket, int max_len, tools::obfstring& line, tools::Timer& timer)
+	int Answer::read_line(net::TcpSocket& socket, int max_len, tools::obfstring& line, tools::Timer& timer)
 	{
 		DEBUG_ENTER(_logger, "Answer", "read_line");
 
@@ -105,7 +106,7 @@ namespace http {
 	}
 
 
-	int Answer::read_http_status(net::Socket& socket, tools::Timer& timer)
+	int Answer::read_http_status(net::TcpSocket& socket, tools::Timer& timer)
 	{
 		DEBUG_ENTER(_logger, "Answer", "read_http_status");
 		tools::obfstring line;
@@ -150,7 +151,7 @@ namespace http {
 	}
 
 
-	bool Answer::read_gzip_body(net::Socket& socket, size_t size, size_t max_size, tools::Timer& timer)
+	bool Answer::read_gzip_body(net::TcpSocket& socket, size_t size, size_t max_size, tools::Timer& timer)
 	{
 		DEBUG_ENTER(_logger, "Answer", "read_gzip_body");
 
@@ -204,12 +205,12 @@ namespace http {
 	}
 
 
-	bool Answer::read_body(net::Socket& socket, size_t size, size_t max_size, tools::Timer& timer)
+	bool Answer::read_body(net::TcpSocket& socket, size_t size, size_t max_size, tools::Timer& timer)
 	{
 		DEBUG_ENTER(_logger, "Answer", "read_body");
 
-		// read by chunk of 1024 bytes
-		unsigned char buffer[1024];
+		// read by chunk of 4096 bytes
+		unsigned char buffer[4096];
 
 		do {
 			// read a chunk of bytes
@@ -231,8 +232,14 @@ namespace http {
 	}
 
 
-	int Answer::recv(net::Socket& socket, tools::Timer& timer)
+	int Answer::recv(net::TcpSocket& socket, tools::Timer& timer)
 	{
+		if (_logger->is_trace_enabled())
+			_logger->trace("... %x enter Answer::recv timeout=%lu",
+				(uintptr_t)this,
+				timer.remaining_time()
+			);
+
 		int rc;
 		tools::obfstring line;
 
@@ -321,6 +328,7 @@ namespace http {
 				if ((rc = read_line(socket, MAX_LINE_SIZE, line, timer)) <= 0)
 					return ERR_BODY;
 			} while (chunck_size > 0);
+
 		}
 		else if (transfer_encoding.compare("") == 0) {
 			// read content length 

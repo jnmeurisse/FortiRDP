@@ -13,6 +13,7 @@
 namespace http {
 
 	using namespace tools;
+	using namespace net;
 
 	/* Initialization of common HTTP Verbs */
 	const std::string Request::GET_VERB = "GET";
@@ -51,9 +52,15 @@ namespace http {
 	}
 
 
-	void Request::send(net::Socket& socket, tools::Timer& timer)
+	void Request::send(net::TcpSocket& socket, tools::Timer& timer)
 	{
 		DEBUG_ENTER(_logger, "Request", "send");
+
+		if (_logger->is_trace_enabled())
+			_logger->trace("... %x enter Request::send timeout=%lu",
+				(uintptr_t)this,
+				timer.remaining_time()
+			);
 
 		tools::ByteBuffer buffer(1024);
 
@@ -107,19 +114,19 @@ namespace http {
 	}
 
 
-	void Request::write_buffer(net::Socket& socket, const byte* buffer, size_t len, Timer& timer)
+	void Request::write_buffer(net::TcpSocket& socket, const byte* buffer, size_t len, Timer& timer)
 	{
-		const netctx_snd_status snd_status = socket.write(buffer, len, timer);
+		const snd_status status{ socket.write(buffer, len, timer) };
 
 		if (_logger->is_trace_enabled())
 			_logger->trace(
 				"... %x       Request::send : write buffer rc = %d",
 				(uintptr_t)this,
-				snd_status.errnum);
+				status.rc);
 
-		if (snd_status.code == NETCTX_SND_ERROR) {
+		if (status.code == snd_status_code::NETCTX_SND_ERROR || status.code == snd_status_code::NETCTX_SND_RETRY) {
 			// send failed or timed out
-			throw mbed_error(snd_status.errnum);
+			throw mbed_error(status.rc);
 		}
 	}
 
