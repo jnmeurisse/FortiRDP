@@ -53,9 +53,8 @@
     <ClCompile Include="..\..\src\tools\Logger.cpp" />
     <ClCompile Include="..\..\src\tools\Mutex.cpp" />
     <ClCompile Include="..\..\src\tools\ObfuscatedString.cpp" />
-    <ClCompile Include="..\..\src\tools\OutputQueue.cpp" />
     <ClCompile Include="..\..\src\tools\Path.cpp" />
-    <ClCompile Include="..\..\src\tools\PBufChain.cpp" />
+    <ClCompile Include="..\..\src\tools\PBufQueue.cpp" />
     <ClCompile Include="..\..\src\tools\PrivateKey.cpp" />
     <ClCompile Include="..\..\src\tools\pugixml.cpp" />
     <ClCompile Include="..\..\src\tools\RegKey.cpp" />
@@ -130,9 +129,8 @@
     <ClInclude Include="..\..\src\tools\Logger.h" />
     <ClInclude Include="..\..\src\tools\Mutex.h" />
     <ClInclude Include="..\..\src\tools\ObfuscatedString.h" />
-    <ClInclude Include="..\..\src\tools\OutputQueue.h" />
     <ClInclude Include="..\..\src\tools\Path.h" />
-    <ClInclude Include="..\..\src\tools\PBufChain.h" />
+    <ClInclude Include="..\..\src\tools\PBufQueue.h" />
     <ClInclude Include="..\..\src\tools\PrivateKey.h" />
     <ClInclude Include="..\..\src\tools\pugiconfig.hpp" />
     <ClInclude Include="..\..\src\tools\pugixml.hpp" />
