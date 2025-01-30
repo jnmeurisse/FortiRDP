@@ -8,7 +8,7 @@
 #pragma once
 
 #include <lwip/tcp.h>
-#include "tools/OutputQueue.h"
+#include "tools/PBufQueue.h"
 #include "tools/ErrUtil.h"
 #include "tools/Logger.h"
 
@@ -17,10 +17,10 @@ namespace net {
 
 	using namespace tools;
 
-	class LwipOutputQueue final : public OutputQueue 
+	class LwipOutputQueue final : public PBufQueue
 	{
 	public:
-		explicit LwipOutputQueue(size_t capacity);
+		explicit LwipOutputQueue(uint16_t capacity);
 		~LwipOutputQueue();
 
 		lwip_err write(::tcp_pcb* socket, size_t& written);

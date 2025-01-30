@@ -9,24 +9,22 @@
 
 #include "net/Socket.h"
 #include "tools/Logger.h"
-#include "tools/OutputQueue.h"
+#include "tools/PBufQueue.h"
 
 
 namespace net {
 
 	using namespace tools;
 
-	class WinsOutputQueue final : public OutputQueue
+	class WinsOutputQueue final : public PBufQueue
+
 	{
 	public:
-		explicit WinsOutputQueue(size_t capacity);
+		explicit WinsOutputQueue(uint16_t capacity);
 		~WinsOutputQueue();
 
 		/* Writes next chunk of data available in this output queue.
 		*
-		* The function returns the number of bytes sent, which can be less
-		* than the used space in the queue. If an error has occurred, the 
-		* function returns a negative error code. 
 		*/
 		net::snd_status write(Socket& socket);
 

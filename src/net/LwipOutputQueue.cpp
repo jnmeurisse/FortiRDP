@@ -8,7 +8,6 @@
 #include "LwipOutputQueue.h"
 
 #include <algorithm>
-#include <tools/PBufChain.h>
 #include <cstdint>
 #include <lwip/arch.h>
 
@@ -17,8 +16,8 @@ namespace net {
 
 	using namespace tools;
 
-	LwipOutputQueue::LwipOutputQueue(size_t capacity):
-		OutputQueue(capacity),
+	LwipOutputQueue::LwipOutputQueue(uint16_t capacity):
+		PBufQueue(capacity),
 		_logger(Logger::get_logger())
 	{
 		DEBUG_CTOR(_logger, "LwipOutputQueue");
@@ -38,16 +37,17 @@ namespace net {
 				".... %x enter LwipOutputQueue::write tcp=%x",
 				(uintptr_t)this,
 				(uintptr_t)socket);
-		int rc = 0;
+
 		written = 0;
 
-		while (!empty()) {
-			PBufChain* const pbuf = front();
+		int rc = 0;
+
+		while (!is_empty()) {
 
 			// Compute the length of the next chunk of data. The length of
 			// a chunk is always less than 64 Kb, we can cast to an unsigned 16 Bits
 			// integer.
-			uint16_t available = static_cast<u16_t>(pbuf->cend() - pbuf->cbegin());
+			uint16_t available = static_cast<u16_t>(cend() - cbegin());
 
 			// Determine how many bytes we can effectively send
 			uint16_t len = min(tcp_sndbuf(socket), available);
@@ -60,7 +60,7 @@ namespace net {
 			u8_t flags = TCP_WRITE_FLAG_COPY | ((available > len) ? TCP_WRITE_FLAG_MORE : 0);
 
 			// send
-			rc = tcp_write(socket, pbuf->cbegin(), len, flags);
+			rc = tcp_write(socket, cbegin(), len, flags);
 			if (rc) 
 				goto write_error;
 
@@ -68,13 +68,7 @@ namespace net {
 			written += len;
 
 			// move our pointer into the payload if bytes have been sent
-			pbuf->move(len);
-
-			// unlink the first chain if no more data
-			if (pbuf->empty()) {
-				pop_front();
-				delete pbuf;
-			}
+			move(len);
 		}
 
 		if (written > 0) {

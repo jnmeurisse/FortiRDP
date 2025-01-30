@@ -12,8 +12,8 @@
 
 namespace net {
 
-	WinsOutputQueue::WinsOutputQueue(size_t capacity):
-		OutputQueue(capacity),
+	WinsOutputQueue::WinsOutputQueue(uint16_t capacity):
+		PBufQueue(capacity),
 		_logger(Logger::get_logger())
 	{
 		DEBUG_CTOR(_logger, "WinsOutputQueue");
@@ -36,32 +36,24 @@ namespace net {
 				(uintptr_t)this,
 				(uintptr_t)std::addressof(socket));
 
-		int rc = 0;
-
-		if (!empty()) {
-			PBufChain* const pbuf = front();
-
-			// send what we can 
-			snd_status = socket.send_data(pbuf->cbegin(), pbuf->cend() - pbuf->cbegin());
+		if (!is_empty()) {
+			// Send what is available from the head pbuf in this output queue. 
+			snd_status = socket.send_data(cbegin(), cend() - cbegin());
 
 			if (snd_status.code == NETCTX_SND_OK) {
-				// move our pointer into the payload if bytes have been sent
-				pbuf->move(snd_status.sbytes);
-
-				// unlink the first chain if no more data
-				if (pbuf->empty()) {
-					pop_front();
-					delete pbuf;
-				}
+				// move into the payload if bytes have been sent.
+				if (!move(snd_status.sbytes))
+					_logger->error("INTERNAL ERROR: WinsOutputQueue::move failed");
 			}
 		}
 
 		if (_logger->is_trace_enabled())
 			_logger->trace(
-				".... %x leave WinsOutputQueue::write tcp=%x rc=%d written=%d",
+				".... %x leave WinsOutputQueue::write tcp=%x status=%d rc=%d written=%zu",
 				(uintptr_t)this,
 				(uintptr_t)std::addressof(socket),
-				rc, 
+				snd_status.code,
+				snd_status.rc,
 				snd_status.sbytes);
 
 
