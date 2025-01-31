@@ -309,8 +309,8 @@ namespace http {
 			if (gzip)
 				return ERR_CONTENT_ENCODING;
 
-			// chucked message
-			long chunck_size = 0;
+			// chunked message
+			long chunk_size = 0;
 
 			do {
 				// read chunk size
@@ -318,19 +318,19 @@ namespace http {
 					return ERR_CHUNK_SIZE;
 
 				// decode chunk size
-				if (!tools::str2num(line.uncrypt(), 16, 0, MAX_CHUNCK_SIZE, chunck_size)) {
+				if (!tools::str2num(line.uncrypt(), 16, 0, MAX_CHUNK_SIZE, chunk_size)) {
 					return ERR_CHUNK_SIZE;
 				}
 
-				if (chunck_size > 0) {
-					if (!read_body(socket, chunck_size, MAX_BODY_SIZE, timer))
+				if (chunk_size > 0) {
+					if (!read_body(socket, chunk_size, MAX_BODY_SIZE, timer))
 						return ERR_BODY;
 				}
 
 				// skip eol
 				if ((rc = read_line(socket, MAX_LINE_SIZE, line, timer)) <= 0)
 					return ERR_BODY;
-			} while (chunck_size > 0);
+			} while (chunk_size > 0);
 
 		}
 		else if (transfer_encoding.compare("") == 0) {

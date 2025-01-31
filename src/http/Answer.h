@@ -128,7 +128,7 @@ namespace http {
 		static const int MAX_LINE_SIZE = (8 * 1024);
 		static const int MAX_HEADER_SIZE = (4 * 1024);
 		static const int MAX_BODY_SIZE = (32 * 1014 * 1024);
-		static const int MAX_CHUNCK_SIZE = (2 * 1014 * 1024);
+		static const int MAX_CHUNK_SIZE = (2 * 1014 * 1024);
 
 		/* Reads a sequence of bytes from the socket.
 		 *
