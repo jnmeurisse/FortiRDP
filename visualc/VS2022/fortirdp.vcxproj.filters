@@ -117,9 +117,6 @@
     <ClCompile Include="..\..\src\net\Listener.cpp">
       <Filter>sources\net</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\net\LwipOutputQueue.cpp">
-      <Filter>sources\net</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\net\PortForwarder.cpp">
       <Filter>sources\net</Filter>
     </ClCompile>
@@ -139,9 +136,6 @@
       <Filter>sources\net</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\net\Tunneler.cpp">
-      <Filter>sources\net</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\net\WinsOutputQueue.cpp">
       <Filter>sources\net</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\tools\ByteBuffer.cpp">
@@ -329,9 +323,6 @@
     <ClInclude Include="..\..\src\net\Listener.h">
       <Filter>sources\net</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\net\LwipOutputQueue.h">
-      <Filter>sources\net</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\net\PortForwarder.h">
       <Filter>sources\net</Filter>
     </ClInclude>
@@ -351,9 +342,6 @@
       <Filter>sources\net</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\net\Tunneler.h">
-      <Filter>sources\net</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\net\WinsOutputQueue.h">
       <Filter>sources\net</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\tools\ByteBuffer.h">

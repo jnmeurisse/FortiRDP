@@ -33,7 +33,6 @@
     <ClCompile Include="..\..\src\net\DnsClient.cpp" />
     <ClCompile Include="..\..\src\net\Endpoint.cpp" />
     <ClCompile Include="..\..\src\net\Listener.cpp" />
-    <ClCompile Include="..\..\src\net\LwipOutputQueue.cpp" />
     <ClCompile Include="..\..\src\net\PortForwarder.cpp" />
     <ClCompile Include="..\..\src\net\PortForwarders.cpp" />
     <ClCompile Include="..\..\src\net\PPInterface.cpp" />
@@ -44,7 +43,6 @@
     <ClCompile Include="..\..\src\net\TlsContext.cpp" />
     <ClCompile Include="..\..\src\net\TlsSocket.cpp" />
     <ClCompile Include="..\..\src\net\Tunneler.cpp" />
-    <ClCompile Include="..\..\src\net\WinsOutputQueue.cpp" />
     <ClCompile Include="..\..\src\tools\ByteBuffer.cpp" />
     <ClCompile Include="..\..\src\tools\Counters.cpp" />
     <ClCompile Include="..\..\src\tools\ErrUtil.cpp" />
@@ -107,7 +105,6 @@
     <ClInclude Include="..\..\src\net\DnsClient.h" />
     <ClInclude Include="..\..\src\net\Endpoint.h" />
     <ClInclude Include="..\..\src\net\Listener.h" />
-    <ClInclude Include="..\..\src\net\LwipOutputQueue.h" />
     <ClInclude Include="..\..\src\net\PortForwarder.h" />
     <ClInclude Include="..\..\src\net\PortForwarders.h" />
     <ClInclude Include="..\..\src\net\PPInterface.h" />
@@ -118,7 +115,6 @@
     <ClInclude Include="..\..\src\net\TlsContext.h" />
     <ClInclude Include="..\..\src\net\TlsSocket.h" />
     <ClInclude Include="..\..\src\net\Tunneler.h" />
-    <ClInclude Include="..\..\src\net\WinsOutputQueue.h" />
     <ClInclude Include="..\..\src\resources\resource.h" />
     <ClInclude Include="..\..\src\resources\targetver.h" />
     <ClInclude Include="..\..\src\tools\ByteBuffer.h" />
