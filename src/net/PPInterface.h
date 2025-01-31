@@ -51,7 +51,7 @@ namespace net {
 		/* True when data is available in the output queue and must be transmitted
 		*  to the peer.
 		*/
-		inline bool must_transmit() const noexcept { return _output_queue.len() > 0; }
+		inline bool must_transmit() const noexcept { return _output_queue.size() > 0; }
 
 		/* Returns the IP address assigned to this interface 
 		*/

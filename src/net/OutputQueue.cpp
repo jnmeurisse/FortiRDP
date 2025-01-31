@@ -1,40 +1,69 @@
 /*!
 * This file is part of FortiRDP
 *
-* Copyright (C) 2022 Jean-Noel Meurisse
+* Copyright (C) 2025 Jean-Noel Meurisse
 * SPDX-License-Identifier: Apache-2.0
 *
 */
-#include "LwipOutputQueue.h"
-
-#include <algorithm>
-#include <cstdint>
-#include <lwip/arch.h>
-
+#include "OutputQueue.h"
 
 namespace net {
 
-	using namespace tools;
-
-	LwipOutputQueue::LwipOutputQueue(uint16_t capacity):
+	OutputQueue::OutputQueue(uint16_t capacity) : 
 		PBufQueue(capacity),
 		_logger(Logger::get_logger())
 	{
-		DEBUG_CTOR(_logger, "LwipOutputQueue");
+		DEBUG_CTOR(_logger, "OutputQueue");
 	}
 
 
-	LwipOutputQueue::~LwipOutputQueue()
+	OutputQueue::~OutputQueue()
 	{
-		DEBUG_DTOR(_logger, "LwipOutputQueue");
+		DEBUG_DTOR(_logger, "OutputQueue");
 	}
 
 
-	lwip_err LwipOutputQueue::write(::tcp_pcb* socket, size_t& written)
+	net::snd_status OutputQueue::write(Socket& socket)
+	{
+		snd_status snd_status{ NETCTX_SND_OK, 0, 0 };
+
+		if (_logger->is_trace_enabled())
+			_logger->trace(
+				".... %x enter OutputQueue::write mbedtls_socket=%x",
+				(uintptr_t)this,
+				(uintptr_t)std::addressof(socket));
+
+		if (!is_empty()) {
+			// Send what is available from the head pbuf in this output queue. 
+			snd_status = socket.send_data(cbegin(), cend() - cbegin());
+
+			if (snd_status.code == NETCTX_SND_OK) {
+				// move into the payload if bytes have been sent.
+				if (!move(snd_status.sbytes))
+					_logger->error("INTERNAL ERROR: OutputQueue::move failed");
+			}
+		}
+
+		if (_logger->is_trace_enabled())
+			_logger->trace(
+				".... %x leave OutputQueue::write mbedtls_socket=%x status=%d rc=%d written=%zu",
+				(uintptr_t)this,
+				(uintptr_t)std::addressof(socket),
+				snd_status.code,
+				snd_status.rc,
+				snd_status.sbytes);
+
+
+		// return the status
+		return snd_status;
+	}
+
+
+	lwip_err OutputQueue::write(struct tcp_pcb* socket, size_t& written)
 	{
 		if (_logger->is_trace_enabled())
 			_logger->trace(
-				".... %x enter LwipOutputQueue::write tcp=%x",
+				".... %x enter OutputQueue::write lwip_socket=%x",
 				(uintptr_t)this,
 				(uintptr_t)socket);
 
@@ -61,7 +90,7 @@ namespace net {
 
 			// send
 			rc = tcp_write(socket, cbegin(), len, flags);
-			if (rc) 
+			if (rc)
 				goto write_error;
 
 			// report the number of sent bytes.
@@ -80,7 +109,7 @@ namespace net {
 	write_error:
 		if (_logger->is_trace_enabled())
 			_logger->trace(
-				".... %x leave LwipOutputQueue::write tcp=%x rc=%d written=%d",
+				".... %x leave OutputQueue::write lwip_socket=%x rc=%d written=%d",
 				(uintptr_t)this,
 				(uintptr_t)socket,
 				rc,

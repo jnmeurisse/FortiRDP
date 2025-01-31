@@ -12,8 +12,7 @@
 #include "net/Socket.h"
 #include "net/Listener.h"
 #include "net/Endpoint.h"
-#include "net/WinsOutputQueue.h"
-#include "net/LwipOutputQueue.h"
+#include "net/OutputQueue.h"
 #include "tools/Logger.h"
 
 
@@ -89,16 +88,16 @@ namespace net {
 
 		/* Returns true if this forwarder has space in the forward queue.
 		*/
-		inline bool can_receive() const noexcept { return !_forward_queue.full(); }
+		inline bool can_receive() const noexcept { return !_forward_queue.is_full(); }
 
 		/* Returns true if this forwarder has data in the forward queue and
 		*  the tcp send buffer is not full. 
 		*/
-		inline bool must_forward() const { return !_forward_queue.empty() && tcp_sndbuf(_local_client) > 0; }
+		inline bool must_forward() const { return !_forward_queue.is_empty() && tcp_sndbuf(_local_client) > 0; }
 
 		/* Returns true if this forwarder has data in the reply queue
 		*/
-		inline bool must_reply() const noexcept { return _reply_queue.len() > 0; }
+		inline bool must_reply() const noexcept { return _reply_queue.size() > 0; }
 
 		/* Returns true if this forwarder can still flush the reply queue
 		*/
@@ -200,8 +199,8 @@ namespace net {
 		bool _rflush_timeout;
 
 		// reply and forward queues
-		WinsOutputQueue _reply_queue;
-		LwipOutputQueue _forward_queue;
+		OutputQueue _reply_queue;
+		OutputQueue _forward_queue;
 
 		// bytes in transit.
 		size_t _forwarded_bytes;
