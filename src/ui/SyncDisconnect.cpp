@@ -26,7 +26,7 @@ namespace ui {
 	bool SyncDisconnect::procedure()
 	{
 		DEBUG_ENTER(_logger, "SyncDisconnect", "procedure");
-		bool status = false;
+		bool rc = false;
 
 
 		if (_portal && _portal->is_authenticated())
@@ -66,12 +66,12 @@ namespace ui {
 
 		if (_portal && _portal->is_connected()) {
 			_logger->debug("... close portal %x", (uintptr_t)_portal);
-			_portal->close();
+			_portal->shutdown();
 
-			status = true;
+			rc = true;
 		}
 
-		return status;
+		return rc;
 	}
 
 }
