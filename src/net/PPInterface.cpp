@@ -197,7 +197,7 @@ namespace net {
 		byte buffer[4096];
 		bool rc;
 
-		// read what is available from the tunnel
+		// read data available from the tunnel
 		const rcv_status status{ _tunnel.recv_data(buffer, sizeof(buffer)) };
 
 		switch (status.code) {
