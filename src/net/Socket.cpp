@@ -58,31 +58,39 @@ namespace net {
 
 	mbed_err Socket::bind(const Endpoint& ep, net::net_protocol protocol)
 	{
-		if (get_fd() != -1) {
-			// The socket is connected.
-			return MBEDTLS_ERR_NET_INVALID_CONTEXT;
+		mbed_err rc = MBEDTLS_ERR_NET_INVALID_CONTEXT;
+
+		if (get_fd() == -1) {
+			// The socket must be unconnected.
+
+			/*
+			* SO_EXCLUSIVEADDRUSE can not be enabled, mbedtls_net_bind is setting SO_REUSEADDR
+			* in mbedtls_net_bind. Until mbedtls is improved and allows to specify this option
+			* it will not be possible to avoid that another process binds the same port.
+			*
+			* // set the exclusive address option
+			* int option = 1;
+			* if (setsockopt(_netctx.fd, SOL_SOCKET,
+			* 	SO_EXCLUSIVEADDRUSE, (char *)&option, sizeof(option)) == SOCKET_ERROR) {
+			* 	_logger->error("ERROR: Listener::bind setsockopt failed, error=%d", WSAGetLastError());
+			*
+			* 	rc = MBEDTLS_ERR_NET_BIND_FAILED;
+			* 	goto terminate;
+			* }
+			*/
+
+			const std::string host{ ep.hostname() };
+			const std::string port{ std::to_string(ep.port()) };
+
+			rc = ::mbedtls_net_bind(&_netctx, host.c_str(), port.c_str(), protocol);
+			if (rc) {
+				// mbedtls_net_bind should call mbedtls_net_close instead of close in
+				// case of error.  The file descriptor is not properly reset to -1.
+				_netctx.fd = -1;
+			}
 		}
 
-		/*
-		* SO_EXCLUSIVEADDRUSE can not be enabled, mbedtls_net_bind is setting SO_REUSEADDR
-		* in mbedtls_net_bind. Until mbedtls is improved and allows to specify this option
-		* it will not be possible to avoid that another process binds the same port.
-		*
-		* // set the exclusive address option
-		* int option = 1;
-		* if (setsockopt(_netctx.fd, SOL_SOCKET,
-		* 	SO_EXCLUSIVEADDRUSE, (char *)&option, sizeof(option)) == SOCKET_ERROR) {
-		* 	_logger->error("ERROR: Listener::bind setsockopt failed, error=%d", WSAGetLastError());
-		*
-		* 	rc = MBEDTLS_ERR_NET_BIND_FAILED;
-		* 	goto terminate;
-		* }
-		*/
-
-		const std::string host{ ep.hostname() };
-		const std::string port{ std::to_string(ep.port()) };
-
-		return ::mbedtls_net_bind(&_netctx, host.c_str(), port.c_str(), protocol);
+		return rc;
 	}
 
 
@@ -204,11 +212,11 @@ namespace net {
 			if (::getsockname(get_fd(), (struct sockaddr*)&sock_addr, &len) == 0) {
 				if (sock_addr.ss_family == AF_INET) {
 					struct sockaddr_in* addr4 = (struct sockaddr_in*)&sock_addr;
-					port = addr4->sin_port;
+					port = ntohs(addr4->sin_port);
 				}
 				else if (sock_addr.ss_family == AF_INET6) {
 					struct sockaddr_in6* addr6 = (struct sockaddr_in6*)&sock_addr;
-					port = addr6->sin6_port;
+					port = ntohs(addr6->sin6_port);
 				}
 			}
 		}

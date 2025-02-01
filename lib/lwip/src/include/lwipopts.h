@@ -71,7 +71,7 @@
 /* TCP Window scaling is enabled */
 #define LWIP_WND_SCALE			1
 
-/* TCP Recive scale factor */
+/* TCP Receive scale factor */
 #define TCP_RCV_SCALE			1
 
 /* LWIP_TCP_KEEPALIVE==1: Enable TCP_KEEPIDLE, TCP_KEEPINTVL and TCP_KEEPCNT */
@@ -116,8 +116,13 @@
 #define MEMP_STATS				0
 
 /*>> Debug options */
+#ifdef _DEBUG
+#define LWIP_DEBUG				1
+#define PPP_DEBUG				0
+#else
 #define LWIP_DEBUG				0
 #define PPP_DEBUG				0
+#endif
 
 
 #endif /* __LWIPOPTS_H__ */

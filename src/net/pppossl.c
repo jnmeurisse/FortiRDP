@@ -246,7 +246,7 @@ pppossl_destroy(ppp_pcb *ppp, void *ctx)
 * @param l		length of received data
 */
 int
-pppossl_input(ppp_pcb *ppp, u8_t* s, int l)
+pppossl_input(ppp_pcb *ppp, u8_t* s, size_t l)
 {
 	err_t err = PPPERR_NONE;
 	pppossl_pcb*const pppossl = (pppossl_pcb *)ppp->link_ctx_cb;
@@ -289,14 +289,15 @@ pppossl_input(ppp_pcb *ppp, u8_t* s, int l)
 			}
 		}
 		else if (pppossl->in.state == PP_DATA) {
-			int len = min(pppossl->in.header[2] - pppossl->in.counter, l);
+			// compute the number of bytes that can be copied to the pbuf
+			size_t len = min(pppossl->in.header[2] - pppossl->in.counter, l);
 
 			// append the payload to the buffer
-			pbuf_take_at(pppossl->in.data, s, len, pppossl->in.counter);
+			pbuf_take_at(pppossl->in.data, s, (u16_t)len, pppossl->in.counter);
 			l -= len;
 			s += len;
 
-			pppossl->in.counter += len;
+			pppossl->in.counter += (u16_t)len;
 			if (pppossl->in.counter == pppossl->in.header[2]) {
 				// payload is available, pass to ppp processing
 				ppp_input(ppp, pppossl->in.data);

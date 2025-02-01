@@ -13,7 +13,7 @@
 #include <lwip/netif.h>
 #include "net/pppossl.h"
 #include "net/TlsSocket.h"
-#include "net/WinsOutputQueue.h"
+#include "net/OutputQueue.h"
 #include "tools/Logger.h"
 #include "tools/Counters.h"
 
@@ -51,7 +51,7 @@ namespace net {
 		/* True when data is available in the output queue and must be transmitted
 		*  to the peer.
 		*/
-		inline bool must_transmit() const noexcept { return _output_queue.len() > 0; }
+		inline bool must_transmit() const noexcept { return _output_queue.size() > 0; }
 
 		/* Returns the IP address assigned to this interface 
 		*/
@@ -111,7 +111,7 @@ namespace net {
 
 		// The output queue.  All data in this queue are sent
 		// through the tunnel. 
-		WinsOutputQueue _output_queue;
+		OutputQueue _output_queue;
 	};
 
 }

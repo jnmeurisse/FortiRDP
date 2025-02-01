@@ -22,7 +22,7 @@ namespace net {
 		_tunnel(tunnel),
 		_counters(counters),
 		_nif(),
-		_output_queue(32)
+		_output_queue(32 * 1024)
 	{
 		DEBUG_CTOR(_logger, "PPInterface");
 	}
@@ -153,7 +153,7 @@ namespace net {
 		TRACE_ENTER(_logger, "PPInterface", "send");
 		bool rc;
 
-		if (!_output_queue.empty()) {
+		if (!_output_queue.is_empty()) {
 			const snd_status status{ _output_queue.write(_tunnel) };
 
 			switch (status.code) {
@@ -197,7 +197,7 @@ namespace net {
 		byte buffer[4096];
 		bool rc;
 
-		// read what is available from the tunnel
+		// read data available from the tunnel
 		const rcv_status status{ _tunnel.recv_data(buffer, sizeof(buffer)) };
 
 		switch (status.code) {
@@ -267,7 +267,7 @@ namespace net {
 		LWIP_UNUSED_ARG(pcb);
 		net::PPInterface* const pp_interface = (net::PPInterface *)ctx;
 
-		return pp_interface->_output_queue.append(pbuf);
+		return pp_interface->_output_queue.push(pbuf) ? pbuf->tot_len : 0;
 	}
 
 

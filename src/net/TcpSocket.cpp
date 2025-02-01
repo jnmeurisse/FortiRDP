@@ -35,7 +35,7 @@ namespace net {
 		if (rc)
 			goto terminate;
 
-		// configure it as a non blocking.
+		// configure it as a non blocking socket.
 		rc = Socket::set_blocking_mode(false);
 		if (rc)
 			goto terminate;
@@ -55,7 +55,7 @@ namespace net {
 	{
 		if (_logger->is_trace_enabled())
 			_logger->trace(
-				".... %x enter TcpSocket::read buffer=%x len=%zu",
+				".... %x enter TcpSocket::read buffer=%x size=%zu",
 				(uintptr_t)this,
 				buf,
 				len
@@ -83,6 +83,16 @@ namespace net {
 			}
 		} while (len >= 0 && read_status.code == rcv_status_code::NETCTX_RCV_RETRY);
 
+		if (_logger->is_trace_enabled())
+			_logger->trace(
+				".... %x leave TcpSocket::read buffer=%x status=%d rc=%d len=%zu",
+				(uintptr_t)this,
+				buf,
+				read_status.code,
+				read_status.rc,
+				read_status.rbytes
+			);
+
 		return read_status;
 	}
 
@@ -91,7 +101,7 @@ namespace net {
 	{
 		if (_logger->is_trace_enabled())
 			_logger->trace(
-				".... %x enter TcpSocket::write buffer=%x len=%zu",
+				".... %x enter TcpSocket::write buffer=%x size=%zu",
 				(uintptr_t)this,
 				buf,
 				len
@@ -118,6 +128,16 @@ namespace net {
 				}
 			}
 		} while (len >= 0 && write_status.code == snd_status_code::NETCTX_SND_RETRY);
+
+		if (_logger->is_trace_enabled())
+			_logger->trace(
+				".... %x leave TcpSocket::write buffer=%x status=%d rc=%d len=%zu",
+				(uintptr_t)this,
+				buf,
+				write_status.code,
+				write_status.rc,
+				write_status.sbytes
+			);
 
 		return write_status;
 	}

@@ -1746,7 +1746,7 @@
  *          configuration of this extension).
  *
  */
-#define MBEDTLS_SSL_RENEGOTIATION
+//--** #define MBEDTLS_SSL_RENEGOTIATION
 
 /**
  * \def MBEDTLS_SSL_MAX_FRAGMENT_LENGTH

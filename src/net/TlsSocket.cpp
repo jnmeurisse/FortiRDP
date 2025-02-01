@@ -54,7 +54,7 @@ namespace net {
 		if (rc)
 			goto abort;
 
-		(rc = _tlsctx.set_hostname(ep.hostname()));
+		rc = _tlsctx.set_hostname(ep.hostname());
 		if (rc)
 			goto abort;
 
@@ -184,7 +184,7 @@ namespace net {
 	net::rcv_status TlsSocket::recv_data(unsigned char* buf, const size_t len)
 	{
 		if (_logger->is_trace_enabled())
-			_logger->trace(".... %x enter TlsSocket::recv_data buffer=%x len=%zu", this, buf, len);
+			_logger->trace(".... %x enter TlsSocket::recv_data buffer=%x size=%zu", this, buf, len);
 
 		return _tlsctx.recv_data(buf, len);
 	}
@@ -193,7 +193,7 @@ namespace net {
 	net::snd_status TlsSocket::send_data(const unsigned char* buf, const size_t len)
 	{
 		if (_logger->is_trace_enabled())
-			_logger->trace(".... %x enter TlsSocket::send_data buffer=%x len=%zu", this, buf, len);
+			_logger->trace(".... %x enter TlsSocket::send_data buffer=%x size=%zu", this, buf, len);
 
 		return _tlsctx.send_data(buf, len);
 	}
