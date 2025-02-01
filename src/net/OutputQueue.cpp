@@ -34,11 +34,14 @@ namespace net {
 				(uintptr_t)std::addressof(socket));
 
 		if (!is_empty()) {
-			// Send what is available from the head pbuf in this output queue. 
-			snd_status = socket.send_data(cbegin(), cend() - cbegin());
+			// Get the next contiguous block of data.
+			PBufQueue::cblock data_cblock{ get_cblock() };
+
+			// Send this block.
+			snd_status = socket.send_data(data_cblock.pdata, data_cblock.len);
 
 			if (snd_status.code == NETCTX_SND_OK) {
-				// move into the payload if bytes have been sent.
+				// Move the pointer into the queue if bytes have been sent.
 				if (!move(snd_status.sbytes))
 					_logger->error("INTERNAL ERROR: OutputQueue::move failed");
 			}
@@ -72,32 +75,32 @@ namespace net {
 		int rc = 0;
 
 		while (!is_empty()) {
+			// Determine the space available in the TCP send buffer.
+			size_t send_buffer_size = tcp_sndbuf(socket);
 
-			// Compute the length of the next chunk of data. The length of
-			// a chunk is always less than 64 Kb, we can cast to an unsigned 16 Bits
-			// integer.
-			uint16_t available = static_cast<u16_t>(cend() - cbegin());
-
-			// Determine how many bytes we can effectively send
-			uint16_t len = min(tcp_sndbuf(socket), available);
-
-			// stop writing if no more space available
-			if (len == 0)
+			// Stop sending data if no more space available.
+			if (send_buffer_size == 0)
 				break;
 
-			// is this pbuf exhausted ?
-			u8_t flags = TCP_WRITE_FLAG_COPY | ((available > len) ? TCP_WRITE_FLAG_MORE : 0);
+			// Get a block of data but not larger than the available space
+			// in the TCP send buffer.
+			PBufQueue::cblock data_cblock{ get_cblock(tcp_sndbuf(socket)) };
 
-			// send
-			rc = tcp_write(socket, cbegin(), len, flags);
+			// Compute the write flags.
+			u8_t flags = TCP_WRITE_FLAG_COPY | (data_cblock.more ? TCP_WRITE_FLAG_MORE : 0);
+
+			// Send
+			rc = tcp_write(socket, data_cblock.pdata, data_cblock.len, flags);
 			if (rc)
 				goto write_error;
 
-			// report the number of sent bytes.
-			written += len;
+			// Report the number of sent bytes.
+			written += data_cblock.len;
 
-			// move our pointer into the payload if bytes have been sent
-			move(len);
+			// Move the pointer into the queue if bytes have been sent
+			if (!move(data_cblock.len)) {
+				_logger->error("INTERNAL ERROR: OutputQueue::move failed");
+			}
 		}
 
 		if (written > 0) {

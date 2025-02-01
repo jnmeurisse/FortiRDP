@@ -13,7 +13,7 @@
 #include <lwip/netif.h>
 #include "net/pppossl.h"
 #include "net/TlsSocket.h"
-#include "net/WinsOutputQueue.h"
+#include "net/OutputQueue.h"
 #include "tools/Logger.h"
 #include "tools/Counters.h"
 
@@ -111,7 +111,7 @@ namespace net {
 
 		// The output queue.  All data in this queue are sent
 		// through the tunnel. 
-		WinsOutputQueue _output_queue;
+		OutputQueue _output_queue;
 	};
 
 }

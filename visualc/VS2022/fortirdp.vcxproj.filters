@@ -231,6 +231,9 @@
     <ClCompile Include="..\..\src\tools\PBufQueue.cpp">
       <Filter>sources\tools</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\net\OutputQueue.cpp">
+      <Filter>sources\net</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\ui\AboutDialog.h">
@@ -454,6 +457,9 @@
     </ClInclude>
     <ClInclude Include="..\..\src\tools\PBufQueue.h">
       <Filter>sources\tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\net\OutputQueue.h">
+      <Filter>sources\net</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
