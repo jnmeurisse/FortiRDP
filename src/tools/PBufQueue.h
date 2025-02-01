@@ -14,29 +14,38 @@
 namespace tools {
 
 	/**
-	 * A PBufQueue is a wrapper around an LWIP pbuf chain. A "pbuf chain" is a
-	 * singly linked list of pbufs, where each pbuf is reference counted. The
-	 * reference counter is incremented when this class object takes ownership
-	 * and decremented when the object releases ownership.
+	 * PBufQueue represents a queue of LWIP pbufs (packet buffers). The queue is
+	 * implemented as a "pbuf chain", a singly linked list of pbufs where each
+	 * pbuf is reference counted. The reference counter is incremented when the
+	 * queue takes ownership and decremented when a pbuf is removed. The total
+	 * size of a pbuf chain is limited to 2^16-1 bytes.
 	 *
-	 * This class provides an iterator-like mechanism to access successive
-	 * references to contiguous blocks of bytes within a pbuf. The functions
-	 * `cbegin()` and `cend()` point to the beginning and past-the-end bytes of a
-	 * block, respectively. The `move()` function is used to advance `cbegin()`
-	 * within a single pbuf or to transition `cbegin()` and `cend()` to the next
-	 * pbuf in the chain.
+	 * This class provides an iterator-like interface for accessing successive
+	 * contiguous blocks of bytes within a pbuf. A `cblock` represents a
+	 * contiguous block and contains:
+	 *   - A pointer to the first byte of the block.
+	 *   - The length of the block.
+	 *   - A flag indicating whether more data is available in the current pbuf
+	 *     or if the next pbuf in the queue was pushed without the
+	 *     `PBUF_FLAG_PUSH` flag.
 	 *
-	 * **Note**: When the `move()` function detects that the first pbuf in the
-	 * chain has been fully consumed, it frees the head of the queue and moves
-	 * the internal pointer to the next pbuf in the chain.
+	 * The function `get_cblock()` returns the current contiguous block, while
+	 * `get_cblock(len)` returns a block with a size not exceeding `len`.
+	 *
+	 * The `move()` function advances the current contiguous block within a
+	 * single pbuf or transitions to the next block in the queue.
+	 *
 	 *
 	 * Typical usage:
 	 *
 	 *   while (!is_empty()) {
-	 *       // Process a block of data in the pbuf and return the number of bytes processed
-	 *       size_t len = do_something(cbegin(), cend());
+	 *       // Get the next block
+	 *       cblock block = get_cblock();
 	 *
-	 *       // Advance the iterator within the current pbuf or to the next one
+	 *       // Process a block of data and return the number of bytes processed
+	 *       size_t len = do_something(block);
+	 *
+	 *       // Advance the iterator within the queue to the next block
 	 *       move(len);
 	 *   }
 	 */
@@ -118,15 +127,23 @@ namespace tools {
 		*/
 		inline bool is_full() const noexcept { return remaining_space() == 0; }
 
-		/**
-		* Returns the pointer to the next bytes in the queue.
+		/* A contiguous block of data in the queue.
 		*/
-		inline const byte* cbegin() const noexcept { return payload() + _offset; }
+		struct cblock {
+			const byte* pdata;  // pointer to the first byte in the pbuf payload
+			const uint16_t len; // length of the block
+			const bool more;	// is there more data
+		};
 
 		/**
-		* Returns the pointer to the next-to-the-last byte in the queue.
+		* Returns the first continuous block of data with a size not exceeding `len`.
 		*/
-		inline const byte* cend() const noexcept { return payload() + _chain->len; }
+		cblock get_cblock(size_t len) const;
+
+		/**
+		* Returns the first largest continuous block of data.
+		*/
+		cblock get_cblock() const;
 
 		/**
 		 * Moves the read offset within the payload of the current `pbuf` in the queue.
@@ -158,10 +175,10 @@ namespace tools {
 		inline const byte* payload() const noexcept { return static_cast<byte*>(_chain->payload); }
 
 		// A convenient function that returns the pbuf len as a size_t
-		static inline size_t buf_len(const struct pbuf* buffer);
+		static inline size_t pbuf_len(const struct pbuf* buffer);
 
 		// A convenient function that returns the pbuf tot_len as a size_t
-		static inline size_t buf_tot_len(const struct pbuf* buffer);
+		static inline size_t pbuf_tot_len(const struct pbuf* buffer);
 	};
 
 }

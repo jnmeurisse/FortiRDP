@@ -41,28 +41,31 @@ namespace tools {
 
 	bool PBufQueue::push(struct pbuf* buffer)
 	{
-		if (!buffer || buffer->tot_len == 0 || is_full())
-			return false;
+		bool rc = false;
 
-		if (_chain) {
-			// The queue is not empty, we calculate if the new total length would
-			// not exceed the queue capacity.
-			if (size() + buf_tot_len(buffer) > _capacity)
-				return false;
+		if (buffer && buffer->tot_len > 0 && !is_full()) {
+			if (_chain) {
+				// The queue is not empty, we calculate if the new total length would
+				// not exceed the queue capacity.
+				if (size() + pbuf_tot_len(buffer) <= _capacity) {
+					// Append the pbuf at the end of the queue and add a
+					// reference to it.
+					pbuf_chain(_chain, buffer);
+					rc = true;
+				}
+			}
+			else {
+				// The chain is empty.  The given buffer is now the head of the chain.
+				_chain = buffer;
+				_offset = 0;
 
-			// append the pbuf at the end of the queue and add a reference to it.
-			pbuf_chain(_chain, buffer);
+				// we keep a reference to this pbuf.
+				pbuf_ref(buffer);
+				rc = true;
+			}
 		}
-		else {
-			// The chain is empty.  The given buffer is now the head of the chain.
-			_chain = buffer;
-			_offset = 0;
 
-			// we keep a reference to this pbuf.
-			pbuf_ref(buffer);
-		}
-
-		return true;
+		return rc;
 	}
 
 
@@ -99,32 +102,71 @@ namespace tools {
 		return pbuf_clen(_chain);
 	}
 
-	
-	bool PBufQueue::move(size_t len) noexcept
+
+	PBufQueue::cblock PBufQueue::get_cblock(size_t len) const
 	{
-		if (!_chain)
-			return false;
+		if (is_empty()) {
+			return { nullptr, 0, false };
+		}
+		else {
+			// compute how many bytes are available in the pbuf.
+			size_t available = pbuf_len(_chain) - _offset;
 
-		// it is not allowed to move past the end of a pbuf
-		if (_offset + len > buf_len(_chain))
-			return false;
+			// determine if more data is available.
+			bool more_data =
+				(len < available) ||
+				(
+					(_chain->flags && PBUF_FLAG_PUSH) == 0 && 
+					_chain->next && (_chain->next->flags && PBUF_FLAG_PUSH) == 0
+				);
 
-		// move the offset pointer into the payload
-		_offset += len;
-		if (buf_len(_chain) - _offset == 0) 
-			pbuf_free(pop());
-	
-		return true;
+			// the cblock length can not be larger than what is available in a single
+			// pbuf and is limited to 2^16.
+			size_t cblock_len = std::min(len, available);
+
+			// return the next contiguous block of data
+			return {
+				payload() + _offset,
+				static_cast<uint16_t>(cblock_len),
+				more_data
+			};
+		}
 	}
 
 
-	size_t PBufQueue::buf_len(const pbuf* buffer)
+	PBufQueue::cblock PBufQueue::get_cblock() const
+	{
+		return get_cblock(pbuf_len(_chain) - _offset);
+	}
+
+	
+	bool PBufQueue::move(size_t len) noexcept
+	{
+		bool rc = false;
+
+		// it is not allowed to move past the end of a pbuf
+		if (_chain && _offset + len <= pbuf_len(_chain)) {
+			// move the offset pointer into the payload
+			_offset += len;
+
+			// pop the head of the queue the offset moved at the end of the payload.
+			if (pbuf_len(_chain) - _offset == 0)
+				pbuf_free(pop());
+
+			rc = true;
+		}
+	
+		return rc;
+	}
+
+
+	size_t PBufQueue::pbuf_len(const pbuf* buffer)
 	{
 		return static_cast<size_t>(buffer->len);
 	}
 
 
-	size_t PBufQueue::buf_tot_len(const pbuf* buffer)
+	size_t PBufQueue::pbuf_tot_len(const pbuf* buffer)
 	{
 		return static_cast<size_t>(buffer->tot_len);
 	}
