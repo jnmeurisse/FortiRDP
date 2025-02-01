@@ -327,6 +327,9 @@ namespace net {
 		sys_untimeout(timeout_cb, &abort_timeout);
 		sys_untimeout(timeout_cb, &disconnect_timeout);
 
+		// Close the listening socket.
+		_listener.close();
+
 		_logger->debug("... closing tunneler stop=%d terminate=%d", 
 				stop,
 				_terminate);
