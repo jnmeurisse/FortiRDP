@@ -7,9 +7,8 @@
 */
 #pragma once
 
-#include <memory>
 #include <lwip/tcp.h>
-#include "net/Socket.h"
+#include "net/TcpSocket.h"
 #include "net/Listener.h"
 #include "net/Endpoint.h"
 #include "net/OutputQueue.h"
@@ -17,8 +16,6 @@
 
 
 namespace net {
-	using SocketPtr = std::unique_ptr<Socket>;
-
 	/**
 	* PortForwarder: A class responsible for handling TCP port forwarding. It
 	* accepts local client connections, resolves destination hostnames, forwards
@@ -101,7 +98,7 @@ namespace net {
 
 		/* Returns true if this forwarder can still flush the reply queue
 		*/
-		inline bool can_rflush() const noexcept { return  _local_server->is_connected(); }
+		inline bool can_rflush() const noexcept { return  _local_server.is_connected(); }
 
 		/* Returns true if this forwarder can still flush the forward queue
 		*/
@@ -109,7 +106,7 @@ namespace net {
 
 		/* Returns the underlying socket file descriptor
 		*/
-		inline int get_fd() const noexcept { return _local_server->get_fd(); }
+		inline int get_fd() const noexcept { return _local_server.get_fd(); }
 		
 		/* Receives data from the local server and queues it for forwarding to
 		 * the remote endpoint.
@@ -184,7 +181,7 @@ namespace net {
 		const int _keepalive;
 
 		// The local endpoint acting as a server.
-		SocketPtr _local_server;
+		TcpSocket _local_server;
 		
 		// The local endpoint acting as a client.
 		struct ::tcp_pcb* _local_client;

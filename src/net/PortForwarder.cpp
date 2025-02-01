@@ -57,7 +57,7 @@ namespace net {
 		}
 
 		// Accept the connection from the local client
-		const mbed_err rc_accept = listener.accept(*_local_server);
+		const mbed_err rc_accept = listener.accept(_local_server);
 		if (rc_accept != 0) {
 			_logger->error("ERROR: PortForwarder %x - accept error %s",
 				(uintptr_t)this,
@@ -68,7 +68,7 @@ namespace net {
 		}
 
 		// Disable nagle algorithm on the local server
-		_local_server->set_nodelay(_tcp_nodelay);
+		_local_server.set_nodelay(_tcp_nodelay);
 
 		// Resolve the end point host name to an ip address
 		ip_addr_t addr;
@@ -137,7 +137,7 @@ namespace net {
 		_state = State::DISCONNECTING;
 
 		// Close our server.
-		_local_server->close();
+		_local_server.close();
 
 		// It is not possible to reply to the server anymore, we can clear the reply queue.
 		_reply_queue.clear();
@@ -182,11 +182,12 @@ namespace net {
 
 		const size_t available_space = min(sizeof(data), _forward_queue.remaining_space());
 		if (available_space == 0) {
-			//TODO: explain why we can return true.
+			// There is no space in the queue to store data that could be
+			// available in the socket.
 			return true;
 		}
 
-		const rcv_status status{ _local_server->recv_data(data, available_space) };
+		const rcv_status status{ _local_server.recv_data(data, available_space) };
 		if (status.code != rcv_status_code::NETCTX_RCV_OK) {
 			return false;
 		}
@@ -201,6 +202,11 @@ namespace net {
 
 		// copy received data into the buffer.
 		pbuf_take(buffer, data, length);
+
+		// when the sender delivers less data than what we can store in the local buffer,
+		// we assume that the data must be delivered with the TCP Push flag.
+		if (length != available_space)
+			buffer->flags = PBUF_FLAG_PUSH;
 
 		// append the buffer to the queue.
 		if (!_forward_queue.push(buffer)) {
@@ -242,7 +248,7 @@ namespace net {
 		if (_state != State::CONNECTED) 
 			return false;
 
-		return _reply_queue.write(*_local_server).code != NETCTX_SND_ERROR;
+		return _reply_queue.write(_local_server).code != NETCTX_SND_ERROR;
 	}
 
 
@@ -291,7 +297,7 @@ namespace net {
 		}
 
 		// send what we can
-		const snd_status status{ _reply_queue.write(*_local_server) };
+		const snd_status status{ _reply_queue.write(_local_server) };
 
 		// Stop to reply 
 		//        if an error has occurred, 
@@ -299,7 +305,7 @@ namespace net {
 		//     or if we are not able to forward in a fixed delay. 
 		if (status.code == snd_status_code::NETCTX_SND_ERROR || _rflush_timeout || _forward_queue.is_empty()) {
 			_forward_queue.clear();
-			_local_server->close();
+			_local_server.close();
 			_state = State::DISCONNECTED;
 		}
 	}
@@ -349,7 +355,7 @@ namespace net {
 			tcp_close(pf->_local_client);
 
 			// close the local server socket
-			pf->_local_server->close();
+			pf->_local_server.close();
 		}
 	}
 
@@ -398,8 +404,8 @@ namespace net {
 		pf->_state = PortForwarder::State::DISCONNECTED;
 
 		// Close our server if not yet done
-		if (pf->_local_server->is_connected())
-			pf->_local_server->close();
+		if (pf->_local_server.is_connected())
+			pf->_local_server.close();
 	}
 
 
@@ -421,7 +427,7 @@ namespace net {
 		if (p) {
 			len = p->tot_len;
 
-			if (!pf->_local_server->is_connected()) {
+			if (!pf->_local_server.is_connected()) {
 				// The local server is disconnected, we can discard any received data.
 				// It is no longer possible to forward it.
 				tcp_recved(tpcb, p->tot_len);
