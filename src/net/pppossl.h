@@ -23,8 +23,8 @@ extern "C" {
 #endif
 	/* PPP packet parser states. */
 	enum {
-		PP_HEADER = 0,		/* Receiving header */
-		PP_DATA = 1			/* Receiving data */
+		PP_HEADER = 0,   /* Receiving header */
+		PP_DATA = 1      /* Receiving data */
 	};
 
 	/* PPPossl output callback function prototype */
@@ -44,14 +44,14 @@ extern "C" {
 	*/
 	typedef struct pppossl_pcb_s pppossl_pcb;
 	struct pppossl_pcb_s {
-		ppp_pcb *ppp;						/* PPP PCB */
-		pppossl_output_cb_fn output_cb;		/* PPP output callback */
-		u32_t last_xmit;					/* Time stamp of last transmission. */
+		ppp_pcb *ppp;                      /* PPP PCB */
+		pppossl_output_cb_fn output_cb;    /* PPP output callback */
+		u32_t last_xmit;                   /* Time stamp of last transmission. */
 		struct {
-			int state;						/* The input process state. */
-			int counter;					/* ..number of bytes processed */
-			ppp_header header;				/* ..PPP header */
-			struct pbuf* data;				/* ..payload */
+			int state;                     /* The input process state. */
+			uint16_t counter;              /* ..number of bytes processed */
+			ppp_header header;             /* ..PPP header */
+			struct pbuf* data;             /* ..payload */
 		} in;
 	};
 
@@ -61,7 +61,7 @@ extern "C" {
 		ppp_link_status_cb_fn link_status_cb, void *ctx_cb);
 
 	/* This is the input function to be called for received data. */
-	int pppossl_input(ppp_pcb *ppp, u8_t* s, int l);
+	int pppossl_input(ppp_pcb *ppp, u8_t* s, size_t l);
 
 	/* Send a keep alive packet */
 	void ppossl_send_ka(ppp_pcb *ppp);
