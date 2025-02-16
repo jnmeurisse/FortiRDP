@@ -8,9 +8,9 @@
 #include "SyncDisconnect.h"
 
 namespace ui {
-	SyncDisconnect::SyncDisconnect(HWND hwnd, fw::PortalClient& portal, fw::FirewallTunnel* tunnel) :
+	SyncDisconnect::SyncDisconnect(HWND hwnd, fw::FirewallClient& portal_client, fw::FirewallTunnel* tunnel) :
 		SyncProc(hwnd, AsyncMessage::DisconnectedEvent),
-		_portal(portal),
+		_portal_client(portal_client),
 		_tunnel(tunnel)
 	{
 		DEBUG_CTOR(_logger, "SyncDisconnect");
@@ -28,11 +28,11 @@ namespace ui {
 		DEBUG_ENTER(_logger, "SyncDisconnect", "procedure");
 		bool stopped = false;
 
-		if (_portal.is_authenticated()) {
-			_logger->debug("... logout from portal %x", (uintptr_t)&_portal);
+		if (_portal_client.is_authenticated()) {
+			_logger->debug("... logout from portal %x", (uintptr_t)&_portal_client);
 
 			// Logs out from the firewall portal and waits for the firewall to close the tunnel.
-			if (_portal.logout()) {
+			if (_portal_client.logout()) {
 				_logger->debug("... wait end of tunnel %x", (uintptr_t)_tunnel);
 				if (_tunnel)
 					stopped = _tunnel->wait(5 * 1000);
@@ -65,7 +65,7 @@ namespace ui {
 		}
 
 		// Make sure the socket with the portal is disconnected.
-		_portal.shutdown();
+		_portal_client.shutdown();
 
 		return stopped;
 	}

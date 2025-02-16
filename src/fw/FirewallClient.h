@@ -64,11 +64,11 @@ namespace fw {
 	/**
 	 * A fortigate sslvpn portal client
 	 */
-	class PortalClient final : public http::HttpsClient
+	class FirewallClient final : public http::HttpsClient
 	{
 	public:
-		explicit PortalClient(const net::Endpoint& ep, const std::string& realm, const net::TlsConfig& config);
-		~PortalClient();
+		explicit FirewallClient(const net::Endpoint& ep, const std::string& realm, const net::TlsConfig& config);
+		~FirewallClient();
 
 		/**
 		 * Opens a connection to the FortiGate portal and performs certificate validation.
@@ -135,15 +135,6 @@ namespace fw {
 		/* Log out from the portal.
 		*/
 		bool logout();
-
-		/* Starts the tunnel mode.
-		 *
-		 * The function initiates the tunnel mode by sending the appropriate URL
-		 * and session cookie.
-		 *
-		 * @return a boolean that indicates if the tunnel mode is started.
-		*/
-		bool start_tunnel_mode();
 
 		/**
 		 * Retrieves information about the portal.

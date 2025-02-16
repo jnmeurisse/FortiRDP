@@ -11,7 +11,7 @@
 #include <functional>
 #include <memory>
 #include <string>
-#include "fw/PortalClient.h"
+#include "fw/FirewallClient.h"
 #include "fw/FirewallTunnel.h"
 #include "net/TlsConfig.h"
 #include "net/Endpoint.h"
@@ -79,10 +79,10 @@ namespace ui {
 		*/
 		bool terminate();
 
-		/* Returns a reference to the PortalClient. The method returns a null pointer
-		   if the portal is not yet allocated.
+		/* Returns a reference to the portal client. The method returns a null pointer
+		   if the client is not yet allocated.
 		*/
-		inline fw::PortalClient* portal() const { return _portal.get(); };
+		inline fw::FirewallClient* portal_client() const { return _portal_client.get(); };
 
 		/* Returns a reference to the tunnel.  The method returns a null pointer
 		   if the tunnel is not yet allocated.
@@ -128,7 +128,7 @@ namespace ui {
 		// - the Tls configuration
 		net::TlsConfig _tls_config;
 
-		std::unique_ptr<fw::PortalClient> _portal;
+		std::unique_ptr<fw::FirewallClient> _portal_client;
 		std::unique_ptr<fw::FirewallTunnel> _tunnel;
 		std::unique_ptr<tools::Task> _task;
 

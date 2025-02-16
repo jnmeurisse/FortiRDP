@@ -9,7 +9,7 @@
 
 #include <Windows.h>
 #include "ui/SyncProc.h"
-#include "fw/PortalClient.h"
+#include "fw/FirewallClient.h"
 #include "fw/FirewallTunnel.h"
 
 
@@ -22,12 +22,12 @@ namespace ui {
 	class SyncDisconnect final : public SyncProc
 	{
 	public:
-		explicit SyncDisconnect(HWND hwnd, fw::PortalClient& portal, fw::FirewallTunnel* tunnel);
+		explicit SyncDisconnect(HWND hwnd, fw::FirewallClient& portal_client, fw::FirewallTunnel* tunnel);
 		~SyncDisconnect();
 
 	private:
 		//- portal to disconnect from
-		fw::PortalClient& _portal;
+		fw::FirewallClient& _portal_client;
 
 		//- tunnel to terminate if not null.
 		fw::FirewallTunnel* const _tunnel;

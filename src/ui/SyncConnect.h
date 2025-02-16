@@ -10,7 +10,7 @@
 #include <Windows.h>
 #include <mbedtls/x509_crt.h>
 #include "fw/AuthTypes.h"
-#include "fw/PortalClient.h"
+#include "fw/FirewallClient.h"
 #include "ui/SyncProc.h"
 
 
@@ -23,12 +23,12 @@ namespace ui {
 	class SyncConnect final : public SyncProc
 	{
 	public:
-		explicit SyncConnect(HWND hwnd, fw::AuthMethod auth_method, fw::PortalClient& portal);
+		explicit SyncConnect(HWND hwnd, fw::AuthMethod auth_method, fw::FirewallClient& portal_client);
 		~SyncConnect();
 
 	private:
 		const fw::AuthMethod _auth_method;
-		fw::PortalClient& _portal;
+		fw::FirewallClient& _portal_client;
 
 		// send a show error message command to the window specified by hwnd
 		void showErrorMessageDialog(const wchar_t* message) const;
