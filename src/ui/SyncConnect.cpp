@@ -141,11 +141,19 @@ namespace ui {
 
 			if (_portal.is_authenticated()) {
 				fw::PortalInfo portal_info;
-				if (_portal.get_info(portal_info)) {
-					_logger->info(">> portal info user=%s group=%s",
-						portal_info.user.c_str(),
-						portal_info.group.c_str());
+				if (!_portal.get_info(portal_info)) {
+					showErrorMessageDialog(L"Open tunnel error");
 				}
+
+				fw::SslvpnConfig sslvpn_config;
+				if (!_portal.get_config(sslvpn_config)) {
+					showErrorMessageDialog(L"Open tunnel error");
+				}
+
+				_logger->info(">> portal info user=%s group=%s address=%s",
+					portal_info.user.c_str(),
+					portal_info.group.c_str(),
+					sslvpn_config.local_addr.c_str());
 			}
 		}
 
