@@ -10,7 +10,7 @@
 #include <Windows.h>
 #include "ui/SyncProc.h"
 #include "fw/PortalClient.h"
-#include "net/Tunneler.h"
+#include "fw/FirewallTunnel.h"
 
 
 namespace ui {
@@ -22,7 +22,7 @@ namespace ui {
 	class SyncDisconnect final : public SyncProc
 	{
 	public:
-		explicit SyncDisconnect(HWND hwnd, fw::PortalClient* portal, net::Tunneler* tunnel);
+		explicit SyncDisconnect(HWND hwnd, fw::PortalClient* portal, fw::FirewallTunnel* tunnel);
 		~SyncDisconnect();
 
 	private:
@@ -30,7 +30,7 @@ namespace ui {
 		fw::PortalClient* const _portal;
 
 		//- tunnel to terminate
-		net::Tunneler* const _tunnel;
+		fw::FirewallTunnel* const _tunnel;
 
 		virtual bool procedure() override;
 	};

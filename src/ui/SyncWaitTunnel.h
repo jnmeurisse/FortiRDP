@@ -9,7 +9,7 @@
 
 #include <Windows.h>
 #include "ui/SyncProc.h"
-#include "net/Tunneler.h"
+#include "fw/FirewallTunnel.h"
 
 namespace ui {
 
@@ -20,12 +20,12 @@ namespace ui {
 	class SyncWaitTunnel final : public SyncProc
 	{
 	public:
-		explicit SyncWaitTunnel(HWND hwnd, net::Tunneler* tunneler);
+		explicit SyncWaitTunnel(HWND hwnd, fw::FirewallTunnel* tunnel);
 		~SyncWaitTunnel();
 
 	private:
-		// The tunneler
-		net::Tunneler* const _tunneler;
+		// The tunnel
+		fw::FirewallTunnel* const _tunnel;
 
 		// The wait procedure
 		virtual bool procedure() override;

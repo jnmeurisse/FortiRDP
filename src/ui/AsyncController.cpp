@@ -151,25 +151,29 @@ namespace ui {
 	}
 
 
-	bool AsyncController::create_tunnel(const net::Endpoint& host_endpoint, int local_port,
+	bool AsyncController::create_tunnel(const net::Endpoint& remote_endpoint, int local_port,
 		bool multi_clients, bool tcp_nodelay)
 	{
 		if (_logger->is_debug_enabled()) {
 			_logger->debug("... %x enter AsyncController::create_tunnel ep=%s",
 				(uintptr_t)this,
-				host_endpoint.to_string().c_str());
+				remote_endpoint.to_string().c_str());
 		}
 		_tunnel.reset();
 
 		if (_portal != nullptr) {
 			/* Define the local end point as localhost which force using an IPv4 address.
-			When local port is 0, the system automatically find a valid value. */
+			When local port is 0, the system automatically find a free port. */
 			const std::string localhost = "127.0.0.1";
 			const net::Endpoint local_endpoint(localhost, local_port);
-			const net::tunneler_config config = { tcp_nodelay, multi_clients ? 32 : 1 };
 
-			// Create a ssl tunnel from this host to the firewall and assign it to local pointer
-			_tunnel.reset(_portal->create_tunnel(local_endpoint, host_endpoint, config));
+			// Configure the tunneler.
+			const net::tunneler_config config { tcp_nodelay, multi_clients ? 32 : 1 };
+
+			// Create a ssl tunnel from this host to the firewall and assign it to local pointer.
+			_tunnel.reset(_portal->create_tunnel(local_endpoint, remote_endpoint, config));
+
+			// Start the tunnel.
 			request_action(AsyncController::TUNNEL);
 		}
 
@@ -314,6 +318,7 @@ namespace ui {
 
 				case AsyncController::DISCONNECT:
 					procedure = std::make_unique<SyncDisconnect>(_hwnd, _portal.get(), _tunnel.get());
+					_tunnel.reset();
 					break;
 
 				case AsyncController::MONITOR_TASK:
@@ -345,7 +350,6 @@ namespace ui {
 			default:
 				break;
 			}
-
 
 			if (procedure != nullptr) {
 				// Execute the procedure
