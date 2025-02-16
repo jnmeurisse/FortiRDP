@@ -8,7 +8,6 @@
 #pragma once
 
 #include "net/Endpoint.h"
-#include "net/Socket.h"
 #include "net/TlsSocket.h"
 #include "net/Listener.h"
 #include "net/PPInterface.h"
@@ -28,7 +27,7 @@ namespace net {
 		int  connect_timeout;
 	};
 
-	class Tunneler final : public tools::Thread
+	class Tunneler : public tools::Thread
 	{
 	public:
 		/*
