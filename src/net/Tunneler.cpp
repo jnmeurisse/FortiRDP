@@ -16,7 +16,9 @@
 
 namespace net {
 
-	Tunneler::Tunneler(TlsSocket& tunnel, const net::Endpoint& local, const net::Endpoint& remote, const tunneler_config& config) :
+	Tunneler::Tunneler(TlsSocket& tunnel, const Endpoint& local_ep, const Endpoint& remote_ep,
+		const tunneler_config& config) :
+		tools::Thread(),
 		_logger(Logger::get_logger()),
 		_config(config),
 		_state(State::READY),
@@ -26,8 +28,8 @@ namespace net {
 		_pp_interface(tunnel, _counters),
 		_listener(),
 		_listening_status(),
-		_local_endpoint(local),
-		_remote_endpoint(remote)
+		_local_endpoint(local_ep),
+		_remote_endpoint(remote_ep)
 	{
 		DEBUG_CTOR(_logger, "Tunneler");
 	}
