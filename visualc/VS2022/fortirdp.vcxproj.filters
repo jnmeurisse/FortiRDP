@@ -84,7 +84,7 @@
     <ClCompile Include="..\..\src\ui\SyncWaitTunnel.cpp">
       <Filter>sources\ui</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\fw\PortalClient.cpp">
+    <ClCompile Include="..\..\src\fw\FirewallClient.cpp">
       <Filter>sources\fw</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\http\Answer.cpp">
@@ -299,7 +299,7 @@
     <ClInclude Include="..\..\src\ui\SyncWaitTunnel.h">
       <Filter>sources\ui</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\fw\PortalClient.h">
+    <ClInclude Include="..\..\src\fw\FirewallClient.h">
       <Filter>sources\fw</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\http\Answer.h">
