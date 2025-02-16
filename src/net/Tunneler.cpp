@@ -332,6 +332,9 @@ namespace net {
 		// Close the listening socket.
 		_listener.close();
 
+		// Shutdown the tunnel socket
+		_tunnel.shutdown();
+
 		_logger->debug("... closing tunneler stop=%d terminate=%d", 
 				stop,
 				_terminate);
