@@ -382,13 +382,22 @@ namespace fw {
 	}
 
 
-	void PortalClient::logoff()
+	bool PortalClient::logout()
 	{
-		DEBUG_ENTER(_logger, "PortalClient", "logoff");
+		DEBUG_ENTER(_logger, "PortalClient", "logout");
 		tools::Mutex::Lock lock{ _mutex };
+
+		http::Headers headers;
+		http::Answer answer;
+
+		// Send the logout request
+		const http::Url logout_url = make_url("/remote/logout");
+		bool ok = request(http::Request::GET_VERB, logout_url, "", headers, answer, 0);
 
 		// Delete all session cookies
 		_cookie_jar.clear();
+
+		return ok;
 	}
 
 
@@ -519,12 +528,18 @@ namespace fw {
 	}
 
 
-	net::Tunneler* PortalClient::create_tunnel(
-		const net::Endpoint& local, const net::Endpoint& remote, const net::tunneler_config& config)
+	fw::FirewallTunnel* PortalClient::create_tunnel(const net::Endpoint& local_ep,
+		const net::Endpoint& remote_ep, const net::tunneler_config& config)
 	{
 		DEBUG_ENTER(_logger, "PortalClient", "create_tunnel");
 
-		return new net::Tunneler(*this, local, remote, config);
+		return new fw::FirewallTunnel(
+			std::make_unique<http::HttpsClient>(host(), get_tls_config()),
+			local_ep,
+			remote_ep,
+			config,
+			_cookie_jar
+		);
 	}
 
 
