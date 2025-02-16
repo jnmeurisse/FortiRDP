@@ -8,6 +8,7 @@
 #pragma once
 
 #include <cstdint>
+#include <memory>
 #include <string>
 #include "http/Request.h"
 #include "http/Answer.h"
@@ -151,4 +152,6 @@ namespace http {
 		int _request_count;
 	};
 
+
+	using HttpsClientPtr = std::unique_ptr<HttpsClient>;
 }
