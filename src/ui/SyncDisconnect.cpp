@@ -8,7 +8,7 @@
 #include "SyncDisconnect.h"
 
 namespace ui {
-	SyncDisconnect::SyncDisconnect(HWND hwnd, fw::PortalClient& portal, fw::FirewallTunnel& tunnel) :
+	SyncDisconnect::SyncDisconnect(HWND hwnd, fw::PortalClient& portal, fw::FirewallTunnel* tunnel) :
 		SyncProc(hwnd, AsyncMessage::DisconnectedEvent),
 		_portal(portal),
 		_tunnel(tunnel)
@@ -32,21 +32,24 @@ namespace ui {
 			_logger->debug("... logout from portal %x", (uintptr_t)&_portal);
 
 			// Logs out from the firewall portal and waits for the firewall to close the tunnel.
-			if (_portal.logoff() == fw::portal_err::NONE) {
-				_logger->debug("... wait end of tunnel %x", (uintptr_t)&_tunnel);
-				stopped = _tunnel.wait(5 * 1000);
+			if (_portal.logout()) {
+				_logger->debug("... wait end of tunnel %x", (uintptr_t)_tunnel);
+				if (_tunnel)
+					stopped = _tunnel->wait(5 * 1000);
+				else
+					stopped = true;
 			}
 
-			if (!stopped) {
-				// Logoff failed, forcefully shut down the tunnel.
+			if (!stopped && _tunnel) {
+				// Logout failed, forcefully shut down the tunnel.
 				_logger->debug("... terminate tunnel %x", (uintptr_t)&_tunnel);
-				_tunnel.terminate();
+				_tunnel->terminate();
 
 				// Wait the end of the tunnel.  15 seconds should be enough to
 				// let LwIp close the ppp interface.
 				bool wait = true;
 				for (int i = 0; i < 5 && wait; i++) {
-					if (!_tunnel.wait(5 * 1000)) {
+					if (!_tunnel->wait(5 * 1000)) {
 						if (i == 0)
 							_logger->info(">> waiting for tunnel to shutdown...");
 					}

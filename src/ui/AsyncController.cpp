@@ -319,12 +319,8 @@ namespace ui {
 					break;
 
 				case AsyncController::DISCONNECT:
-					if (_portal && _tunnel) {
-						procedure = std::make_unique<SyncDisconnect>(_hwnd, *_portal, *_tunnel);
-
-						_tunnel.reset();
-						_portal.reset();
-					}
+					if (_portal)
+						procedure = std::make_unique<SyncDisconnect>(_hwnd, *_portal, _tunnel.get());
 					break;
 
 				case AsyncController::MONITOR_TASK:
