@@ -10,7 +10,7 @@
 
 namespace ui {
 
-	SyncWaitTunnel::SyncWaitTunnel(HWND hwnd, fw::FirewallTunnel* tunnel) :
+	SyncWaitTunnel::SyncWaitTunnel(HWND hwnd, fw::FirewallTunnel& tunnel) :
 		SyncProc(hwnd, AsyncMessage::TunnelListeningEvent),
 		_tunnel(tunnel)
 	{
@@ -29,12 +29,10 @@ namespace ui {
 		DEBUG_ENTER(_logger, "SyncWaitTunnel", "procedure");
 		bool started = false;
 
-		if (_tunnel) {
-			// connect the socket and launch the listener thread.
-			if (_tunnel->start()) {
-				// Wait until the listener is in LISTENING state.
-				started = _tunnel->wait_listening(7000);
-			}
+		// connect the socket and launch the listener thread.
+		if (_tunnel.start()) {
+			// Wait until the listener is in LISTENING state.
+			started = _tunnel.wait_listening(7000);
 		}
 
 		// Return that tunneler is listening or has failed to start

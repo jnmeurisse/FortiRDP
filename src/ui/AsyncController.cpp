@@ -309,16 +309,22 @@ namespace ui {
 				switch (_action)
 				{
 				case AsyncController::CONNECT:
-					procedure = std::make_unique<SyncConnect>(_hwnd, _auth_method, _portal.get());
+					if (_portal)
+						procedure = std::make_unique<SyncConnect>(_hwnd, _auth_method, *_portal);
 					break;
 
 				case AsyncController::TUNNEL:
-					procedure = std::make_unique<SyncWaitTunnel>(_hwnd, _tunnel.get());
+					if (_tunnel)
+						procedure = std::make_unique<SyncWaitTunnel>(_hwnd, *_tunnel);
 					break;
 
 				case AsyncController::DISCONNECT:
-					procedure = std::make_unique<SyncDisconnect>(_hwnd, _portal.get(), _tunnel.get());
-					_tunnel.reset();
+					if (_portal && _tunnel) {
+						procedure = std::make_unique<SyncDisconnect>(_hwnd, *_portal, *_tunnel);
+
+						_tunnel.reset();
+						_portal.reset();
+					}
 					break;
 
 				case AsyncController::MONITOR_TASK:

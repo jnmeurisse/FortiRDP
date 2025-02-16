@@ -23,12 +23,12 @@ namespace ui {
 	class SyncConnect final : public SyncProc
 	{
 	public:
-		explicit SyncConnect(HWND hwnd, fw::AuthMethod auth_method, fw::PortalClient* portal);
+		explicit SyncConnect(HWND hwnd, fw::AuthMethod auth_method, fw::PortalClient& portal);
 		~SyncConnect();
 
 	private:
 		const fw::AuthMethod _auth_method;
-		fw::PortalClient* const _portal;
+		fw::PortalClient& _portal;
 
 		// send a show error message command to the window specified by hwnd
 		void showErrorMessageDialog(const wchar_t* message) const;

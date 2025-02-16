@@ -12,7 +12,7 @@
 
 
 namespace ui {
-	SyncConnect::SyncConnect(HWND hwnd, fw::AuthMethod auth_method, fw::PortalClient* portal) :
+	SyncConnect::SyncConnect(HWND hwnd, fw::AuthMethod auth_method, fw::PortalClient& portal) :
 		SyncProc(hwnd, AsyncMessage::ConnectedEvent),
 		_auth_method(auth_method),
 		_portal(portal)
@@ -82,7 +82,7 @@ namespace ui {
 			fw::confirm_crt_fn confirm_crt_callback = [this](const mbedtls_x509_crt* crt, int status) {
 				return confirm_certificate(crt, status);
 			};
-			fw::portal_err rc = _portal->open(confirm_crt_callback);
+			fw::portal_err rc = _portal.open(confirm_crt_callback);
 
 			if (rc != fw::portal_err::NONE) {
 				// report errors.
@@ -111,7 +111,7 @@ namespace ui {
 					// loop while user enter wrong credentials
 					fw::portal_err rc;
 					do {
-						rc = _portal->login_basic(ask_credentials_callback, ask_pincode_callback);
+						rc = _portal.login_basic(ask_credentials_callback, ask_pincode_callback);
 						if (rc != fw::portal_err::NONE) {
 							// report errors.
 							if (rc != fw::portal_err::LOGIN_CANCELLED) {
@@ -131,7 +131,7 @@ namespace ui {
 						return ask_saml_auth(saml_info);
 					};
 
-					fw::portal_err rc = _portal->login_saml(ask_samlauth_callback);
+					fw::portal_err rc = _portal.login_saml(ask_samlauth_callback);
 					if (rc != fw::portal_err::NONE) {
 						showErrorMessageDialog(L"Login error");
 					}
@@ -139,23 +139,17 @@ namespace ui {
 				break;
 			}
 
-			if (_portal->is_authenticated()) {
+			if (_portal.is_authenticated()) {
 				fw::PortalInfo portal_info;
-				if (_portal->get_info(portal_info)) {
+				if (_portal.get_info(portal_info)) {
 					_logger->info(">> portal info user=%s group=%s",
 						portal_info.user.c_str(),
 						portal_info.group.c_str());
 				}
-
-				fw::SslvpnConfig vpn_config;
-				if (_portal->get_config(vpn_config)) {
-					if (!_portal->start_tunnel_mode())
-						showErrorMessageDialog(L"Open tunnel error");
-				}
 			}
 		}
 
-		return connected && _portal->is_connected() && _portal->is_authenticated();
+		return connected && _portal.is_connected() && _portal.is_authenticated();
 	}
 
 }

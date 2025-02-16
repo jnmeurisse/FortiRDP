@@ -20,12 +20,12 @@ namespace ui {
 	class SyncWaitTunnel final : public SyncProc
 	{
 	public:
-		explicit SyncWaitTunnel(HWND hwnd, fw::FirewallTunnel* tunnel);
+		explicit SyncWaitTunnel(HWND hwnd, fw::FirewallTunnel& tunnel);
 		~SyncWaitTunnel();
 
 	private:
 		// The tunnel
-		fw::FirewallTunnel* const _tunnel;
+		fw::FirewallTunnel& _tunnel;
 
 		// The wait procedure
 		virtual bool procedure() override;

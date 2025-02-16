@@ -22,15 +22,15 @@ namespace ui {
 	class SyncDisconnect final : public SyncProc
 	{
 	public:
-		explicit SyncDisconnect(HWND hwnd, fw::PortalClient* portal, fw::FirewallTunnel* tunnel);
+		explicit SyncDisconnect(HWND hwnd, fw::PortalClient& portal, fw::FirewallTunnel& tunnel);
 		~SyncDisconnect();
 
 	private:
 		//- portal to disconnect from
-		fw::PortalClient* const _portal;
+		fw::PortalClient& _portal;
 
 		//- tunnel to terminate
-		fw::FirewallTunnel* const _tunnel;
+		fw::FirewallTunnel& _tunnel;
 
 		virtual bool procedure() override;
 	};
