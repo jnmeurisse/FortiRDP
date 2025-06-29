@@ -149,7 +149,7 @@ namespace tools {
 			// move the offset pointer into the payload
 			_offset += len;
 
-			// pop the head of the queue the offset moved at the end of the payload.
+			// pop the head of the queue if the offset moved at the end of the payload.
 			if (pbuf_len(_chain) - _offset == 0)
 				pbuf_free(pop());
 
