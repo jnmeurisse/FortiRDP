@@ -17,6 +17,10 @@
 /* MEM_ALIGNMENT: set to 4 byte alignment */
 #define MEM_ALIGNMENT			4
 
+#ifdef _DEBUG
+	/* Check memory overflow */
+	#define MEMP_OVERFLOW_CHECK		1
+#endif
 
 /*>> Internal Memory Pool Sizes ---------- */
 
@@ -112,8 +116,9 @@
 /* LWIP_STATS==1: Enable statistics collection in lwip_stats. */
 #define LWIP_STATS				1
 #define LWIP_STATS_LARGE		1
-#define MEM_STATS				0
-#define MEMP_STATS				0
+#define MEM_STATS				1
+#define MEMP_STATS				1
+#define LWIP_STATS_DISPLAY		1
 
 /*>> Debug options */
 #ifdef _DEBUG
