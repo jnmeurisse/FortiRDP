@@ -76,7 +76,7 @@ namespace net {
 
 		while (!is_empty()) {
 			// Determine the space available in the TCP send buffer.
-			size_t send_buffer_size = tcp_sndbuf(socket);
+			const size_t send_buffer_size = tcp_sndbuf(socket);
 
 			// Stop sending data if no more space available.
 			if (send_buffer_size == 0)
@@ -84,10 +84,10 @@ namespace net {
 
 			// Get a block of data but not larger than the available space
 			// in the TCP send buffer.
-			PBufQueue::cblock data_cblock{ get_cblock(tcp_sndbuf(socket)) };
+			const PBufQueue::cblock data_cblock{ get_cblock(send_buffer_size) };
 
 			// Compute the write flags.
-			u8_t flags = TCP_WRITE_FLAG_COPY | (data_cblock.more ? TCP_WRITE_FLAG_MORE : 0);
+			const u8_t flags = TCP_WRITE_FLAG_COPY | (data_cblock.more ? TCP_WRITE_FLAG_MORE : 0);
 
 			// Send
 			rc = tcp_write(socket, data_cblock.pdata, data_cblock.len, flags);
