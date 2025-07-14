@@ -8,19 +8,21 @@
 
 /*>>  Memory options ---------- */
 
-/* MEM_LIBC_MALLOC==1: Use malloc/free/realloc provided by the C-library . */
-#define MEM_LIBC_MALLOC			1
-
 /* MEMP_MEM_INIT==1: Force use of memset to initialize pool memory. */
 #define MEMP_MEM_INIT			1
 
 /* MEM_ALIGNMENT: set to 4 byte alignment */
 #define MEM_ALIGNMENT			4
 
+/* MEM_SIZE: the size of the heap memory. */
+#define MEM_SIZE				(128 * 1024)
+
+/* MEM_OVERFLOW_CHECK : Check memory overflow when free is called */
 #ifdef _DEBUG
-	/* Check memory overflow */
-	#define MEMP_OVERFLOW_CHECK		1
+#define MEMP_OVERFLOW_CHECK		1
+#define MEM_OVERFLOW_CHECK		1
 #endif
+
 
 /*>> Internal Memory Pool Sizes ---------- */
 
@@ -119,6 +121,13 @@
 #define MEM_STATS				1
 #define MEMP_STATS				1
 #define LWIP_STATS_DISPLAY		1
+
+#define LINK_STATS				0
+#define ETHARP_STATS			0
+#define ICMP_STATS				0
+#define IGMP_STATS				0
+
+
 
 /*>> Debug options */
 #ifdef _DEBUG
