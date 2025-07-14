@@ -8,6 +8,7 @@
 #include "PPInterface.h"
 
 #include <lwip/timeouts.h>
+#include <lwip/stats.h>
 #include "tools/ErrUtil.h"
 
 
@@ -51,6 +52,10 @@ namespace net {
 			return false;
 		}
 
+		
+		// initialize statistics
+		stats_init();
+
 		// Create a PPP over SSLVPN connection
 		_pcb = pppossl_create(&_nif, ppp_output_cb, ppp_link_status_cb, this);
 		if (_pcb == nullptr) {
@@ -81,12 +86,14 @@ namespace net {
 	}
 
 
-	void PPInterface::close()
+	void PPInterface::close(bool nocarrier)
 	{
 		DEBUG_ENTER(_logger, "PPInterface", "close");
 
-		if (_pcb) {
-			ppp_err rc = ppp_close(_pcb, 0);
+		if (!dead()) {
+			stats_display();
+
+			ppp_err rc = ppp_close(_pcb, nocarrier? 1 : 0);
 
 			if (rc != PPPERR_NONE) {
 				_logger->error("ERROR: ppp_close failure - %s.",
@@ -223,7 +230,6 @@ namespace net {
 		case rcv_status_code::NETCTX_RCV_EOF:
 			// socket was closed by peer
 			rc = false;
-			_logger->error("ERROR: tunnel closed by peer");
 			break;
 
 		case rcv_status_code::NETCTX_RCV_ERROR:

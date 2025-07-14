@@ -96,6 +96,14 @@ namespace net {
 		*/
 		const mbedtls_x509_crt* get_peer_crt() const;
 
+		/**
+		 * Returns the TLS configuration used to initialize the socket.
+		 *
+		 * @return A reference to the `TlsConfig` instance associated with
+		 *         this socket.
+		 */
+		const TlsConfig& get_tls_config() const;
+
 		/* Receives data from the socket.
 		 * See Socket::recv_data
 		*/

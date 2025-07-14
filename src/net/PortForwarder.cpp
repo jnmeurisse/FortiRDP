@@ -440,6 +440,8 @@ namespace net {
 				else {
 					tcp_recved(tpcb, len);
 				}
+
+				pbuf_free(p);
 			}
 		}
 		else if (err == ERR_OK) {

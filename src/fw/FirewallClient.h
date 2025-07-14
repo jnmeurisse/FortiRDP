@@ -18,8 +18,8 @@
 #include "http/Request.h"
 #include "http/Headers.h"
 #include "fw/CrtDigest.h"
+#include "fw/FirewallTunnel.h"
 #include "net/Endpoint.h"
-#include "net/Tunneler.h"
 #include "tools/Mutex.h"
 #include "tools/StringMap.h"
 
@@ -60,16 +60,18 @@ namespace fw {
 	using ask_pincode_fn = std::function<bool (AuthCode&)>;
 	using ask_samlauth_fn = std::function<bool (AuthSamlInfo&)>;
 
+
 	/**
 	 * A fortigate sslvpn portal client
 	 */
-	class PortalClient final : public http::HttpsClient
+	class FirewallClient final : public http::HttpsClient
 	{
 	public:
-		explicit PortalClient(const net::Endpoint& ep, const std::string& realm, const net::TlsConfig& config);
-		~PortalClient();
+		explicit FirewallClient(const net::Endpoint& ep, const std::string& realm, const net::TlsConfig& config);
+		~FirewallClient();
 
-		/* Opens a connection to the FortiGate portal and performs certificate validation.
+		/**
+		 * Opens a connection to the FortiGate portal and performs certificate validation.
 		 *
 		 * This function attempts to connect to the web server, handles certificate validation,
 		 * and sends a request to retrieve the top page. The function logs relevant
@@ -89,7 +91,8 @@ namespace fw {
 		 */
 		portal_err open(confirm_crt_fn confirm_crt);
 
-		/* Performs basic authentication with the FortiGate portal using the provided credentials.
+		/**
+		 * Performs basic authentication with the FortiGate portal using the provided credentials.
 		 *
 		 * This function sends a login request to the server, retrieves the status, and
 		 * handles various authentication flows, including two-factor authentication (2FA),
@@ -111,7 +114,8 @@ namespace fw {
 		 */
 		portal_err login_basic(ask_credentials_fn ask_credential, ask_pincode_fn ask_code);
 
-		/* Performs SAML-based authentication with the portal server.
+		/**
+		 * Performs SAML-based authentication with the portal server.
 		 *
 		 * This function initiates the SAML authentication process by gathering necessary
 		 * information, including the service provider certificate, and then uses the
@@ -128,20 +132,12 @@ namespace fw {
 		 */
 		portal_err login_saml(ask_samlauth_fn ask_samlauth);
 
-		/* Log-offs from the portal.
+		/* Log out from the portal.
 		*/
-		void logoff();
+		bool logout();
 
-		/* Starts the tunnel mode.
-		 *
-		 * The function initiates the tunnel mode by sending the appropriate URL
-		 * and session cookie.
-		 *
-		 * @return a boolean that indicates if the tunnel mode is started.
-		*/
-		bool start_tunnel_mode();
-
-		/* Retrieves information about the portal.
+		/**
+		 * Retrieves information about the portal.
 		 *
 		 * This function makes an authenticated request to the portal server to fetch
 		 * details about the portal, including user, group, and version information. If
@@ -158,7 +154,8 @@ namespace fw {
 		 */
 		bool get_info(PortalInfo& portal_info);
 
-		/* Retrieves the SSL VPN configuration.
+		/**
+		 * Retrieves the SSL VPN configuration.
 		 *
 		 * This function makes an authenticated request to the portal server to fetch the
 		 * SSL VPN configuration in XML format. It is mandatory to obtain this configuration
@@ -176,14 +173,27 @@ namespace fw {
 		 */
 		bool get_config(SslvpnConfig& sslvpn_config);
 
-		/* Creates the tunneler from the local end point to the remote end point.
-		 * The remote end point is located behind the firewall.
-		*/
-		net::Tunneler* create_tunnel(const net::Endpoint& local, const net::Endpoint& remote, const net::tunneler_config& config);
+		/**
+		 * Allocates a firewall tunnel between a local and a remote endpoint.
+		 *
+		 * This function creates a tunnel instance configured to forward traffic
+		 * between the specified local and remote endpoints. However, the tunnel
+		 * is not established upon creation. The caller must explicitly invoke
+		 * `connect()` on the returned tunnel object to establish the connection.
+		 *
+		 * @param local_ep The local network endpoint for the tunnel.
+		 * @param remote_ep The remote network endpoint to which traffic is forwarded.
+		 * @param config The configuration parameters for the tunneler.
+		 * @return A pointer to the allocated FirewallTunnel instance, or nullptr if
+		 *         the tunnel could not be created.
+		 */
+		fw::FirewallTunnel* create_tunnel(const net::Endpoint& local_ep, const net::Endpoint& remote_ep,
+			const net::tunneler_config& config);
 
 		/* Returns true if this client is authenticated on the portal.
 		*/
 		bool is_authenticated() const;
+
 
 	private:
 		// The peer certificate digest

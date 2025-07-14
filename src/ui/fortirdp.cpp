@@ -198,7 +198,7 @@ static void lwip_log_cb(void *ctx, int level, const char* fmt, va_list args)
 		break;
 
 	case tools::Logger::Level::LL_DEBUG:
-		logger->log(tools::Logger::Level::LL_DEBUG, fmt, args);
+		logger->log(tools::Logger::Level::LL_TRACE, fmt, args);
 		break;
 
 	default:

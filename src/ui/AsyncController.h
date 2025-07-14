@@ -11,11 +11,10 @@
 #include <functional>
 #include <memory>
 #include <string>
-#include "fw/PortalClient.h"
+#include "fw/FirewallClient.h"
+#include "fw/FirewallTunnel.h"
 #include "net/TlsConfig.h"
 #include "net/Endpoint.h"
-#include "net/Tunneler.h"
-#include "net/TlsConfig.h"
 #include "tools/Event.h"
 #include "tools/Logger.h"
 #include "tools/Mutex.h"
@@ -65,7 +64,7 @@ namespace ui {
 
 		/* Creates a tunnel with the firewall
 		*/
-		bool create_tunnel(const net::Endpoint& host_endpoint, int local_port, bool multi_clients, bool tcp_nodelay);
+		bool create_tunnel(const net::Endpoint& remote_endpoint, int local_port, bool multi_clients, bool tcp_nodelay);
 
 		/* Starts the external task. The monitor flag indicates that the async
 		   controller is monitoring the completion of the external task.
@@ -80,15 +79,15 @@ namespace ui {
 		*/
 		bool terminate();
 
-		/* Returns a reference to the PortalClient. The method returns a null pointer
-		   if the portal is not yet allocated.
+		/* Returns a reference to the portal client. The method returns a null pointer
+		   if the client is not yet allocated.
 		*/
-		inline fw::PortalClient* portal() const { return _portal.get(); };
+		inline fw::FirewallClient* portal_client() const { return _portal_client.get(); };
 
 		/* Returns a reference to the tunnel.  The method returns a null pointer
-		   if the tunneler is not yet allocated.
+		   if the tunnel is not yet allocated.
 		*/
-		inline net::Tunneler* tunnel() const { return _tunnel.get(); }
+		inline fw::FirewallTunnel* tunnel() const { return _tunnel.get(); }
 
 	private:
 		// - the application logger
@@ -129,8 +128,8 @@ namespace ui {
 		// - the Tls configuration
 		net::TlsConfig _tls_config;
 
-		std::unique_ptr<fw::PortalClient> _portal;
-		std::unique_ptr<net::Tunneler> _tunnel;
+		std::unique_ptr<fw::FirewallClient> _portal_client;
+		std::unique_ptr<fw::FirewallTunnel> _tunnel;
 		std::unique_ptr<tools::Task> _task;
 
 		/* Requests an action and wake up the thread

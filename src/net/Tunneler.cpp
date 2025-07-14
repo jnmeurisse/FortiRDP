@@ -16,7 +16,9 @@
 
 namespace net {
 
-	Tunneler::Tunneler(TlsSocket& tunnel, const net::Endpoint& local, const net::Endpoint& remote, const tunneler_config& config) :
+	Tunneler::Tunneler(TlsSocket& tunnel, const Endpoint& local_ep, const Endpoint& remote_ep,
+		const tunneler_config& config) :
+		tools::Thread(),
 		_logger(Logger::get_logger()),
 		_config(config),
 		_state(State::READY),
@@ -26,8 +28,8 @@ namespace net {
 		_pp_interface(tunnel, _counters),
 		_listener(),
 		_listening_status(),
-		_local_endpoint(local),
-		_remote_endpoint(remote)
+		_local_endpoint(local_ep),
+		_remote_endpoint(remote_ep)
 	{
 		DEBUG_CTOR(_logger, "Tunneler");
 	}
@@ -160,6 +162,8 @@ namespace net {
 					if (FD_ISSET(_tunnel.get_fd(), &read_set)) {
 						// Receive PPP data from the tunnel
 						if (!_pp_interface.recv()) {
+							_logger->info(">> tunnel closed by peer");
+
 							_tunnel.shutdown();
 							terminate();
 						}
@@ -297,7 +301,7 @@ namespace net {
 				if (active_port_forwarders.size() == 0 || abort_timeout) {
 					// All connections are closed, shutdown the ppp interface
 					_state = State::DISCONNECTING;
-					_pp_interface.close();
+					_pp_interface.close(!_tunnel.is_connected());
 
 					// Set a timer just to be sure to exit the thread.  It is configured
 					// higher compared to the time out in SyncDisconnect on purpose.  
@@ -329,6 +333,9 @@ namespace net {
 
 		// Close the listening socket.
 		_listener.close();
+
+		// Shutdown the tunnel socket
+		_tunnel.shutdown();
 
 		_logger->debug("... closing tunneler stop=%d terminate=%d", 
 				stop,

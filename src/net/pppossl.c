@@ -293,7 +293,11 @@ pppossl_input(ppp_pcb *ppp, u8_t* s, size_t l)
 			size_t len = min(pppossl->in.header[2] - pppossl->in.counter, l);
 
 			// append the payload to the buffer
-			pbuf_take_at(pppossl->in.data, s, (u16_t)len, pppossl->in.counter);
+			if (pbuf_take_at(pppossl->in.data, s, (u16_t)len, pppossl->in.counter) == ERR_MEM) {
+				err = PPPERR_ALLOC;
+				goto drop;
+			}
+
 			l -= len;
 			s += len;
 
@@ -312,6 +316,8 @@ pppossl_input(ppp_pcb *ppp, u8_t* s, size_t l)
 
 drop:
 	LINK_STATS_INC(link.proterr);
+	if (pppossl->in.data)
+		pbuf_free(pppossl->in.data);
 	memset(&pppossl->in, 0, sizeof(pppossl->in));
 
 exit:

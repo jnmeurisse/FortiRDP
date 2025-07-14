@@ -5,7 +5,7 @@
 * SPDX-License-Identifier: Apache-2.0
 *
 */
-#include "PortalClient.h"
+#include "FirewallClient.h"
 
 #include <mbedtls/x509_crt.h>
 #include "http/Request.h"
@@ -25,29 +25,29 @@ namespace fw {
 
 	using namespace tools;
 
-	PortalClient::PortalClient(const net::Endpoint& ep, const std::string& realm, const net::TlsConfig& config):
+	FirewallClient::FirewallClient(const net::Endpoint& ep, const std::string& realm, const net::TlsConfig& config):
 		HttpsClient(ep, config),
 		_peer_crt_digest(),
 		_mutex(),
 		_realm(realm),
 		_cookie_jar()
 	{
-		DEBUG_CTOR(_logger, "PortalClient");
+		DEBUG_CTOR(_logger, "FirewallClient");
 
 		set_hostname_verification(true);
 	}
 
 
-	PortalClient::~PortalClient()
+	FirewallClient::~FirewallClient()
 	{
-		DEBUG_DTOR(_logger, "PortalClient");
+		DEBUG_DTOR(_logger, "FirewallClient");
 
 	}
 
 
-	portal_err PortalClient::open(confirm_crt_fn confirm_crt)
+	portal_err FirewallClient::open(confirm_crt_fn confirm_crt)
 	{
-		DEBUG_ENTER(_logger, "PortalClient", "open");
+		DEBUG_ENTER(_logger, "FirewallClient", "open");
 		Mutex::Lock lock{ _mutex };
 		http::Answer answer;
 
@@ -119,9 +119,9 @@ namespace fw {
 	}
 
 
-	bool PortalClient::login_check(const tools::StringMap& params, http::Answer& answer)
+	bool FirewallClient::login_check(const tools::StringMap& params, http::Answer& answer)
 	{
-		DEBUG_ENTER(_logger, "PortalClient", "login_check");
+		DEBUG_ENTER(_logger, "FirewallClient", "login_check");
 
 		http::Headers headers;
 		headers.set("Content-Type", "text/plain;charset=UTF-8");
@@ -130,9 +130,9 @@ namespace fw {
 	}
 
 
-	portal_err PortalClient::login_basic(ask_credentials_fn ask_credential, ask_pincode_fn ask_code)
+	portal_err FirewallClient::login_basic(ask_credentials_fn ask_credential, ask_pincode_fn ask_code)
 	{
-		DEBUG_ENTER(_logger, "PortalClient", "login_basic");
+		DEBUG_ENTER(_logger, "FirewallClient", "login_basic");
 		tools::Mutex::Lock lock{ _mutex };
 
 		// misc initializations
@@ -355,9 +355,9 @@ namespace fw {
 	}
 
 
-	portal_err PortalClient::login_saml(ask_samlauth_fn ask_samlauth)
+	portal_err FirewallClient::login_saml(ask_samlauth_fn ask_samlauth)
 	{
-		DEBUG_ENTER(_logger, "PortalClient", "login_saml");
+		DEBUG_ENTER(_logger, "FirewallClient", "login_saml");
 		tools::Mutex::Lock lock{ _mutex };
 
 		std::string service_provider_crt;
@@ -382,19 +382,28 @@ namespace fw {
 	}
 
 
-	void PortalClient::logoff()
+	bool FirewallClient::logout()
 	{
-		DEBUG_ENTER(_logger, "PortalClient", "logoff");
+		DEBUG_ENTER(_logger, "FirewallClient", "logout");
 		tools::Mutex::Lock lock{ _mutex };
+
+		http::Headers headers;
+		http::Answer answer;
+
+		// Send the logout request
+		const http::Url logout_url = make_url("/remote/logout");
+		bool ok = request(http::Request::GET_VERB, logout_url, "", headers, answer, 0);
 
 		// Delete all session cookies
 		_cookie_jar.clear();
+
+		return ok;
 	}
 
 
-	bool PortalClient::get_info(PortalInfo& portal_info)
+	bool FirewallClient::get_info(PortalInfo& portal_info)
 	{
-		DEBUG_ENTER(_logger, "PortalClient", "get_info");
+		DEBUG_ENTER(_logger, "FirewallClient", "get_info");
 		tools::Mutex::Lock lock{ _mutex };
 
 		if (!is_authenticated())
@@ -427,9 +436,9 @@ namespace fw {
 	}
 
 
-	bool PortalClient::get_config(SslvpnConfig& sslvpn_config)
+	bool FirewallClient::get_config(SslvpnConfig& sslvpn_config)
 	{
-		DEBUG_ENTER(_logger, "PortalClient", "get_config");
+		DEBUG_ENTER(_logger, "FirewallClient", "get_config");
 		tools::Mutex::Lock lock{ _mutex };
 
 		if (!is_authenticated())
@@ -489,48 +498,31 @@ namespace fw {
 	}
 
 
-	bool PortalClient::start_tunnel_mode()
-	{
-		DEBUG_ENTER(_logger, "PortalClient", "start_tunnel_mode");
-		Mutex::Lock lock(_mutex);
-
-		const http::Url tunnel_url = make_url("/remote/sslvpn-tunnel");
-		http::Request request{ http::Request::GET_VERB, tunnel_url, _cookie_jar };
-		request.headers().set("Host", "sslvpn");
-
-		try {
-			send_request(request);
-
-		} catch (const mbed_error& e) {
-			_logger->error("ERROR: failed to open the tunnel");
-			_logger->error("ERROR: %s", e.message().c_str());
-
-			return false;
-		}
-
-		return true;
-	}
-
-
-	bool PortalClient::is_authenticated() const
+	bool FirewallClient::is_authenticated() const
 	{
 		return _cookie_jar.exists("SVPNCOOKIE") &&
 			_cookie_jar.get("SVPNCOOKIE").get_value().length() > 0;
 	}
 
 
-	net::Tunneler* PortalClient::create_tunnel(
-		const net::Endpoint& local, const net::Endpoint& remote, const net::tunneler_config& config)
+	fw::FirewallTunnel* FirewallClient::create_tunnel(const net::Endpoint& local_ep,
+		const net::Endpoint& remote_ep, const net::tunneler_config& config)
 	{
-		DEBUG_ENTER(_logger, "PortalClient", "create_tunnel");
+		DEBUG_ENTER(_logger, "FirewallClient", "create_tunnel");
 
-		return new net::Tunneler(*this, local, remote, config);
+		return new fw::FirewallTunnel(
+			std::make_unique<http::HttpsClient>(host(), get_tls_config()),
+			local_ep,
+			remote_ep,
+			config,
+			_cookie_jar
+		);
 	}
 
 
-	bool PortalClient::send_and_receive(http::Request& request, http::Answer& answer)
+	bool FirewallClient::send_and_receive(http::Request& request, http::Answer& answer)
 	{
-		DEBUG_ENTER(_logger, "PortalClient", "send_and_receive");
+		DEBUG_ENTER(_logger, "FirewallClient", "send_and_receive");
 
 		if (is_reconnection_required()) {
 			disconnect();
@@ -579,10 +571,10 @@ namespace fw {
 	}
 
 
-	bool PortalClient::do_request(const std::string& verb, const http::Url& url,
+	bool FirewallClient::do_request(const std::string& verb, const http::Url& url,
 		const std::string& body, const http::Headers& headers, http::Answer& answer)
 	{
-		DEBUG_ENTER(_logger, "PortalClient", "do_request");
+		DEBUG_ENTER(_logger, "FirewallClient", "do_request");
 		
 		// Prepare the request
 		http::Request request{ verb, url, _cookie_jar };
@@ -600,7 +592,7 @@ namespace fw {
 		request.set_body((unsigned char *)body.c_str(), body.length());
 
 		// Send and wait for a response
-		const bool success = PortalClient::send_and_receive(request, answer);
+		const bool success = FirewallClient::send_and_receive(request, answer);
 		if (!success) {
 			// disconnect if not yet done
 			disconnect();
@@ -631,7 +623,7 @@ namespace fw {
 			}
 		}
 
-		_logger->debug("... %x       PortalClient::do_request : %s %s (status=%s (%d))",
+		_logger->debug("... %x       FirewallClient::do_request : %s %s (status=%s (%d))",
 			(uintptr_t)this,
 			verb.c_str(),
 			url.to_string(false).c_str(),
@@ -642,7 +634,7 @@ namespace fw {
 	}
 
 
-	bool PortalClient::request(const std::string& verb, const http::Url& url,
+	bool FirewallClient::request(const std::string& verb, const http::Url& url,
 		const std::string& body, const http::Headers& headers, http::Answer& answer, int allow_redir)
 	{
 		if (allow_redir < 0) {
@@ -670,7 +662,7 @@ namespace fw {
 	}
 
 
-	bool PortalClient::get_redir_url(const tools::StringMap& params, http::Url& url) const
+	bool FirewallClient::get_redir_url(const tools::StringMap& params, http::Url& url) const
 	{
 		std::string redir;
 		if (!params.get_str("redir", redir))

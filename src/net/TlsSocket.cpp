@@ -181,6 +181,12 @@ namespace net {
 	}
 
 
+	const TlsConfig& TlsSocket::get_tls_config() const
+	{
+		return _tlscfg;
+	}
+
+
 	net::rcv_status TlsSocket::recv_data(unsigned char* buf, const size_t len)
 	{
 		if (_logger->is_trace_enabled())

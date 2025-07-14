@@ -114,8 +114,8 @@ namespace net {
 
 		if (get_fd() != -1) {
 			rc = enable
-				? mbedtls_net_set_block(&_netctx)
-				: mbedtls_net_set_nonblock(&_netctx);
+				? ::mbedtls_net_set_block(&_netctx)
+				: ::mbedtls_net_set_nonblock(&_netctx);
 
 			if (rc)
 				rc = MBEDTLS_ERR_NET_INVALID_CONTEXT;
@@ -151,7 +151,7 @@ namespace net {
 	{
 		net::rcv_status status { rcv_status_code::NETCTX_RCV_ERROR, MBEDTLS_ERR_NET_INVALID_CONTEXT, 0 };
 
-		const int rc = mbedtls_net_recv(&_netctx, buf, len);
+		const int rc = ::mbedtls_net_recv(&_netctx, buf, len);
 
 		if (rc > 0) {
 			status.code = rcv_status_code::NETCTX_RCV_OK;
@@ -181,7 +181,7 @@ namespace net {
 	{
 		net::snd_status status { NETCTX_SND_ERROR, MBEDTLS_ERR_NET_INVALID_CONTEXT, 0 };
 
-		const int rc = mbedtls_net_send(&_netctx, buf, len);
+		const int rc = ::mbedtls_net_send(&_netctx, buf, len);
 
 		if (rc > 0) {
 			status.code = NETCTX_SND_OK;
@@ -252,7 +252,7 @@ namespace net {
 
 
 	mbed_err Socket::accept(Socket& client_socket)
-    {
+	{
 		if (!is_connected())
 			return MBEDTLS_ERR_NET_INVALID_CONTEXT;
 
@@ -261,7 +261,7 @@ namespace net {
 
 		int rc;
 		do {
-			rc = mbedtls_net_accept(&_netctx, client_socket.netctx(), 0, 0, 0);
+			rc = ::mbedtls_net_accept(&_netctx, client_socket.netctx(), 0, 0, 0);
 		} while (rc == MBEDTLS_ERR_SSL_WANT_READ);
 
 		return rc;

@@ -45,7 +45,7 @@ namespace ui {
 
 	bool AsyncController::load_ca_crt(const tools::Path& filename)
 	{
-		DEBUG_ENTER(_logger, "PortalClient", "load_ca_crt");
+		DEBUG_ENTER(_logger, "AsyncController", "load_ca_crt");
 		bool init_status = true;
 
 		if (!_ca_crt) {
@@ -79,7 +79,7 @@ namespace ui {
 
 	bool AsyncController::load_user_crt(const tools::Path& filename, ask_crt_passcode_fn ask_passcode)
 	{
-		DEBUG_ENTER(_logger, "PortalClient", "load_user_crt");
+		DEBUG_ENTER(_logger, "AsyncController", "load_user_crt");
 		bool init_status = true;
 
 		if (!_user_crt) {
@@ -143,33 +143,37 @@ namespace ui {
 		_tls_config.set_ca_crt(_ca_crt->get_crt());
 		if (_auth_method == fw::AuthMethod::CERTIFICATE && _user_crt)
 			_tls_config.set_user_crt(_user_crt->crt.get_crt(), _user_crt->pk.get_pk());
-		_portal = std::make_unique<fw::PortalClient>(firewall_endpoint, realm, _tls_config);
+		_portal_client = std::make_unique<fw::FirewallClient>(firewall_endpoint, realm, _tls_config);
 
 		request_action(AsyncController::CONNECT);
 
-		return _portal != nullptr;
+		return _portal_client != nullptr;
 	}
 
 
-	bool AsyncController::create_tunnel(const net::Endpoint& host_endpoint, int local_port,
+	bool AsyncController::create_tunnel(const net::Endpoint& remote_endpoint, int local_port,
 		bool multi_clients, bool tcp_nodelay)
 	{
 		if (_logger->is_debug_enabled()) {
 			_logger->debug("... %x enter AsyncController::create_tunnel ep=%s",
 				(uintptr_t)this,
-				host_endpoint.to_string().c_str());
+				remote_endpoint.to_string().c_str());
 		}
 		_tunnel.reset();
 
-		if (_portal != nullptr) {
+		if (_portal_client != nullptr) {
 			/* Define the local end point as localhost which force using an IPv4 address.
-			When local port is 0, the system automatically find a valid value. */
+			When local port is 0, the system automatically find a free port. */
 			const std::string localhost = "127.0.0.1";
 			const net::Endpoint local_endpoint(localhost, local_port);
-			const net::tunneler_config config = { tcp_nodelay, multi_clients ? 32 : 1 };
 
-			// Create a ssl tunnel from this host to the firewall and assign it to local pointer
-			_tunnel.reset(_portal->create_tunnel(local_endpoint, host_endpoint, config));
+			// Configure the tunneler.
+			const net::tunneler_config config { tcp_nodelay, multi_clients ? 32 : 1 };
+
+			// Create a ssl tunnel from this host to the firewall and assign it to local pointer.
+			_tunnel.reset(_portal_client->create_tunnel(local_endpoint, remote_endpoint, config));
+
+			// Start the tunnel.
 			request_action(AsyncController::TUNNEL);
 		}
 
@@ -305,15 +309,18 @@ namespace ui {
 				switch (_action)
 				{
 				case AsyncController::CONNECT:
-					procedure = std::make_unique<SyncConnect>(_hwnd, _auth_method, _portal.get());
+					if (_portal_client)
+						procedure = std::make_unique<SyncConnect>(_hwnd, _auth_method, *_portal_client);
 					break;
 
 				case AsyncController::TUNNEL:
-					procedure = std::make_unique<SyncWaitTunnel>(_hwnd, _tunnel.get());
+					if (_tunnel)
+						procedure = std::make_unique<SyncWaitTunnel>(_hwnd, *_tunnel);
 					break;
 
 				case AsyncController::DISCONNECT:
-					procedure = std::make_unique<SyncDisconnect>(_hwnd, _portal.get(), _tunnel.get());
+					if (_portal_client)
+						procedure = std::make_unique<SyncDisconnect>(_hwnd, *_portal_client, _tunnel.get());
 					break;
 
 				case AsyncController::MONITOR_TASK:
@@ -345,7 +352,6 @@ namespace ui {
 			default:
 				break;
 			}
-
 
 			if (procedure != nullptr) {
 				// Execute the procedure

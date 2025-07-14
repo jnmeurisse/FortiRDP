@@ -34,7 +34,7 @@ namespace net {
 		/*
 		* Initiates the end of the PPP over SSL interface.
 		*/
-		void close();
+		void close(bool nocarrier);
 
 		/* Releases all resources.
 		*/

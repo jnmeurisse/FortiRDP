@@ -92,8 +92,11 @@ namespace tools {
 		chainParameter.RequestedUsage.Usage.cUsageIdentifier = ARRAYSIZE(usage);
 		chainParameter.RequestedUsage.Usage.rgpszUsageIdentifier = const_cast<LPSTR*>(usage);
 
+		// Try offline revocation check
+		DWORD flags = CERT_CHAIN_REVOCATION_CHECK_CACHE_ONLY;
+
 		PCCERT_CHAIN_CONTEXT chainContext = NULL;
-		if (::CertGetCertificateChain(NULL, certContext, NULL, NULL, &chainParameter, 0, NULL, &chainContext) &&
+		if (::CertGetCertificateChain(NULL, certContext, NULL, NULL, &chainParameter, flags, NULL, &chainContext) &&
 			chainContext) {
 			errorStatus = chainContext->TrustStatus.dwErrorStatus;
 			::CertFreeCertificateChain(chainContext);
