@@ -162,6 +162,8 @@ namespace net {
 					if (FD_ISSET(_tunnel.get_fd(), &read_set)) {
 						// Receive PPP data from the tunnel
 						if (!_pp_interface.recv()) {
+							_logger->info(">> tunnel closed by peer");
+
 							_tunnel.shutdown();
 							terminate();
 						}
@@ -299,7 +301,7 @@ namespace net {
 				if (active_port_forwarders.size() == 0 || abort_timeout) {
 					// All connections are closed, shutdown the ppp interface
 					_state = State::DISCONNECTING;
-					_pp_interface.close();
+					_pp_interface.close(!_tunnel.is_connected());
 
 					// Set a timer just to be sure to exit the thread.  It is configured
 					// higher compared to the time out in SyncDisconnect on purpose.  

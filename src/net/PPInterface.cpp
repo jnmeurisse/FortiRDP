@@ -86,15 +86,14 @@ namespace net {
 	}
 
 
-	void PPInterface::close()
+	void PPInterface::close(bool nocarrier)
 	{
 		DEBUG_ENTER(_logger, "PPInterface", "close");
 
-		if (_pcb) {
+		if (!dead()) {
 			stats_display();
 
-
-			ppp_err rc = ppp_close(_pcb, 0);
+			ppp_err rc = ppp_close(_pcb, nocarrier? 1 : 0);
 
 			if (rc != PPPERR_NONE) {
 				_logger->error("ERROR: ppp_close failure - %s.",
@@ -231,7 +230,6 @@ namespace net {
 		case rcv_status_code::NETCTX_RCV_EOF:
 			// socket was closed by peer
 			rc = false;
-			_logger->info("INFO: tunnel closed by peer");
 			break;
 
 		case rcv_status_code::NETCTX_RCV_ERROR:
