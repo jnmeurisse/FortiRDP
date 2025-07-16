@@ -483,6 +483,12 @@
     <ClInclude Include="..\..\library\x509_internal.h">
       <Filter>sources</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\library\bignum_core_invasive.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\library\cipher_invasive.h">
+      <Filter>headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\library\aes.c">

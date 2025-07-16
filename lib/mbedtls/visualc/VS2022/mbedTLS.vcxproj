@@ -122,6 +122,7 @@
     <ClInclude Include="..\..\library\alignment.h" />
     <ClInclude Include="..\..\library\base64_internal.h" />
     <ClInclude Include="..\..\library\bignum_core.h" />
+    <ClInclude Include="..\..\library\bignum_core_invasive.h" />
     <ClInclude Include="..\..\library\bignum_internal.h" />
     <ClInclude Include="..\..\library\bignum_mod.h" />
     <ClInclude Include="..\..\library\bignum_mod_raw.h" />
@@ -129,6 +130,7 @@
     <ClInclude Include="..\..\library\block_cipher_internal.h" />
     <ClInclude Include="..\..\library\bn_mul.h" />
     <ClInclude Include="..\..\library\check_crypto_config.h" />
+    <ClInclude Include="..\..\library\cipher_invasive.h" />
     <ClInclude Include="..\..\library\cipher_wrap.h" />
     <ClInclude Include="..\..\library\common.h" />
     <ClInclude Include="..\..\library\constant_time_impl.h" />
