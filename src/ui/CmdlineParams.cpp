@@ -195,6 +195,7 @@ namespace ui {
 			case fw::AuthMethod::SAML:
 				auth_method_valid = _username.size() == 0 && _us_cert_filename.size() == 0;
 				break;
+
 			case fw::AuthMethod::CERTIFICATE:
 				auth_method_valid = _username.size() == 0 && _us_cert_filename.size() > 0;
 				break;

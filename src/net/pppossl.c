@@ -87,46 +87,51 @@ pppossl_write(ppp_pcb *ppp, void *ctx, struct pbuf *pbuf)
 	pppossl_pcb* const pppos = (pppossl_pcb *)ctx;
 	int err = ERR_OK;
 
-	/* Send buffer into a PPP frame */
-	if (pbuf->tot_len > 0) {
-		// create a PPP header
-		struct pbuf* const frame = pbuf_alloc(PBUF_RAW, sizeof(ppp_header) + pbuf->tot_len, PBUF_RAM);
-		if (frame == NULL) {
-			PPPDEBUG(LOG_WARNING, ("pppossl_write[%d]: alloc fail\n", ppp->netif->num));
-			LINK_STATS_INC(link.memerr);
-			LINK_STATS_INC(link.drop);
-			MIB2_STATS_NETIF_INC(ppp->netif, ifoutdiscards);
-			pbuf_free(pbuf);
-			return ERR_MEM;
+	if (!pbuf) {
+		err = ERR_BUF;
+	} 
+	else {
+		/* Send buffer into a PPP frame */
+		if (pbuf->tot_len > 0) {
+			// create a PPP header
+			struct pbuf* const frame = pbuf_alloc(PBUF_RAW, sizeof(ppp_header) + pbuf->tot_len, PBUF_RAM);
+			if (frame == NULL) {
+				PPPDEBUG(LOG_WARNING, ("pppossl_write[%d]: alloc fail\n", ppp->netif->num));
+				LINK_STATS_INC(link.memerr);
+				LINK_STATS_INC(link.drop);
+				MIB2_STATS_NETIF_INC(ppp->netif, ifoutdiscards);
+				pbuf_free(pbuf);
+				return ERR_MEM;
+			}
+
+			// Fill the fortigate PPP header
+			ppp_header* const header = frame->payload;
+			(*header)[0] = lwip_htons(pbuf->tot_len + sizeof(ppp_header));
+			(*header)[1] = 0x5050;
+			(*header)[2] = lwip_htons(pbuf->tot_len);
+
+			// Append the payload
+			int offset = sizeof(ppp_header);
+			for (struct pbuf* p = pbuf; p; p = p->next) {
+				memcpy((uint8_t*)frame->payload + offset, p->payload, p->len);
+				offset += p->len;
+			}
+
+			// output the PPP frame
+			u32_t lp = pppos->output_cb(ppp, frame, ppp->ctx_cb);
+			pbuf_free(frame);
+			if (lp != pbuf->tot_len + sizeof(ppp_header)) {
+				err = ERR_IF;
+				goto failed;
+			}
 		}
 
-		// Fill the fortigate PPP header
-		ppp_header* const header = frame->payload;
-		(*header)[0] = lwip_htons(pbuf->tot_len + sizeof(ppp_header));
-		(*header)[1] = 0x5050;
-		(*header)[2] = lwip_htons(pbuf->tot_len);
-
-		// Append the payload
-		int offset = sizeof(ppp_header);
-		for (struct pbuf* p = pbuf; p; p = p->next) {
-			memcpy((uint8_t *)frame->payload + offset, p->payload, p->len);
-			offset += p->len;
-		}
-
-		// output the PPP frame
-		u32_t lp = pppos->output_cb(ppp, frame, ppp->ctx_cb);
-		pbuf_free(frame);
-		if (lp != pbuf->tot_len + sizeof(ppp_header)) {
-			err = ERR_IF;
-			goto failed;
-		}
+		pppos->last_xmit = sys_now();
+		MIB2_STATS_NETIF_ADD(ppp->netif, ifoutoctets, pbuf->tot_len + sizeof(ppp_header));
+		MIB2_STATS_NETIF_INC(ppp->netif, ifoutucastpkts);
+		LINK_STATS_INC(link.xmit);
+		pbuf_free(pbuf);
 	}
-
-	pppos->last_xmit = sys_now();
-	MIB2_STATS_NETIF_ADD(ppp->netif, ifoutoctets, pbuf->tot_len + sizeof(ppp_header));
-	MIB2_STATS_NETIF_INC(ppp->netif, ifoutucastpkts);
-	LINK_STATS_INC(link.xmit);
-	pbuf_free(pbuf);
 
 	return err;
 
