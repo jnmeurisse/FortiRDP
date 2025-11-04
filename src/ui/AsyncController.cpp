@@ -68,7 +68,7 @@ namespace ui {
 				}
 			}
 			else {
-				_logger->error("ERROR: can't find CA cert file %s", compacted.c_str());
+				_logger->info("WARNING: can't find CA cert file %s", compacted.c_str());
 				init_status = false;
 			}
 		}
