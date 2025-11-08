@@ -44,15 +44,7 @@ namespace net {
 		const std::string host{ ep.hostname() };
 		const std::string port{ std::to_string(ep.port()) };
 
-		const int rc = ::mbedtls_net_connect(&_netctx, host.c_str(),port.c_str(), protocol);
-
-		if (rc) {
-			// mbedtls_net_connect should call mbedtls_net_close instead of close in
-			// case of error.  The file descriptor is not properly reset to -1.
-			_netctx.fd = -1;
-		}
-
-		return rc;
+		return ::mbedtls_net_connect(&_netctx, host.c_str(),port.c_str(), protocol);
 	}
 
 
@@ -83,11 +75,6 @@ namespace net {
 			const std::string port{ std::to_string(ep.port()) };
 
 			rc = ::mbedtls_net_bind(&_netctx, host.c_str(), port.c_str(), protocol);
-			if (rc) {
-				// mbedtls_net_bind should call mbedtls_net_close instead of close in
-				// case of error.  The file descriptor is not properly reset to -1.
-				_netctx.fd = -1;
-			}
 		}
 
 		return rc;
