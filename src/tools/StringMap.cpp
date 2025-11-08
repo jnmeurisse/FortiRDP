@@ -98,12 +98,25 @@ namespace tools {
 		return found;
 	}
 
+	std::string StringMap::get_str_value(const std::string& name, const std::string& default) const
+	{
+		std::string value;
+		return get_str(name, value) ? value : default;
+	}
+
 
 	bool StringMap::get_int(const std::string& name, int& value) const
 	{
 		std::string tmp;
 
 		return get_str(name, tmp) && tools::str2i(tmp, value);
+	}
+
+
+	int StringMap::get_int_value(const std::string& name, int default) const
+	{
+		int value;
+		return get_int(name, value) ? value : default;
 	}
 
 
