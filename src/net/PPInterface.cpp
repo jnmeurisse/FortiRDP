@@ -78,7 +78,7 @@ namespace net {
 			ppp_free(_pcb);
 			_pcb = nullptr;
 
-			_logger->error("ERROR: ppp_connect failure - %s",
+			_logger->error("ERROR: PP Interface - connect failure (%s)",
 				ppp_errmsg(rc_con).c_str());
 		}
 
@@ -96,7 +96,7 @@ namespace net {
 			ppp_err rc = ppp_close(_pcb, nocarrier? 1 : 0);
 
 			if (rc != PPPERR_NONE) {
-				_logger->error("ERROR: ppp_close failure - %s.",
+				_logger->error("ERROR: PP Interface - close failure (%s)",
 					ppp_errmsg(rc).c_str());
 			}
 		}
@@ -111,7 +111,7 @@ namespace net {
 
 		if (_pcb) {
 			if (_pcb->phase != PPP_PHASE_DEAD) {
-				_logger->error("ERROR: releasing an active ppp interface.");
+				_logger->error("ERROR: PP Interface - active interface released");
 			}
 
 			ppp_free(_pcb);
@@ -177,7 +177,7 @@ namespace net {
 			default:
 				// an error has occurred
 				rc = false;
-				_logger->error("ERROR: tunnel send failure");
+				_logger->error("ERROR: PP Interface - tunnel send failure");
 				_logger->error(mbed_errmsg(status.rc).c_str());
 				break;
 			}
@@ -215,7 +215,7 @@ namespace net {
 			// PPP data available, pass it to the stack.
 			const ppp_err ppp_rc = pppossl_input(_pcb, buffer, status.rbytes);
 			if (ppp_rc) {
-				_logger->error("ERROR: pppossl_input failure - %s",
+				_logger->error("ERROR: PP Interface - input failure (%s)",
 					ppp_errmsg(ppp_rc).c_str());
 
 				rc = false;
@@ -236,7 +236,7 @@ namespace net {
 		default:
 			// an error has occurred
 			rc = false;
-			_logger->error("ERROR: tunnel receive failure");
+			_logger->error("ERROR: PP Interface - tunnel receive failure");
 			_logger->error(mbed_errmsg(status.rc).c_str());
 			break;
 		}
@@ -291,7 +291,7 @@ namespace net {
 			} 
 			else
 			{
-				logger->error("ERROR: ppp link error - %s", ppp_errmsg(err_code).c_str());
+				logger->error("ERROR: PP Interface - link error (%s)", ppp_errmsg(err_code).c_str());
 			}
 		} 
 

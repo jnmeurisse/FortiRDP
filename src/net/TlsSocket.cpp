@@ -144,7 +144,7 @@ namespace net {
 			// Notify the peer that the connection is being closed.
 			mbed_err rc = _tlsctx.close();
 			if (rc)
-				_logger->error("ERROR: close notify error %d", rc);
+				_logger->error("ERROR: close notify error (%d)", rc);
 
 			// shutdown and close the socket.
 			TcpSocket::shutdown();
