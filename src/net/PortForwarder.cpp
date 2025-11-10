@@ -59,7 +59,7 @@ namespace net {
 		// Accept the connection from the local client
 		const mbed_err rc_accept = listener.accept(_local_server);
 		if (rc_accept != 0) {
-			_logger->error("ERROR: PortForwarder %x - accept error %s",
+			_logger->error("ERROR: PortForwarder %x - accept error (%s)",
 				(uintptr_t)this,
 				mbed_errmsg(rc_accept).c_str());
 
@@ -80,13 +80,14 @@ namespace net {
 		else if (rc_query == ERR_VAL) {
 			// DNS server not configured
 			_state = State::FAILED;
-			_logger->error("ERROR: DNS server not configured, can not resolve %s",
+			_logger->error("ERROR: PortForwarder %x - can not resolve %s",
+				(uintptr_t)this,
 				_endpoint.hostname().c_str());
 		}
 		else {
 			// Error during name resolution
 			_state = State::FAILED;
-			_logger->error("ERROR: PortForwarder %x - DNS error - %s",
+			_logger->error("ERROR: PortForwarder %x - DNS error (%s)",
 				(uintptr_t)this,
 				lwip_errmsg(rc_query).c_str());
 		}
@@ -231,7 +232,7 @@ namespace net {
 		size_t written = 0;
 		lwip_err rc = _forward_queue.write(_local_client, written);
 		if (rc) {
-			_logger->error("ERROR: forward - %s", lwip_errmsg(rc).c_str());
+			_logger->error("ERROR: PortForwarder %x - %s", (uintptr_t)this, lwip_errmsg(rc).c_str());
 		}
 		else {
 			_forwarded_bytes += written;
@@ -423,6 +424,12 @@ namespace net {
 		PortForwarder* const pf = (PortForwarder*)arg;
 		err_t rc = ERR_OK;
 		uint16_t len = 0;
+		Logger* const logger = pf->_logger;
+
+		if (logger->is_trace_enabled()) {
+			logger->trace(
+				".... %x PortForwarder tcp rcv", (uintptr_t)pf, pf->_state);
+		}
 
 		if (p) {
 			len = p->tot_len;
@@ -438,10 +445,12 @@ namespace net {
 					rc = ERR_MEM;
 				}
 				else {
+					// len bytes have been received
 					tcp_recved(tpcb, len);
-				}
 
-				pbuf_free(p);
+					// the buffer is now in the queue, we can dereference it.
+					pbuf_free(p);
+				}
 			}
 		}
 		else if (err == ERR_OK) {
@@ -463,7 +472,6 @@ namespace net {
 			}
 		}
 
-		Logger* const logger = pf->_logger;
 		if (logger->is_trace_enabled()) {
 			logger->trace(
 				".... %x PortForwarder tcp rcv len=%d err=%d state=%d", 
