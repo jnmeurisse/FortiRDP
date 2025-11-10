@@ -38,8 +38,10 @@ namespace ui {
 	{
 		set_control_textlen(IDC_CODE, 128);
 		set_control_text(IDC_CODE_LABEL, _text);
+		set_control_enable(IDOK, FALSE);
 
 		center_window();
+		
 
 		if (::GetDlgCtrlID((HWND)wParam) != IDC_CODE) {
 			set_focus(IDC_CODE);
@@ -70,6 +72,14 @@ namespace ui {
 			break;
 		}
 
+		return rc;
+	}
+
+
+	INT_PTR PinCodeDialog::onTextChange(int idc, LPARAM lParam)
+	{
+		INT_PTR rc = FALSE;
+		set_control_enable(IDOK, get_control_text(IDC_CODE).size() > 0);
 		return rc;
 	}
 
