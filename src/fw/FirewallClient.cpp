@@ -420,26 +420,36 @@ namespace fw {
 		http::Answer answer;
 
 		const http::Url portal_url = make_url("/remote/portal", "access");
-		bool ok = request(http::Request::GET_VERB, portal_url, "", headers, answer, 0);
-		if (ok && answer.get_status_code() == HttpsClient::STATUS_OK) {
-			const tools::ByteBuffer& body = answer.body();
-			const std::string data{ body.cbegin(), body.cend() };
-			_logger->debug("... portal_info : %s...", data.substr(0, 80).c_str());
-
-			std::string parser_error;
-			tools::Json info = tools::Json::parse(data, parser_error);
-			if (info.is_object()) {
-				tools::Json user = info["user"];
-				tools::Json group = info["group"];
-				tools::Json version = info["version"];
-
-				portal_info.user = user.is_string() ? user.string_value() : "";
-				portal_info.group = group.is_string() ? group.string_value() : "";
-				portal_info.version = version.is_string() ? version.string_value() : "";
-			}
+		if (!request(http::Request::GET_VERB, portal_url, "", headers, answer, 0))
+		{
+			// Log an error message
+			_logger->error("ERROR: get portal info failure");
+			return false;
 		}
 
-		return ok;
+		if (answer.get_status_code() != HttpsClient::STATUS_OK) {
+			// Log an error message
+			log_http_error("get portal info failure ", answer);
+			return false;
+		}
+	
+		const tools::ByteBuffer& body = answer.body();
+		const std::string data{ body.cbegin(), body.cend() };
+		_logger->debug("... portal_info : %s...", data.substr(0, 80).c_str());
+
+		std::string parser_error;
+		tools::Json info = tools::Json::parse(data, parser_error);
+		if (info.is_object()) {
+			tools::Json user = info["user"];
+			tools::Json group = info["group"];
+			tools::Json version = info["version"];
+
+			portal_info.user = user.is_string() ? user.string_value() : "";
+			portal_info.group = group.is_string() ? group.string_value() : "";
+			portal_info.version = version.is_string() ? version.string_value() : "";
+		}
+
+		return true;
 	}
 
 
@@ -460,16 +470,13 @@ namespace fw {
 		if (!request(http::Request::GET_VERB, vpninfo_url, "", headers, answer, 0))
 		{
 			// Log an error message
-			_logger->error("ERROR: portal configuration failure");
+			_logger->error("ERROR: get portal configuration failure");
 			return false;
 		}
 
 		if (answer.get_status_code() != HttpsClient::STATUS_OK) {
 			// Log an error message
-			_logger->error("ERROR: portal configuration failure - %s (HTTP code %d)",
-				answer.get_reason_phrase().c_str(),
-				answer.get_status_code());
-
+			log_http_error("get portal configuration failure ", answer);
 			return false;
 		}
 

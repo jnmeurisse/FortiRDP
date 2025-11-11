@@ -153,9 +153,8 @@ namespace ui {
 				}
 
 				_logger->info(">> portal info");
-				_logger->info(">>    user=%s", portal_info.user.c_str());
-				_logger->info(">>    group=%s", portal_info.group.c_str());
-				_logger->info(">>    address=%s", sslvpn_config.local_addr.c_str());
+				_logger->info("     user: %s", portal_info.user.c_str());
+				_logger->info("     group: %s", portal_info.group.c_str());
 			}
 		}
 
