@@ -157,7 +157,7 @@ namespace tools {
 			return nullptr;
 		}
 
-		// return the formated text
+		// return the formatted text
 		return text;
 	}
 
