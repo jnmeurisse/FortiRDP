@@ -143,20 +143,23 @@ namespace ui {
 				fw::PortalInfo portal_info;
 				if (!_portal_client.get_info(portal_info)) {
 					showErrorMessageDialog(L"Open tunnel error");
+					goto exit;
 				}
 
 				fw::SslvpnConfig sslvpn_config;
 				if (!_portal_client.get_config(sslvpn_config)) {
 					showErrorMessageDialog(L"Open tunnel error");
+					goto exit;
 				}
 
-				_logger->info(">> portal info user=%s group=%s address=%s",
-					portal_info.user.c_str(),
-					portal_info.group.c_str(),
-					sslvpn_config.local_addr.c_str());
+				_logger->info(">> portal info");
+				_logger->info(">>    user=%s", portal_info.user.c_str());
+				_logger->info(">>    group=%s", portal_info.group.c_str());
+				_logger->info(">>    address=%s", sslvpn_config.local_addr.c_str());
 			}
 		}
 
+	exit:
 		return connected &&
 			_portal_client.is_connected() &&
 			_portal_client.is_authenticated();
