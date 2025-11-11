@@ -16,6 +16,7 @@
 
 
 namespace http {
+	using namespace net;
 
 	const int default_code = 400;
 	const std::string default_reason = "Bad Request";
@@ -43,30 +44,27 @@ namespace http {
 	}
 
 
-	int Answer::read(net::Socket& socket, unsigned char* buf, const size_t len)
+	int Answer::read_buffer(net::TcpSocket& socket, unsigned char* buf, const size_t len, tools::Timer& timer)
 	{
-		const int rc = socket.read(buf, len);
-		if (_logger->is_trace_enabled())
-			_logger->trace("... %x       Answer::read : socket=%d len=%d rc = %d",
-				(uintptr_t)this,
-				socket.get_fd(),
-				len,
-				rc);
+		const rcv_status status{ socket.read(buf, len, timer) };
 
-		if (rc < 0)
-			throw mbed_error(rc);
+		if (status.code == rcv_status_code::NETCTX_RCV_ERROR || status.code == rcv_status_code::NETCTX_RCV_RETRY) {
+			// read failed or timed out
+			throw mbed_error(status.rc);
+		}
 
-		return rc;
+		// Returns false in case of EOF
+		return status.code == rcv_status_code::NETCTX_RCV_OK;
 	}
 
 
-	int Answer::read_char(net::Socket& socket, char& c)
+	int Answer::read_char(net::TcpSocket& socket, char& c, tools::Timer& timer)
 	{
-		return read(socket, (unsigned char *)&c, sizeof(char));
+		return read_buffer(socket, (unsigned char *)&c, sizeof(char), timer);
 	}
 
 
-	int Answer::read_line(net::Socket& socket, int max_len, tools::obfstring& line)
+	int Answer::read_line(net::TcpSocket& socket, int max_len, tools::obfstring& line, tools::Timer& timer)
 	{
 		DEBUG_ENTER(_logger, "Answer", "read_line");
 
@@ -77,7 +75,7 @@ namespace http {
 		line.clear();
 
 		while (state != 2) {
-			if (read_char(socket, c) != sizeof(c))
+			if (read_char(socket, c, timer) != sizeof(c))
 				break;
 
 			switch (state) {
@@ -108,9 +106,9 @@ namespace http {
 	}
 
 
-	int Answer::read_status(net::Socket& socket)
+	int Answer::read_http_status(net::TcpSocket& socket, tools::Timer& timer)
 	{
-		DEBUG_ENTER(_logger, "Answer", "read_status");
+		DEBUG_ENTER(_logger, "Answer", "read_http_status");
 		tools::obfstring line;
 
 		// We assume that the server did not understand our request
@@ -119,7 +117,7 @@ namespace http {
 
 		// Read the status line and return an error code if the server has closed 
 		// the connection before sending a valid response.
-		if (read_line(socket, MAX_HEADER_SIZE, line) <= 0)
+		if (read_line(socket, MAX_HEADER_SIZE, line, timer) <= 0)
 			return ERR_INVALID_STATUS_LINE;
 
 		// The answer should have the following syntax :  HTTP-Version SP Status-Code SP Reason-Phrase
@@ -153,11 +151,11 @@ namespace http {
 	}
 
 
-	bool Answer::read_gzip_body(net::Socket& socket, int size, int max_size)
+	bool Answer::read_gzip_body(net::TcpSocket& socket, size_t size, size_t max_size, tools::Timer& timer)
 	{
 		DEBUG_ENTER(_logger, "Answer", "read_gzip_body");
 
-		// configure the decompresser
+		// configure the decompressor
 		::z_stream strm{ 0 };
 		strm.zalloc = Z_NULL;
 		strm.zfree = Z_NULL;
@@ -172,13 +170,13 @@ namespace http {
 		unsigned char out[1024];
 
 		do {
-			const int len = read(socket, buffer, min(size, sizeof(buffer)));
-			if (len <= 0) {
+			const size_t len = min(size, sizeof(buffer));
+			if (!read_buffer(socket, buffer, min(size, sizeof(buffer)), timer)) {
 				inflateEnd(&strm);
 				return false;
 			}
 
-			strm.avail_in = len;
+			strm.avail_in = static_cast<uInt>(len);
 			strm.next_in = buffer;
 
 			do {
@@ -207,17 +205,17 @@ namespace http {
 	}
 
 
-	bool Answer::read_body(net::Socket& socket, int size, int max_size)
+	bool Answer::read_body(net::TcpSocket& socket, size_t size, size_t max_size, tools::Timer& timer)
 	{
 		DEBUG_ENTER(_logger, "Answer", "read_body");
 
-		// read by chunk of 1024 bytes
-		unsigned char buffer[1024];
+		// read by chunk of 4096 bytes
+		unsigned char buffer[4096];
 
 		do {
 			// read a chunk of bytes
-			const int len = read(socket, buffer, min(size, sizeof(buffer)));
-			if (len <= 0)
+			const size_t len = min(size, sizeof(buffer));
+			if (!read_buffer(socket, buffer, len, timer))
 				break;
 
 			// append what we can in the buffer
@@ -234,8 +232,14 @@ namespace http {
 	}
 
 
-	int Answer::recv(net::Socket& socket)
+	int Answer::recv(net::TcpSocket& socket, tools::Timer& timer)
 	{
+		if (_logger->is_trace_enabled())
+			_logger->trace("... %x enter Answer::recv timeout=%lu",
+				(uintptr_t)this,
+				timer.remaining_time()
+			);
+
 		int rc;
 		tools::obfstring line;
 
@@ -250,12 +254,12 @@ namespace http {
 		//         the semantics of the field value
 
 		// Read status-line.
-		if ((rc = read_status(socket)) != ERR_NONE)
+		if ((rc = read_http_status(socket, timer)) != ERR_NONE)
 			return rc;
 
 		// Read message-headers. 
 		do {
-			if ((rc = read_line(socket, MAX_HEADER_SIZE, line)) <= 0)
+			if ((rc = read_line(socket, MAX_HEADER_SIZE, line, timer)) <= 0)
 				return ERR_INVALID_HEADER;
 
 			const std::string::size_type pos{ line.find(':') };
@@ -302,28 +306,32 @@ namespace http {
 		// Read the body.
 		// Are we using the chunked-style of transfer encoding?
 		if (transfer_encoding.compare("chunked") == 0) {
-			// chucked message
-			long chunck_size = 0;
+			if (gzip)
+				return ERR_CONTENT_ENCODING;
+
+			// chunked message
+			long chunk_size = 0;
 
 			do {
 				// read chunk size
-				if ((rc = read_line(socket, MAX_LINE_SIZE, line)) <= 0)
+				if ((rc = read_line(socket, MAX_LINE_SIZE, line, timer)) <= 0)
 					return ERR_CHUNK_SIZE;
 
 				// decode chunk size
-				if (!tools::str2num(line.uncrypt(), 16, 0, MAX_CHUNCK_SIZE, chunck_size)) {
+				if (!tools::str2num(line.uncrypt(), 16, 0, MAX_CHUNK_SIZE, chunk_size)) {
 					return ERR_CHUNK_SIZE;
 				}
 
-				if (chunck_size > 0) {
-					if (!read_body(socket, chunck_size, MAX_BODY_SIZE))
+				if (chunk_size > 0) {
+					if (!read_body(socket, chunk_size, MAX_BODY_SIZE, timer))
 						return ERR_BODY;
 				}
 
 				// skip eol
-				if ((rc = read_line(socket, MAX_LINE_SIZE, line)) <= 0)
+				if ((rc = read_line(socket, MAX_LINE_SIZE, line, timer)) <= 0)
 					return ERR_BODY;
-			} while (chunck_size > 0);
+			} while (chunk_size > 0);
+
 		}
 		else if (transfer_encoding.compare("") == 0) {
 			// read content length 
@@ -343,9 +351,9 @@ namespace http {
 					// read the whole body
 					bool body_available;
 					if (gzip)
-						body_available = read_gzip_body(socket, size, MAX_BODY_SIZE);
+						body_available = read_gzip_body(socket, size, MAX_BODY_SIZE, timer);
 					else
-						body_available = read_body(socket, size, MAX_BODY_SIZE);
+						body_available = read_body(socket, size, MAX_BODY_SIZE, timer);
 
 					if (!body_available)
 						return ERR_BODY;

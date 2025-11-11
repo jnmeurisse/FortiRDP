@@ -8,7 +8,6 @@
 #pragma once
 
 #include "net/Endpoint.h"
-#include "net/Socket.h"
 #include "net/TlsSocket.h"
 #include "net/Listener.h"
 #include "net/PPInterface.h"
@@ -28,21 +27,34 @@ namespace net {
 		int  connect_timeout;
 	};
 
-	class Tunneler final : public tools::Thread
+	class Tunneler : public tools::Thread
 	{
 	public:
-		/*
+		/**
+		* Creates a Tunneler instance.
+		*
+		* The Tunneler forwards traffic received on the specified local endpoint
+		* to the remote endpoint through a secure, encrypted tunnel.
+		*
+		* @param tunnel  The TLS socket used for secure communication.
+		* @param local   The local network endpoint to listen for incoming traffic.
+		* @param remote  The remote network endpoint to forward traffic to.
+		* @param config  Configuration settings for the tunneler.
 		*/
-		explicit Tunneler(TlsSocket& tunnel, const net::Endpoint& local, const net::Endpoint& remote, const tunneler_config& config);
+		explicit Tunneler(TlsSocket& tunnel, const Endpoint& local, const Endpoint& remote,
+			const tunneler_config& config);
 		
-		/*
+		/**
+		* Tunneler destructor
 		*/
-		~Tunneler();
+		virtual ~Tunneler();
 
-		/* Forbid copying
+		/**
+		* Deleted copy constructor and copy assignment operator
+		* to prevent copying of this object.
 		*/
-		Tunneler(const Tunneler& tunneler) = delete;
-
+		Tunneler(const Tunneler&) = delete;
+		Tunneler& operator=(const Tunneler&) = delete;
 
 		// Valid states of the tunneler
 		enum State { 

@@ -7,6 +7,8 @@
 */
 #pragma once
 
+#include <cstdint>
+#include <memory>
 #include <string>
 #include "http/Request.h"
 #include "http/Answer.h"
@@ -23,49 +25,83 @@ namespace http {
 	class HttpsClient : public net::TlsSocket
 	{
 	public:
-		explicit HttpsClient(const net::Endpoint& ep);
+		explicit HttpsClient(const net::Endpoint& ep, const net::TlsConfig& config);
 		virtual ~HttpsClient();
+
+		/* Sets the timeout values for an HTTPS transaction.
+		 *
+		 * This function sets the timeouts for connection, sending, and receiving data in
+		 * an HTTPS transaction. It must be called before establishing a connection with
+		 * the server. If the HttpsClient is already connected, the function returns false,
+		 * and the timeout values remain unchanged.
+		 *
+		 * @param connect_timeout The timeout value (in milliseconds) for establishing
+		 *                        the connection with the server.
+		 * @param send_timeout The timeout value (in milliseconds) for sending data to
+		 *                     the server.
+		 * @param receive_timeout The timeout value (in milliseconds) for receiving
+		 *                        data from the server.
+		 *
+		 * @return `true` if the timeouts are successfully set; `false` if the client is
+		 *         already connected and the timeouts cannot be changed.
+		 */
+		bool set_timeouts(uint32_t connect_timeout, uint32_t send_timeout, uint32_t receive_timeout);
 		
 		/* Returns the endpoint to which this client is connected.
 		*/
 		inline const net::Endpoint& host() const noexcept { return _host_ep; }
 
-		/* Returns true if we must reconnect the socket.
+		/* Connects this client to the endpoint.
 		 *
-		 * The client must reconnect the server if the keep alive timer
-		 * has expired or if the number of requests has exceeded the maximum
-		 * number of requests a client can send to the server. These two
-		 * parameters are returned by the server. If not returned, we use default
-		 * values (60 seconds and 100 requests).
-		*/
-		bool must_reconnect() const;
-
-		/* Connects this client to the specified endpoint.
-		*  May throw mbed_error
+		 * @throws mbed_error If a network, SSL, or other critical error occurs during the
+		 *                    connection process.
 		*/
 		void connect();
 
-		/* Disconnects this client from the specified endpoint
+		/* Disconnects this client from the endpoint.
 		*/
 		void disconnect();
 
 		/* Sends a request to the server.
-		*  May throw mbed_error
-		*/
+		 *
+		 * This function sends an HTTP request to the server. The request is passed as
+		 * an argument and transmitted over the active connection. It may throw an
+		 * `mbed_error` if there are issues during the sending process, such as network
+		 * or connection failures.
+		 *
+		 * @param request The HTTP request to be sent to the server.
+		 *
+		 * @throws mbed_error If an error occurs during the request transmission,
+		 *                    such as network, socket-related, timeout issues.
+		 */
 		void send_request(Request& request);
 
-		/* Receives a response from the server.
-		*  May throw mbed_error or httpcli_error
-		*/
+		/* Receives and processes the HTTP response from the server.
+		 *
+		 * This function retrieves the response from the server and processes the answer.
+		 * It clears any existing data in the provided `answer` object, receives the
+		 * response, and checks for errors. If an error is encountered, an exception
+		 * is thrown with a descriptive message.
+		 *
+		 * It also extracts the `Keep-Alive` header parameters, setting the connection
+		 * timeout and maximum request count values accordingly.
+		 *
+		 * @param answer The `Answer` object that will hold the received response.
+		 *
+		 * @throws mbed_error If an error occurs while receiving the response
+		 *                    such as network, socket-related, timeout issues.
+		 * @throws httpcli_error If an error occurs while receiving the response,
+		 *                       such as invalid status line, version, or body.
+		 */
 		void recv_answer(Answer& answer);
 
 		/* Encodes a string that can be used in a query part of a URL.
 		*/
-		static std::string url_encode(const std::wstring& str);
+		static std::string encode_url(const std::wstring& str);
 
 		/* Decodes a URL string.
 		*/
-		static std::string url_decode(const std::string& str);
+		static std::string decode_url(const std::string& str);
 
 		/* Most useful status codes */
 		static const int STATUS_OK;
@@ -84,6 +120,16 @@ namespace http {
 		*/
 		http::Url make_url(const std::string& path, const std::string& query) const;
 
+	protected:
+		/* Determines whether the socket needs to be reconnected.
+		 *
+		 * Reconnection is required if the keep-alive timer has expired or if the
+		 * number of requests exceeds the server-defined maximum. If the server does
+		 * not provide these parameters, default values are used: 60 seconds for the
+		 * keep-alive timer and 100 requests for the request limit.
+		 */
+		bool is_reconnection_required() const;
+
 	private:
 		// The endpoint
 		const net::Endpoint _host_ep;
@@ -97,8 +143,15 @@ namespace http {
 		// Maximum amount of time the session can be idle (in seconds)
 		int _keepalive_timeout;
 
+		// All configured timeout values.
+		uint32_t _connect_timeout;
+		uint32_t _send_timeout;
+		uint32_t _receive_timeout;
+
 		// Number of requests sent since last connection
 		int _request_count;
 	};
 
+
+	using HttpsClientPtr = std::unique_ptr<HttpsClient>;
 }

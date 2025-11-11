@@ -386,7 +386,10 @@ namespace ui {
 	void ConnectDialog::showCredentialsDialog(fw::AuthCredentials* pCredentials)
 	{
 		CredentialDialog credentialDialog(instance_handle(), window_handle());
-		const std::string message{ "Enter user name and password to access firewall " + _controller->portal()->host().hostname() };
+		const std::string message{
+			"Enter user name and password to access firewall " +
+			_controller->portal_client()->host().hostname()
+		};
 		credentialDialog.setText(tools::str2wstr(message));
 		credentialDialog.setUsername(_username);
 
@@ -421,7 +424,7 @@ namespace ui {
 	{
 		PinCodeDialog codeDialog{ instance_handle(), window_handle() };
 		const std::string message = (!pCode)
-			? "Enter code to access firewall " + _controller->portal()->host().hostname()
+			? "Enter code to access firewall " + _controller->portal_client()->host().hostname()
 			: pCode->prompt;
 		codeDialog.setText(tools::str2wstr(message));
 

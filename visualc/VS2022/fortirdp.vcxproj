@@ -20,7 +20,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\fw\CrtDigest.cpp" />
-    <ClCompile Include="..\..\src\fw\PortalClient.cpp" />
+    <ClCompile Include="..\..\src\fw\FirewallTunnel.cpp" />
+    <ClCompile Include="..\..\src\fw\FirewallClient.cpp" />
     <ClCompile Include="..\..\src\http\Answer.cpp" />
     <ClCompile Include="..\..\src\http\Cookie.cpp" />
     <ClCompile Include="..\..\src\http\CookieError.cpp" />
@@ -33,15 +34,17 @@
     <ClCompile Include="..\..\src\net\DnsClient.cpp" />
     <ClCompile Include="..\..\src\net\Endpoint.cpp" />
     <ClCompile Include="..\..\src\net\Listener.cpp" />
-    <ClCompile Include="..\..\src\net\LwipOutputQueue.cpp" />
+    <ClCompile Include="..\..\src\net\OutputQueue.cpp" />
     <ClCompile Include="..\..\src\net\PortForwarder.cpp" />
     <ClCompile Include="..\..\src\net\PortForwarders.cpp" />
     <ClCompile Include="..\..\src\net\PPInterface.cpp" />
     <ClCompile Include="..\..\src\net\pppossl.c" />
     <ClCompile Include="..\..\src\net\Socket.cpp" />
+    <ClCompile Include="..\..\src\net\TcpSocket.cpp" />
+    <ClCompile Include="..\..\src\net\TlsConfig.cpp" />
+    <ClCompile Include="..\..\src\net\TlsContext.cpp" />
     <ClCompile Include="..\..\src\net\TlsSocket.cpp" />
     <ClCompile Include="..\..\src\net\Tunneler.cpp" />
-    <ClCompile Include="..\..\src\net\WinsOutputQueue.cpp" />
     <ClCompile Include="..\..\src\tools\ByteBuffer.cpp" />
     <ClCompile Include="..\..\src\tools\Counters.cpp" />
     <ClCompile Include="..\..\src\tools\ErrUtil.cpp" />
@@ -50,9 +53,8 @@
     <ClCompile Include="..\..\src\tools\Logger.cpp" />
     <ClCompile Include="..\..\src\tools\Mutex.cpp" />
     <ClCompile Include="..\..\src\tools\ObfuscatedString.cpp" />
-    <ClCompile Include="..\..\src\tools\OutputQueue.cpp" />
     <ClCompile Include="..\..\src\tools\Path.cpp" />
-    <ClCompile Include="..\..\src\tools\PBufChain.cpp" />
+    <ClCompile Include="..\..\src\tools\PBufQueue.cpp" />
     <ClCompile Include="..\..\src\tools\PrivateKey.cpp" />
     <ClCompile Include="..\..\src\tools\pugixml.cpp" />
     <ClCompile Include="..\..\src\tools\RegKey.cpp" />
@@ -92,7 +94,8 @@
   <ItemGroup>
     <ClInclude Include="..\..\src\fw\AuthTypes.h" />
     <ClInclude Include="..\..\src\fw\CrtDigest.h" />
-    <ClInclude Include="..\..\src\fw\PortalClient.h" />
+    <ClInclude Include="..\..\src\fw\FirewallTunnel.h" />
+    <ClInclude Include="..\..\src\fw\FirewallClient.h" />
     <ClInclude Include="..\..\src\http\Answer.h" />
     <ClInclude Include="..\..\src\http\Cookie.h" />
     <ClInclude Include="..\..\src\http\CookieError.h" />
@@ -105,15 +108,17 @@
     <ClInclude Include="..\..\src\net\DnsClient.h" />
     <ClInclude Include="..\..\src\net\Endpoint.h" />
     <ClInclude Include="..\..\src\net\Listener.h" />
-    <ClInclude Include="..\..\src\net\LwipOutputQueue.h" />
+    <ClInclude Include="..\..\src\net\OutputQueue.h" />
     <ClInclude Include="..\..\src\net\PortForwarder.h" />
     <ClInclude Include="..\..\src\net\PortForwarders.h" />
     <ClInclude Include="..\..\src\net\PPInterface.h" />
     <ClInclude Include="..\..\src\net\pppossl.h" />
     <ClInclude Include="..\..\src\net\Socket.h" />
+    <ClInclude Include="..\..\src\net\TcpSocket.h" />
+    <ClInclude Include="..\..\src\net\TlsConfig.h" />
+    <ClInclude Include="..\..\src\net\TlsContext.h" />
     <ClInclude Include="..\..\src\net\TlsSocket.h" />
     <ClInclude Include="..\..\src\net\Tunneler.h" />
-    <ClInclude Include="..\..\src\net\WinsOutputQueue.h" />
     <ClInclude Include="..\..\src\resources\resource.h" />
     <ClInclude Include="..\..\src\resources\targetver.h" />
     <ClInclude Include="..\..\src\tools\ByteBuffer.h" />
@@ -124,9 +129,8 @@
     <ClInclude Include="..\..\src\tools\Logger.h" />
     <ClInclude Include="..\..\src\tools\Mutex.h" />
     <ClInclude Include="..\..\src\tools\ObfuscatedString.h" />
-    <ClInclude Include="..\..\src\tools\OutputQueue.h" />
     <ClInclude Include="..\..\src\tools\Path.h" />
-    <ClInclude Include="..\..\src\tools\PBufChain.h" />
+    <ClInclude Include="..\..\src\tools\PBufQueue.h" />
     <ClInclude Include="..\..\src\tools\PrivateKey.h" />
     <ClInclude Include="..\..\src\tools\pugiconfig.hpp" />
     <ClInclude Include="..\..\src\tools\pugixml.hpp" />
@@ -282,7 +286,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_WINDOWS;DMBEDTLS_CONFIG_FILE=../../lib/mbedtls/include/config/fortirdp_mbedtls_config.h;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(ProjectDir)..\..\src;$(ProjectDir)..\..\lib\lwip\src\include;$(ProjectDir)..\..\lib\mbedtls\include;$(ProjectDir)..\..\lib\zlib\src</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <ExceptionHandling>Sync</ExceptionHandling>
@@ -290,7 +294,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>shlwapi.lib;version.lib;crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>shlwapi.lib;version.lib;crypt32.lib;Bcrypt.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -321,7 +325,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_WINDOWS;DMBEDTLS_CONFIG_FILE=../../lib/mbedtls/include/config/fortirdp_mbedtls_config.h;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(ProjectDir)..\..\src;$(ProjectDir)..\..\lib\lwip\src\include;$(ProjectDir)..\..\lib\mbedtls\include;$(ProjectDir)..\..\lib\zlib\src</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <ExceptionHandling>Sync</ExceptionHandling>
@@ -331,7 +335,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>shlwapi.lib;version.lib;crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>shlwapi.lib;version.lib;crypt32.lib;Bcrypt.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
@@ -346,7 +350,7 @@
     <Error Condition="!Exists('packages\Microsoft.Web.WebView2.1.0.2903.40\build\native\Microsoft.Web.WebView2.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Microsoft.Web.WebView2.1.0.2903.40\build\native\Microsoft.Web.WebView2.targets'))" />
     <Error Condition="!Exists('packages\Microsoft.Windows.ImplementationLibrary.1.0.240803.1\build\native\Microsoft.Windows.ImplementationLibrary.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Microsoft.Windows.ImplementationLibrary.1.0.240803.1\build\native\Microsoft.Windows.ImplementationLibrary.targets'))" />
   </Target>
-<PropertyGroup>
+  <PropertyGroup>
     <WebView2LoaderPreference>Static</WebView2LoaderPreference>
-</PropertyGroup>
+  </PropertyGroup>
 </Project>

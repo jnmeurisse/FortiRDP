@@ -8,14 +8,20 @@
 
 /*>>  Memory options ---------- */
 
-/* MEM_LIBC_MALLOC==1: Use malloc/free/realloc provided by the C-library . */
-#define MEM_LIBC_MALLOC			1
-
 /* MEMP_MEM_INIT==1: Force use of memset to initialize pool memory. */
 #define MEMP_MEM_INIT			1
 
 /* MEM_ALIGNMENT: set to 4 byte alignment */
 #define MEM_ALIGNMENT			4
+
+/* MEM_SIZE: the size of the heap memory. */
+#define MEM_SIZE				(128 * 1024)
+
+/* MEM_OVERFLOW_CHECK : Check memory overflow when free is called */
+#ifdef _DEBUG
+#define MEMP_OVERFLOW_CHECK		1
+#define MEM_OVERFLOW_CHECK		1
+#endif
 
 
 /*>> Internal Memory Pool Sizes ---------- */
@@ -71,7 +77,7 @@
 /* TCP Window scaling is enabled */
 #define LWIP_WND_SCALE			1
 
-/* TCP Recive scale factor */
+/* TCP Receive scale factor */
 #define TCP_RCV_SCALE			1
 
 /* LWIP_TCP_KEEPALIVE==1: Enable TCP_KEEPIDLE, TCP_KEEPINTVL and TCP_KEEPCNT */
@@ -112,12 +118,25 @@
 /* LWIP_STATS==1: Enable statistics collection in lwip_stats. */
 #define LWIP_STATS				1
 #define LWIP_STATS_LARGE		1
-#define MEM_STATS				0
-#define MEMP_STATS				0
+#define MEM_STATS				1
+#define MEMP_STATS				1
+#define LWIP_STATS_DISPLAY		1
+
+#define LINK_STATS				0
+#define ETHARP_STATS			0
+#define ICMP_STATS				0
+#define IGMP_STATS				0
+
+
 
 /*>> Debug options */
+#ifdef _DEBUG
+#define LWIP_DEBUG				1
+#define PPP_DEBUG				0
+#else
 #define LWIP_DEBUG				0
 #define PPP_DEBUG				0
+#endif
 
 
 #endif /* __LWIPOPTS_H__ */

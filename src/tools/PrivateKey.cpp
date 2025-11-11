@@ -10,8 +10,10 @@
 
 namespace tools {
 
+
 	PrivateKey::PrivateKey()
 	{
+		mbedtls_ctr_drbg_init(&_ctr_drbg);
 		mbedtls_pk_init(&_key);
 	}
 
@@ -27,7 +29,7 @@ namespace tools {
 		mbedtls_pk_free(&_key);
 		mbedtls_pk_init(&_key);
 
-		return mbedtls_pk_parse_keyfile(&_key, filename, passcode);
+		return mbedtls_pk_parse_keyfile(&_key, filename, passcode, mbedtls_ctr_drbg_random, &_ctr_drbg);
 	}
 
 

@@ -9,7 +9,6 @@
 
 #include <chrono>
 #include <vector>
-#include <limits>
 
 #include "http/CookieError.h"
 #include "tools/StrUtil.h"
@@ -63,8 +62,11 @@ namespace http {
 	{
 		using namespace std::chrono;
 
-		auto now = system_clock::now();
-		return _expires > 0 && system_clock::to_time_t(now) > _expires;
+		// a session cookie expires at the end of session.
+		if (is_session())
+			return false;
+
+		return system_clock::to_time_t(system_clock::now()) > _expires;
 	}
 
 
@@ -99,11 +101,11 @@ namespace http {
 	{
 		std::vector<tools::obfstring> parts;
 
-		// Split the cookie string. There should always have one cookie-pair pair.
-		// This pair contains the name and the value according
-		// to the syntax : 
+		// Split the cookie string. Each cookie header must contain at least one cookie-pair.
+		// A cookie-pair defines a cookie’s name and value according to the standard syntax:
 		//    cookie-pair *( ";" SP cookie-av )
-		//    cookie-pair       = cookie-name "=" cookie-value
+		//    cookie-pair = cookie-name "=" cookie-value
+		// Additional attributes (cookie-av) are separated by semicolons.
 		if (tools::split(cookie_string, ';', parts) <= 0)
 			throw CookieError{ "Empty cookie definition" };
 		
@@ -166,8 +168,6 @@ namespace http {
 			http_only
 		);
 	}
-
-
 
 	time_t Cookie::parse_http_date(const std::string& value)
 	{

@@ -280,7 +280,9 @@ namespace ui {
 		switch (HIWORD(wParam)) {
 		case BN_CLICKED:		// Button or menu clicked
 			return onButtonClick(cid, lParam);
-			break;
+
+		case EN_CHANGE:			// Text changed
+			return onTextChange(cid, lParam);
 
 		default:
 			// message not processed by this application

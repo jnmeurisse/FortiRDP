@@ -28,13 +28,20 @@ namespace http {
 	const int HttpsClient::STATUS_UNAUTHORIZED = 401;
 	const int HttpsClient::STATUS_FORBIDDEN = 403;
 
+	const int DEFAULT_KEEP_ALIVE_TIMEOUT = 60;
+	const int DEFAULT_CONNECT_TIMEOUT = 10;
+	const int DEFAULT_SND_TIMEOUT = 10;
+	const int DEFAULT_RCV_TIMEOUT = 10;
 
-	HttpsClient::HttpsClient(const net::Endpoint& ep) :
-		TlsSocket(),
+	HttpsClient::HttpsClient(const net::Endpoint& ep, const net::TlsConfig& config) :
+		TlsSocket(config),
 		_host_ep(ep),
-		_keepalive_timeout(10),
-		_keepalive_timer(_keepalive_timeout * 1000),
+		_keepalive_timeout(DEFAULT_KEEP_ALIVE_TIMEOUT),
+		_keepalive_timer(),
 		_max_requests(100),
+		_connect_timeout(DEFAULT_CONNECT_TIMEOUT * 1000),
+		_send_timeout(DEFAULT_SND_TIMEOUT * 1000),
+		_receive_timeout(DEFAULT_RCV_TIMEOUT * 1000),
 		_request_count(0)
 	{
 		DEBUG_CTOR(_logger, "HttpsClient");
@@ -47,10 +54,26 @@ namespace http {
 	}
 
 
-	bool HttpsClient::must_reconnect() const
+    bool HttpsClient::set_timeouts(uint32_t connect_timeout, uint32_t send_timeout, uint32_t receive_timeout)
+    {
+		bool rc = false;
+
+		if (!TlsSocket::is_connected()) {
+			_connect_timeout = connect_timeout;
+			_send_timeout = send_timeout;
+			_receive_timeout = receive_timeout;
+
+			rc = true;
+		}
+
+		return rc;
+    }
+
+
+	bool HttpsClient::is_reconnection_required() const
 	{
-		return (!connected())
-			|| _keepalive_timer.elapsed()
+		return (!TlsSocket::is_connected())
+			|| _keepalive_timer.is_elapsed()
 			|| (_request_count >= _max_requests);
 	}
 
@@ -62,34 +85,44 @@ namespace http {
 		_keepalive_timer.start(10000);
 		_request_count = 0;
 
-		const mbed_err rc = TlsSocket::connect(_host_ep);
-		_logger->debug("... %x       HttpsClient::connect : rc=%d", (uintptr_t)this, rc);
-		if (rc < 0) {
+		tools::Timer connect_timer{ _connect_timeout };
+
+		const mbed_err rc = TlsSocket::connect(_host_ep, connect_timer);
+		_logger->debug(
+			"... %x       HttpsClient::connect - TlsSocket::call returns rc=%d",
+			(uintptr_t)this,
+			rc);
+
+		if (rc < 0)
 			throw mbed_error(rc);
-		}
+
+		const tls_handshake_status status = handshake(connect_timer);
+		if (status.status_code != hdk_status_code::SSLCTX_HDK_OK)
+			throw mbed_error(status.rc);
 	}
+
 
 	void HttpsClient::disconnect()
 	{
 		DEBUG_ENTER(_logger, "HttpsClient", "disconnect");
 
-		Socket::close();
+		TlsSocket::shutdown();
 	}
 
 
-	void  HttpsClient::send_request(Request& request)
+	void HttpsClient::send_request(Request& request)
 	{
 		DEBUG_ENTER(_logger, "HttpsClient", "send_request");
 
 		if (_logger->is_trace_enabled())
-			_logger->trace("... %x enter HttpsClient::send_request url=%s count=%d max=%d timeout=%d",
+			_logger->trace("... %x       HttpsClient::send_request send url=%s count=%d max=%d timeout=%d",
 				(uintptr_t)this,
 				request.url().to_string(false).c_str(),
 				_request_count,
 				_max_requests,
 				_keepalive_timeout);
 
-		request.send(*this);
+		request.send(*this, tools::Timer{ _send_timeout });
 
 		// update the number of requests and restart the keep alive timer
 		_request_count++;
@@ -100,7 +133,8 @@ namespace http {
 				(uintptr_t)this,
 				_request_count,
 				_max_requests,
-				_keepalive_timeout);
+				_keepalive_timeout
+			);
 
 		return;
 	}
@@ -110,11 +144,17 @@ namespace http {
 	{
 		DEBUG_ENTER(_logger, "HttpsClient", "recv_answer");
 
-		// Make sure the answer holder is empty
+		// make sure the answer buffer is empty.
 		answer.clear();
 
-		const int rc = answer.recv(*this);
-		_logger->debug("... %x       HttpsClient::recv_answer : rc=%d", (uintptr_t)this, rc);
+		// receive the answer from the server.
+		const int rc = answer.recv(*this, tools::Timer{ _receive_timeout });
+
+		_logger->debug(
+			"... %x       HttpsClient::recv_answer : rc=%d",
+			(uintptr_t)this,
+			rc
+		);
 		
 		if (rc != Answer::ERR_NONE) {
 			std::string message;
@@ -144,7 +184,8 @@ namespace http {
 			throw httpcli_error(message);
 		}
 
-		int timeout = 60;
+		// update the keep alive timeout and max requests.
+		int timeout = DEFAULT_KEEP_ALIVE_TIMEOUT;
 		int max_requests = 100;
 		std::string keep_alive;
 
@@ -163,13 +204,14 @@ namespace http {
 				(uintptr_t)this,
 				rc,
 				_max_requests,
-				_keepalive_timeout);
+				_keepalive_timeout
+			);
 
 		return;
 	}
 
 
-	std::string HttpsClient::url_encode(const std::wstring& str)
+	std::string HttpsClient::encode_url(const std::wstring& str)
 	{
 		static const char hexstr[] = "0123456789abcdef";
 
@@ -199,7 +241,7 @@ namespace http {
 		return escaped.str();
 	}
 
-	std::string HttpsClient::url_decode(const std::string& str)
+	std::string HttpsClient::decode_url(const std::string& str)
 	{
 		std::string unescaped;
 		unsigned int i = 0;

@@ -8,46 +8,70 @@
 #pragma once
 
 #include <lwip/tcp.h>
-#include "net/Socket.h"
+#include "net/TcpSocket.h"
 #include "net/Listener.h"
 #include "net/Endpoint.h"
-#include "net/WinsOutputQueue.h"
-#include "net/LwipOutputQueue.h"
+#include "net/OutputQueue.h"
 #include "tools/Logger.h"
 
 
 namespace net {
+	/**
+	* PortForwarder: A class responsible for handling TCP port forwarding. It
+	* accepts local client connections, resolves destination hostnames, forwards
+	* data between local and remote endpoints, and manages connection states and
+	* timeouts.
+	*/
 
 	class PortForwarder final {
 	public:
 		explicit PortForwarder(const Endpoint& endpoint, bool tcp_nodelay, int keepalive);
 		~PortForwarder();
 
-		/*
-		*/
+		/* Establish a connection for the port forwarder using the provided listener.
+		 *
+		 * This function initiates a connection from a local client to a remote endpoint
+		 * through a listener. It handles accepting incoming connections, resolving the
+		 * endpoint's hostname to an IP address, and setting up the TCP client for
+		 * communication. Additionally, it configures various TCP options like TCP_NODELAY
+		 * and keep-alive, if specified.
+		 *
+		 * @param listener Reference to a `Listener` object that is bound to a local
+		 *                 endpoint and waiting for incoming connections.
+		 *
+		 * @return bool Returns `true` if the connection setup is successfully initiated,
+		 *              or `false` if an error occurs at any stage.
+		 *
+		 */
 		bool connect(Listener& listener);
 		
-		/*
+		/* Disconnect from the server.
+		 *
+		 * This function initiates a graceful disconnection from the server, flushing
+		 * queues, and transitioning to the DISCONNECTED state.
 		*/
 		void disconnect();
 
-		/*
+		/* Abort the connection with the server.
+		 *
+		 * The function immediately terminates the connection by sending a TCP RST signal
+		 * and clearing all associated queues.
 		*/
 		void abort();
 
-		/* Returns true if this forwarder is connected
+		/* Returns true if this forwarder is connected.
 		*/
 		inline bool connected() const noexcept { return _state == State::CONNECTED; }
 
-		/* Returns true if this forwarder is in the connecting phase
+		/* Returns true if this forwarder is in the connecting phase.
 		*/
 		inline bool connecting() const noexcept { return _state == State::CONNECTING; }
 
-		/* Returns true if the connection has timed out
+		/* Returns true if the connection has timed out.
 		*/
 		inline bool ctimeout() const noexcept { return _state == State::CONNECTING && _connect_timeout; }
 
-		/* Returns true if this forwarder is in the disconnecting phase
+		/* Returns true if this forwarder is in the disconnecting phase.
 		*/
 		inline bool disconnecting() const noexcept { return _state == State::DISCONNECTING; }
 
@@ -55,26 +79,26 @@ namespace net {
 		*/
 		inline bool failed() const noexcept { return _state == State::FAILED; }
 
-		/* Returns true if this forwarder is disconnected
+		/* Returns true if this forwarder is disconnected.
 		*/
 		inline bool disconnected() const noexcept { return _state == State::DISCONNECTED; }
 
 		/* Returns true if this forwarder has space in the forward queue.
 		*/
-		inline bool can_receive() const noexcept { return !_forward_queue.full(); }
+		inline bool can_receive() const noexcept { return !_forward_queue.is_full(); }
 
 		/* Returns true if this forwarder has data in the forward queue and
 		*  the tcp send buffer is not full. 
 		*/
-		inline bool must_forward() const { return !_forward_queue.empty() && tcp_sndbuf(_local_client) > 0; }
+		inline bool must_forward() const { return !_forward_queue.is_empty() && tcp_sndbuf(_local_client) > 0; }
 
 		/* Returns true if this forwarder has data in the reply queue
 		*/
-		inline bool must_reply() const noexcept { return _reply_queue.len() > 0; }
+		inline bool must_reply() const noexcept { return _reply_queue.size() > 0; }
 
 		/* Returns true if this forwarder can still flush the reply queue
 		*/
-		inline bool can_rflush() const noexcept { return  _local_server.connected(); }
+		inline bool can_rflush() const noexcept { return  _local_server.is_connected(); }
 
 		/* Returns true if this forwarder can still flush the forward queue
 		*/
@@ -84,24 +108,30 @@ namespace net {
 		*/
 		inline int get_fd() const noexcept { return _local_server.get_fd(); }
 		
-		/* try to receive data from the local client and store it in the 
-		*  forward queue. 
+		/* Receives data from the local server and queues it for forwarding to
+		 * the remote endpoint.
 		*/
 		bool recv();
 
-		/* try to forward data to the remote server.
+		/* Sends queued data to the remote endpoint.
 		*/
 		bool forward();
 		
-		/* try to reply data to the local client
+		/* Sends queued replies back to the local client from the remote endpoint.
 		*/
 		bool reply();
 
-		/* try to flush the forward queue
+		/* Flush the forward queue.
+		 *
+		 * This function handles forward queue flushing during disconnection, ensuring all
+		 * data is sent or cleared and the state is updated appropriately.
 		*/
 		void fflush();
 
-		/* try to flush the reply queue
+		/* Flush the reply queue.
+		 *
+		 * This function handles reply queue flushing during disconnection, ensuring all
+		 * replies are sent or cleared and the state is updated appropriately.
 		*/
 		void rflush();
 
@@ -116,32 +146,44 @@ namespace net {
 			DISCONNECTED			// The forwarder is disconnected
 		};
 
+		// A callback for DNS resolution.
 		friend void  dns_found_cb(const char *name, const ip_addr_t *ipaddr, void *callback_arg);
+
+		// A callback for successful TCP connection establishment.
 		friend err_t tcp_connected_cb(void *arg, struct tcp_pcb *tpcb, err_t err);
+
+		// A callback for handling TCP errors.
 		friend void  tcp_err_cb(void *arg, err_t err);
+
+		// A callback for confirming data sent to the remote endpoint.  This callback
+		// is responsible for updating the count of forwarded bytes.
 		friend err_t tcp_sent_cb(void *arg, struct tcp_pcb *tpcb, u16_t len);
+
+		// A callback for receiving data from the remote endpoint.
 		friend err_t tcp_recv_cb(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, err_t err);
+
+		// A callback for handling timeouts.
 		friend void  timeout_cb(void *arg);
 
-		// a reference to the application logger
+		// A reference to the application logger.
 		tools::Logger* const _logger;
 
-		// current state of the forwarder
+		// The current state of the forwarder.
 		State _state;
 
-		// 
+		// The end point this forwarder is connected to.
 		const Endpoint _endpoint;
 
-		// tcp no delay mode is enabled
+		// True if tcp no delay mode is enabled.
 		const bool _tcp_nodelay;
 
-		// keep alive delay
+		// The keep alive delay.
 		const int _keepalive;
 
-		// local endpoint acting as a server. 
-		Socket _local_server;
+		// The local endpoint acting as a server.
+		TcpSocket _local_server;
 		
-		// local endpoint acting as a client.
+		// The local endpoint acting as a client.
 		struct ::tcp_pcb* _local_client;
 		
 		// connect timeout
@@ -154,10 +196,10 @@ namespace net {
 		bool _rflush_timeout;
 
 		// reply and forward queues
-		WinsOutputQueue _reply_queue;
-		LwipOutputQueue _forward_queue;
+		OutputQueue _reply_queue;
+		OutputQueue _forward_queue;
 
-		// bytes in transit
+		// bytes in transit.
 		size_t _forwarded_bytes;
 	};
 

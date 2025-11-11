@@ -13,6 +13,7 @@
 namespace http {
 
 	using namespace tools;
+	using namespace net;
 
 	/* Initialization of common HTTP Verbs */
 	const std::string Request::GET_VERB = "GET";
@@ -51,12 +52,17 @@ namespace http {
 	}
 
 
-	void Request::send(net::Socket& _socket)
+	void Request::send(net::TcpSocket& socket, tools::Timer& timer)
 	{
 		DEBUG_ENTER(_logger, "Request", "send");
 
+		if (_logger->is_trace_enabled())
+			_logger->trace("... %x enter Request::send timeout=%lu",
+				(uintptr_t)this,
+				timer.remaining_time()
+			);
+
 		tools::ByteBuffer buffer(1024);
-		int rc;
 
 		if (_body.size() > 0) {
 			// add a content-length header if there is a body.
@@ -84,35 +90,44 @@ namespace http {
 		buffer.append("\r\n");
 
 		// Send headers to the web server
-		rc = _socket.write(buffer.cbegin(), buffer.size());
 		if (_logger->is_trace_enabled())
-			_logger->trace("... %x       Request::send : write headers rc = %d", (uintptr_t)this, rc);
-
-		if (rc < 0)
-			throw mbed_error(rc);
+			_logger->trace(
+				"... %x       Request::send : write headers",
+				(uintptr_t)this
+			);
+		write_buffer(socket, buffer.cbegin(), buffer.size(), timer);
 
 		// Erase sensitive data
 		buffer.clear();
 
 		if (_body.size() > 0) {
 			// send the body to the web server
-			rc = _socket.write(_body.cbegin(), _body.size());
 			if (_logger->is_trace_enabled())
-				_logger->trace("... %x       Request::send : write body rc = %d", (uintptr_t)this, rc);
-
-			if (rc < 0)
-				throw mbed_error(rc);
+				_logger->trace(
+					"... %x       Request::send : write body",
+					(uintptr_t)this
+				);
+			write_buffer(socket, _body.cbegin(), _body.size(), timer);
 		}
 
-		// flush the output buffer
-		rc = _socket.flush();
-		if (_logger->is_trace_enabled())
-			_logger->trace("... %x       Request::send : flush rc = %d", (uintptr_t)this, rc);
-
-		if (rc < 0)
-			throw mbed_error(rc);
-
 		return;
+	}
+
+
+	void Request::write_buffer(net::TcpSocket& socket, const byte* buffer, size_t len, Timer& timer)
+	{
+		const snd_status status{ socket.write(buffer, len, timer) };
+
+		if (_logger->is_trace_enabled())
+			_logger->trace(
+				"... %x       Request::send : write buffer rc = %d",
+				(uintptr_t)this,
+				status.rc);
+
+		if (status.code == snd_status_code::NETCTX_SND_ERROR || status.code == snd_status_code::NETCTX_SND_RETRY) {
+			// send failed or timed out
+			throw mbed_error(status.rc);
+		}
 	}
 
 }

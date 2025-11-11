@@ -9,8 +9,8 @@
 
 #include <Windows.h>
 #include "ui/SyncProc.h"
-#include "fw/PortalClient.h"
-#include "net/Tunneler.h"
+#include "fw/FirewallClient.h"
+#include "fw/FirewallTunnel.h"
 
 
 namespace ui {
@@ -22,15 +22,15 @@ namespace ui {
 	class SyncDisconnect final : public SyncProc
 	{
 	public:
-		explicit SyncDisconnect(HWND hwnd, fw::PortalClient* portal, net::Tunneler* tunnel);
+		explicit SyncDisconnect(HWND hwnd, fw::FirewallClient& portal_client, fw::FirewallTunnel* tunnel);
 		~SyncDisconnect();
 
 	private:
 		//- portal to disconnect from
-		fw::PortalClient* const _portal;
+		fw::FirewallClient& _portal_client;
 
-		//- tunnel to terminate
-		net::Tunneler* const _tunnel;
+		//- tunnel to terminate if not null.
+		fw::FirewallTunnel* const _tunnel;
 
 		virtual bool procedure() override;
 	};

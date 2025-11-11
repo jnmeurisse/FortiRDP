@@ -145,6 +145,7 @@ namespace ui {
 		virtual INT_PTR onTimerMessage(WPARAM wParam, LPARAM lParam) { return FALSE; }
 		virtual INT_PTR onHotKey(WPARAM wParam, LPARAM lParam) { return FALSE; }
 		virtual INT_PTR onButtonClick(int idc, LPARAM lParam) { return FALSE; }
+		virtual INT_PTR onTextChange(int idc, LPARAM lParam) { return FALSE; }
 		virtual INT_PTR onUserEventMessage(UINT eventNumber, void* param) { return FALSE; }
 
 	private:

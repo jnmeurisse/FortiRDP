@@ -12,10 +12,10 @@
 
 
 namespace ui {
-	SyncConnect::SyncConnect(HWND hwnd, fw::AuthMethod auth_method, fw::PortalClient* portal) :
+	SyncConnect::SyncConnect(HWND hwnd, fw::AuthMethod auth_method, fw::FirewallClient& portal_client) :
 		SyncProc(hwnd, AsyncMessage::ConnectedEvent),
 		_auth_method(auth_method),
-		_portal(portal)
+		_portal_client(portal_client)
 	{
 		DEBUG_CTOR(_logger, "SyncConnect");
 
@@ -82,7 +82,7 @@ namespace ui {
 			fw::confirm_crt_fn confirm_crt_callback = [this](const mbedtls_x509_crt* crt, int status) {
 				return confirm_certificate(crt, status);
 			};
-			fw::portal_err rc = _portal->open(confirm_crt_callback);
+			fw::portal_err rc = _portal_client.open(confirm_crt_callback);
 
 			if (rc != fw::portal_err::NONE) {
 				// report errors.
@@ -111,7 +111,7 @@ namespace ui {
 					// loop while user enter wrong credentials
 					fw::portal_err rc;
 					do {
-						rc = _portal->login_basic(ask_credentials_callback, ask_pincode_callback);
+						rc = _portal_client.login_basic(ask_credentials_callback, ask_pincode_callback);
 						if (rc != fw::portal_err::NONE) {
 							// report errors.
 							if (rc != fw::portal_err::LOGIN_CANCELLED) {
@@ -131,7 +131,7 @@ namespace ui {
 						return ask_saml_auth(saml_info);
 					};
 
-					fw::portal_err rc = _portal->login_saml(ask_samlauth_callback);
+					fw::portal_err rc = _portal_client.login_saml(ask_samlauth_callback);
 					if (rc != fw::portal_err::NONE) {
 						showErrorMessageDialog(L"Login error");
 					}
@@ -139,23 +139,30 @@ namespace ui {
 				break;
 			}
 
-			if (_portal->authenticated()) {
+			if (_portal_client.is_authenticated()) {
 				fw::PortalInfo portal_info;
-				if (_portal->get_info(portal_info)) {
-					_logger->info(">> portal info user=%s group=%s",
-						portal_info.user.c_str(),
-						portal_info.group.c_str());
+				if (!_portal_client.get_info(portal_info)) {
+					showErrorMessageDialog(L"Open tunnel error");
+					goto exit;
 				}
 
-				fw::SslvpnConfig vpn_config;
-				if (_portal->get_config(vpn_config)) {
-					if (!_portal->start_tunnel_mode())
-						showErrorMessageDialog(L"Open tunnel error");
+				fw::SslvpnConfig sslvpn_config;
+				if (!_portal_client.get_config(sslvpn_config)) {
+					showErrorMessageDialog(L"Open tunnel error");
+					goto exit;
 				}
+
+				_logger->info(">> portal info");
+				_logger->info(">>    user=%s", portal_info.user.c_str());
+				_logger->info(">>    group=%s", portal_info.group.c_str());
+				_logger->info(">>    address=%s", sslvpn_config.local_addr.c_str());
 			}
 		}
 
-		return connected && _portal->connected() && _portal->authenticated();
+	exit:
+		return connected &&
+			_portal_client.is_connected() &&
+			_portal_client.is_authenticated();
 	}
 
 }

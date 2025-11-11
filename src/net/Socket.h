@@ -7,135 +7,307 @@
 */
 #pragma once
 
-#include <mbedTLS/net_sockets.h>
+#include <cstdint>
+#include <mbedtls/net_sockets.h>
+
 #include "net/Endpoint.h"
 #include "tools/ErrUtil.h"
-#include "tools/Mutex.h"
+#include "tools/Timer.h"
 #include "tools/Logger.h"
 
 
 namespace net {
-
 	using namespace tools;
 
+	enum net_protocol {
+		NETCTX_PROTO_TCP = MBEDTLS_NET_PROTO_TCP,
+		NETCTX_PROTO_UDP = MBEDTLS_NET_PROTO_UDP
+	};
+
+	/**
+	 * @enum rcv_status_code
+	 * Enumerates the possible status codes for receiving data.
+	 *
+	 * This enumeration represents the outcome of a data-receive operation.
+	 * - `NETCTX_RCV_ERROR` : Indicates that an error occurred during the receive operation.
+	 * - `NETCTX_RCV_OK`    : Indicates that data was successfully received.
+	 * - `NETCTX_RCV_RETRY` : Indicates that the receive operation should be retried.
+	 * - `NETCTX_RCV_EOF`   : Indicates that the end of the socket has been closed.
+	 */
+	enum class rcv_status_code {
+		NETCTX_RCV_ERROR,
+		NETCTX_RCV_OK,
+		NETCTX_RCV_RETRY,
+		NETCTX_RCV_EOF
+	};
+
+	/**
+	 * @struct rcv_status
+	 * Represents the result of a data-receive operation.
+	 *
+	 * This structure encapsulates the details of a data-receive operation.
+	 * - `code`  : A `rcv_status_code` value indicating the status of the receive operation.
+	 * - `rc`    : An integer representing the return code of the operation, providing
+	 *             additional information in case of errors or specific conditions.
+	 * - `rbytes`: The number of bytes successfully received during the operation.
+	 *
+	 * Possible combinations :
+	 *     code        | RCV_OK  | RCV_RETRY     | RCV_ERROR   | RCV_EOF
+	 *     rc          |  = 0    | r/w bit mask  |  error code |    = 0
+	 *     rbytes      |  > 0    | = 0           |  = 0        |    = 0
+	 *
+	 */
+	struct rcv_status {
+		rcv_status_code code;
+		int rc;
+		size_t rbytes;
+	};
+
+	/**
+	 * @enum rcv_status_code
+	 * Enumerates the possible status codes for receiving data.
+	 *
+	 * This enumeration represents the outcome of a data-send operation.
+	 * - `NETCTX_SND_ERROR` : Indicates that an error occurred during the send operation.
+	 * - `NETCTX_SND_OK`    : Indicates that data was successfully sent.
+	 * - `NETCTX_SND_RETRY` : Indicates that the send operation should be retried.
+	 */
+	enum snd_status_code {
+		NETCTX_SND_ERROR,
+		NETCTX_SND_OK,
+		NETCTX_SND_RETRY
+	};
+
+	/**
+	 * @struct snd_status
+	 * Represents the result of a data-send operation.
+	 *
+	 * This structure encapsulates the details of a data-send operation.
+	 * - `code`  : A `snd_status_code` value indicating the status of the send operation.
+	 * - `rc`    : An integer representing the return code of the operation, providing
+	 *             additional information in case of errors or specific conditions.
+	 * - `rbytes`: The number of bytes successfully sent during the operation.
+	 *
+	 * Possible combinations :
+	 *     code        | SND_OK  | SND_RETRY     | SND_ERROR
+	 *     rc          |  = 0    | r/w bit mask  |  error code
+	 *     rbytes      |  > 0    | = 0           |  = 0
+	 *
+	 */
+	struct snd_status {
+		snd_status_code code;
+		int rc;
+		size_t sbytes;
+	};
+
+
+	/**
+	* Socket  - an abstract socket.
+	* Base class of TcpSocket and UdpSocket.
+	*
+	*/
 	class Socket
 	{
 	public:
-		Socket();
+		/* Destroys a Socket object.
+		 *
+		 * Ensures the socket is closed and resources are released. If connected,
+		 * the destructor terminates the connection and cleans up the underlying
+		 * context to prevent resource leaks.
+		 */
 		virtual ~Socket();
 
-		/* Connects this socket to the specified end point
-		*/
-		mbed_err connect(const Endpoint& ep);
-
-		/* Attaches the net context to this socket
-		*/
-		bool attach(const mbedtls_net_context& netctx);
-
-		/* Closes gracefully the socket
-		*/
-		void close();
-
-		/* Sets time-outs involved in send and receive operations.
-		 * Time-out values are expressed in milliseconds. 
-		*/
-		bool set_timeout(DWORD send_timeout, DWORD recv_timeout);
-
-		/* Sets no delay option (disable Nagle algorithm)
-		*/
-		bool set_nodelay(bool no_delay);
-
-		/* Sets the socket blocking mode
-		*/
-		bool set_blocking(bool blocking);
-
-		/* Receives data from the socket. The buffer pointed to by the
-		 * buf parameter will contain the data received. The maximum amount
-		 * of data to be received at once is specified by len.
+		/* Initiates a connection to the specified endpoint.
 		 *
-		 * The function returns the number of bytes received, which can
-		 * be less than the number requested to be received. The function
-		 * returns 0 if the socket has been closed, or a negative error code
-		 * if an error has occurred.
-		*/
-		virtual int recv(unsigned char* buf, const size_t len);
-
-		/* Sends data to the socket. The buffer pointed to by the by buf
-		 * parameter must contain the data. The amount of data to sent is
-		 * specified by the parameter len.
+		 * This function attempts to establish a connection to the given endpoint within
+		 * the time specified by the `timer` parameter. If the connection process exceeds
+		 * the remaining time on the timer, the connection is canceled, and the function
+		 * returns a negative error code.
 		 *
-		 * The function returns the number of bytes sent, which can be less
-		 * than the number requested to be sent. If an error has occurred,
-		 * the function returns a negative error code.
-		*/
-		virtual int send(const unsigned char* buf, const size_t len);
-
-		/* Flushes data that can be in the local socket buffer and forces
-		 * to send it to the server.
-		*/
-		virtual mbed_err flush();
-
-		/* Reads data from the socket. The buffer pointed to by the buf
-		 * parameter will contain the data received. The number of bytes to
-		 * read is specified by the len parameter.
+		 * @param ep The endpoint to connect to.
+		 * @param protocol Specify the IP protocol (TCP or UPD).
+		 * @param timer A timer specifying the timeout duration for the connection. If the
+		 *              connection cannot be established within the timer's remaining time,
+		 *              the operation is aborted.
 		 *
-		 * The function returns 0 if the socket has been closed, or a negative
-		 * error code if an error has occurred.
-		*/
-		int read(unsigned char* buf, const size_t len);
+		 * @return A status code indicating the success or failure of the connection attempt.
+		 */
+		virtual mbed_err connect(const Endpoint& ep, net::net_protocol protocol, Timer& timer);
 
-		/* Writes data from the socket. The buffer pointed to by the buf
-		 * parameter must contain the data. The number of bytes to write is
-		 * specified by the parameter len.
+		/* Binds the listener to a specified endpoint.
 		 *
-		 * The function returns the number of bytes sent or a negative error
-		 * code if an error has occurred.
-		*/
-		int write(const unsigned char* buf, const size_t len);
+		 * This function binds a listener to the provided endpoint, defined by a hostname
+		 * and port, and sets up the socket for non-blocking mode. The function ensures
+		 * proper error handling and logging during the binding process.
+		 *
+		 * @param endpoint The endpoint to bind the listener to, specified by its hostname
+		 *                 and port.
+		 *
+		 * @return mbed_err 0 on success; a negative error code on failure.
+		 */
+		virtual mbed_err bind(const Endpoint& ep, net::net_protocol protocol);
 
-		/* Returns true if the socket is connected
+		/* Closes the socket.
 		*/
-		bool connected() const noexcept;
+		virtual void close();
 
-		/* Returns the socket descriptor
+		/* Closes gracefully the socket.
 		*/
-		inline int get_fd() const noexcept { return _netctx.fd; };
+		virtual void shutdown();
+
+		/* Enables or disables the blocking mode.
+		 *
+		 * This function enables or disables the socket blocking mode.  The function
+		 * must be called when the socket is connected.
+		 *
+		 * @return An error code of type `mbed_err` indicating the success or failure
+		 *         of changing the mode.
+		*/
+		mbed_err set_blocking_mode(bool enable);
+
+		/* Configures the no-delay option for the socket.
+		 *
+		 * This function enables or disables the Nagle algorithm, which controls the
+		 * behavior of small packet transmission. When enabled (`no_delay` is `true`),
+		 * the algorithm is disabled, allowing small packets to be sent immediately without
+		 * waiting for more data. When disabled (`no_delay` is `false`), the algorithm is
+		 * enabled, and small packets may be buffered until a larger packet can be sent.
+		 * The function must be called when the socket is connected.
+		 *
+		 * @param no_delay If `true`, disables the Nagle algorithm (enables immediate
+		 *                 sending of small packets). If `false`, enables the Nagle
+		 *                 algorithm (buffers small packets).
+		 *
+		 * @return An error code of type `mbed_err` indicating the success or failure
+		 *         of setting the option.
+		 */
+		mbed_err set_nodelay(bool no_delay);
+
+		/* Receives data from the socket.
+		 *
+		 * The received data is stored in the buffer pointed to by the `buf` parameter.
+		 * The `len` parameter specifies the maximum amount of data to be received in a
+		 * single call.
+		 *
+		 * This function returns a value of type `rcv_status`, indicating the status
+		 * of the receive operation.
+		 */
+		virtual net::rcv_status recv_data(unsigned char* buf, size_t len);
+
+		/* Sends data to the socket.
+		 *
+		 * The buffer pointed to by the `buf` parameter must contain the data to be sent.
+		 * The `len` parameter specifies the amount of data to send.
+		 *
+		 * This function returns a value of type `snd_status`, indicating the status
+		 * of the send operation.
+		 */
+		virtual net::snd_status send_data(const unsigned char* buf, size_t len);
+
+		/* Returns true if the socket is connected.
+		*/
+		inline bool is_connected() const noexcept { return get_fd() != -1; }
+
+		/* Returns the socket file descriptor.
+		 * 
+		 * The function returns -1 if the socket is not connected.
+		*/
+		inline int get_fd() const noexcept { return _netctx.fd; }
+
+		/* Retrieves the port number associated with the socket.
+		 *
+		 * This method determines the port number of the local endpoint of the socket,
+		 * if the socket file descriptor is valid. It supports both IPv4 and IPv6
+		 * address families.
+		 *
+		 * @return The port number of the socket as an integer. If the socket is not
+		 *         bound or the file descriptor is invalid, the method returns -1.
+		 *
+		 */
+		int get_port() const noexcept;
 
 	protected:
-		virtual mbed_err do_connect(const Endpoint& ep);
-		virtual void do_close();
-
-	protected:
-		// a reference to the application logger
+		// A reference to the application logger.
 		tools::Logger* const _logger;
 
-		// the ssl socket 
-		mbedtls_net_context _netctx;
+		/* Allocates a disconnected socket.
+		*/
+		Socket();
 
-	private:
-		// a mutex to guarantee thread safety
-		tools::Mutex _mutex;
+		/* Returns the mbedtls network context.
+		*/
+		inline mbedtls_net_context* netctx()  noexcept { return &_netctx; }
 
-		// send and receive time-out values
-		DWORD _send_timeout;
-		DWORD _recv_timeout;
-
-		// Disable Naggle algorithm if true
-		bool _no_delay;
-
-		// Blocking mode
-		bool _blocking;
-
-		// Apply configured option to this socket
-		enum SocketOptions
-		{
-			all,
-			nodelay,
-			blocking,
-			timeout
+		/**
+		 * @enum poll_status_code
+		 * Enumerates the possible status codes for a polling operation.
+		 *
+		 * This enumeration defines the outcomes of a polling operation:
+		 * - `NETCTX_POLL_ERROR`  : Indicates that an error occurred during polling.
+		 * - `NETCTX_POLL_OK`     : Indicates that the polling operation was successful.
+		 * - `NETCTX_POLL_TIMEOUT`: Indicates that the polling operation timed out.
+		 */
+		enum class poll_status_code {
+			NETCTX_POLL_ERROR,
+			NETCTX_POLL_OK,
+			NETCTX_POLL_TIMEOUT
 		};
 
-		bool apply_opt(enum SocketOptions option);
+		/**
+		 * @struct poll_status
+		 * Represents the result of a polling operation.
+		 *
+		 * This structure contains details about the outcome of a polling operation:
+		 * - `code`: A `poll_status_code` value that specifies the polling status.
+		 * - `rc`: An integer providing a return code related to the polling operation.
+		 *
+		 * Possible combinations :
+		 *     code        POLL_ERROR   |    POLL_OK     | POLL TIMEMOUT
+		 *     rc          error code   |  r/w bit mask  | error code
+		 */
+		struct poll_status {
+			poll_status_code code;
+			int rc;
+		};
+
+		/* Checks and waits for the socket to be ready for reading and/or writing data.
+		 *
+		 * This function monitors the socket and waits for either read or write operations
+		 * to be possible. If `read` is `true`, it waits until data is available for reading.
+		 * If `write` is `true`, it waits until data can be sent. The function will also
+		 * respect the specified `timeout`. If the timeout is reached before either
+		 * condition is met, the function will return without performing the requested
+		 * operation.
+		 *
+		 * @param rw Bit flags that indicate if the function waits for data to be available
+		             for reading or writing.
+		 * @param timeout The maximum amount of time (in milliseconds) to wait before
+		 *                returning, regardless of whether the requested conditions are met.
+		 *
+		 * @return A value of type `poll_status`, indicating the status of the
+		 *         polling operation (e.g., success, timeout, etc.).
+		 */
+		virtual net::Socket::poll_status poll(int rw, uint32_t timeout);
+
+		/* Accepts a new connection on the current socket and assigns it to the client socket.
+		 *
+		 * This method listens for an incoming connection on the current socket and, upon
+		 * success, initializes the provided `client_socket` with the connection details.
+		 * It ensures that the current socket is in a connected state and the `client_socket`
+		 * is not already connected.
+		 *
+		 * @param client_socket Reference to the `Socket` object where the accepted connection
+		 *                      will be stored.
+		 * @return mbed_err Returns 0 on success, or an error code indicating failure:
+		 *                  - `MBEDTLS_ERR_NET_INVALID_CONTEXT` if the current socket is
+		 *                    not connected or the client socket is already connected.
+		 *                  - For other error codes, see mbedtls library documentation.
+		 */
+		virtual mbed_err accept(Socket& client_socket);
+
+	private:
+		// The network context.
+		mbedtls_net_context _netctx;
 	};
 
 }

@@ -5,278 +5,252 @@
 * SPDX-License-Identifier: Apache-2.0
 *
 */
+#include <winsock2.h>
+#include <Ws2ipdef.h>
+
 #include "Socket.h"
 
-#include <iostream>
-#include "tools/Logger.h"
 
 
 namespace net {
-
 	using namespace tools;
 
 	Socket::Socket() :
-		_mutex(),
 		_logger(Logger::get_logger()),
-		_send_timeout(0),
-		_recv_timeout(0),
-		_no_delay(false),
-		_blocking(true)
+		_netctx{}
 	{
 		DEBUG_CTOR(_logger, "Socket");
-		mbedtls_net_init(&_netctx);
+
+		::mbedtls_net_init(&_netctx);
 	}
 
 
 	Socket::~Socket()
 	{
 		DEBUG_DTOR(_logger, "Socket");
-		close();
+
+		// Close the socket if not yet done.
+		::mbedtls_net_close(&_netctx);
 	}
 
 
-	bool Socket::attach(const mbedtls_net_context& netctx)
+	mbed_err Socket::connect(const Endpoint& ep, net::net_protocol protocol, Timer& timer)
 	{
-		if (_logger->is_debug_enabled())
-			_logger->debug("... %x enter Socket::attach fd=%d", (uintptr_t)this, netctx.fd);
-		Mutex::Lock lock{ _mutex };
-		_netctx = netctx;
+		if (get_fd() != -1) {
+			// The socket is connected.
+			return MBEDTLS_ERR_NET_INVALID_CONTEXT;
+		}
 
-		return apply_opt(SocketOptions::all);
+		const std::string host{ ep.hostname() };
+		const std::string port{ std::to_string(ep.port()) };
+
+		return ::mbedtls_net_connect(&_netctx, host.c_str(),port.c_str(), protocol);
 	}
 
 
-	mbed_err Socket::connect(const Endpoint& ep)
+	mbed_err Socket::bind(const Endpoint& ep, net::net_protocol protocol)
 	{
-		DEBUG_ENTER(_logger, "Socket", "connect");
-		Mutex::Lock lock{ _mutex };
+		mbed_err rc = MBEDTLS_ERR_NET_INVALID_CONTEXT;
 
-		return do_connect(ep);
+		if (get_fd() == -1) {
+			// The socket must be unconnected.
+
+			/*
+			* SO_EXCLUSIVEADDRUSE can not be enabled, mbedtls_net_bind is setting SO_REUSEADDR
+			* in mbedtls_net_bind. Until mbedtls is improved and allows to specify this option
+			* it will not be possible to avoid that another process binds the same port.
+			*
+			* // set the exclusive address option
+			* int option = 1;
+			* if (setsockopt(_netctx.fd, SOL_SOCKET,
+			* 	SO_EXCLUSIVEADDRUSE, (char *)&option, sizeof(option)) == SOCKET_ERROR) {
+			* 	_logger->error("ERROR: Listener::bind setsockopt failed, error=%d", WSAGetLastError());
+			*
+			* 	rc = MBEDTLS_ERR_NET_BIND_FAILED;
+			* 	goto terminate;
+			* }
+			*/
+
+			const std::string host{ ep.hostname() };
+			const std::string port{ std::to_string(ep.port()) };
+
+			rc = ::mbedtls_net_bind(&_netctx, host.c_str(), port.c_str(), protocol);
+		}
+
+		return rc;
 	}
 
 
 	void Socket::close()
 	{
-		DEBUG_ENTER(_logger, "Socket", "close");
-		Mutex::Lock lock{ _mutex };
-		
-		do_close();
+		::mbedtls_net_close(&_netctx);
 	}
 
 
-	bool Socket::set_timeout(DWORD send_timeout, DWORD recv_timeout)
+	void Socket::shutdown()
 	{
-		bool rc = true;
+		// Gracefully shutdown the connection and close the socket.
+		// The file descriptor is reset to -1 by the function.
+		::mbedtls_net_free(&_netctx);
+	}
 
-		if (_logger->is_debug_enabled())
-			_logger->debug("... %x enter Socket::set_timeout s=%d r=%d", (uintptr_t)this, send_timeout, recv_timeout);
 
-		if (send_timeout != _send_timeout || recv_timeout != _recv_timeout) {
-			_send_timeout = send_timeout;
-			_recv_timeout = recv_timeout;
+	mbed_err Socket::set_blocking_mode(bool enable)
+	{
+		int rc = MBEDTLS_ERR_NET_INVALID_CONTEXT;
 
-			rc = apply_opt(SocketOptions::timeout);
+		if (get_fd() != -1) {
+			rc = enable
+				? ::mbedtls_net_set_block(&_netctx)
+				: ::mbedtls_net_set_nonblock(&_netctx);
+
+			if (rc)
+				rc = MBEDTLS_ERR_NET_INVALID_CONTEXT;
 		}
 
 		return rc;
 	}
 
 
-	bool Socket::set_nodelay(bool no_delay)
+	mbed_err Socket::set_nodelay(bool no_delay)
 	{
-		bool rc = true;
+		int rc = MBEDTLS_ERR_NET_INVALID_CONTEXT;
 
-		if (_logger->is_debug_enabled())
-			_logger->debug("... %x enter Socket::set_nodelay=%d", (uintptr_t)this, no_delay ? 1 : 0);
-		
-		if (no_delay != _no_delay) {
-			_no_delay = no_delay;
+		if (get_fd() != -1) {
+			const int tcp_nodelay = no_delay ? 1 : 0;
 
-			rc = apply_opt(SocketOptions::nodelay);
+			rc = ::setsockopt(
+				get_fd(),
+				IPPROTO_TCP,
+				TCP_NODELAY,
+				(const char*)&tcp_nodelay,
+				sizeof(tcp_nodelay));
+
+			if (rc)
+				rc = MBEDTLS_ERR_NET_INVALID_CONTEXT;
 		}
 
 		return rc;
 	}
 
 
-	bool Socket::set_blocking(bool blocking)
+	net::rcv_status Socket::recv_data(unsigned char* buf, size_t len)
 	{
-		bool rc = true;
+		net::rcv_status status { rcv_status_code::NETCTX_RCV_ERROR, MBEDTLS_ERR_NET_INVALID_CONTEXT, 0 };
 
-		if (_logger->is_debug_enabled())
-			_logger->debug("... %x enter Socket::set_noblocking=%d", (uintptr_t)this, blocking ? 1 : 0);
+		const int rc = ::mbedtls_net_recv(&_netctx, buf, len);
 
-		if (blocking != _blocking) {
-			_blocking = blocking;
-
-			rc = apply_opt(SocketOptions::blocking);
+		if (rc > 0) {
+			status.code = rcv_status_code::NETCTX_RCV_OK;
+			status.rc = 0;
+			status.rbytes = rc;
+		}
+		else if (rc == 0) {
+			status.code = rcv_status_code::NETCTX_RCV_EOF;
+			status.rc = 0;
+			status.rbytes = 0;
+		}
+		else if (rc == MBEDTLS_ERR_SSL_WANT_READ) {
+			status.code = rcv_status_code::NETCTX_RCV_RETRY;
+			status.rc = MBEDTLS_NET_POLL_READ;
+			status.rbytes = 0;
+		}
+		else {
+			status.code = rcv_status_code::NETCTX_RCV_ERROR;
+			status.rc = rc;
 		}
 
-		return rc;
+		return status;
 	}
 
 
-	int Socket::recv(unsigned char* buf, const size_t len)
+	net::snd_status Socket::send_data(const unsigned char* buf, size_t len)
 	{
-		if (_logger->is_trace_enabled())
-			_logger->trace(".... %x enter Socket::recv buffer=%x len=%d", (uintptr_t)this, buf, len);
+		net::snd_status status { NETCTX_SND_ERROR, MBEDTLS_ERR_NET_INVALID_CONTEXT, 0 };
 
-		return mbedtls_net_recv(&_netctx, buf, len);
-	}
+		const int rc = ::mbedtls_net_send(&_netctx, buf, len);
 
-
-	int Socket::send(const unsigned char* buf, const size_t len)
-	{
-		if (_logger->is_trace_enabled())
-			_logger->trace(".... %x enter Socket::send buffer=%x len=%d", (uintptr_t)this, buf, len);
-
-		return mbedtls_net_send(&_netctx, buf, len);
-	}
-
-
-	mbed_err Socket::flush()
-	{
-		return 0;
-	}
-
-
-	int Socket::read(unsigned char *buf, const size_t len)
-	{
-		if (_logger->is_trace_enabled())
-			_logger->trace(".... %x enter Socket::read buffer=%x len=%d", (uintptr_t)this, buf, len);
-
-		int rc = 0;
-		size_t cnt = len;
-
-		while (cnt > 0) {
-			rc = recv(buf, cnt);
-			if (rc <= 0) return rc;
-
-			cnt -= rc;
-			buf += rc;
+		if (rc > 0) {
+			status.code = NETCTX_SND_OK;
+			status.rc = 0;
+			status.sbytes = rc;
+		}
+		else if (rc == MBEDTLS_ERR_SSL_WANT_WRITE) {
+			status.code = NETCTX_SND_RETRY;
+			status.rc = MBEDTLS_NET_POLL_WRITE;
+		}
+		else {
+			status.code = NETCTX_SND_ERROR;
+			status.rc = rc;
 		}
 
-		return (int)len;
+		return status;
 	}
 
 
-	int Socket::write(const unsigned char *buf, const size_t len)
+	int Socket::get_port() const noexcept
 	{
-		if (_logger->is_trace_enabled())
-			_logger->trace(".... %x enter Socket::write buffer=%x len=%d", (uintptr_t)this, buf, len);
+		int port = -1;
 
-		int rc = 0;
-		size_t cnt = (int)len;
+		if (get_fd() != -1) {
+			struct sockaddr_storage sock_addr;
+			int len = sizeof(sock_addr);
 
-		while (cnt > 0) {
-			rc = send(buf, cnt);
-			if (rc < 0) return rc;
-
-			cnt -= rc;
-			buf += rc;
+			if (::getsockname(get_fd(), (struct sockaddr*)&sock_addr, &len) == 0) {
+				if (sock_addr.ss_family == AF_INET) {
+					struct sockaddr_in* addr4 = (struct sockaddr_in*)&sock_addr;
+					port = ntohs(addr4->sin_port);
+				}
+				else if (sock_addr.ss_family == AF_INET6) {
+					struct sockaddr_in6* addr6 = (struct sockaddr_in6*)&sock_addr;
+					port = ntohs(addr6->sin6_port);
+				}
+			}
 		}
 
-		return (int)len;
+		return port;
 	}
 
 
-	bool Socket::connected() const noexcept
+	net::Socket::poll_status Socket::poll(int rw, uint32_t timeout)
 	{
-		return _netctx.fd != -1;
+		Socket::poll_status status { poll_status_code::NETCTX_POLL_ERROR, MBEDTLS_ERR_NET_INVALID_CONTEXT };
+
+		// wait to be ready for read or write
+		const int rc = ::mbedtls_net_poll(&_netctx, rw, timeout);
+		if (rc < 0) {
+			// an error has occurred
+			status.rc = rc;
+		}
+		else if (rc == 0) {
+			// wait timed out
+			status.code = poll_status_code::NETCTX_POLL_ERROR;
+			status.rc = MBEDTLS_ERR_SSL_TIMEOUT;
+		}
+		else {
+			// ready for read and/or write.  rc contains a bit mask
+			// that indicates if the socket is ready for reading or writing.
+			status.code = poll_status_code::NETCTX_POLL_OK;
+			status.rc = rc;
+		}
+
+		return status;
 	}
 
 
-	mbed_err Socket::do_connect(const Endpoint& ep)
+	mbed_err Socket::accept(Socket& client_socket)
 	{
-		if (_logger->is_debug_enabled())
-			_logger->debug("... %x enter Socket::do_connect ep=%s", (uintptr_t)this, ep.to_string().c_str());
+		if (!is_connected())
+			return MBEDTLS_ERR_NET_INVALID_CONTEXT;
 
-		const std::string& host = ep.hostname();
-		const std::string port{ std::to_string(ep.port()) };
+		if (client_socket.is_connected())
+			return MBEDTLS_ERR_NET_INVALID_CONTEXT;
+
 		int rc;
+		do {
+			rc = ::mbedtls_net_accept(&_netctx, client_socket.netctx(), 0, 0, 0);
+		} while (rc == MBEDTLS_ERR_SSL_WANT_READ);
 
-		rc = mbedtls_net_connect(&_netctx, host.c_str(), port.c_str(), MBEDTLS_NET_PROTO_TCP);
-		if (rc)
-			goto terminate;
-
-		// configure all options
-		if (!apply_opt(SocketOptions::all)) {
-			rc = MBEDTLS_ERR_NET_CONNECT_FAILED;
-			goto terminate;
-		}
-
-	terminate:
-		if (_logger->is_debug_enabled())
-			_logger->debug("... %x leave Socket::do_connect fd=%d rc=%d", (uintptr_t)this, _netctx.fd, rc);
-
-		return rc;
-	}
-
-
-	void Socket::do_close()
-	{
-		if (_logger->is_debug_enabled())
-			_logger->debug("... %x enter Socket::do_close fd=%d", (uintptr_t)this, _netctx.fd);
-
-		mbedtls_net_free(&_netctx);
-	}
-
-
-	bool Socket::apply_opt(enum SocketOptions option)
-	{
-		bool rc = true;
-
-		if (connected()) {
-			if (_logger->is_debug_enabled())
-				_logger->debug("... %x enter Socket::apply_opt fd=%d", (uintptr_t)this, _netctx.fd);
-
-			if (option == SocketOptions::all || option == SocketOptions::nodelay) {
-				const int tcp_nodelay = _no_delay ? 1 : 0;
-				if (setsockopt(_netctx.fd, IPPROTO_TCP, TCP_NODELAY, (const char *)&tcp_nodelay, sizeof(tcp_nodelay)) != 0) {
-					_logger->error("ERROR: set nodelay error %x on socket %x, fd=%d",
-						::WSAGetLastError(),
-						(uintptr_t)this,
-						_netctx.fd);
-
-					rc = false;
-				}
-			}
-
-			if (option == SocketOptions::all || option == SocketOptions::timeout) {
-				if (setsockopt(_netctx.fd, SOL_SOCKET, SO_RCVTIMEO, (const char *)&_recv_timeout, sizeof(_recv_timeout)) != 0) {
-					_logger->error("ERROR: set receive time-out error %x on socket %x, fd=%d",
-						::WSAGetLastError(),
-						(uintptr_t)this,
-						_netctx.fd);
-
-					rc = false;
-				}
-
-				if (setsockopt(_netctx.fd, SOL_SOCKET, SO_SNDTIMEO, (const char *)&_send_timeout, sizeof(_send_timeout)) != 0) {
-					_logger->error("ERROR: set send time-out error %x on socket %x, fd=%d",
-						::WSAGetLastError(),
-						(uintptr_t)this,
-						_netctx.fd);
-
-					rc = false;
-				}
-			}
-		}
-
-		if (option == SocketOptions::all || option == SocketOptions::blocking) {
-			int rc = _blocking
-				? mbedtls_net_set_block(&_netctx)
-				: mbedtls_net_set_nonblock(&_netctx);
-			if (rc) {
-				_logger->error("ERROR: set socket blocking mode error %x on socket %x, fd=%d",
-					::WSAGetLastError(),
-					(uintptr_t)this,
-					_netctx.fd);
-
-				rc = false;
-			}
-		}
-		
 		return rc;
 	}
 
