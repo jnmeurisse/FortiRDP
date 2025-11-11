@@ -190,23 +190,27 @@ namespace fw {
 		fw::FirewallTunnel* create_tunnel(const net::Endpoint& local_ep, const net::Endpoint& remote_ep,
 			const net::tunneler_config& config);
 
-		/* Returns true if this client is authenticated on the portal.
+		/**
+		 * Returns true if this client is authenticated on the portal.
 		*/
 		bool is_authenticated() const;
 
 
 	private:
-		// The peer certificate digest
+		// The peer certificate digest.
 		CrtDigest _peer_crt_digest;
 
-		// Session cookies
+		// Session cookies.
 		http::Cookies _cookie_jar;
 
-		// mutex to serialize calls
+		// mutex to serialize calls.
 		tools::Mutex _mutex;
 
-		// The fortiGate realm
+		// The fortiGate realm.
 		const std::string _realm;
+
+		// Logs an http error message.
+		void log_http_error(const char* msg, const http::Answer& answer);
 
 		// Sends a request and wait for a response.
 		bool send_and_receive(http::Request& request, http::Answer& answer);
@@ -221,7 +225,7 @@ namespace fw {
 			const http::Headers& headers, http::Answer& answer, int allow_redir);
 
 		// Sends a login check to the firewall portal.
-		bool login_check(const tools::StringMap& params, http::Answer& answer);
+		portal_err try_login_check(const tools::StringMap& in_params, tools::StringMap& out_params);
 
 		// Gets the redirect URL from the given map.
 		bool get_redir_url(const tools::StringMap& params, http::Url& url) const;

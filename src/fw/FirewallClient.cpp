@@ -106,12 +106,7 @@ namespace fw {
 
 		// Check if the web page exists.
 		if (answer.get_status_code() != HttpsClient::STATUS_OK) {
-			_logger->error("ERROR: portal connection failure");
-			_logger->error("ERROR: %s (HTTP code %d)",
-					answer.get_reason_phrase().c_str(),
-					answer.get_status_code()
-				);
-
+			log_http_error("firewall portal connection failure", answer);
 			return portal_err::HTTP_ERROR;
 		}
 
@@ -119,14 +114,48 @@ namespace fw {
 	}
 
 
-	bool FirewallClient::login_check(const tools::StringMap& params, http::Answer& answer)
+	void FirewallClient::log_http_error(const char* msg, const http::Answer& answer)
 	{
-		DEBUG_ENTER(_logger, "FirewallClient", "login_check");
+		_logger->error("ERROR: %s", msg);
+		_logger->error(
+			"ERROR: %s (HTTP code %d)",
+			answer.get_reason_phrase().c_str(),
+			answer.get_status_code()
+		);
+	}
 
+
+	portal_err FirewallClient::try_login_check(const tools::StringMap& in_params, tools::StringMap& out_params)
+	{
+		DEBUG_ENTER(_logger, "FirewallClient", "try_login_check");
+
+		http::Answer answer;
 		http::Headers headers;
 		headers.set("Content-Type", "text/plain;charset=UTF-8");
-		
-		return request(http::Request::POST_VERB, make_url("/remote/logincheck"), params.join("&"), headers, answer, 0);
+
+		if (!request(http::Request::POST_VERB, make_url("/remote/logincheck"), in_params.join("&"), headers, answer, 0))
+			return portal_err::COMM_ERROR;
+
+		if (!(answer.get_status_code() == HttpsClient::STATUS_OK ||
+			answer.get_status_code() == HttpsClient::STATUS_UNAUTHORIZED ||
+			answer.get_status_code() == HttpsClient::STATUS_FORBIDDEN)) {
+			log_http_error("firewall portal connection failure", answer);
+			return portal_err::HTTP_ERROR;
+		}
+
+		// Extract comma separated parameters from firewall answer.
+		// Example of answer:
+		// ret=6,magic=123,actionurl=/remote/logincheck,reqid=456,portal=,grpid=0,pid=214,is_chal_rsp=1,chal_msg=Enter your code
+		out_params.serase();
+		out_params.add(std::string(answer.body().cbegin(), answer.body().cend()), ',');
+
+		int retcode;
+		if (!out_params.get_int("ret", retcode)) {
+			_logger->error("ERROR: invalid firewall answer, ret code missing");
+			return portal_err::LOGIN_CANCELLED;
+		}
+
+		return portal_err::NONE;
 	}
 
 
@@ -136,13 +165,9 @@ namespace fw {
 		tools::Mutex::Lock lock{ _mutex };
 
 		// misc initializations
-		int retcode = 0;
-		tools::StringMap params_query;
-		tools::StringMap params_result;
 		http::Answer answer;
-		std::string body;
+		tools::StringMap params_query;
 		AuthCredentials credentials;
-
 
 		// Get the login form
 		if (!_realm.empty())
@@ -150,208 +175,187 @@ namespace fw {
 		params_query.set("lang", "en");
 		const http::Url login_url = make_url("/remote/login", params_query.join("&"));
 		if (!request(http::Request::GET_VERB, login_url, "", http::Headers(), answer, 0))
-			goto comm_error;
+			return portal_err::COMM_ERROR;
 
-		// check if page is available
-		if (answer.get_status_code() != HttpsClient::STATUS_OK)
-			goto http_error;
+		// Check if the login page is available
+		if (answer.get_status_code() != HttpsClient::STATUS_OK) {
+			log_http_error("firewall portal connection failure", answer);
+			return portal_err::HTTP_ERROR;
+		}
 
-		// check if the client is authenticated.
+		// Check if the client is authenticated.
 		if (is_authenticated()) {
 			return portal_err::NONE;
 		}
 
-		// Ask credentials.
+		// Show login prompt and ask credentials.
 		_logger->info(">> auth mode : basic");
 		if (!ask_credential(credentials))
-			goto terminate;
+			return portal_err::LOGIN_CANCELLED;
 
-		// Prepare the login form.
+		// Prepare the HTML login form.
 		params_query.serase();
-		if (!_realm.empty())
-			params_query.set("realm", _realm);
 		params_query.set("ajax", "1");
 		params_query.set("username", HttpsClient::encode_url(credentials.username));
+		if (!_realm.empty())
+			params_query.set("realm", _realm);
 		params_query.set("credential", HttpsClient::encode_url(credentials.password));
 
 		// Safe erase password stored in memory.
 		tools::serase(credentials.password);
 
-		// Send the login form.
-		if (!login_check(params_query, answer))
-			goto comm_error;
+		// Loop until code returns with access denied, login canceled or an error
+		// is detected.
+		while (true) {
+			tools::StringMap params_result;
+			portal_err err = try_login_check(params_query, params_result);
+			if (err != portal_err::NONE)
+				return err;
 
-		if (!(answer.get_status_code() == HttpsClient::STATUS_OK ||
-			answer.get_status_code() == HttpsClient::STATUS_UNAUTHORIZED ||
-			answer.get_status_code() == HttpsClient::STATUS_FORBIDDEN))
-			goto http_error;
+			// Get the return code from the firewall response.
+			int retcode = params_result.get_int_value("ret", -1);
 
-		// Get the body from the answer.
-		body = std::string(answer.body().cbegin(), answer.body().cend());
+			if (retcode == 0) {
+				// ********************************
+				// 0 = Access denied.
+				// ********************************
 
-		// Check if the return code is present.
-		params_result.add(body, ',');
-		if (params_result.get_int("ret", retcode)) {
-			// firewall is running FortiOS 4 or higher
-
-			// Loop until authenticated. The loop breaks if an error (access denied,
-			// communication error) is detected.
-			while (!is_authenticated()) {
-				switch (retcode) {
-				case 0: {
-					// Access denied,
-					// show the error message received from the firewall
-					http::Url redir_url;
-					if (!get_redir_url(params_result, redir_url))
-						goto redir_error;
-
-					std::string msg;
-					if (redir_url.get_query_map().get_str("err", msg)) {
-						_logger->error("ERROR: %s", msg.c_str());
-					}
+				// Show the error message received from the firewall.
+				http::Url redir_url;
+				if (!get_redir_url(params_result, redir_url)) {
+					_logger->error("ERROR: invalid firewall answer, redir missing");
 				}
-				goto auth_error;
-				break;
 
-				case 1: {
-					// Access allowed
-					http::Url redir_url;
-					if (!get_redir_url(params_result, redir_url))
-						goto redir_error;
+				std::string msg = "access denied";
+				redir_url.get_query_map().get_str("err", msg);
+				_logger->error("ERROR: %s", msg.c_str());
 
-					redir_url = make_url(redir_url.get_path(), redir_url.get_query());
-					if (!request(http::Request::GET_VERB, redir_url, "", http::Headers(), answer, 0))
-						goto comm_error;
-
-					if (answer.get_status_code() != HttpsClient::STATUS_OK)
-						goto http_error;
-				}
-				break;
-
-				case 3:
-				case 4: {
-					// Ask for a token value
-					// 3 = Email based two-factor authentication
-					// 4 = SMS based two-factor authentication
-					AuthCode code2fa;
-					std::string device;
-					if (params_result.get_str("tokeninfo", device)) {
-						device = http::HttpsClient::decode_url(device);
-						code2fa.prompt = "Authentication code for " + device;
-					}
-					else {
-						code2fa.prompt = "Authentication code";
-					}
-					code2fa.code = "";
-					ask_code(code2fa);
-					std::string data;
-
-					params_query.set("code", code2fa.code);
-					params_query.set("code2", "");
-					params_query.set("realm", params_result.get_str("realm", data) ? data : "");
-					params_query.set("reqid", params_result.get_str("reqid", data) ? data : "");
-					params_query.set("polid", params_result.get_str("polid", data) ? data : "");
-					params_query.set("grp", params_result.get_str("grp", data) ? data : "");
-
-					if (!login_check(params_query, answer))
-						goto comm_error;
-					if (answer.get_status_code() != HttpsClient::STATUS_OK)
-						goto http_error;
-
-					// check if the return code is present
-					retcode = 0;
-					params_result.serase();
-					params_result.add(std::string(answer.body().cbegin(), answer.body().cend()), ',');
-					params_result.get_int("ret", retcode);
-				}
-				break;
-
-				case 6: {
-					int pass_renew;
-
-					if (params_result.get_int("pass_renew", pass_renew) && pass_renew == 1) {
-						_logger->error("ERROR: password expired");
-						goto auth_error;
-
-					}
-					else {
-						// there is a challenge message 
-						AuthCode challenge;
-						
-						// .. assign a default prompt
-						challenge.prompt = "enter code";
-						params_result.get_str("chal_msg", challenge.prompt);
-
-						// .. ask a code the user
-						ask_code(challenge);
-						
-						// .. build the request
-						std::string data;
-						params_query.set("realm", params_result.get_str("realm", data) ? data : "");
-						params_query.set("magic", params_result.get_str("magic", data) ? data : "");
-						params_query.set(
-							"reqid",
-							tools::string_format(
-								"%s,%s,%s", 
-								(params_result.get_str("reqid", data) ? data : "").c_str(),
-								(params_result.get_str("polid", data) ? data : "").c_str(),
-								(params_result.get_str("sp_polid", data) ? data : "").c_str()
-							));
-						params_query.set(
-							"grpid",
-							tools::string_format(
-								"%s,%s,%s",
-								(params_result.get_str("grpid", data) ? data : "").c_str(),
-								(params_result.get_str("pid", data) ? data : "").c_str(),
-								(params_result.get_str("usr_only_check", data) ? data : "").c_str()
-							));
-						params_query.set("credential", challenge.code);
-
-						if (!login_check(params_query, answer))
-							goto comm_error;
-						if (answer.get_status_code() != HttpsClient::STATUS_OK)
-							goto http_error;
-
-						// check if the return code is present
-						retcode = 0;
-						params_result.serase();
-						params_result.add(std::string(answer.body().cbegin(), answer.body().cend()), ',');
-						params_result.get_int("ret", retcode);
-					}
-				}
-				break;
-
-				default:
-					_logger->error("ERROR: unknown return code %d during authentication", retcode);
-					goto terminate;
-				}
+				return portal_err::ACCESS_DENIED;
 			}
+
+			if (retcode == 1) {
+				// ********************************
+				// 1 = Access allowed.
+				// ********************************
+
+				// Followe the redirect URL to get SVPNCOOKIE
+				http::Url redir_url;
+				if (!get_redir_url(params_result, redir_url)) {
+					_logger->error("ERROR: invalid firewall answer, redir missing");
+				}
+
+				redir_url = make_url(redir_url.get_path(), redir_url.get_query());
+				if (!request(http::Request::GET_VERB, redir_url, "", http::Headers(), answer, 0))
+					return portal_err::COMM_ERROR;
+
+				return portal_err::NONE;
+			}
+
+			switch (retcode) {
+			case 2:
+			case 3:
+			case 4: {
+				// ********************************
+				// 2 = Fortitoken (** Never tested **)
+				// 3 = Email based two-factor authentication
+				// 4 = SMS based two-factor authentication
+				// ********************************
+				static const char* messages[] = {
+					/*2: */ "Enter fortitoken code ",
+					/*3: */ "Enter authentication code sent to email ",
+					/*4: */ "Enter authentication code sent to SMS "
+				};
+
+				AuthCode code;
+				std::string device;
+				if (params_result.get_str("tokeninfo", device)) {
+					device = http::HttpsClient::decode_url(device);
+					code.prompt = messages[retcode - 2] + device;
+				}
+				else {
+					code.prompt = "Enter authentication code";
+				}
+				code.code = "";
+				if (!ask_code(code))
+					return portal_err::LOGIN_CANCELLED;
+
+				params_query.set("code", code.code);
+				params_query.set("code2", "");
+				params_query.set("reqid", params_result.get_str_value("reqid", ""));
+				params_query.set("polid", params_result.get_str_value("polid", ""));
+				params_query.set("grp", params_result.get_str_value("grp", ""));
+			}
+			break;
+
+			case 5: {
+				// ********************************
+				// 5: FotiToken drifted, require next code
+				//    ** Never tested **
+				// ********************************
+				AuthCode code{ "Wait next code", "" };
+				if (!ask_code(code))
+					return portal_err::LOGIN_CANCELLED;
+
+				params_query.set("code", "");
+				params_query.set("code2", code.code);
+				params_query.set("reqid", params_result.get_str_value("reqid", ""));
+				params_query.set("polid", params_result.get_str_value("polid", ""));
+				params_query.set("grp", params_result.get_str_value("grp", ""));
+			}
+			break;
+
+			case 6: {
+				// ********************************
+				// 6: Challenge
+				// ********************************
+				if (params_result.get_int_value("pass_renew", 0) == 1) {
+					// password renewal not supported.
+					_logger->error("ERROR: password expired");
+					return portal_err::LOGIN_CANCELLED;
+				}
+
+				// there is a challenge message
+				AuthCode challenge;
+
+				// .. assign a default prompt
+				challenge.prompt = params_result.get_str_value("chal_msg", "enter code");
+
+				// .. ask a code to the user
+				if (!ask_code(challenge))
+					return portal_err::LOGIN_CANCELLED;
+
+				// .. build the request
+				params_query.set("magic", params_result.get_str_value("magic", ""));
+				params_query.set(
+					"reqid",
+					tools::string_format(
+						"%s,%s",
+						params_result.get_str_value("reqid", "").c_str(),
+						params_result.get_str_value("polid", "").c_str()
+					));
+				params_query.set(
+					"grpid",
+					tools::string_format(
+						"%s,%s,%s",
+						params_result.get_str_value("grpid", "").c_str(),
+						params_result.get_str_value("pid", "").c_str(),
+						params_result.get_str_value("is_chal_rsp", "").c_str()
+					));
+				params_query.set("credential2", challenge.code);
+			}
+			break;
+
+			default:
+				_logger->error("ERROR: unknown return code %d during authentication", retcode);
+				return portal_err::ACCESS_DENIED;
+			}
+
+			std::string peer;
+			if (params_result.get_str("peer", peer))
+				params_query.set("peer", peer);
+
+			// loop and retry login
 		}
-		else {
-			_logger->error("ERROR: invalid firewall answer");
-			goto terminate;
-		}
-
-		return portal_err::NONE;
-
-
-	comm_error:
-		return portal_err::COMM_ERROR;
-
-	http_error:
-		_logger->error("ERROR: portal login_basic failure - %s (HTTP code %d)",
-			answer.get_reason_phrase().c_str(),
-			answer.get_status_code());
-		return portal_err::HTTP_ERROR;
-
-	auth_error:
-		return portal_err::ACCESS_DENIED;
-
-	redir_error:
-		return portal_err::HTTP_ERROR;
-
-	terminate:
-		return portal_err::LOGIN_CANCELLED;
 	}
 
 
@@ -395,6 +399,9 @@ namespace fw {
 		bool ok = request(http::Request::GET_VERB, logout_url, "", headers, answer, 0);
 
 		// Delete all session cookies
+		if (_logger->is_trace_enabled()) {
+			_logger->trace("... %x clear cookie jar", (uintptr_t)this);
+		}
 		_cookie_jar.clear();
 
 		return ok;
@@ -500,8 +507,11 @@ namespace fw {
 
 	bool FirewallClient::is_authenticated() const
 	{
-		return _cookie_jar.exists("SVPNCOOKIE") &&
-			_cookie_jar.get("SVPNCOOKIE").get_value().length() > 0;
+		if (!_cookie_jar.exists("SVPNCOOKIE"))
+			return FALSE;
+
+		const http::Cookie& svpn_cookie = _cookie_jar.get("SVPNCOOKIE");
+		return svpn_cookie.get_value().size() > 0 && !svpn_cookie.is_expired();
 	}
 
 
@@ -589,6 +599,7 @@ namespace fw {
 			.set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")
 			.add(headers);
 
+		_logger->debug("url=%s", url.to_string(true).c_str());
 		request.set_body((unsigned char *)body.c_str(), body.length());
 
 		// Send and wait for a response
@@ -604,9 +615,20 @@ namespace fw {
 				const std::string url_domain = url.get_hostname();
 
 				if (cookie.get_domain().empty() || cookie.same_domain(url_domain)) {
-					if (cookie.is_expired())
+					if (cookie.is_expired()) {
+						_logger->debug("... %x       remove expired cookie name=%s expires=%d from cookiejar", 
+								(uintptr_t)this,
+								cookie.get_name().c_str(),
+								cookie.get_expires());
+
 						_cookie_jar.remove(cookie.get_name());
-					else if (cookie.is_secure() && cookie.is_http_only())
+					}
+					else if (cookie.is_secure() && cookie.is_http_only()) {
+							_logger->debug("... %x       add cookie name=%s expires=%d to cookiejar",
+								(uintptr_t)this,
+								cookie.get_name().c_str(),
+								cookie.get_expires());
+
 						_cookie_jar.add(http::Cookie(
 							cookie.get_name(),
 							cookie.get_value(),
@@ -616,9 +638,13 @@ namespace fw {
 							true,
 							true
 						));
-					else
+					}
+					else {
 						// Do not consider this cookie
-						;
+						_logger->debug("... %x       skip cookie %s",
+							(uintptr_t)this,
+							cookie.get_name().c_str());
+					}
 				}
 			}
 		}
