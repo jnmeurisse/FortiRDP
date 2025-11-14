@@ -90,8 +90,10 @@ namespace net {
 	{
 		DEBUG_ENTER(_logger, "PPInterface", "close");
 
-		if (!dead()) {
+		if (_logger->is_debug_enabled())
 			stats_display();
+
+		if (!dead()) {
 
 			ppp_err rc = ppp_close(_pcb, nocarrier? 1 : 0);
 
