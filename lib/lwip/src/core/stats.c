@@ -63,19 +63,19 @@ stats_init(void)
 void
 stats_display_proto(struct stats_proto *proto, const char *name)
 {
-  LWIP_PLATFORM_DIAG(("\n%s\n\t", name));
-  LWIP_PLATFORM_DIAG(("xmit: %"STAT_COUNTER_F"\n\t", proto->xmit));
-  LWIP_PLATFORM_DIAG(("recv: %"STAT_COUNTER_F"\n\t", proto->recv));
-  LWIP_PLATFORM_DIAG(("fw: %"STAT_COUNTER_F"\n\t", proto->fw));
-  LWIP_PLATFORM_DIAG(("drop: %"STAT_COUNTER_F"\n\t", proto->drop));
-  LWIP_PLATFORM_DIAG(("chkerr: %"STAT_COUNTER_F"\n\t", proto->chkerr));
-  LWIP_PLATFORM_DIAG(("lenerr: %"STAT_COUNTER_F"\n\t", proto->lenerr));
-  LWIP_PLATFORM_DIAG(("memerr: %"STAT_COUNTER_F"\n\t", proto->memerr));
-  LWIP_PLATFORM_DIAG(("rterr: %"STAT_COUNTER_F"\n\t", proto->rterr));
-  LWIP_PLATFORM_DIAG(("proterr: %"STAT_COUNTER_F"\n\t", proto->proterr));
-  LWIP_PLATFORM_DIAG(("opterr: %"STAT_COUNTER_F"\n\t", proto->opterr));
-  LWIP_PLATFORM_DIAG(("err: %"STAT_COUNTER_F"\n\t", proto->err));
-  LWIP_PLATFORM_DIAG(("cachehit: %"STAT_COUNTER_F"\n", proto->cachehit));
+  LWIP_PLATFORM_DIAG(("%s", name));
+  LWIP_PLATFORM_DIAG(("  xmit: %"STAT_COUNTER_F"", proto->xmit));
+  LWIP_PLATFORM_DIAG(("  recv: %"STAT_COUNTER_F"", proto->recv));
+  LWIP_PLATFORM_DIAG(("  fw: %"STAT_COUNTER_F"", proto->fw));
+  LWIP_PLATFORM_DIAG(("  drop: %"STAT_COUNTER_F"", proto->drop));
+  LWIP_PLATFORM_DIAG(("  chkerr: %"STAT_COUNTER_F"", proto->chkerr));
+  LWIP_PLATFORM_DIAG(("  lenerr: %"STAT_COUNTER_F"", proto->lenerr));
+  LWIP_PLATFORM_DIAG(("  memerr: %"STAT_COUNTER_F"", proto->memerr));
+  LWIP_PLATFORM_DIAG(("  rterr: %"STAT_COUNTER_F"", proto->rterr));
+  LWIP_PLATFORM_DIAG(("  proterr: %"STAT_COUNTER_F"", proto->proterr));
+  LWIP_PLATFORM_DIAG(("  opterr: %"STAT_COUNTER_F"", proto->opterr));
+  LWIP_PLATFORM_DIAG(("  err: %"STAT_COUNTER_F"", proto->err));
+  LWIP_PLATFORM_DIAG(("  cachehit: %"STAT_COUNTER_F"", proto->cachehit));
 }
 
 #if IGMP_STATS || MLD6_STATS
@@ -104,11 +104,11 @@ stats_display_igmp(struct stats_igmp *igmp, const char *name)
 void
 stats_display_mem(struct stats_mem *mem, const char *name)
 {
-  LWIP_PLATFORM_DIAG(("\nMEM %s\n\t", name));
-  LWIP_PLATFORM_DIAG(("avail: %"MEM_SIZE_F"\n\t", mem->avail));
-  LWIP_PLATFORM_DIAG(("used: %"MEM_SIZE_F"\n\t", mem->used));
-  LWIP_PLATFORM_DIAG(("max: %"MEM_SIZE_F"\n\t", mem->max));
-  LWIP_PLATFORM_DIAG(("err: %"STAT_COUNTER_F"\n", mem->err));
+  LWIP_PLATFORM_DIAG(("MEM %s", name));
+  LWIP_PLATFORM_DIAG(("   avail: %"MEM_SIZE_F"", mem->avail));
+  LWIP_PLATFORM_DIAG(("   used: %"MEM_SIZE_F"", mem->used));
+  LWIP_PLATFORM_DIAG(("   max: %"MEM_SIZE_F"", mem->max));
+  LWIP_PLATFORM_DIAG(("   err: %"STAT_COUNTER_F"", mem->err));
 }
 
 #if MEMP_STATS
