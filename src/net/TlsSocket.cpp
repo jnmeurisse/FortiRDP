@@ -45,7 +45,6 @@ namespace net {
 
 		mbed_err rc = 0;
 
-		// connect the socket to the specified end point
 		rc = TcpSocket::connect(ep, timer);
 		if (rc)
 			goto abort;
@@ -84,7 +83,6 @@ namespace net {
 					(uintptr_t)this
 				);
 
-			// perform handshake with the SSL server
 			handshake_status = _tlsctx.handshake();
 
 			if (_logger->is_trace_enabled())
@@ -99,7 +97,6 @@ namespace net {
 				const poll_status poll_status = poll(handshake_status.rc, timer.remaining_time());
 
 				if (poll_status.code != poll_status_code::NETCTX_POLL_OK) {
-					// Polling error
 					handshake_status.status_code = hdk_status_code::SSLCTX_HDK_ERROR;
 					handshake_status.rc = poll_status.rc;
 				}
@@ -150,7 +147,6 @@ namespace net {
 			TcpSocket::shutdown();
 		}
 
-		// Free all memory allocated by the library to manage the tls context.
 		_tlsctx.clear();
 
 		return;

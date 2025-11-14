@@ -22,87 +22,98 @@ namespace tools {
 	public:
 		using const_iterator = strimap::const_iterator;
 
-		/* Allocates an empty string map
+		/**
+		 * Allocates an empty string map.
 		*/
 		StringMap() = default;
 
-		/* Allocates a string map from a named value pairs list.
-		* 
-		* The named value pairs list must have the following syntax
-		* NAME{=VALUE} *(delim NAME{=VALUE})
+		/**
+		 * Allocates a string map from a named value pairs list.
+		 * 
+		 * The named value pairs list must have the following syntax
+		 * NAME{=VALUE} *(delim NAME{=VALUE})
 		*/
 		explicit StringMap(const std::string& line, const char delim);
 
-		/* Disposes this string map.
+		/**
+		 * Disposes this string map.
 		*/
 		virtual ~StringMap();
 
-		/* Erases the string map.
+		/**
+		 * Erases the string map.
 		*/
 		void serase();
 
-		/* Adds a collection of named value pairs initialized from a named value pairs list.
-		* 
-		* The named value pairs list must have the following syntax
-		* NAME{=VALUE} *(delim NAME{=VALUE})
-		*
-		* @param line
-		* @param delim
-		* @return the number of pair name, value added to this collection
+		/**
+		 * Adds a collection of named value pairs initialized from a named value pairs list.
+		 * 
+		 * The named value pairs list must have the following syntax
+		 * NAME{=VALUE} *(delim NAME{=VALUE})
+		 *
+		 * @return the number of pair name, value added to this collection
 		*/
 		size_t add(const std::string& line, const char delim);
 
-		/* Sets the value mapped to the specified name.
+		/**
+		 * Sets the value mapped to the specified name.
 		*/
 		void set(const std::string& name, const std::string& value);
 
-		/* Gets the value mapped to the specified name.
-		* 
-		* The function returns true if the name exists in the collection.
-		* The parameter value is updated only if the name has been found.
+		/**
+		 * Gets the value mapped to the specified name.
+		 * 
+		 * The function returns true if the name exists in the collection.
+		 * The parameter value is updated only if the name has been found.
 		*/
 		bool get_str(const std::string& name, std::string& value) const;
 
-		/* Returns the value mapped to the specified name or a default value.
-		* 
-		* The function returns the value if the name exists in the collection
-		* or the default value if the name does not exist.
+		/**
+		 * Returns the value mapped to the specified name or a default value.
+		 * 
+		 * The function returns the value if the name exists in the collection
+		 * or the default value if the name does not exist.
 		*/
 		std::string get_str_value(const std::string& name, const std::string& default) const;
 
-		/* Gets the value mapped to the specified name.
-		* 
-		* The function converts the value to an integer. The function returns true if
-		* the name exists in the collection and if the value can be converted to an
-		* integer. The parameter value is updated only if the name has been found.
+		/**
+		 * Gets the value mapped to the specified name.
+		 * 
+		 * The function converts the value to an integer. The function returns true if
+		 * the name exists in the collection and if the value can be converted to an
+		 * integer. The parameter value is updated only if the name has been found.
 		*/
 		bool get_int(const std::string& name, int& value) const;
 
-
-		/* Returns the value mapped to the specified name.
-		*
-		* The function converts the value to an integer. The function returns the
-		* default value if the name does not exist in the collection or if the value
-		* can't be converted to an integer.
+		/**
+		 * Returns the value mapped to the specified name.
+		 *
+		 * The function converts the value to an integer. The function returns the
+		 * default value if the name does not exist in the collection or if the value
+		 * can't be converted to an integer.
 		*/
 		int get_int_value(const std::string& name, int default) const;
 
-		/* Returns all named value pairs.
-		* 
-		* The function returns a string that has the following format :
-		* NAME=VALUEdelimNAME=VALUE etc..
+		/**
+		 * Returns all named value pairs as a string.
+		 * 
+		 * The function returns a string that has the following format :
+		 * NAME=VALUEdelimNAME=VALUE etc..
 		*/
 		std::string join(const std::string& delim) const;
 
-		/* Returns the number of strings in the collection.
+		/**
+		 * Returns the number of named pairs in this collection.
 		*/
 		inline size_t size() const { return _strmap.size(); }
 
-		/* Returns an iterator referring to the first element in the collection.
+		/**
+		 * Returns an iterator referring to the first element in the collection.
 		*/
 		inline const_iterator cbegin() const { return _strmap.cbegin(); }
 
-		/* Returns an iterator referring to the last element in the collection.
+		/**
+		 * Returns an iterator referring to the last element in the collection.
 		*/
 		inline const_iterator cend() const { return _strmap.cend(); }
 		

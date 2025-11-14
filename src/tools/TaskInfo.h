@@ -20,11 +20,13 @@ namespace tools {
 		explicit TaskInfo(const std::wstring& path);
 		~TaskInfo();
 
-		/* Returns a reference to the task path
+		/**
+		 * Returns a reference to the task path
 		*/
 		inline const std::wstring& path() const { return _task_path; }
 
-		/* Returns a reference to the task parameters
+		/**
+		 * Returns a reference to the task parameters
 		*/
 		inline const std::vector<std::wstring>& params() const { return _task_params; }
 

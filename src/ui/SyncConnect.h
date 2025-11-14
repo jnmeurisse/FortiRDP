@@ -18,7 +18,7 @@ namespace ui {
 
 	/**
 	* A synchronous procedure that connects this client to the firewall. The procedure
-	* posts a ConnectedEvent to the window when done.
+	* posts a ConnectedEvent to the main window when done.
 	*/
 	class SyncConnect final : public SyncProc
 	{
@@ -30,22 +30,22 @@ namespace ui {
 		const fw::AuthMethod _auth_method;
 		fw::FirewallClient& _portal_client;
 
-		// send a show error message command to the window specified by hwnd
+		// sends a show error message command to the window specified by hwnd.
 		void showErrorMessageDialog(const wchar_t* message) const;
 
-		// callback called to ask user to confirm certificate usage
+		// callback called to ask user to confirm certificate usage.
 		bool confirm_certificate(const mbedtls_x509_crt* crt, int status);
 
-		// callback called to ask user to provide a user name/password
-		bool ask_credentials(fw::AuthCredentials& credential);
+		// callback called to ask user to provide a user name/password.
+		bool ask_credentials(fw::AuthCredentials& credentials);
 
-		// callback called to ask user to provide a pin code
+		// callback called to ask user to provide a pin code.
 		bool ask_pincode(fw::AuthCode& code2fa);
 
 		// callback called when authenticating a user with SAML.
 		bool ask_saml_auth(fw::AuthSamlInfo& saml_info);
 
-		// connect procedure
+		// connect procedure.
 		virtual bool procedure() override;
 	};
 

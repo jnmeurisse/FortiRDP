@@ -24,10 +24,11 @@ namespace http {
 		Cookie() = delete;
 
 
-		/* Allocates a cookie from the cookie attributes.
-		*
-		*  Note: when expires is < 0, the cookie is considered as
-		*  a session cookie.
+		/**
+		 * Allocates a cookie from the cookie attributes.
+		 *
+		 *  Note: when expires is < 0, the cookie is considered as
+		 *  a session cookie.
 		*/
 		Cookie(
 			const std::string& name,
@@ -40,62 +41,79 @@ namespace http {
 		);
 
 
-		/* Returns an obfuscated string representation of this cookie.
-		 * The string format is compatible with Netscape specification.
+		/**
+		 * Returns an obfuscated string representation of this cookie.
+		 * 
+		 * Note: The returned string format is compatible with Netscape specification.
 		*/
 		tools::obfstring to_header() const;
 
-		/* Returns the cookie name.
+		/**
+		 * Returns the cookie name.
 		*/
 		inline const std::string& get_name() const noexcept { return _name; }
 
-		/* Returns the cookie value as an obfuscated string.
+		/**
+		 * Returns the cookie value as an obfuscated string.
 		*/
 		inline const tools::obfstring& get_value() const noexcept { return _value; }
 
-		/* Returns the cookie domain attribute.
+		/**
+		 * Returns the cookie domain attribute.
 		*/
 		inline const std::string& get_domain() const noexcept { return _domain; }
 
-		/* Returns the cookie path attribute.
+		/**
+		 * Returns the cookie path attribute.
 		*/
 		inline const std::string& get_path() const noexcept{ return _path; }
 
-		/* Returns the cookie expires attribute.
-		*  The method returns -1 if the cookie is a session cookie.
+		/**
+		 * Returns the cookie expires attribute.
+		 * 
+		 * Note: The method returns -1 if the cookie is a session cookie.
 		*/
 		inline const std::time_t& get_expires() const noexcept { return _expires; }
 
-		/* Returns true if the cookie secure attribute is defined.
+		/**
+		 * Returns true if the cookie secure attribute is defined.
 		*/
 		inline bool is_secure() const noexcept { return _secure; }
 
-		/* Returns true if the cookie attribute httponly is defined.
+		/**
+		 * Returns true if the cookie attribute httponly is defined.
 		*/
 		inline bool is_http_only() const noexcept { return _http_only; }
 
-		/* Returns true if the cookie is expired.
+		/**
+		 * Returns true if the cookie is expired.
 		*/
 		bool is_expired() const noexcept;
 
-		/* Returns true if it is a session cookie.
+		/**
+		 * Returns true if it is a session cookie.
 		*/
 		bool is_session() const noexcept;
 
-		/* Returns true if the cookie domain matches the given domain.
-		*  Note: the implementation deviates from rfc6265.
+		/**
+		 * Returns true if the cookie domain matches the given domain.
+		 *
+		 * Note: the implementation deviates from rfc6265.
 		*/
 		bool same_domain(const std::string& domain) const;
 
-		/* Returns true if the cookie path is a prefix of the given path.
+		/**
+		 * Returns true if the cookie path is a prefix of the given path.
 		*/
 		bool path_matches(const std::string& path) const;
 
-		/* Constructs a cookie from a Set-cookie header string.
-		*  @param cookie_string The cookie definition.
-		*  @return a Cookie.
-		*
-		*  The method throws a CookieError if the cookie is not valid.
+		/**
+		 * Constructs a cookie from a Set-cookie header string.
+		 * 
+		 * @param cookie_string The cookie definition.
+		 * @return a Cookie.
+		 *
+		 * Note: The method throws a CookieError if the cookie is not valid.
 		*/
 		static Cookie parse(const tools::obfstring& cookie_string);
 
@@ -110,11 +128,11 @@ namespace http {
 		bool _http_only;
 
 
-		/* Convert a Cookie time representation to a time_t.
-		*
-		* @param value The string to convert to a time_t.
-		* @return The corresponding time or 0 if the string can not be parsed correctly.
-		* This expires the cookie.
+		/**
+		 * Converts a Cookie time representation to a time_t.
+		 *
+		 * @param value The string to convert to a time_t.
+		 * @return The corresponding time or 0 if the string can not be parsed correctly.
 		*/
 		static time_t parse_http_date(const std::string& value);
 	};

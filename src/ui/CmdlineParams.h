@@ -21,101 +21,131 @@ namespace ui {
 		explicit CmdlineParams();
 		~CmdlineParams();
 
-		/*! Initializes this instance from the command line string
+		/**
+		* Initializes this instance from the command line string.
 		*/
 		bool initialize();
 
-		/*! Initializes this instance from an array of arguments
+		/**
+		 * Initializes this instance from an array of arguments.
 		*/
 		bool initialize(int argc, LPWSTR argv[]);
 
-		/*! prints the correct usage of this program to stdout
+		/**
+		 * Prints the correct usage of this program to stdout.
 		*/
 		void print_usage();
 
-		/*! returns the firewall address
+		/**
+		 * Returns the firewall address option.
 		*/
 		inline const std::wstring& firewall_address() const { return _fw_address; }
 
-		/*! returns the host address
+		/**
+		 * Returns the host address option.
 		*/
 		inline const std::wstring& host_address() const { return _host_addres; }
 
-		/*! returns the ca certificate filename
+		/**
+		 * Returns the CA certificate filename option.
 		*/
 		inline const std::wstring& ca_cert_filename() const { return _ca_cert_filename; }
 
-		/*! returns the authentication method
+		/**
+		 * Returns the authentication method option.
 		*/
 		inline fw::AuthMethod auth_method() const { return _auth_method; }
 
-		/*! returns the user certificate filename
+		/**
+		 * Returns the user certificate filename option.
 		*/
 		inline const std::wstring& us_cert_filename() const { return _us_cert_filename; }
 
-		/*! returns the user name
+		/**
+		 * Returns the user name option.
 		*/
 		inline const std::wstring& username() const { return _username; }
 
-		/*! returns the app name including parameters
+		/**
+		 * Returns the application name including parameters option.
 		*/
 		inline const std::wstring& appname() const { return _app_name; }
 
-		/*! returns true if appname is mstsc
+		/**
+		 * Returns true if the application name option is mstsc (remote desktop client).
 		*/
 		inline bool is_mstsc() const { return _app_name.compare(L"mstsc") == 0; }
 
-		/*! returns the .rdp filename
+		/**
+		 * Returns the remote desktop client configuration file name option.
 		*/
 		inline const std::wstring& rdp_filename() const { return _rdp_filename; }
 
-		/*! multiple clients are allowed
+		/**
+		 * Returns true if multiple clients option is specified.
 		*/
 		inline bool multi_clients() const { return _multi_clients; }
 
-		/*! full screen (only if app = rdp)
+		/**
+		 * Returns true if remote desktop client full screen mode option is enabled.
+		 * (only if app = mstsc)
 		*/
 		inline bool full_screen() const { return _full_screen; }
 
-		/*! span mode (only if app = rdp)
+		/**
+		 * Returns true if remote desktop client span mode option is enabled.
+		 * (only if app = mstsc)
 		*/
 		inline bool span_mode() const { return _span_mode; }
 
-		/*! multi monitor mode (only if app = rdp)
+		/**
+		 * Returns true if remote desktop client multi monitor mode option is enabled.
+		 * (only if app = mstsc)
 		*/
 		inline bool multimon_mode() const { return _multimon_mode; }
 
-		/*! screen size */
+		/**
+		 * Returns the screen size specified on the command line.
+		 * (only if app = mstsc)
+		 */
 		ScreenSize screen_size() const { return _screen_size; }
 
-		/*! admin console (only if app = rdp)
+		/**
+		 * Returns true if the remote desktop client admin console mode is enabled.
+		 * (only if app = mstsc)
 		*/
 		inline bool admin_console() const { return _admin_console; }
 
-		/*! local port, if not specified or 0, the program use a random port number
+		/**
+		 * Returns a local port to listen to.
+		 * If not specified or 0, the listener uses a random port number.
 		*/
 		inline int local_port() const { return _local_port; }
 
-		/*! False if Nagle algorithm must be disabled
+		/**
+		 * Returns false if Nagle algorithm must be disabled.
 		*/
 		inline bool tcp_nodelay() const { return _tcp_nodelay; }
 
-		/*! returns true if deletion of last used username from rdp login window
-		 * is requested
+		/**
+		 * Returns true if deletion of last used username from mstsc login window
+		 * option is enabled.
+		 * (only if app = mstsc)
 		*/
 		inline bool clear_rdp_username() const { return _clear_lastuser; }
 
-		/*! is verbose mode required
+		/**
+		 * Returns if debug logs mode is enabled.
 		*/
 		inline bool verbose() const { return _verbose; }
 
-		/*! is trace mode required
+		/**
+		 * Returns if trace logs is enabled.
 		*/
 		inline bool trace() const { return _trace; }
 
-
 	private:
-		// Command line arguments
+		// Command line arguments.
 		fw::AuthMethod _auth_method = fw::AuthMethod::BASIC;
 		std::wstring _username;
 		std::wstring _fw_address;

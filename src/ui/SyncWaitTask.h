@@ -26,10 +26,10 @@ namespace ui {
 		~SyncWaitTask();
 
 	private:
-		//- the task to wait to complete
+		//- a task that we wait for to finish.
 		tools::Task* const _task;
 
-		//- the wait procedure
+		// The wait procedure.
 		virtual bool procedure() override;
 	};
 

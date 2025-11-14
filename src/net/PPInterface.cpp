@@ -53,26 +53,26 @@ namespace net {
 		}
 
 		
-		// initialize statistics
+		// initialize lwIP statistics
 		stats_init();
 
-		// Create a PPP over SSLVPN connection
+		// Create a PPP over the SSLVPN connection.
 		_pcb = pppossl_create(&_nif, ppp_output_cb, ppp_link_status_cb, this);
 		if (_pcb == nullptr) {
 			_logger->error("ERROR: PP Interface - memory allocation failure.");
 			return false;
 		}
 
-		// IP traffic is routed to that interface
+		// IP traffic is routed through that interface.
 		ppp_set_default(_pcb);
 
-		// FortiGate does not support these options, disable it 
+		// FortiGate does not support these options, disable it.
 		_pcb->lcp_wantoptions.neg_accompression = false;
 		_pcb->lcp_wantoptions.neg_pcompression = false;
 		_pcb->lcp_wantoptions.neg_asyncmap = false;
 
 		// Start the connection.  The ppp_link_status_cb will be called
-		// by the lwip stack to report the connection success/failure.
+		// by the lwIP stack to report the connection success/failure.
 		ppp_err rc_con = ppp_connect(_pcb, 0);
 		if (rc_con != PPPERR_NONE) {
 			ppp_free(_pcb);
@@ -175,7 +175,6 @@ namespace net {
 
 			case snd_status_code::NETCTX_SND_ERROR:
 			default:
-				// an error has occurred
 				rc = false;
 				_logger->error("ERROR: PP Interface - tunnel send failure");
 				_logger->error(mbed_errmsg(status.rc).c_str());
@@ -204,7 +203,7 @@ namespace net {
 		byte buffer[4096];
 		bool rc;
 
-		// read data available from the tunnel
+		// Read data available in the tunnel.
 		const rcv_status status{ _tunnel.recv_data(buffer, sizeof(buffer)) };
 
 		switch (status.code) {
@@ -212,7 +211,7 @@ namespace net {
 			rc = true;
 			_counters.received += status.rbytes;
 
-			// PPP data available, pass it to the stack.
+			// PPP data available, pass it to the lwIP stack.
 			const ppp_err ppp_rc = pppossl_input(_pcb, buffer, status.rbytes);
 			if (ppp_rc) {
 				_logger->error("ERROR: PP Interface - input failure (%s)",
@@ -228,13 +227,12 @@ namespace net {
 			break;
 
 		case rcv_status_code::NETCTX_RCV_EOF:
-			// socket was closed by peer
+			// the PPPP socket was closed by peer.
 			rc = false;
 			break;
 
 		case rcv_status_code::NETCTX_RCV_ERROR:
 		default:
-			// an error has occurred
 			rc = false;
 			_logger->error("ERROR: PP Interface - tunnel receive failure");
 			_logger->error(mbed_errmsg(status.rc).c_str());
@@ -286,7 +284,7 @@ namespace net {
 			Logger* const logger = pp_interface->_logger;
 
 			if (err_code == PPPERR_USER) {
-				// The ppp interface is now down.
+				// The PPP interface is now down.
 				logger->trace(".... %x ppp_link_status_cb interface is down", (uintptr_t)pp_interface);
 			} 
 			else

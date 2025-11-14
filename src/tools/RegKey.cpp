@@ -105,11 +105,11 @@ namespace tools {
 		if (rc != ERROR_SUCCESS)
 			throw_winapi_error(rc, "RegGetValue error");
 
-		// Allocate the needed space.
-		// Note: len is expressed in bytes and includes the space to store the null char 
+		// Allocate the required space.
+		// Note: 'len' is in bytes and includes space for the null terminator.
 		std::vector<wchar_t> buffer(len / sizeof(wchar_t));
 
-		// Get the string into the allocated buffer
+		// Get the string into the allocated buffer.
 		rc = ::RegGetValue(
 			_root_key,
 			_key_name.c_str(),

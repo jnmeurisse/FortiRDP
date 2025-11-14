@@ -26,42 +26,49 @@ namespace tools {
 		explicit Path(const std::wstring& path);
 		explicit Path(const std::wstring& folder, const std::wstring& filename);
 
-		/* returns the folder name, including the last backslash
+		/**
+		 * Returns the folder name, including the last backslash.
 		*/
 		inline const std::wstring& folder() const noexcept { return _folder; }
 
-		/* returns the file name
+		/**
+		 * Returns the file name.
 		*/
 		inline const std::wstring& filename() const noexcept { return _fname; }
 		
-		/* returns the combined folder and file name
+		/**
+		 * Returns the combined folder and file name.
 		*/
 		std::wstring to_string() const;
 
-		/* returns the path truncated to the specified number of characters
+		/**
+		 * Returns the path truncated to the specified number of characters.
 		*/
 		std::wstring compact(unsigned int max_char) const;
 
-		/* returns the path to the specified module
+		/**
+		 * Returns the path to the specified module.
 		*/
 		static Path get_module_path(HMODULE hModule = NULL);
 
-		/* returns the path to the desktop
+		/**
+		 * returns the path to the user's desktop folder.
 		*/
 		static Path get_desktop_path();
 
-		/* returns the path to AppData/local
+		/**
+		 * Returns the path to user's AppData/local folder.
 		*/
 		static Path get_appdata_path();
 
 	private:
-		// The folder name (including the last \ delimiter)
+		// The folder name (including the last \ delimiter).
 		std::wstring _folder;
 
-		// The filename
+		// The filename.
 		std::wstring _fname;
 
-		// returns the path to a windows known folder.
+		// Returns the path to a windows known folder.
 		static Path get_known_folder_path(REFKNOWNFOLDERID rfid);
 	};
 

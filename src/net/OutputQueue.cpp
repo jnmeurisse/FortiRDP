@@ -56,8 +56,6 @@ namespace net {
 				snd_status.rc,
 				snd_status.sbytes);
 
-
-		// return the status
 		return snd_status;
 	}
 
@@ -87,6 +85,9 @@ namespace net {
 			const PBufQueue::cblock data_cblock{ get_cblock(send_buffer_size) };
 
 			// Compute the write flags.
+			//  TCP_WRITE_FLAG_COPY is used to for lwIP to take a copy of the data
+			//  TCP_WRITE_FLAG_MORE is set only if there are more data following this
+			//  contiguous block.
 			const u8_t flags = TCP_WRITE_FLAG_COPY | (data_cblock.more ? TCP_WRITE_FLAG_MORE : 0);
 
 			// Send

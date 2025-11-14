@@ -65,27 +65,33 @@ namespace net {
 			DISCONNECTING,		// Disconnecting the PPP interface
 			STOPPED };
 
-		/* Starts the tunnel listener
+		/**
+		 * Starts the tunnel listener
 		*/
 		bool start();
 
-		/* Terminates the tunnel listener.
+		/**
+		 * Terminates the tunnel listener.
 		*/
 		void terminate();
 
-		/* Waits until the tunneler is in listening mode
+		/**
+		 * Waits until the tunneler is in listening mode.
 		*/
 		bool wait_listening(DWORD timeout);
 
-		/* Returns the state of the listener
+		/**
+		 * Returns the state of the listener.
 		*/
 		inline State get_state() const { return _state; }
 
-		/* Returns the transmitted/received bytes counters
+		/**
+		 * Returns the transmitted/received bytes counters.
 		*/
 		inline const Counters& counters() const { return _counters; }
 
-		/* Returns the local endpoint address and port
+		/**
+		 * Returns the local endpoint address and port.
 		*/
 		inline const Endpoint& local_endpoint() const { return _listener.endpoint(); }
 
@@ -96,35 +102,35 @@ namespace net {
 		void compute_sleep_time(timeval &timeout) const;
 		friend void  timeout_cb(void *arg);
 
-		// a reference to the application logger
+		// a reference to the application logger.
 		tools::Logger* const _logger;
 
-		// Tunneler configuration
+		// Tunneler configuration.
 		const tunneler_config _config;
 
-		// The current state of this tunnel listener
+		// The current state of this tunnel listener.
 		volatile State _state;
 
-		// the tunneler must stop when this flag is set 
+		// The tunneler must stop when this flag is set.
 		volatile bool _terminate;
 
-		// Tunnel socket
+		// Tunnel socket.
 		TlsSocket&  _tunnel;
 
-		// Counters of bytes sent to / received from the tunnel
+		// Counters of bytes sent to / received from the tunnel.
 		Counters _counters;
 
-		// PP interface
+		// PP interface.
 		PPInterface _pp_interface;
 		
-		// this event is set when the tunneler is listening  
+		// This event is set when the tunneler is listening.
 		Event _listening_status;
 
-		// local end point and an associated listener
+		// The local end point and an associated listener.
 		const Endpoint _local_endpoint;
 		Listener _listener;
 
-		// remote end point (behind the firewall)
+		// The remote end point (protected by the firewall).
 		Endpoint _remote_endpoint;
 	};
 

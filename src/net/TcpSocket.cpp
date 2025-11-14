@@ -30,12 +30,10 @@ namespace net {
 				ep.to_string().c_str()
 			);
 
-		// open a tcp socket.
 		mbed_err rc = Socket::connect(ep, net_protocol::NETCTX_PROTO_TCP, timer);
 		if (rc)
 			goto terminate;
 
-		// configure it as a non blocking socket.
 		rc = Socket::set_blocking_mode(false);
 		if (rc)
 			goto terminate;

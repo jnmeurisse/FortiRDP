@@ -30,14 +30,14 @@ namespace ui {
 
 			while (std::getline(input_file, line))
 			{
-				// skip invalid lines
+				// Skip invalid lines
 				if (line.size() > 1024)
 					break;
 
-				// split option parameters
+				// Split option parameters
 				if (tools::split(line, ':', params) == 3)
 				{
-					// add it to the list
+					// Add it to the list
 					add_option(params[0], params[1], params[2]);
 				}
 			}
@@ -113,7 +113,7 @@ namespace ui {
 		option.option_type = type;
 		option.option_value = value;
 
-		// add it to the list of options
+		// Add it to the list of options
 		_options_list.push_back(option);
 	}
 

@@ -52,34 +52,34 @@ namespace ui {
 			TIMER_ACTIVITY = 3
 		};
 
-		// command line parameters
+		// Command line parameters.
 		const CmdlineParams _params;
 
-		// registry parameters
+		// Registry parameters.
 		RegistrySettings _settings;
 
-		// the application logger
+		// The application logger.
 		tools::Logger* const _logger;
 
-		// a writer to append data in the InfoLog text box
+		// A writer that appends data in the InfoLog text box
 		InfoLogWriter* _writer;
 
-		// Connection parameters
-		// - firewall endpoint
+		// Connection parameters :
+		// - Firewall endpoint
 		const int DEFAULT_FW_PORT = 10443;
 		net::Endpoint _firewall_endpoint;
 
-		// - firewall domain
+		// - Firewall domain
 		std::string _firewall_domain;
 
-		// - host endpoint
+		// - Host endpoint
 		const int DEFAULT_RDP_PORT = 3389;
 		net::Endpoint _host_endpoint;
 
-		// - user name
+		// - User name
 		std::wstring _username;
 
-		// - task to launch and parameters
+		// - Task to launch and parameters
 		std::unique_ptr<tools::TaskInfo> _task_info;
 
 		// - Running controller
@@ -102,7 +102,7 @@ namespace ui {
 		void startTask();
 		void clearRdpHistory();
 
-		// Event handlers
+		// Windows Event message handlers
 		virtual INT_PTR onDestroyDialogMessage(WPARAM wParam, LPARAM lParam) override;
 		virtual INT_PTR onCloseDialogMessage(WPARAM wParam, LPARAM lParam) override;
 		virtual INT_PTR onButtonClick(int cid, LPARAM lParam) override;

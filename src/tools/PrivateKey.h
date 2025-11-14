@@ -20,11 +20,14 @@ namespace tools {
 		explicit PrivateKey(PrivateKey& other) = delete;
 		~PrivateKey();
 
-		/*
-		* Loads the private key from the file.
+		/**
+		 * Loads the private key from the file.
 		*/
 		mbed_err load(const char* filename, const char* passcode);
 
+		/**
+		* Returns a reference to the private key.
+		*/
 		inline mbedtls_pk_context* get_pk() { return &_key; }
 
 	private:

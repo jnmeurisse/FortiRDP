@@ -7,8 +7,8 @@
 */
 #include "Logger.h"
 
+#include <cstdarg>
 #include <ctime>
-#include <stdio.h>
 #include "tools/Mutex.h"
 #include "tools/StrUtil.h"
 
@@ -142,7 +142,7 @@ namespace tools {
 	{
 		va_list args_copy;
 
-		// compute the number of characters
+		// Compute the number of characters.
 		va_copy(args_copy, args);
 		const int size = vsnprintf(nullptr, 0, format, args_copy);
 		va_end(args_copy);
@@ -150,14 +150,14 @@ namespace tools {
 		if (size < 0)
 			return nullptr;
 
-		// allocate and format
+		// Allocate and format the text.
 		char* text = new char[size + 1];
 		if (vsnprintf(text, size + 1, format, args) < 0) {
 			delete[] text;
 			return nullptr;
 		}
 
-		// return the formatted text
+		// Return the formatted text
 		return text;
 	}
 
@@ -178,14 +178,11 @@ namespace tools {
 
 	static std::string datetime()
 	{
-		// get current system time
-		const time_t now = time(nullptr);
-
-		// convert to local time
+		// Get current system time and convert it to local time
 		tm local_time;
+		const time_t now = time(nullptr);
 		localtime_s(&local_time, &now);
 
-		// output as a string
 		char buffer[128] { 0 };
 		strftime(buffer, sizeof(buffer), "%F %T", &local_time);
 

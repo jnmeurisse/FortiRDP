@@ -11,8 +11,8 @@
 #include "ui/Dialog.h"
 
 namespace ui {
-	/*
-	* A modeless dialog base class
+	/**
+	* A modeless dialog base class.
 	*/
 	class ModelessDialog : public Dialog
 	{

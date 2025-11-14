@@ -19,15 +19,18 @@ namespace tools {
 		~X509Crt();
 		X509Crt(X509Crt& other) = delete;
 		
-		/* Loads one or more certificates and add them to the list of certificates.
+		/**
+		 * Loads one or more certificates and adds them to the list of certificates.
 		*/
 		mbed_err load(const char* filename);
 
-		/* Writes an informational string about the certificate into the buffer.
+		/**
+		 * Writes an informational string about the certificate into the buffer.
 		*/
 		mbed_err get_info(char* buf, size_t size, const char* prefix) const;
 
-		/* Returns a pointer to the certificate chain.
+		/**
+		 * Returns a pointer to the certificate chain.
 		*/
 		inline mbedtls_x509_crt* get_crt() { return &_crt; }
 
@@ -38,12 +41,15 @@ namespace tools {
 	// A unique pointer to a x509 certificate
 	using X509crtPtr = std::unique_ptr<X509Crt>;
 
-	/* Converts a x509 certificate to PEM format.
-	*  @return True if the conversion succeeded, false if not.
+	/**
+	 * Converts a x509 certificate to PEM format.
+	 * 
+	 * @return True if the conversion succeeded, false if not.
 	*/
 	bool X509crt_to_pem(const mbedtls_x509_crt* crt, std::string& pem);
 
-	/* Verifies if the x509 is signed by a trusted CA stored in Windows.
+	/**
+	 * Checks if the x509 is signed by a trusted CA stored in Windows.
 	*/
 	bool x509crt_is_trusted(const mbedtls_x509_crt* crt);
 

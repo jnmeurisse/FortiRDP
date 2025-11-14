@@ -90,7 +90,7 @@ namespace tools {
 			os << "Unknown error.";
 		}
 		else {
-			// format the error message
+			// Format the error message.
 			os << errmsg[errnum] << " (" << errnum << ")";
 		}
 

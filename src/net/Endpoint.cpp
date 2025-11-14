@@ -46,12 +46,12 @@ namespace net {
 		const char* const str = address.c_str();
 		const char* p = address.c_str() + address.length() - 1;
 
-		// search a port delimiter from the end of the string
+		// Search a port delimiter from the end of the string.
 		while (p >= str && *p != ':' && *p != ']')
 			p--;
 
 		if ((p >= str) &&  (*p == ':')) {
-			// extract the host name and port
+			// Extract the host name and port.
 			_hostname = tools::trim(std::string(str, p));
 			valid_port = tools::str2i((std::string(p + 1, str + address.length())), _port) &&
 							(_port > 0);

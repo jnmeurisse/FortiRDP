@@ -55,12 +55,10 @@ namespace tools {
 		DEBUG_ENTER(_logger, "Thread", "wait");
 
 		switch (::WaitForSingleObject(_handle, timeout)) {
-		case WAIT_OBJECT_0:
-			// the thread has ended
+		case WAIT_OBJECT_0: // the thread has ended.
 			return true;
 
-		case WAIT_TIMEOUT:
-			// the thread is still running
+		case WAIT_TIMEOUT: // the thread is still running.
 			return false;
 
 		case WAIT_FAILED:
@@ -72,10 +70,9 @@ namespace tools {
 	}
 
 
-	//-
-	// Function : threadEntryPoint
-	// Purpose  : Thread entry point
-	//
+	/**
+	* Thread entry point.
+	*/
 	static unsigned __stdcall thread_entry_point(void* data)
 	{
 		Thread* const thread = (Thread*)data;

@@ -13,7 +13,9 @@
 
 namespace http {
 
-	/* Exception raised when the syntax of an HTTP cookie is incorrect. */
+	/**
+	 * Exception raised when the syntax of an HTTP cookie is incorrect.
+	 */
 	class CookieError final : public std::logic_error
 	{
 	public:

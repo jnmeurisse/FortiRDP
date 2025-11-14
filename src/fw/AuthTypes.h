@@ -36,9 +36,9 @@ namespace fw {
 		std::string code;
 	};
 
-	// SSL VPN SAML authentication.
+	// SSL VPN SAML authentication configuration.
 	struct AuthSamlInfo {
-		// FortiGate Service provider URL
+		// FortiGate Service provider URL.
 		http::Url service_provider_url;
 
 		// FortiGate certificate.  The certificate was validated

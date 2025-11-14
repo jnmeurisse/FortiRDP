@@ -24,119 +24,143 @@ namespace ui {
 		explicit RegistrySettings();
 		virtual ~RegistrySettings();
 
-		/* retrieves the last user name successfully logged in the firewall
+		/**
+		 * Retrieves the last user name successfully logged in the firewall.
 		*/
 		std::wstring get_username(const std::wstring& default_value) const;
 
-		/* saves the last user name successfully logged in the firewall
+		/**
+		 * Saves the last user name successfully logged in the firewall.
 		*/
 		void set_username(const std::wstring& username);
 
-		/* retrieves last firewall address
+		/** 
+		 * Retrieves last firewall address.
 		*/
 		std::wstring get_firewall_address() const;
 
-		/* saves the last firewall address
+		/**
+		 * Saves the last firewall address.
 		*/
 		void set_firewall_address(const std::wstring& value);
 
-		/* retrieves the last host address
+		/**
+		 * Retrieves the last host address.
 		*/
 		std::wstring get_host_address() const;
 
-		/* saves the last host address
+		/**
+		 * Saves the last host address.
 		*/
 		void set_host_address(const std::wstring& value);
 
-		/* retrieves the full screen mode flag
+		/**
+		 * Retrieves the full screen mode flag.
 		*/
 		bool get_full_screen() const;
 
-		/* saves the full scree mode flag
+		/**
+		 * Saves the full screen mode flag.
 		*/
 		void set_full_screen(bool fullscreen);
 
-		/* retrieves the clear RDP user name flag
+		/**
+		 * Retrieves the clear RDP user name flag.
 		*/
 		bool get_clear_rdp_username() const;
 
-		/* saves the clear RDP user name flag
+		/**
+		 * Saves the clear RDP user name flag.
 		*/
 		void set_clear_username(bool clear_username);
 
-		/* retrieves the span mode flag
+		/**
+		 * Retrieves the span mode flag.
 		*/
 		bool get_span_mode() const;
 
-		/* saves the span mode flag
+		/**
+		 * Saves the span mode flag.
 		*/
 		void set_span_mode(bool span_mode);
 
-		/* retrieves the multi monitors mode flag
+		/**
+		 * Retrieves the multi monitors mode flag.
 		*/
 		bool get_multimon_mode() const;
 
-		/* saves the multi monitors mode flag
+		/**
+		 * Saves the multi monitors mode flag.
 		*/
 		void set_multimon_mode(bool multimon_mode);
 
-		/* retrieves the rdp administrator console mode flag
+		/**
+		 * Retrieves the RDP administrator console mode flag.
 		*/
 		bool get_admin_console() const;
 
-		/* saves the rdp administrator console mode flag
+		/**
+		 * Saves the RDP administrator console mode flag.
 		*/
 		void set_admin_console(bool admin_console);
 
-		/* retrieves the rdp file mode flag
+		/**
+		 * Retrieves the RDP file mode flag.
 		*/
 		bool get_rdpfile_mode() const;
 
-		/* saves the rdp file mode flag
+		/**
+		 * Saves the RDP file mode flag.
 		*/
 		void set_rdpfile_mode(bool rdpfile_mode);
 
-		/* retrieves the rdp filename
+		/**
+		 * Retrieves the RDP filename.
 		*/
 		std::wstring get_rdp_filename() const;
 
-		/* saves the rdp filename
+		/**
+		 * Saves the RDP filename.
 		*/
 		void set_rdp_filename(const std::wstring& rdp_filename);
 
-		/* retrieves the screen size
+		/**
+		 * Retrieves the RDP client screen size.
 		*/
 		ScreenSize get_screen_size() const;
 
-		/* saves the screen size
+		/**
+		 * Saves the RDP client screen size.
 		*/
 		void set_screen_size(const ScreenSize& size);
 
-		/* retrieves the authentication mode
+		/**
+		 * Retrieves the authentication mode.
 		*/
 		fw::AuthMethod get_auth_method() const;
 
-		/* saves the authentication mode
+		/**
+		 * Saves the authentication mode.
 		*/
 		void set_auth_method(fw::AuthMethod auth_method);
 
 	private:
-		//- the registry root key
+		//- the registry root key.
 		tools::RegKey _key;
 
-		//- a convenient method to retrieve a flag value
+		//- a convenient method to retrieve a flag value.
 		bool get_bool(const std::wstring& value_name) const;
 
-		//- a convenient method to save a flag value
+		//- a convenient method to save a flag value.
 		void set_bool(const std::wstring& value_name, const bool value);
 
-		// - a convenient method to retrieve an int value
+		// - a convenient method to retrieve an int value.
 		int get_int(const std::wstring& value_name, const int default_value) const;
 
-		//- a convenient method to save an int value
+		//- a convenient method to save an int value.
 		void set_int(const std::wstring& value_name, const int value);
 
-		//- registry keys
+		//- registry keys.
 		static const std::wstring USERNAME_KEYNAME;
 		static const std::wstring FIREWALL_KEYNAME;
 		static const std::wstring HOST_KEYNAME;

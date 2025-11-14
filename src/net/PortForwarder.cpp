@@ -56,7 +56,7 @@ namespace net {
 			return false;
 		}
 
-		// Accept the connection from the local client
+		// Accept the connection from a local client.
 		const mbed_err rc_accept = listener.accept(_local_server);
 		if (rc_accept != 0) {
 			_logger->error("ERROR: PortForwarder %x - accept error (%s)",
@@ -67,25 +67,27 @@ namespace net {
 			return false;
 		}
 
-		// Disable nagle algorithm on the local server
+		// Disable Nagle algorithm on the local server.
 		_local_server.set_nodelay(_tcp_nodelay);
 
-		// Resolve the end point host name to an ip address
+		// Resolve the end point host name to an IP address.  The DNS request
+		// is sent to the FortiGate firewall and is asynchronous.  dns_found_cb is 
+		// called when the host name is resolved or if the resolution fails.
 		ip_addr_t addr;
 		const mbed_err rc_query = DnsClient::query(_endpoint.hostname(), addr, dns_found_cb, this);
 		if (rc_query == ERR_OK || rc_query == ERR_INPROGRESS) {
-			// Name is resolved or not yet resolved
+			// host name is already resolved or not yet resolved.
 			_state = State::CONNECTING;
 		}
 		else if (rc_query == ERR_VAL) {
-			// DNS server not configured
+			// DNS server is not configured, abort the connection.
 			_state = State::FAILED;
 			_logger->error("ERROR: PortForwarder %x - can not resolve %s",
 				(uintptr_t)this,
 				_endpoint.hostname().c_str());
 		}
 		else {
-			// Error during name resolution
+			// There was an error during name resolution, abort the connection.
 			_state = State::FAILED;
 			_logger->error("ERROR: PortForwarder %x - DNS error (%s)",
 				(uintptr_t)this,
@@ -95,7 +97,7 @@ namespace net {
 		if (_state == State::FAILED)
 			return false;
 
-		// Allocate the TCP client
+		// Allocate the TCP client.
 		_local_client = tcp_new();
 		if (!_local_client) {
 			_logger->error("ERROR: PortForwarder %x - memory allocation failure", (uintptr_t)this);
@@ -118,7 +120,7 @@ namespace net {
 		}
 
 		if (rc_query == ERR_OK) {
-			// Host name is resolved
+			// Host name is resolved.
 			dns_found_cb(_endpoint.hostname().c_str(), &addr, this);
 		}
 
@@ -134,16 +136,17 @@ namespace net {
 			return;
 
 		// Start the disconnection phase.  During this phase we will continue
-		// to forward what is in the forward queue. 
+		// to forward bytes available is in the forward queue. 
 		_state = State::DISCONNECTING;
 
-		// Close our server.
+		// Close our TCP server.
 		_local_server.close();
 
-		// It is not possible to reply to the server anymore, we can clear the reply queue.
+		// As it is not possible to reply to the remote server anymore,
+		// we clear the reply queue.
 		_reply_queue.clear();
 
-		// Start a timer.
+		// Start a timer
 		sys_timeout(10 * 1000, timeout_cb, &_fflush_timeout);
 
 		return;
@@ -161,7 +164,7 @@ namespace net {
 		_state = State::DISCONNECTING;
 
 		// Abort the connection by sending a RST (reset) segment to the remote host.
-		// The pcb is deallocated, the function tcp_err_cb is called which
+		// The TCP PCB is de-allocated, the function tcp_err_cb is called which
 		// finally set the current state to DISCONNECTED.
 		tcp_abort(_local_client);
 		_local_client = nullptr;
@@ -193,7 +196,7 @@ namespace net {
 			return false;
 		}
 
-		// received bytes is lower than 2048, cast is safe.
+		// The number of bytes received is less than 2048, so the cast is safe.
 		const u16_t length = static_cast<u16_t>(status.rbytes);
 		pbuf* const buffer = pbuf_alloc(PBUF_RAW, length, PBUF_RAM);
 		if (!buffer) {
@@ -201,21 +204,22 @@ namespace net {
 			return false;
 		}
 
-		// copy received data into the buffer.
+		// Copy received data into the buffer.
 		pbuf_take(buffer, data, length);
 
-		// when the sender delivers less data than what we can store in the local buffer,
-		// we assume that the data must be delivered with the TCP Push flag.
+		// If the local sender provides fewer bytes than the buffer capacity,
+		// it is assumed no more data will arrive immediately, so the data
+		// must be forwarded with the TCP Push (PSH) flag.
 		if (length != available_space)
 			buffer->flags = PBUF_FLAG_PUSH;
 
-		// append the buffer to the queue.
+		// Append the buffer to the queue.
 		if (!_forward_queue.push(buffer)) {
 			_logger->error("INTERNAL ERROR: PortForwarder %x - forward queue data full", (uintptr_t)this);
 			return false;
 		}
 
-		// decrement the reference counter and free the buffer if it drops to 0.
+		// Decrement the reference counter and free the buffer if it drops to 0.
 		pbuf_free(buffer);
 
 		return true;
@@ -272,7 +276,7 @@ namespace net {
 			// Useful only in case of error or timeout
 			_forward_queue.clear();
 
-			// Remove all callbacks.  We are not interested to be called on such events
+			// Remove all callbacks.  We are not interested to be called on such events.
 			tcp_err(_local_client, nullptr);
 			tcp_recv(_local_client, nullptr);
 
@@ -281,8 +285,8 @@ namespace net {
 			tcp_close(_local_client);
 			_local_client = nullptr;
 
-			// We are now disconnected.  The pcb has been deleted or will be deleted
-			// later by the lwip stack.
+			// We are now disconnected.  The TCP PCB has been deleted or will be deleted
+			// later by the lwIP stack.
 			_state = State::DISCONNECTED;
 		}
 
@@ -297,13 +301,14 @@ namespace net {
 			return;
 		}
 
-		// send what we can
+		// Attempt to send all available data; the actual amount sent depends on
+		// the underlying network capacity.
 		const snd_status status{ _reply_queue.write(_local_server) };
 
-		// Stop to reply 
-		//        if an error has occurred, 
+		// Disconnects this forwarder
+		//        if an error has occurred,
 		//     or if all data has been forwarded
-		//     or if we are not able to forward in a fixed delay. 
+		//     or if we are not able to forward in a fixed delay 
 		if (status.code == snd_status_code::NETCTX_SND_ERROR || _rflush_timeout || _forward_queue.is_empty()) {
 			_forward_queue.clear();
 			_local_server.close();
@@ -336,10 +341,10 @@ namespace net {
 
 		lwip_err rc_con = tcp_connect(pf->_local_client, ipaddr, pf->_endpoint.port(), tcp_connected_cb);
 		if (rc_con == ERR_OK) {
-			// start a connection timer
+			// Start a connection timer
 			sys_timeout(10 * 1000, timeout_cb, &pf->_connect_timeout);
 
-			// configure the callbacks
+			// Configure the callbacks
 			tcp_arg(pf->_local_client, pf);
 			tcp_err(pf->_local_client, tcp_err_cb);
 			tcp_sent(pf->_local_client, tcp_sent_cb);
@@ -352,10 +357,10 @@ namespace net {
 				pf,
 				lwip_errmsg(rc_con).c_str());
 
-			// delete the protocol control block
+			// Delete the TCP PCB.
 			tcp_close(pf->_local_client);
 
-			// close the local server socket
+			// Close the local server socket.
 			pf->_local_server.close();
 		}
 	}
@@ -401,10 +406,10 @@ namespace net {
 			}
 		}
 
-		// An error has occurred
+		// An error has occurred.
 		pf->_state = PortForwarder::State::DISCONNECTED;
 
-		// Close our server if not yet done
+		// Close our server if not yet done.
 		if (pf->_local_server.is_connected())
 			pf->_local_server.close();
 	}
@@ -448,7 +453,7 @@ namespace net {
 					// len bytes have been received
 					tcp_recved(tpcb, len);
 
-					// the buffer is now in the queue, we can dereference it.
+					// the buffer is now in the queue, we can free it.
 					pbuf_free(p);
 				}
 			}
@@ -461,7 +466,7 @@ namespace net {
 				tcp_err(pf->_local_client, nullptr);
 				tcp_recv(pf->_local_client, nullptr);
 
-				// Close the pcb
+				// Close the TCP PCB.
 				rc = tcp_close(tpcb);
 				pf->_local_client = nullptr;
 

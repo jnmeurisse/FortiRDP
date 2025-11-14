@@ -12,7 +12,7 @@
 
 namespace ui {
 	/**
-	* The FortiRDP about dialog
+	* The FortiRDP about dialog.
 	*/
 	class AboutDialog final : public ModalDialog
 	{

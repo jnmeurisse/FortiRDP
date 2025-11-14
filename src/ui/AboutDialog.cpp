@@ -37,7 +37,7 @@ namespace ui {
 		Path app_path{ Path::get_module_path() };
 		std::string version{ get_file_ver(app_path.to_string()) };
 
-		// prepare about text
+		// Prepare the about text.
 		std::string about_version{ tools::string_format(
 			"FortiRDP %s (%s)\n",
 			version.c_str(),

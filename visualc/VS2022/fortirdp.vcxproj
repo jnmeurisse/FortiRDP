@@ -194,6 +194,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\src\tools\.editorconfig" />
     <None Include="packages.config" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

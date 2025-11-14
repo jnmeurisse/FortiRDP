@@ -21,14 +21,16 @@ namespace tools {
 		Mutex();
 		~Mutex();
 
-		/* Forbid mutex copy
+		/**
+		 * Forbids mutex copy.
 		*/
 		Mutex(const Mutex& mutex) = delete;
 		Mutex& operator=(const Mutex& mutex) = delete;
 
 		/**
 		 * A Lock object provides a scoped lock on the mutex. The lock is
-		 * automatically released when the Lock object is discarded from the stack.
+		 * automatically released when the Lock object is discarded from
+		 * the stack.
 		*/
 		class Lock
 		{

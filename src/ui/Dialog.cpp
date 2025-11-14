@@ -49,7 +49,6 @@ namespace ui {
 		RECT r;
 
 		if (hRelWindow == NULL) {
-			// center
 			hRelWindow = ::GetDesktopWindow();
 		}
 
@@ -146,14 +145,14 @@ namespace ui {
 
 	std::wstring Dialog::get_window_text(HWND hWnd)
 	{
-		// allocate a temporary buffer
+		// Allocate a temporary buffer
 		int len = ::GetWindowTextLength(hWnd);
 		std::vector<wchar_t> buffer(len + 1);
 
-		// get the window text
+		// Get the window text
 		::GetWindowText(hWnd, &buffer[0], len + 1);
 
-		// convert the buffer as a wstring
+		// Convert the buffer as a wstring
 		return std::wstring(&buffer[0], len);
 	}
 
@@ -284,8 +283,7 @@ namespace ui {
 		case EN_CHANGE:			// Text changed
 			return onTextChange(cid, lParam);
 
-		default:
-			// message not processed by this application
+		default:				// message not processed by this application
 			return TRUE;
 		}
 	}

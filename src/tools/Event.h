@@ -22,52 +22,64 @@ namespace tools {
 	class Event final
 	{
 	public:
-		/* Creates a manual reset event.
+		/**
+		 * Creates a manual reset event.
 		*/
 		Event();
 
-		/* Creates an event.
+		/**
+		 * Creates an event.
 		*/
 		explicit Event(bool manual_reset);
 
-		/* Duplicates this event.
+		/**
+		 * Duplicates this event.
 		*/
 		explicit Event(const Event& event);
 
-		/* Destroys this event
+		/**
+		 * Destroys this event
 		*/
 		~Event();
 
-		/* Sets the event to a non-signaled state. The method
-		 * returns false if the function failed.
+		/**
+		 * Sets the event to a non-signaled state.
+		 *
+		 * The method returns false if the function failed.
 		*/
 		bool reset() noexcept;
 
-		/* Sets the event to a signaled state. The method
-		 * returns false if the function failed. 
+		/**
+		 * Sets the event to a signaled state.
+		 * 
+		 * The method returns false if the function failed. 
 		*/
 		bool set() noexcept;
 
-		/* Returns true if this event is in a signaled state, false
-		 * if not signaled.  The method raises an winapi_error if
-		 * an error has occurred.
+		/**
+		 * Returns true if this event is in a signaled state.
+		 *
+		 * The method raises an winapi_error if an error has occurred.
 		*/
 		bool is_set() const;
 
-		/* Waits until the event is in a signaled state. The method
-		* raises an winapi_error if an error has occurred.
+		/**
+		 * Waits until the event is in a signaled state.
+		 * 
+		 * The method raises an winapi_error if an error has occurred.
 		*/
 		bool wait(DWORD timeout = INFINITE) const;
 
-		/* Returns the event handle
+		/**
+		 * Returns the event handle.
 		*/
 		inline HANDLE get_handle() const noexcept { return _handle; }
 
 	private:
-		// A reference to the application logger
+		// A reference to the application logger.
 		Logger* const _logger;
 
-		// The event handle
+		// The event handle.
 		HANDLE _handle = INVALID_HANDLE_VALUE;
 	};
 

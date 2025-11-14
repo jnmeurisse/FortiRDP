@@ -25,7 +25,7 @@
 
 
 
-/* callbacks called from PPP core */
+/* Callbacks called from PPP core */
 static err_t pppossl_write(ppp_pcb *ppp, void *ctx, struct pbuf *p);
 static err_t pppossl_netif_output(ppp_pcb *ppp, void *ctx, struct pbuf *pb, u16_t protocol);
 static void  pppossl_connect(ppp_pcb *ppp, void *ctx);
@@ -51,9 +51,9 @@ static const struct link_callbacks pppossl_callbacks = {
 };
 
 
-/*
-* Create a new PPP connection using the given device.
-*
+/**
+ * Creates a new PPP connection using the given device.
+ *
 */
 ppp_pcb*
 pppossl_create(struct netif *pppif, pppossl_output_cb_fn output_cb,
@@ -104,20 +104,20 @@ pppossl_write(ppp_pcb *ppp, void *ctx, struct pbuf *pbuf)
 				return ERR_MEM;
 			}
 
-			// Fill the fortigate PPP header
+			// Fill the fortiGate PPP header.
 			ppp_header* const header = frame->payload;
 			(*header)[0] = lwip_htons(pbuf->tot_len + sizeof(ppp_header));
 			(*header)[1] = 0x5050;
 			(*header)[2] = lwip_htons(pbuf->tot_len);
 
-			// Append the payload
+			// Append the payload.
 			int offset = sizeof(ppp_header);
 			for (struct pbuf* p = pbuf; p; p = p->next) {
 				memcpy((uint8_t*)frame->payload + offset, p->payload, p->len);
 				offset += p->len;
 			}
 
-			// output the PPP frame
+			// Output the PPP frame.
 			u32_t lp = pppos->output_cb(ppp, frame, ppp->ctx_cb);
 			pbuf_free(frame);
 			if (lp != pbuf->tot_len + sizeof(ppp_header)) {
@@ -149,11 +149,11 @@ failed:
 static err_t
 pppossl_netif_output(ppp_pcb *ppp, void *ctx, struct pbuf *pb, u16_t protocol)
 {
-	// Fill PPP frame...
-	// configure the address control  protocol
+	// Fill the PPP frame...
+	// - configure the address control  protocol
 	const u8_t header[4] = { PPP_ALLSTATIONS, PPP_UI, (protocol >> 8) & 0xFF, protocol & 0xFF };
 
-	// prepare a network buffer to hold the header and the payload
+	// - prepare a network buffer to hold the header and the payload
 	struct pbuf* const nb = pbuf_alloc(PBUF_RAW, sizeof(header), PBUF_RAM);
 	if (nb == NULL) {
 		PPPDEBUG(LOG_WARNING, ("pppos_netif_output[%d]: alloc fail\n", ppp->netif->num));
@@ -163,10 +163,10 @@ pppossl_netif_output(ppp_pcb *ppp, void *ctx, struct pbuf *pb, u16_t protocol)
 		return ERR_MEM;
 	}
 
-	// assign the header
+	// - assign the header
 	pbuf_take(nb, header, sizeof(header));
 
-	// followed by the payload
+	// - followed by the payload
 	pbuf_chain(nb, pb);
 
 	// Output everything
@@ -206,13 +206,13 @@ pppossl_connect(ppp_pcb *ppp, void *ctx)
 {
 	pppossl_pcb* const pppossl = (pppossl_pcb *)ctx;
 
-	/* reset PPPoSsl control block to its initial state */
+	/* reset PPPossl control block to its initial state */
 	memset(&pppossl->last_xmit, 0, sizeof(pppossl_pcb) - offsetof(pppossl_pcb, last_xmit));
 
 	/* ask DNS  */
 	ppp_set_usepeerdns(ppp, 1);
 
-	/* disable unsupported Fortigate LCP negotiation */
+	/* disable unsupported FortiGate LCP negotiation */
 	ppp->lcp_wantoptions.neg_accompression = 0;
 	ppp->lcp_wantoptions.neg_pcompression = 0;
 	ppp->lcp_wantoptions.neg_asyncmap = 0;
@@ -294,10 +294,10 @@ pppossl_input(ppp_pcb *ppp, u8_t* s, size_t l)
 			}
 		}
 		else if (pppossl->in.state == PP_DATA) {
-			// compute the number of bytes that can be copied to the pbuf
+			// Compute the number of bytes that can be copied to the pbuf.
 			size_t len = min(pppossl->in.header[2] - pppossl->in.counter, l);
 
-			// append the payload to the buffer
+			// Append the payload to the buffer.
 			if (pbuf_take_at(pppossl->in.data, s, (u16_t)len, pppossl->in.counter) == ERR_MEM) {
 				err = PPPERR_ALLOC;
 				goto drop;
@@ -308,10 +308,10 @@ pppossl_input(ppp_pcb *ppp, u8_t* s, size_t l)
 
 			pppossl->in.counter += (u16_t)len;
 			if (pppossl->in.counter == pppossl->in.header[2]) {
-				// payload is available, pass to ppp processing
+				// Payload is available, pass to PPP processing
 				ppp_input(ppp, pppossl->in.data);
 
-				// reset the state of the PPP packet parser
+				// Reset the state of the PPP packet parser.
 				memset(&pppossl->in, 0, sizeof(pppossl->in));
 			}
 		}

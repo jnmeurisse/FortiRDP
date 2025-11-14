@@ -27,10 +27,7 @@ namespace fw {
 	bool FirewallTunnel::start()
 	{
 		try {
-			// Open the encrypted tunnel
 			_tunnel_socket->connect();
-
-			// start the tunnel mode
 			start_tunnel_mode();
 		}
 		catch (const mbed_error& e) {

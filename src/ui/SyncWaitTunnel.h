@@ -24,7 +24,7 @@ namespace ui {
 		~SyncWaitTunnel();
 
 	private:
-		// The tunnel
+		//- a tunnel that we wait for listening.
 		fw::FirewallTunnel& _tunnel;
 
 		// The wait procedure

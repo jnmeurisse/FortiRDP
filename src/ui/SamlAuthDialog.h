@@ -40,21 +40,22 @@ namespace ui {
 		ui::saml_err get_saml_error() const;
 
 	private:
-		// the application logger
+		// The application logger
 		tools::Logger* const _logger;
 
+		// SAML authentication configuration.
 		fw::AuthSamlInfo& _saml_auth_info;
 
 		// Set to true when this dialog can be closed.
 		bool _can_close;
 
-		//
+		// Last error code.
 		ui::saml_err _last_saml_error;
 
-		// A reference to the webview controller
+		// A reference to the webview controller.
 		wil::com_ptr<ICoreWebView2Controller> _web_controller;
 
-		// A reference to the cookie manager
+		// A reference to the cookie manager.
 		wil::com_ptr <ICoreWebView2CookieManager> _web_cookie_manager;
 
 		virtual INT_PTR onCreateDialogMessage(WPARAM wParam, LPARAM lParam) override;

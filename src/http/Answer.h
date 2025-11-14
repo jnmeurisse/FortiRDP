@@ -48,7 +48,8 @@ namespace http {
 		*/
 		void clear();
 
-		/* Reads the response from the HTTP server and initializes this object.
+		/**
+		 * Reads the response from the HTTP server and initializes this object.
 		 *
 		 * This function reads the HTTP response from the server, processes the status line,
 		 * headers, and body, and initializes the object accordingly. If the response is valid,
@@ -78,28 +79,34 @@ namespace http {
 		 */
 		int recv(net::TcpSocket& socket, tools::Timer& timer);
 
-		/* Returns the HTTP version.
+		/**
+		 * Returns the HTTP version.
 		*/
 		inline const std::string& get_version() const noexcept { return _version; }
 
-		/* Returns the HTTP status code.
+		/**
+		 * Returns the HTTP status code.
 		*/
 		inline const int get_status_code() const noexcept { return _status_code; }
 
-		/* Returns the HTTP reason phrase.
+		/**
+		 * Returns the HTTP reason phrase.
 		*/
 		inline const std::string& get_reason_phrase() const noexcept { return _reason_phrase; }
 
-		/* Returns the headers collection.  The cookies are stored apart in  
+		/**
+		 * Returns the headers collection.  The cookies are stored apart in
 		 * obfuscated strings
 		*/
 		inline const Headers& headers() const { return _headers; }
 
-		/* Returns the cookies collection.
+		/**
+		 * Returns the cookies collection.
 		*/
 		inline const Cookies& cookies() const { return _cookies; }
 
-		/* Returns the body of the answer.
+		/**
+		 * Returns the body of the answer.
 		*/
 		inline const tools::ByteBuffer& body() const { return _body; }
 

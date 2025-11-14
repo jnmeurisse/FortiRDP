@@ -44,12 +44,12 @@ namespace ui {
 		hIcon = (HICON)LoadImage(hInstance, MAKEINTRESOURCE(IDI_FORTIRDP), IMAGE_ICON, 128, 128, LR_SHARED);
 		::SendMessage(window_handle(), WM_SETICON, ICON_BIG, (LPARAM)hIcon);
 
-		// Configure the status text font. The color is assigned later when responding to WM_CTLCOLORSTATIC
-		// message.
+		// Configure the status text font. The color is assigned later when responding
+		// to WM_CTLCOLORSTATIC message.
 		_msg_font = create_font(10, L"Tahoma");
 		set_control_font(IDC_STATUSTEXT, _msg_font);
 
-		// create a black brush used to fill the IDC_STATUSTEXT control
+		// Create a black brush used to fill the IDC_STATUSTEXT control.
 		_bg_brush = ::CreateSolidBrush(RGB(0, 0, 0));
 
 		_anim_font = create_font(10, L"Consolas");
@@ -57,7 +57,7 @@ namespace ui {
 			_anim_font = create_font(10, L"Arial");
 		set_control_font(IDC_ACTIVITY, _anim_font);
 
-		// Add menu : about, options and launch submenu (and associated hot keys)
+		// Add menus : about, options and launch sub menu (and associated hot keys)
 		HMENU hMenu = get_sys_menu(false);
 		::AppendMenu(hMenu, MF_SEPARATOR, 0, L"");
 		if (params.is_mstsc())
@@ -71,18 +71,18 @@ namespace ui {
 		::AppendMenu(hMenu, MF_STRING, SYSCMD_ABOUT, L"&About...");
 
 
-		// link a new log writer to the logger. This log writer sends OutputInfoMessage
+		// Link a new log writer to the logger. This log writer sends OutputInfoMessage
 		// to this dialog window.
 		_writer = new InfoLogWriter(window_handle());
 		_logger->add_writer(_writer);
 
 
-		// configure the maximum length for address text fields
+		// Configure the maximum length for address text fields.
 		set_control_textlen(IDC_ADDR_FW, MAX_ADDR_LENGTH);
 		set_control_textlen(IDC_ADDR_HOST, MAX_ADDR_LENGTH);
 
-		// initialize addresses. Take values from command line and if
-		// not specified, use the last values saved in the registry
+		// Initialize address input fields. Take values from command line and if
+		// not specified, use the last values saved in the registry.
 		setFirewallAddress(!params.firewall_address().empty()
 			? params.firewall_address()
 			: _settings.get_firewall_address());
@@ -90,29 +90,32 @@ namespace ui {
 			? params.host_address()
 			: _settings.get_host_address());
 
-		// initialize the user name
+		// Initialize the user name.
 		if (!params.username().empty()) {
 			_username = _params.username();
 		}
 		else {
-			// get user name from last usage and if not available, we use the windows user name
+			// Get user name from last usage and if not available, we use the Windows
+			// user name.
 			_username = _settings.get_username(tools::get_windows_username());
 		}
 
-		//  Load root Certificate Authority
+		//  Load root Certificate Authority.
 		tools::Path crt_ca_file;
 		if (_params.ca_cert_filename().length() == 0) {
-			// no CA file specified, use the default file located in the application folder
+			// When no CA file is specified, we use the default file located in the
+			// application folder.
 			crt_ca_file = tools::Path(
 				tools::Path::get_module_path().folder(),
 				L"fortirdp.crt"
 			);
 		}
 		else {
-			// use the CA file specified in the command line
+			// Use the CA file specified on the command line.
 			crt_ca_file = tools::Path(_params.ca_cert_filename());
 
-			// if no path specified, we assume that the .crt file is located next to the .exe
+			// If no path is specified, assume the .crt file is located in the same
+			// directory as the executable.
 			if (crt_ca_file.folder().empty()) {
 				crt_ca_file = tools::Path(
 					tools::Path::get_module_path().folder(),
@@ -121,12 +124,12 @@ namespace ui {
 			}
 		}
 
-		// allocate the communication controller
+		// Allocate the communication controller.
 		_controller = std::make_unique<AsyncController>(window_handle());
 		_controller->load_ca_crt(crt_ca_file);
 
 		if (params.firewall_address().length() > 0 && params.host_address().length() > 0) {
-			// auto connect if both addresses are specified
+			// Auto connect if both addresses are specified
 			::PostMessage(window_handle(), WM_COMMAND, IDC_CONNECT, 0);
 		}
 	}
@@ -134,7 +137,6 @@ namespace ui {
 
 	ConnectDialog::~ConnectDialog()
 	{
-		// delete all objects we created
 		::DeleteObject(_bg_brush);
 		::DeleteObject(_msg_font);
 		::DeleteObject(_anim_font);
@@ -186,13 +188,13 @@ namespace ui {
 	{
 		tools::Mutex::Lock lock{ _msg_mutex };
 
-		// add the new message and remove old one, we keep only the last 10 messages
+		// Add the new message and remove old one, we keep only the last 10 messages
 		_msg_buffer.push_back(message);
 		while (_msg_buffer.size() > 10) {
 			_msg_buffer.erase(_msg_buffer.cbegin());
 		}
 
-		// render the messages buffer
+		// Render the messages buffer
 		std::wstring output;
 		for (auto const& str : _msg_buffer) {
 			output.append(str);
@@ -211,7 +213,7 @@ namespace ui {
 
 	void ConnectDialog::connect(bool clear_log)
 	{
-		// Check if fw and host addresses are valid
+		// Check if fw and host addresses are valid.
 		try {
 			// Split the address and the domain if specified
 			std::vector<std::wstring> address_parts;
@@ -243,7 +245,7 @@ namespace ui {
 			return;
 		}
 
-		// Prepare the task exe name and parameters
+		// Prepare the task exe name and parameters.
 		std::vector<std::wstring> task_params;
 		std::wstring task_name;
 
@@ -292,35 +294,35 @@ namespace ui {
 		}
 		_task_info = std::make_unique<tools::TaskInfo>(task_name, task_params);
 
-		// Check if the app executable exists
+		// Check if the app executable exists.
 		if (!task_name.empty() && !tools::file_exists(task_name)) {
 			const std::wstring message{ L"Application not found : " + task_name };
 			showErrorMessageDialog(message.c_str());
 			return;
 		}
 
-		// Check if the rdp file exists
+		// Check if the RDP file exists.
 		if (!_params.rdp_filename().empty() && !tools::file_exists(_params.rdp_filename())) {
 			const std::wstring message{ L"RDP file not found : " + _task_info->path() };
 			showErrorMessageDialog(message.c_str());
 			return;
 		}
 
-		// Configure the authentication method
+		// Configure the authentication method.
 		fw::AuthMethod auth_method = _params.auth_method();
 		if (auth_method == fw::AuthMethod::DEFAULT) {
 			auth_method = _settings.get_auth_method();
 		}
 		_controller->set_auth_method(auth_method);
 
-		//  Load user certificate
+		//  Load user certificate file.
 		if (_params.us_cert_filename().length() > 0) {
 			tools::Path user_crt;
 
-			// use the user certificate file specified in the command line
+			// Use the user certificate file specified in the command line.
 			user_crt = tools::Path(_params.us_cert_filename());
 
-			// if no path specified, we assume that the .crt file is located next to the .exe
+			// If no path specified, we assume that the .crt file is located next to the .exe
 			if (user_crt.folder().empty()) {
 				user_crt = tools::Path(
 					tools::Path::get_module_path().folder(),
@@ -340,7 +342,7 @@ namespace ui {
 
 				const bool modal_result = codeDialog.show_modal() == TRUE;
 				if (modal_result) {
-					// returns code to caller
+					// Returns code to caller
 					passcode = tools::wstr2str(codeDialog.getCode());
 				}
 
@@ -356,11 +358,11 @@ namespace ui {
 			_controller->set_auth_method(fw::AuthMethod::CERTIFICATE);
 		}
 
-		// Clear the information log
+		// Clear the information log.
 		if (clear_log)
 			clearInfo();
 
-		// Disable all controls on this dialog and show the disconnect button
+		// Disable all controls on this dialog and enable the disconnect button.
 		set_control_enable(IDC_CONNECT, false);
 		set_control_enable(IDC_DISCONNECT, false);
 		set_control_enable(IDC_QUIT, false);
@@ -371,7 +373,7 @@ namespace ui {
 		if (_params.is_mstsc())
 			::EnableMenuItem(get_sys_menu(false), SYSCMD_OPTIONS, MF_BYCOMMAND | MF_DISABLED);
 
-		// start the client
+		// Start the client
 		_controller->connect(_firewall_endpoint, _firewall_domain);
 	}
 
@@ -395,12 +397,13 @@ namespace ui {
 
 		const bool modal_result = credentialDialog.show_modal() == TRUE;
 		if (modal_result && pCredentials) {
-			// returns user name and password to caller
+			// Returns user name and password to caller
 			_username = credentialDialog.getUsername();
 			pCredentials->username = _username;
 			pCredentials->password = credentialDialog.getPassword();
 
-			// save user name in last usage registry but only if not specified on the command line
+			// Save user name in last usage registry but only if not specified on
+			// the command line.
 			if (_params.username().empty())
 				_settings.set_username(_username);
 		}
@@ -430,7 +433,7 @@ namespace ui {
 
 		const bool modal_result = codeDialog.show_modal() == TRUE;
 		if (modal_result && pCode) {
-			// returns code to caller
+			// Returns code to caller.
 			pCode->code = tools::wstr2str(codeDialog.getCode());
 		}
 
@@ -440,10 +443,10 @@ namespace ui {
 
 	INT_PTR ConnectDialog::onDestroyDialogMessage(WPARAM wParam, LPARAM lParam)
 	{
-		// Stop AsyncConnect if still running
+		// Stop AsyncConnect if still running.
 		disconnect();
 
-		// close this application
+		// Close this application.
 		::PostQuitMessage(0);
 
 		return FALSE;
@@ -553,7 +556,7 @@ namespace ui {
 				const tools::Counters& counters = tunneler->counters();
 				const chrono::steady_clock::time_point now = chrono::steady_clock::now();
 				if (counters.total() > _previous_counters) {
-					// show network activity
+					// Show network activity
 					const wchar_t activity_symbol[] = L"\u2190\u2191\u2192\u2193";
 					_previous_counters = counters.total();
 					_activity_loop = (_activity_loop + 1) % 4;
@@ -564,7 +567,7 @@ namespace ui {
 
 				}
 				else {
-					// Clear display if no activity during a 1/4 second
+					// Clear display if no activity during a 1/4 second.
 					const auto inactive_duration = chrono::duration_cast<chrono::milliseconds>(now - _last_activity);
 					if (inactive_duration.count() >= 250)
 						set_control_text(IDC_ACTIVITY, L" ");
@@ -616,7 +619,7 @@ namespace ui {
 	{
 		OptionsDialog optionsDialog{ instance_handle(), window_handle() };
 
-		// options are not updatable in the gui when specified on the command line
+		// Options are not modifiable in the GUI when specified on the command line.
 		optionsDialog.full_screen = _params.full_screen() || _settings.get_full_screen();
 		optionsDialog.full_screen_updatable = !_params.full_screen();
 
@@ -700,7 +703,7 @@ namespace ui {
 		// is allowed to go through the tunnel, the application closes the tunnel
 		// as soon as the local application is stopped. The AsyncController is
 		// responsible to detect the end of the local application and post a message
-		// to this window
+		// to this window.
 		if (!_task_info->path().empty()) {
 			_controller->start_task(*_task_info, !_params.multi_clients());
 		}
@@ -717,7 +720,7 @@ namespace ui {
 				endpoint = _controller->tunnel()->local_endpoint();
 			}
 
-			// Clear saved user name
+			// Clear saved user name.
 			std::string key = "Software\\Microsoft\\Terminal Server Client\\Servers\\" + endpoint.hostname();
 			tools::RegKey rdp_server{ HKEY_CURRENT_USER, tools::str2wstr(key) };
 
@@ -733,7 +736,7 @@ namespace ui {
 				L"Software\\Microsoft\\Terminal Server Client\\Default"
 			};
 
-			// Remove entry in the MRU list
+			// Remove entry in the MRU list.
 			const std::wstring mru_entry = tools::str2wstr(endpoint.to_string());
 
 			for (int i = 0; i < 10; i++) {
@@ -760,7 +763,8 @@ namespace ui {
 			disconnect();
 		}
 		else {
-			// Save in the registry last valid address if not specified on the command line
+			// Save in the registry last valid address if not specified
+			// on the command line.
 			if (_params.firewall_address().empty())
 				_settings.set_firewall_address(getFirewallAddress());
 			if (_params.host_address().empty())
@@ -768,22 +772,22 @@ namespace ui {
 
 			_logger->info(">> successfully logged in portal %s", _firewall_endpoint.to_string().c_str());
 
-			// create the tunnel
+			// create the tunnel.
 			_controller->create_tunnel(
 				_host_endpoint,
 				_params.local_port(),
 				_params.multi_clients(),
 				_params.tcp_nodelay());
 
-			// start network activity tracking
+			// Start network activity tracking.
 			_previous_counters = 0;
 			_activity_loop = 0;
 
-			// enable timers (in ms)
+			// Enable timers (in ms).
 			::SetTimer(window_handle(), TIMER_COUNTERS, 500, nullptr);
 			::SetTimer(window_handle(), TIMER_ACTIVITY, 250, nullptr);
 
-			// show activity controls
+			// Show activity controls.
 			set_control_text(IDC_BYTES_SENT, L"");
 			set_control_visible(IDC_BYTES_SENT, true);
 			set_control_visible(IDC_ACTIVITY, true);
@@ -797,19 +801,19 @@ namespace ui {
 			clearRdpHistory();
 		}
 
-		// Hide activity controls
+		// Hide activity controls.
 		set_control_text(IDC_BYTES_SENT, L"");
 		set_control_visible(IDC_BYTES_SENT, false);
 		set_control_visible(IDC_ACTIVITY, false);
 
-		// disable timers
+		// Disable timers.
 		::KillTimer(window_handle(), TIMER_COUNTERS);
 		::KillTimer(window_handle(), TIMER_ACTIVITY);
 
 		if (success)
 			writeInfo(L">> disconnected");
 
-		// Enable all controls
+		// Reset controls status.
 		set_control_enable(IDC_ADDR_FW, true);
 		set_control_enable(IDC_ADDR_HOST, true);
 		set_control_enable(IDC_CONNECT, true);

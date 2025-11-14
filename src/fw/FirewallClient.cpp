@@ -53,7 +53,6 @@ namespace fw {
 
 		_logger->info(">> connecting to %s", host().to_string().c_str());
 
-		// Connect to the server
 		try {
 			HttpsClient::connect();
 		}
@@ -67,12 +66,20 @@ namespace fw {
 		_logger->info(">> protocol : %s", get_tls_version().c_str());
 		_logger->info(">> cipher : %s", get_ciphersuite().c_str());
 
-		// Check the server certificate
+		/*
+			Checks whether the server certificate is trusted.
+
+			The certificate is first validated against the CA configured during
+			mbedtls initialization. The get_crt_check() call returns the result
+			of that validation.
+
+			If the certificate is not trusted (e.g., the CA is unknown), we then
+			attempt to validate it using the CAs stored in the Windows root
+			certificate store.
+		*/
 		int crt_status = get_crt_check();
 
 		if (crt_status & MBEDTLS_X509_BADCERT_NOT_TRUSTED) {
-			// The root certificate is not stored in the local certificate files.
-			// Check if it is stored in Windows CA root store.
 			if (x509crt_is_trusted(get_peer_crt()))
 				crt_status &= ~MBEDTLS_X509_BADCERT_NOT_TRUSTED;
 		}
@@ -95,16 +102,20 @@ namespace fw {
 			}
 		}
 
-		// Compute the digest of the certificate.
-		// The digest is validated later when we reconnect to the server.
+		/*
+			Compute the digest of the certificate.
+			This digest is checked during a future reconnection to verify the certificate.
+		*/
 		_peer_crt_digest = CrtDigest(get_peer_crt());
 
-		// Get the top page.
-		// Allows redirection if required.
+
+		/*
+			Fetch the top page, following up to two redirects if necessary.
+			Then verify that the resulting top page exists.
+		*/
 		if (!request(http::Request::GET_VERB, make_url("/" + _realm), "", http::Headers(), answer, 2))
 			return portal_err::COMM_ERROR;
 
-		// Check if the web page exists.
 		if (answer.get_status_code() != HttpsClient::STATUS_OK) {
 			log_http_error("firewall portal connection failure", answer);
 			return portal_err::HTTP_ERROR;
@@ -143,16 +154,24 @@ namespace fw {
 			return portal_err::HTTP_ERROR;
 		}
 
-		// Extract comma separated parameters from firewall answer.
-		// Example of answer:
-		// ret=6,magic=123,actionurl=/remote/logincheck,reqid=456,portal=,grpid=0,pid=214,is_chal_rsp=1,chal_msg=Enter your code
+		/*
+			The response body contains the result of the login check call.
+			It is formatted as a list of comma-separated key/value pairs, for example:
+
+				ret=6,magic=123,actionurl=/remote/logincheck,reqid=456,portal=,
+				grpid=0,pid=214,is_chal_rsp=1,chal_msg=Enter your code
+
+			We parse these comma-separated parameters from the firewall response
+			and populate a string map that will later be used to retrieve them.  We
+			also verify that the output `ret` parameter exists.
+		*/
 		out_params.serase();
 		out_params.add(std::string(answer.body().cbegin(), answer.body().cend()), ',');
 
 		int retcode;
 		if (!out_params.get_int("ret", retcode)) {
 			_logger->error("ERROR: invalid firewall answer, ret code missing");
-			return portal_err::LOGIN_CANCELLED;
+			return portal_err::ACCESS_DENIED;
 		}
 
 		return portal_err::NONE;
@@ -164,12 +183,15 @@ namespace fw {
 		DEBUG_ENTER(_logger, "FirewallClient", "login_basic");
 		tools::Mutex::Lock lock{ _mutex };
 
-		// misc initializations
+		// Misc initializations.
 		http::Answer answer;
 		tools::StringMap params_query;
 		AuthCredentials credentials;
 
-		// Get the login form
+		/*
+			Fetch the login page. This operation obtains the cookies
+			that the FortiGate firewall uses for the authentication process.
+		*/
 		if (!_realm.empty())
 			params_query.set("realm", _realm);
 		params_query.set("lang", "en");
@@ -177,13 +199,17 @@ namespace fw {
 		if (!request(http::Request::GET_VERB, login_url, "", http::Headers(), answer, 0))
 			return portal_err::COMM_ERROR;
 
-		// Check if the login page is available
 		if (answer.get_status_code() != HttpsClient::STATUS_OK) {
 			log_http_error("firewall portal connection failure", answer);
 			return portal_err::HTTP_ERROR;
 		}
 
-		// Check if the client is authenticated.
+		/*
+			Check whether the client is already authenticated.
+			In theory, the user should not be authenticated at this point.
+			This check could be removed, but it is kept as a safeguard in case
+			the main window logic fails to correctly manage the login button state.
+		*/
 		if (is_authenticated()) {
 			return portal_err::NONE;
 		}
@@ -212,7 +238,7 @@ namespace fw {
 			if (err != portal_err::NONE)
 				return err;
 
-			// Get the return code from the firewall response.
+			// Get the result of the last authentication check.
 			int retcode = params_result.get_int_value("ret", -1);
 
 			if (retcode == 0) {
@@ -238,7 +264,9 @@ namespace fw {
 				// 1 = Access allowed.
 				// ********************************
 
-				// Followe the redirect URL to get SVPNCOOKIE
+				// Follow the redirect URL to get a valid SVPNCOOKIE.
+				// The SVPNCOOKIE is later transmitted to the firewall when starting
+				// the tunnel mode.
 				http::Url redir_url;
 				if (!get_redir_url(params_result, redir_url)) {
 					_logger->error("ERROR: invalid firewall answer, redir missing");
@@ -268,6 +296,7 @@ namespace fw {
 
 				AuthCode code;
 				std::string device;
+
 				if (params_result.get_str("tokeninfo", device)) {
 					device = http::HttpsClient::decode_url(device);
 					code.prompt = messages[retcode - 2] + device;
@@ -394,7 +423,6 @@ namespace fw {
 		http::Headers headers;
 		http::Answer answer;
 
-		// Send the logout request
 		const http::Url logout_url = make_url("/remote/logout");
 		bool ok = request(http::Request::GET_VERB, logout_url, "", headers, answer, 0);
 
@@ -422,13 +450,11 @@ namespace fw {
 		const http::Url portal_url = make_url("/remote/portal", "access");
 		if (!request(http::Request::GET_VERB, portal_url, "", headers, answer, 0))
 		{
-			// Log an error message
 			_logger->error("ERROR: get portal info failure");
 			return false;
 		}
 
 		if (answer.get_status_code() != HttpsClient::STATUS_OK) {
-			// Log an error message
 			log_http_error("get portal info failure ", answer);
 			return false;
 		}
@@ -464,18 +490,18 @@ namespace fw {
 		http::Headers headers;
 		http::Answer answer;
 
-		// Get the vpn configuration.  
-		// This call is mandatory, without it we don't get an IP address from the fortigate
+		/*
+			Retrieve the SSL VPN configuration.
+			This call is mandatory because the FortiGate will not provide an IP address otherwise.
+		*/
 		const http::Url vpninfo_url = make_url("/remote/fortisslvpn_xml");
 		if (!request(http::Request::GET_VERB, vpninfo_url, "", headers, answer, 0))
 		{
-			// Log an error message
 			_logger->error("ERROR: get portal configuration failure");
 			return false;
 		}
 
 		if (answer.get_status_code() != HttpsClient::STATUS_OK) {
-			// Log an error message
 			log_http_error("get portal configuration failure ", answer);
 			return false;
 		}
@@ -503,11 +529,11 @@ namespace fw {
 
 
 	xml_parse_error:
-		_logger->error("ERROR: portal configuration failure - xml parse error");
+		_logger->error("ERROR: portal configuration - XML parse error");
 		return false;
 
 	xml_decode_error:
-		_logger->error("ERROR: portal configuration failure - xml decode error");
+		_logger->error("ERROR: portal configuration - XML decode error");
 		return false;
 	}
 
@@ -554,7 +580,22 @@ namespace fw {
 				return false;
 			}
 
-			// verify the digest of the certificate
+			/*
+				We verify the certificate using the previously computed digest rather than
+				revalidating the entire certificate chain on every connection.
+
+				Re-validating the full certificate chain is unnecessary and inefficient once the
+				server identity has already been established. Certificate chains typically do not
+				change during a session or across short reconnections, and performing a full
+				validation repeatedly would add significant overhead—especially when using
+				external trust stores or when network conditions introduce latency.
+
+				By storing the digest of the server certificate after the first validated
+				connection, we can quickly confirm that the server is presenting the same
+				certificate on subsequent reconnects. This provides the necessary security check
+				(detecting any certificate or man-in-the-middle changes) while avoiding redundant
+				and costly full-chain validation operations.
+			*/
 			if (_peer_crt_digest != CrtDigest(get_peer_crt())) {
 				_logger->error("ERROR: invalid certificate digest");
 
@@ -562,7 +603,6 @@ namespace fw {
 			}
 		}
 
-		//.. send the request
 		try {
 			send_request(request);
 		}
@@ -573,7 +613,6 @@ namespace fw {
 			return false;
 		}
 
-		//.. receive the answer
 		try {
 			recv_answer(answer);
 		}
@@ -593,7 +632,6 @@ namespace fw {
 	{
 		DEBUG_ENTER(_logger, "FirewallClient", "do_request");
 		
-		// Prepare the request
 		http::Request request{ verb, url, _cookie_jar };
 
 		request.headers()
@@ -612,11 +650,20 @@ namespace fw {
 		// Send and wait for a response
 		const bool success = FirewallClient::send_and_receive(request, answer);
 		if (!success) {
-			// disconnect if not yet done
 			disconnect();
 		}
 		else {
-			// Copy cookies
+			/*
+				Process cookies received in the HTTP response and update the local cookie jar.
+
+				For each cookie whose domain matches the request URL (or is unspecified):
+				  - Remove it if it has expired.
+				  - Add it if it is marked as Secure and HttpOnly.
+				  - Otherwise, ignore it.
+
+				This ensures that only valid, secure cookies for the target domain are stored,
+				while expired or irrelevant cookies are removed or skipped.
+			*/
 			for (auto it = answer.cookies().cbegin(); it != answer.cookies().cend(); it++) {
 				const http::Cookie& cookie = it->second;
 				const std::string url_domain = url.get_hostname();
@@ -647,7 +694,6 @@ namespace fw {
 						));
 					}
 					else {
-						// Do not consider this cookie
 						_logger->debug("... %x       skip cookie %s",
 							(uintptr_t)this,
 							cookie.get_name().c_str());

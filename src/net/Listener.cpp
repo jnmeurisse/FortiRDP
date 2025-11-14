@@ -36,12 +36,12 @@ namespace net {
 
 		rc = Socket::bind(endpoint, net_protocol::NETCTX_PROTO_TCP);
 		if (rc) {
-			// Unable to bind this host
+			// Unable to bind this host.
 			_endpoint = endpoint;
 			goto terminate;
 		}
 
-		// get the port that has been assigned during the bind.
+		// Get the port that has been assigned during the bind.
 		const int bind_port = Socket::get_port();
 		if (bind_port == -1) {
 			_logger->error("ERROR: Listener::bind get_port error %d", WSAGetLastError());
@@ -51,7 +51,7 @@ namespace net {
 		}
 		_endpoint = Endpoint(endpoint.hostname(), bind_port);
 
-		// set the socket in non blocking mode
+		// Set the socket in non blocking mode.
 		if (Socket::set_blocking_mode(false) != 0) {
 			_logger->error("ERROR: Listener::bind set_blocking error %d", WSAGetLastError());
 

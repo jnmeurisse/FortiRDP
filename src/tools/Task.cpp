@@ -83,8 +83,7 @@ namespace tools {
 			_logger->debug("... task pid=%d is stopped", _pi.dwProcessId);
 			return true;
 
-		case WAIT_TIMEOUT:
-			// the thread is still running
+		case WAIT_TIMEOUT: // the thread is still running
 			return false;
 
 		default:

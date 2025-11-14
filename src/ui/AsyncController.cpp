@@ -89,7 +89,7 @@ namespace ui {
 			_user_crt = std::make_unique<tools::UserCrt>();
 
 			if (tools::file_exists(filename)) {
-				// Load the user certificate
+				// Load the user certificate.
 				tools::mbed_err rc = _user_crt->crt.load(crt_filename.c_str());
 
 				if (rc != 0) {
@@ -98,7 +98,7 @@ namespace ui {
 					init_status = false;
 				}
 				else {
-					// try to load the private key without a password
+					// Try to load the private key without a password.
 					tools::mbed_err rc = _user_crt->pk.load(crt_filename.c_str(), nullptr);
 
 					if (rc == MBEDTLS_ERR_PK_PASSWORD_REQUIRED) {
@@ -139,7 +139,7 @@ namespace ui {
 				realm.c_str());
 		}
 
-		// Start the async connect procedure
+		// Start the async connect procedure.
 		_tls_config.set_ca_crt(_ca_crt->get_crt());
 		if (_auth_method == fw::AuthMethod::CERTIFICATE && _user_crt)
 			_tls_config.set_user_crt(_user_crt->crt.get_crt(), _user_crt->pk.get_pk());
@@ -162,15 +162,15 @@ namespace ui {
 		_tunnel.reset();
 
 		if (_portal_client != nullptr) {
-			/* Define the local end point as localhost which force using an IPv4 address.
-			When local port is 0, the system automatically find a free port. */
+			// Define the local endpoint as localhost to force the use of an IPv4 address.
+			// If the local port is set to 0, the Windows OS automatically selects a free port.
 			const std::string localhost = "127.0.0.1";
 			const net::Endpoint local_endpoint(localhost, local_port);
 
 			// Configure the tunneler.
 			const net::tunneler_config config { tcp_nodelay, multi_clients ? 32 : 1 };
 
-			// Create a ssl tunnel from this host to the firewall and assign it to local pointer.
+			// Create a SSL tunnel from this host to the firewall and assign it to local pointer.
 			_tunnel.reset(_portal_client->create_tunnel(local_endpoint, remote_endpoint, config));
 
 			// Start the tunnel.
@@ -202,7 +202,7 @@ namespace ui {
 			started = _task->start();
 
 			if (started && monitor) {
-				// Request the active loop to monitor the task
+				// Request the controller to monitor the task
 				request_action(AsyncController::MONITOR_TASK);
 			}
 
@@ -236,7 +236,7 @@ namespace ui {
 			(uintptr_t)this,
 			action_name(action));
 
-		// Only one thread can request an action
+		// Only one thread can request an action.
 		tools::Mutex::Lock lock(_mutex);
 
 		// Wait that the controller thread is ready
@@ -245,7 +245,7 @@ namespace ui {
 			action_name(action));
 		_readyEvent.wait();
 
-		// define the action and wakeup the thread
+		// Define the action and wake-up the thread.
 		_logger->debug(".... %x AsyncController::request_action set event for action=%s",
 			(uintptr_t)this,
 			action_name(action));
@@ -282,16 +282,16 @@ namespace ui {
 		while (!terminated) {
 			std::unique_ptr<SyncProc> procedure;
 
-			// We are ready to accept a new event
+			// We are ready to accept a new event.
 			if (!_readyEvent.set()) {
 				_logger->error("ERROR: %x AsyncController::run set event error=%x",
 					(uintptr_t)this,
 					::GetLastError());
 			}
 
-			/* The function waits for an action and optionally for the end of a task monitored at a previous
-			 * iteration of the wait loop. We set eventCount to 2 if the AsyncProcedure monitors
-			 * the end of a task.
+			/* The function waits for an action and optionally for the end of a task
+			 * monitored at a previous iteration of the wait loop. We set eventCount
+			 * to 2 if the AsyncProcedure monitors the end of a task.
 			*/
 			const int eventCount = wait_eot ? 2 : 1;
 			DWORD event = WaitForMultipleObjects(eventCount, hEvents, false, INFINITE);
@@ -354,7 +354,7 @@ namespace ui {
 			}
 
 			if (procedure != nullptr) {
-				// Execute the procedure
+				// Execute the procedure.
 				try {
 					procedure->run();
 				}

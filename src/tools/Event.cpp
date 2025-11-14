@@ -83,12 +83,10 @@ namespace tools {
 	bool Event::wait(DWORD timeout) const
 	{
 		switch (::WaitForSingleObject(_handle, timeout)) {
-		case WAIT_OBJECT_0:
-			// the event is set
+		case WAIT_OBJECT_0: // The event is set.
 			return true;
 
-		case WAIT_TIMEOUT:
-			// the event is not yet signaled
+		case WAIT_TIMEOUT: // The event is not yet signaled.
 			return false;
 
 		case WAIT_FAILED:

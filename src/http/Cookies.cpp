@@ -31,7 +31,7 @@ namespace http {
 
 	const Cookies& Cookies::add(const Cookie& cookie)
 	{
-		// check if the name exists in this collection. 
+		// Check if the name exists in this collection. 
 		auto it = _cookies.find(cookie.get_name());
 
 		if (it != _cookies.end()) {
@@ -75,9 +75,9 @@ namespace http {
 		for (auto it = _cookies.cbegin(); it != _cookies.cend(); it++) {
 			const Cookie& cookie = it->second;
 			// Filter cookies:
-			//   - do not consider expired cookies
-			//   - do not consider non-http cookies
-			//   - do not consider non-secure cookies if the url scheme is https
+			//   - skip expired cookies
+			//   - skip non-http cookies
+			//   - skip non-secure cookies if the url scheme is https
 			//   - apply path and domain matches
 			if (!cookie.is_expired() &&
 				cookie.is_http_only() &&

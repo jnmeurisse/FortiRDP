@@ -109,10 +109,10 @@ namespace net {
 			FD_ZERO(&read_set);
 			FD_ZERO(&write_set);
 
-			// Define select conditions only if the tunnel is still connected 
+			// Define select conditions only if the tunnel is still connected.
 			if (_tunnel.is_connected()) {
 				if (_pp_interface.must_transmit()) {
-					// data is available in the output queue, check if we can write 
+					// data is available in the output queue, check if we can write.
 					FD_SET(_tunnel.get_fd(), &write_set);
 				}
 
@@ -121,7 +121,7 @@ namespace net {
 
 				if (_pp_interface.if4_up() && !connecting && 
 					active_port_forwarders.connected_count() < _config.max_clients) {
-					// We are ready to accept a new connection only if the ppp interface
+					// We are ready to accept a new connection only if the PPP interface
 					// is up, if we are not currently accepting a connection and the 
 					// max number of connected forwarders is not reached.
 					FD_SET(_listener.get_fd(), &read_set);
@@ -131,7 +131,7 @@ namespace net {
 					const int fd = pf->get_fd();
 
 					if (pf->connected()) {
-						// Do we have something to send or receive ?
+						// Do we have data to send or to reply ?
 						if (pf->can_receive())
 							FD_SET(fd, &read_set);
 
@@ -139,16 +139,16 @@ namespace net {
 							FD_SET(fd, &write_set);
 					}
 					else if (pf->disconnecting()) {
-						// Can we send what is still in the output queue ?
+						// Can we send data still in the output queue ?
 						if (pf->can_rflush())
 							FD_SET(fd, &write_set);
 					}
 				}
 
-				// Determine how long we sleep in the select 
+				// Determine how long we sleep in the select.
 				compute_sleep_time(timeout);
 
-				// Wait for a network event or timeout
+				// Wait for a network event or timeout.
 				rc = select(0, &read_set, &write_set, NULL, &timeout);
 				if (rc > 0) {
 					if (FD_ISSET(_tunnel.get_fd(), &write_set)) {
@@ -160,7 +160,7 @@ namespace net {
 					}
 
 					if (FD_ISSET(_tunnel.get_fd(), &read_set)) {
-						// Receive PPP data from the tunnel
+						// Receive PPP data from the tunnel.
 						if (!_pp_interface.recv()) {
 							_logger->info(">> tunnel closed by peer");
 
@@ -170,11 +170,11 @@ namespace net {
 					}
 
 					if (FD_ISSET(_listener.get_fd(), &read_set)) {
-						// Accept a new connection
+						// Accept a new connection.
 						PortForwarder* pf = new PortForwarder(_remote_endpoint, _config.tcp_nodelay, 30 * 1000);
 
 						if (pf->connect(_listener)) {
-							// A new port forwarder is active
+							// A new port forwarder is active.
 							connecting = true;
 							active_port_forwarders.push_back(pf);
 						}
@@ -183,7 +183,7 @@ namespace net {
 						}
 					}
 
-					// Transmit data to and from each port forwarder to local socket
+					// Transmit data to and from each port forwarder to the local socket.
 					for (auto pf : active_port_forwarders) {
 						const int fd = pf->get_fd();
 
@@ -218,11 +218,10 @@ namespace net {
 				}
 			}
 
-
-			// Forward data inside the local IP stack.  LwIP creates IP frames
-			// that are appended to the PPP Interface output queue.
-			// LwIP calls pppossl_netif_output which calls ppp_output_cb that 
-			// was registered when the PPP interface was created.  
+			// Forward data through the local IP stack. LwIP generates IP frames
+			// that are appended to the PPP interface's output queue.
+			// The pppossl_netif_output function is called, which in turn calls
+			// the ppp_output_cb callback registered when the PPP interface was created.
 			for (auto pf : active_port_forwarders) {
 				if (pf->ctimeout()) {
 					// Abort all forwarders in connection time out
@@ -255,7 +254,7 @@ namespace net {
 					_state = State::CLOSING;
 				}
 				else if (_pp_interface.if4_up()) {
-					// The listener is now accepting inbound connection
+					// The listener is now accepting inbound connection.
 					_listening_status.set();
 
 					_state = State::RUNNING;
@@ -280,15 +279,15 @@ namespace net {
 					// Abort all port forwarders (send a RST packet)
 					abort_timeout = false;
 					if (active_port_forwarders.abort_all() > 0) {
-						// Delay ppp interface shutdown, wait 1 seconds to get a chance 
-						// for the RST packet to be sent.
+						// Delay shutting down the PPP interface for 1 second to allow
+						// the RST packet to be received by the peer.
 						sys_timeout(1000, timeout_cb, &abort_timeout);
 					}
 				}
 				else {
 					_pp_interface.send_keep_alive();
 
-					// A port forwarder connection was started
+					// A port forwarder connection was started.
 					if (connecting) {
 						// Is the connection still pending ?
 						connecting = active_port_forwarders.has_connecting_forwarders();
@@ -303,17 +302,17 @@ namespace net {
 					_state = State::DISCONNECTING;
 					_pp_interface.close(!_tunnel.is_connected());
 
-					// Set a timer just to be sure to exit the thread.  It is configured
-					// higher compared to the time out in SyncDisconnect on purpose.  
-					// If the interface is not dead, we will leak a ppp memory descriptor.
-					// It will not be possible to restart the pp interface.
+					// Set a timer to ensure the thread exits. The timeout is deliberately
+					// longer than SyncDisconnect's timeout. If the interface remains active,
+					// a PPP memory descriptor could be leaked, preventing the PPP interface
+					// from being restarted.
 					disconnect_timeout = false;
 					sys_timeout(50 * 1000, timeout_cb, &disconnect_timeout);
 				}
 				break;
 
 			case State::DISCONNECTING:
-				// Wait until pp interface is in dead state.
+				// Wait until PPP interface is in dead state.
 				if (_pp_interface.dead() || disconnect_timeout) {
 					_logger->info(">> tunnel is down");
 					stop = true;
@@ -326,7 +325,7 @@ namespace net {
 			}
 		}
 
-		// Free all resources used by the pp interface
+		// Free all resources used by the PPP interface.
 		_pp_interface.release();
 		sys_untimeout(timeout_cb, &abort_timeout);
 		sys_untimeout(timeout_cb, &disconnect_timeout);
@@ -334,7 +333,7 @@ namespace net {
 		// Close the listening socket.
 		_listener.close();
 
-		// Shutdown the tunnel socket
+		// Shutdown the tunnel socket.
 		_tunnel.shutdown();
 
 		_logger->debug("... closing tunneler stop=%d terminate=%d", 

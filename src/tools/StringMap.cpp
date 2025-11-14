@@ -28,7 +28,6 @@ namespace tools {
 	void StringMap::serase()
 	{
 		if (_strmap.size() > 0) {
-			// Clear all values in the map 
 			strimap::iterator iter;
 
 			for (iter = _strmap.begin(); iter != _strmap.end(); iter++) {
@@ -48,20 +47,19 @@ namespace tools {
 			for (size_t idx = 0; idx < tokens.size(); idx++) {
 				const std::string item{ tokens.at(idx) };
 
-				// skip empty item
+				// Skip empty item.
 				if (item.size() == 0)
 					continue;
 
-				// allows item without value
+				// Allow item without value.
 				size_t pos = item.find('=');
 				if (pos != std::string::npos) {
-					// the spaces before the value are not significant
+					// The spaces before the value are not significant
 					set(trim(item.substr(0, pos)), trimleft(item.substr(pos + 1, std::string::npos)));
 
 				}
 				else {
 					set(trim(item), "");
-
 				}
 			}
 		}
@@ -74,7 +72,8 @@ namespace tools {
 	{
 		tools::strimap::iterator it;
 
-		// check if the name is already defined. If yes, update the value
+		// Check if the name is already defined. If yes, update the 
+		// associated value.
 		it = _strmap.find(name);
 		if (it != _strmap.end()) {
 			it->second = value;

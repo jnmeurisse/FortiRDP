@@ -66,11 +66,13 @@ namespace tools {
 		*/
 		PBufQueue(const PBufQueue& p) = delete;
 		
-		/* Releases the queue chain.
+		/**
+		 * Releases the queue chain.
 		*/
 		~PBufQueue();
 
-		/* Clears the queue.
+		/**
+		 * Clears the queue.
 		*/
 		void clear();
 

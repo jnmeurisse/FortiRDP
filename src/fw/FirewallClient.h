@@ -27,18 +27,18 @@
 
 namespace fw {
 
-	// portal info
+	// Portal info
 	struct PortalInfo
 	{
-		std::string user;
-		std::string group;
-		std::string version;
+		std::string user;			// username connected to the portal
+		std::string group;			// group name this user belong to
+		std::string version;		// portal version
 	};
 
-	// sslvpn config
+	// SSLVPN configuration.
 	struct SslvpnConfig
 	{
-		std::string local_addr;
+		std::string local_addr;		// IP address assigned to this client.
 	};
 
 
@@ -54,7 +54,7 @@ namespace fw {
 	};
 
 
-	// Callbacks definition
+	// Callback definitions
 	using confirm_crt_fn = std::function<bool (const mbedtls_x509_crt*, int)>;
 	using ask_credentials_fn = std::function<bool (AuthCredentials&)>;
 	using ask_pincode_fn = std::function<bool (AuthCode&)>;
@@ -62,7 +62,7 @@ namespace fw {
 
 
 	/**
-	 * A fortigate sslvpn portal client
+	 * A FortiGate SSLVPN portal client
 	 */
 	class FirewallClient final : public http::HttpsClient
 	{
@@ -203,13 +203,13 @@ namespace fw {
 		// Session cookies.
 		http::Cookies _cookie_jar;
 
-		// mutex to serialize calls.
+		// Mutex to serialize calls.
 		tools::Mutex _mutex;
 
 		// The fortiGate realm.
 		const std::string _realm;
 
-		// Logs an http error message.
+		// Logs an HTTP error message.
 		void log_http_error(const char* msg, const http::Answer& answer);
 
 		// Sends a request and wait for a response.
@@ -220,7 +220,7 @@ namespace fw {
 			const http::Headers& headers, http::Answer& answer);
 
 		// Sends a request and wait for a response, follows redirect if allow_redir is >= 0.
-		// allow_redir specifies the number of allowed redirections.
+		// allow_redir specifies the number of allowed redirection.
 		bool request(const std::string& verb, const http::Url& url, const std::string& body,
 			const http::Headers& headers, http::Answer& answer, int allow_redir);
 

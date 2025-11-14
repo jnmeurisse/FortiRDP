@@ -29,14 +29,14 @@ namespace ui {
 		void run();
 
 	protected:
-		// - the logger
+		// - the logger.
 		tools::Logger* const _logger;
 
-		// - the recipient window of the user even message
+		// - the recipient window of the user event message.
 		const HWND _hwnd;
 
 	private:
-		// - event message sent asynchronously when procedure execution is finished
+		// - event message sent asynchronously when procedure execution is finished.
 		const AsyncMessage _message;
 
 		// - procedure to execute

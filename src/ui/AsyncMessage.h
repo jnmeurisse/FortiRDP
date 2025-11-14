@@ -12,9 +12,11 @@
 
 namespace ui {
 
-	/*
+	/**
 	* Defines all windows user messages sent to the main window by the AsyncController.
-	* Requests are sent with a SendMessage while Events are sent with a PostMessage.
+	* AsyncMessages are sent from the AsyncController.  Two type of messages are defined :
+	*  - request messages are sent using SendMessage API 
+	*  - event messages are sent using PostMessage API.
 	*
 	* As the AsyncController and the main window are running into two different threads,
 	* the system has to switch from the ActiveController thread to the main thread and
@@ -33,19 +35,20 @@ namespace ui {
 		LRESULT send(HWND hWnd, void* lParam) const;
 		BOOL post(HWND hWnd, void* lParam) const;
 
-		/* checks if the message id correspond to the received registration id
+		/**
+		 * Checks if the message id correspond to the received registration id.
 		*/
 		static inline bool isAsyncMessage(UINT messageId) { return messageId == _registrationId; }
 
-		/* checks if the specified id corresponds to this AsyncMessage
+		/**
+		 * Checks if the specified id corresponds to this AsyncMessage.
 		*/
 		inline bool operator ==(UINT id) const { return id == _id; }
 
-		/***
-		* Requests sent to the main window
-		*/
+		/*******************************************/
+		/**** Requests sent to the main window  ****/
 
-		/* request to display a message string in the output text box
+		/* request to display a message string in the output text box.
 		*/
 		static AsyncMessage OutputInfoMessageRequest;
 
@@ -53,39 +56,41 @@ namespace ui {
 		*/
 		static AsyncMessage ShowErrorMessageDialogRequest;
 
-		/* request to display an Invalid Certificate error message box
+		/* request to display an Invalid Certificate error message box.
 		*/
 		static AsyncMessage ShowInvalidCertificateDialogRequest;
 
-		/* request to display a dialog that ask for credentials
+		/* request to display a dialog that ask for credentials.
 		*/
 		static AsyncMessage ShowCredentialsDialogRequest;
 
-		/* request to display a dialog that ask for an additional code (pin code for example)
+		/* request to display a dialog that ask for an additional code (pin code
+		 * for example).
 		*/
 		static AsyncMessage ShowPinCodeDialogRequest;
 
-		/* request to display a dialog to authenticate using SAML
+		/* request to display a dialog to authenticate using SAML.
 		*/
 		static AsyncMessage ShowSamlAuthDialogRequest;
 
-		/* execute the disconnection procedure
+		/* request to execute the disconnection procedure.
 		*/
 		static AsyncMessage DisconnectFromFirewallRequest;
 
-		/***
-		* Events sent to the main window.
-		*/
+		/*******************************************/
+		/*** Events sent to the main window.     ***/
 
-		/* informs that the client portal is connected (or fail) to the firewall
+		/* informs that the client portal is connected (or fail to connect)
+		 * to the firewall.
 		*/
 		static AsyncMessage ConnectedEvent;
 
-		/* informs that the client portal is disconnected from the firewall
+		/* informs that the client portal is disconnected from the firewall.
 		*/
 		static AsyncMessage DisconnectedEvent;
 
-		/* informs that the tunnel is connected to the firewall and listening for local incoming communication
+		/* informs that the tunnel is connected to the firewall and listening for
+		 * local incoming communication.
 		*/
 		static AsyncMessage TunnelListeningEvent;
 
@@ -94,10 +99,10 @@ namespace ui {
 		explicit AsyncMessage(UINT eventNumber);
 
 	private:
-		// - A global message identifier assigned by windows for all AsyncMessages
+		// Global message identifier assigned by windows for all AsyncMessages.
 		static UINT _registrationId;
 
-		// - This AsyncMessage id
+		// The AsyncMessage id.
 		const UINT _id;
 	};
 

@@ -18,13 +18,14 @@
 namespace net {
 	using namespace tools;
 
-	/*
+	/**
 	 * The client side of a network TLS socket
 	*/
 	class TlsSocket : public TcpSocket
 	{
 	public:
-		/* Constructs a TlsSocket with the provided TLS configuration.
+		/**
+		 * Constructs a TlsSocket with the provided TLS configuration.
 		 *
 		 * This constructor initializes a TlsSocket instance using the given
 		 * TlsConfig object, setting up the necessary parameters for secure
@@ -34,12 +35,14 @@ namespace net {
 		*/
 		explicit TlsSocket(const TlsConfig& tls_config);
 
-		/* Destroys a TlsSocket object.
+		/**
+		 * Destroys a TlsSocket object.
 		 * See base class.
 		*/
 		virtual ~TlsSocket();
 
-		/* Enables or disables host name verification.
+		/**
+		 * Enables or disables host name verification.
 		 *
 		 * Enabling host name verification ensures that the server's certificate
 		 * matches the host name specified in the connect call, helping to prevent
@@ -50,12 +53,14 @@ namespace net {
 		 */
 		void set_hostname_verification(bool enable_verification);
 
-		/* Initiates a connection to the specified endpoint.
+		/**
+		 * Initiates a connection to the specified endpoint.
 		 * See base class.
 		*/
 		mbed_err connect(const Endpoint& ep, Timer& timer) override;
 
-		/* Performs the SSL/TLS handshake.
+		/**
+		 * Performs the SSL/TLS handshake.
 		 *
 		 * This function initiates the SSL/TLS handshake process to establish a secure
 		 * connection. The handshake will proceed until it either completes successfully
@@ -70,11 +75,13 @@ namespace net {
 		 */
 		tls_handshake_status handshake(Timer& timer);
 
-		/* Close gracefully the socket.
+		/**
+		 * Closes gracefully the socket.
 		*/
 		virtual void shutdown() override;
 
-		/* Returns the result of the certificate verification.
+		/**
+		 * Returns the result of the certificate verification.
 		 *
 		 * The verification process takes place during the open. The result
 		 * of this method is undefined until the connect method has been
@@ -82,17 +89,21 @@ namespace net {
 		*/
 		mbed_err get_crt_check() const;
 
-		/* Returns the cipher suite selected to encrypt the Tls communication.
+		/**
+		 * Returns the cipher suite selected to encrypt the TLS communication.
 		*/
 		std::string get_ciphersuite() const;
 
-		/* Returns the TLS version.
+		/**
+		 * Returns the TLS version.
 		*/
 		std::string get_tls_version() const;
 
-		/* Returns a pointer to the X509 certificate of the Tls server. The peer
-		 * certificate is obtained during the connection.  This pointer remains
-		 * valid until the socket is closed.
+		/**
+		 * Returns a pointer to the X509 certificate received from the TLS server.
+		 *
+		 * The peer certificate is obtained during the connection.  This pointer
+		 * valid until this socket is closed.
 		*/
 		const mbedtls_x509_crt* get_peer_crt() const;
 
@@ -104,21 +115,23 @@ namespace net {
 		 */
 		const TlsConfig& get_tls_config() const;
 
-		/* Receives data from the socket.
+		/**
+		 * Receives data from the socket.
 		 * See Socket::recv_data
 		*/
 		virtual net::rcv_status recv_data(unsigned char* buf, size_t len) override;
 
-		/* Sends data to the socket.
+		/**
+		 * Sends data to the socket.
 		 * See Socket::send_data
 		*/
 		virtual net::snd_status send_data(const unsigned char* buf, size_t len) override;
 
 	private:
-		// A reference to the TLS configuration
+		// A reference to the TLS configuration.
 		const TlsConfig& _tlscfg;
 
-		// The TLS context
+		// The TLS context.
 		TlsContext _tlsctx;
 
 		// True if the host name verification must be validated.

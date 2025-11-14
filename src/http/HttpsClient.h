@@ -28,7 +28,8 @@ namespace http {
 		explicit HttpsClient(const net::Endpoint& ep, const net::TlsConfig& config);
 		virtual ~HttpsClient();
 
-		/* Sets the timeout values for an HTTPS transaction.
+		/**
+		 * Sets the timeout values for an HTTPS transaction.
 		 *
 		 * This function sets the timeouts for connection, sending, and receiving data in
 		 * an HTTPS transaction. It must be called before establishing a connection with
@@ -47,22 +48,26 @@ namespace http {
 		 */
 		bool set_timeouts(uint32_t connect_timeout, uint32_t send_timeout, uint32_t receive_timeout);
 		
-		/* Returns the endpoint to which this client is connected.
+		/**
+		 * Returns the endpoint to which this client is connected.
 		*/
 		inline const net::Endpoint& host() const noexcept { return _host_ep; }
 
-		/* Connects this client to the endpoint.
+		/**
+		 * Connects this client to the endpoint.
 		 *
 		 * @throws mbed_error If a network, SSL, or other critical error occurs during the
 		 *                    connection process.
 		*/
 		void connect();
 
-		/* Disconnects this client from the endpoint.
+		/**
+		 * Disconnects this client from the endpoint.
 		*/
 		void disconnect();
 
-		/* Sends a request to the server.
+		/**
+		 * Sends a request to the server.
 		 *
 		 * This function sends an HTTP request to the server. The request is passed as
 		 * an argument and transmitted over the active connection. It may throw an
@@ -76,7 +81,8 @@ namespace http {
 		 */
 		void send_request(Request& request);
 
-		/* Receives and processes the HTTP response from the server.
+		/**
+		 * Receives and processes the HTTP response from the server.
 		 *
 		 * This function retrieves the response from the server and processes the answer.
 		 * It clears any existing data in the provided `answer` object, receives the
@@ -95,11 +101,13 @@ namespace http {
 		 */
 		void recv_answer(Answer& answer);
 
-		/* Encodes a string that can be used in a query part of a URL.
+		/**
+		 * Encodes a string that can be used in a query part of a URL.
 		*/
 		static std::string encode_url(const std::wstring& str);
 
-		/* Decodes a URL string.
+		/**
+		 * Decodes a URL string.
 		*/
 		static std::string decode_url(const std::string& str);
 
@@ -112,16 +120,19 @@ namespace http {
 		static const int STATUS_UNAUTHORIZED;
 		static const int STATUS_FORBIDDEN;
 
-		/* Creates an Url from a path.
+		/**
+		 * Creates an Url from a path.
 		*/
 		http::Url make_url(const std::string& path) const;
 
-		/* Creates an Url from a path and a query.
+		/**
+		 * Creates an Url from a path and a query.
 		*/
 		http::Url make_url(const std::string& path, const std::string& query) const;
 
 	protected:
-		/* Determines whether the socket needs to be reconnected.
+		/**
+		 * Determines whether the socket needs to be reconnected.
 		 *
 		 * Reconnection is required if the keep-alive timer has expired or if the
 		 * number of requests exceeds the server-defined maximum. If the server does
@@ -131,16 +142,16 @@ namespace http {
 		bool is_reconnection_required() const;
 
 	private:
-		// The endpoint
+		// The endpoint.
 		const net::Endpoint _host_ep;
 
-		// Connection keep alive timer
+		// Connection keep alive timer.
 		tools::Timer _keepalive_timer;
 
-		// Maximum number of requests this client can issue during a session
+		// Maximum number of requests this client can issue during a session.
 		int _max_requests;
 
-		// Maximum amount of time the session can be idle (in seconds)
+		// Maximum amount of time the session can be idle (in seconds).
 		int _keepalive_timeout;
 
 		// All configured timeout values.
@@ -148,7 +159,7 @@ namespace http {
 		uint32_t _send_timeout;
 		uint32_t _receive_timeout;
 
-		// Number of requests sent since last connection
+		// Number of requests sent since last connection.
 		int _request_count;
 	};
 

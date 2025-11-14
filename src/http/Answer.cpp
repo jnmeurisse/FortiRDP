@@ -155,7 +155,7 @@ namespace http {
 	{
 		DEBUG_ENTER(_logger, "Answer", "read_gzip_body");
 
-		// configure the decompressor
+		// configure the de-compressor
 		::z_stream strm{ 0 };
 		strm.zalloc = Z_NULL;
 		strm.zfree = Z_NULL;

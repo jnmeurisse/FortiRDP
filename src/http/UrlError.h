@@ -13,7 +13,9 @@
 
 namespace http {
 
-	/* Exception raised when the syntax of an HTTP URL is incorrect. */
+	/**
+	 * Exception raised when the syntax of an HTTP URL is incorrect.
+	 */
 	class UrlError final : public std::logic_error
 	{
 	public:

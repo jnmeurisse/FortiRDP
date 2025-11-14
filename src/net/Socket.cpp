@@ -29,7 +29,6 @@ namespace net {
 	{
 		DEBUG_DTOR(_logger, "Socket");
 
-		// Close the socket if not yet done.
 		::mbedtls_net_close(&_netctx);
 	}
 
@@ -216,19 +215,19 @@ namespace net {
 	{
 		Socket::poll_status status { poll_status_code::NETCTX_POLL_ERROR, MBEDTLS_ERR_NET_INVALID_CONTEXT };
 
-		// wait to be ready for read or write
+		// Wait to be ready for read or write.
 		const int rc = ::mbedtls_net_poll(&_netctx, rw, timeout);
 		if (rc < 0) {
-			// an error has occurred
+			// An error has occurred.
 			status.rc = rc;
 		}
 		else if (rc == 0) {
-			// wait timed out
+			// Wait timed out.
 			status.code = poll_status_code::NETCTX_POLL_ERROR;
 			status.rc = MBEDTLS_ERR_SSL_TIMEOUT;
 		}
 		else {
-			// ready for read and/or write.  rc contains a bit mask
+			// Ready for read and/or write.  rc contains a bit mask
 			// that indicates if the socket is ready for reading or writing.
 			status.code = poll_status_code::NETCTX_POLL_OK;
 			status.rc = rc;

@@ -124,7 +124,7 @@ namespace http {
 
 		request.send(*this, tools::Timer{ _send_timeout });
 
-		// update the number of requests and restart the keep alive timer
+		// Update the number of requests and restart the keep alive timer
 		_request_count++;
 		_keepalive_timer.start(_keepalive_timeout * 1000);
 
@@ -144,10 +144,10 @@ namespace http {
 	{
 		DEBUG_ENTER(_logger, "HttpsClient", "recv_answer");
 
-		// make sure the answer buffer is empty.
+		// Make sure the answer buffer is empty.
 		answer.clear();
 
-		// receive the answer from the server.
+		// Receive the answer from the server.
 		const int rc = answer.recv(*this, tools::Timer{ _receive_timeout });
 
 		_logger->debug(
@@ -184,7 +184,7 @@ namespace http {
 			throw httpcli_error(message);
 		}
 
-		// update the keep alive timeout and max requests.
+		// Update the keep alive timeout and max requests.
 		int timeout = DEFAULT_KEEP_ALIVE_TIMEOUT;
 		int max_requests = 100;
 		std::string keep_alive;
@@ -215,11 +215,11 @@ namespace http {
 	{
 		static const char hexstr[] = "0123456789abcdef";
 
-		// convert input string to utf-8
+		// Convert input string to utf-8
 		std::wstring_convert<std::codecvt_utf8<wchar_t>> utf8_conv;
 		const std::string utf8_str{ utf8_conv.to_bytes(str) };
 
-		// allocate output buffer
+		// Allocate output buffer
 		std::stringstream escaped;
 
 		for (unsigned int i = 0; i < utf8_str.length(); i++) {

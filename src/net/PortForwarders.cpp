@@ -33,13 +33,8 @@ namespace net {
 			PortForwarder* const pf = (*it);
 
 			if (check_cb(pf)) {
-				// delete this port forwarder
 				delete pf;
-
-				// move to next in the list
 				it = erase(it);
-
-				// One more deleted
 				count++;
 			}
 			else {

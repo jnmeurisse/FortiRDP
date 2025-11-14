@@ -65,7 +65,6 @@ namespace http {
 		tools::ByteBuffer buffer(1024);
 
 		if (_body.size() > 0) {
-			// add a content-length header if there is a body.
 			_headers.set("Content-Length", _body.size());
 		}
 
@@ -75,13 +74,13 @@ namespace http {
 			.append("HTTP/1.1")
 			.append("\r\n");
 
-		// Append all headers
+		// Append all headers.
 		_headers.write(buffer);
 
-		// add cookies, cookies are still obfuscated at this stage
+		// Add cookies, cookies are still obfuscated at this stage
 		tools::obfstring cookie_header{ _cookies.to_header(_url) };
 		if (cookie_header.size() > 0) {
-			// cookies are appended decrypted in the buffer
+			// Cookies are appended decrypted in the buffer.
 			buffer
 				.append("Cookie: ")
 				.append(cookie_header)
@@ -89,7 +88,7 @@ namespace http {
 		}
 		buffer.append("\r\n");
 
-		// Send headers to the web server
+		// Send headers to the web server.
 		if (_logger->is_trace_enabled())
 			_logger->trace(
 				"... %x       Request::send : write headers",
@@ -97,11 +96,11 @@ namespace http {
 			);
 		write_buffer(socket, buffer.cbegin(), buffer.size(), timer);
 
-		// Erase sensitive data
+		// Erase sensitive data.
 		buffer.clear();
 
 		if (_body.size() > 0) {
-			// send the body to the web server
+			// Send the body to the web server.
 			if (_logger->is_trace_enabled())
 				_logger->trace(
 					"... %x       Request::send : write body",
@@ -125,7 +124,7 @@ namespace http {
 				status.rc);
 
 		if (status.code == snd_status_code::NETCTX_SND_ERROR || status.code == snd_status_code::NETCTX_SND_RETRY) {
-			// send failed or timed out
+			// Send failed or timed out.
 			throw mbed_error(status.rc);
 		}
 	}

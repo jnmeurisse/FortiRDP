@@ -45,11 +45,11 @@ namespace tools {
 
 		if (buffer && buffer->tot_len > 0 && !is_full()) {
 			if (_chain) {
-				// The queue is not empty, we calculate if the new total length would
-				// not exceed the queue capacity.
+				// Since the queue is not empty, verify that the total length
+				// after adding the new data does not exceed the queue's maximum capacity.
 				if (size() + pbuf_tot_len(buffer) <= _capacity) {
-					// Append the pbuf at the end of the queue and add a
-					// reference to it.
+					// Append the buffer at the end of the queue.  The queues now references
+					// the buffer.
 					pbuf_chain(_chain, buffer);
 					rc = true;
 				}
@@ -59,7 +59,7 @@ namespace tools {
 				_chain = buffer;
 				_offset = 0;
 
-				// we keep a reference to this pbuf.
+				// We keep a reference to this buffer.
 				pbuf_ref(buffer);
 				rc = true;
 			}
@@ -109,10 +109,10 @@ namespace tools {
 			return { nullptr, 0, false };
 		}
 		else {
-			// compute how many bytes are available in the pbuf.
+			// Compute how many bytes are available in the pbuf.
 			size_t available = pbuf_len(_chain) - _offset;
 
-			// determine if more data is available.
+			// Determine if more data is available.
 			bool more_data =
 				(len < available) ||
 				(
@@ -120,11 +120,11 @@ namespace tools {
 					_chain->next && (_chain->next->flags && PBUF_FLAG_PUSH) == 0
 				);
 
-			// the cblock length can not be larger than what is available in a single
-			// pbuf and is limited to 2^16.
+			// The length of the cblock is limited by the amount of data in a single pbuf
+			// and has a maximum value of 2^16.
 			size_t cblock_len = std::min(len, available);
 
-			// return the next contiguous block of data
+			// Return the next contiguous block of data
 			return {
 				payload() + _offset,
 				static_cast<uint16_t>(cblock_len),
@@ -144,12 +144,12 @@ namespace tools {
 	{
 		bool rc = false;
 
-		// it is not allowed to move past the end of a pbuf
+		// Verify that we do not move past the end of a pbuf.
 		if (_chain && _offset + len <= pbuf_len(_chain)) {
-			// move the offset pointer into the payload
+			// Move the offset pointer into the payload
 			_offset += len;
 
-			// pop the head of the queue if the offset moved at the end of the payload.
+			// Pop the head of the queue if the offset moved at the end of the payload.
 			if (pbuf_len(_chain) - _offset == 0)
 				pbuf_free(pop());
 

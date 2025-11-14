@@ -22,44 +22,51 @@ namespace http {
 	public:
 		using tools::StringMap::serase;
 
-		/* Copies all headers from the specified collection to this collection.
-		 * Existing headers could be replaced during this operation.
+		/**
+		 * Copies all headers from the specified collection to this collection.
+		 * 
+		 * Note: Existing headers could be replaced during this operation.
 		 *
-		 * @param headers The collection of headers to be copied in this collection
+		 * @param headers The collection of headers to be copied in this collection.
 		*/
 		Headers& add(const Headers& headers);
 
-		/* Sets a header
+		/**
+		 * Sets a header.
 		 *
-		 * @param name The name of the header
-		 * @param value The value of the header
+		 * @param name The name of the header.
+		 * @param value The value of the header.
 		*/
 		Headers& set(const std::string& name, const std::string& value);
 
-		/* Sets a header
+		/**
+		 * Sets a header.
 		 *
-		 * @param name The name of the header
-		 * @param value The value of the header
+		 * @param name The name of the header.
+		 * @param value The value of the header.
 		*/
 		Headers& set(const std::string& name, const int value);
 
-		/* Sets a header
+		/**
+		 * Sets a header
 		 *
-		 * @param name The name of the header
-		 * @param value The value of the header
+		 * @param name The name of the header.
+		 * @param value The value of the header.
 		*/
 		Headers& set(const std::string& name, const size_t value);
 
-		/* Gets a header with the specified name.
+		/**
+		 * Gets a header with the specified name.
 		 *
-		 * @param name The name of the header
-		 * @param value The value of the header
+		 * @param name The name of the header.
+		 * @param value The value of the header.
 		*/
 		bool get(const std::string& name, std::string& value) const;
 
-		/* Writes all headers to the specified buffer
-		* 
-		*  @buffer: destination buffer
+		/**
+		 * Writes all headers to the specified buffer
+		 * 
+		 * @param buffer The destination buffer.
 		*/
 		void write(tools::ByteBuffer& buffer) const;
 	};

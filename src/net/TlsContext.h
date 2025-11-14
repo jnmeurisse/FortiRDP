@@ -41,8 +41,8 @@ namespace net {
 	 *
 	 * This struct represents the result of a TLS handshake operation. It includes:
 	 * - `status_code` : The status of the handshake (based on the `hdk_status_code` enum).
-	 * - `rc`          : A return code that provides additional information, such as error codes or
-	 *                   operation success codes.
+	 * - `rc`          : A return code that provides additional information, such as
+	 *                   error codes or operation success codes.
 	 * Possible combinations :
 	 *     code        | HDK_ERROR   | HDK_OK     | HDK_WAIT_IO   | HDK_WAIT_ASYNC
 	 *     rc          | error code  |    0       | r/w bit mask  | error code
@@ -93,10 +93,8 @@ namespace net {
 		void clear();
 
 		/**
-		 *  Sets hostname to check against the received server certificate.
+		 *  Sets host name to check against the received server certificate.
 		 * 
-		 * @param hostname 
-		 * @return 
 		 */
 
 		mbed_err set_hostname(const std::string& hostname);
@@ -139,7 +137,8 @@ namespace net {
 		net::snd_status send_data(const unsigned char* buf, size_t len);
 
 
-		/* Return the result of the certificate verification.
+		/**
+		 * Returns the result of the certificate verification.
 		 *
 		 * The verification process takes place during the open. The result
 		 * of this method is undefined until the connect method has been
@@ -147,17 +146,21 @@ namespace net {
 		*/
 		mbed_err get_crt_check() const;
 
-		/* Return the cipher suite selected to encrypt the Tls communication.
+		/**
+		 * Returns the cipher suite selected to encrypt the TLS communication.
 		*/
 		std::string get_ciphersuite() const;
 
-		/* Return the TLS version.
+		/**
+		 * Returns the TLS version.
 		*/
 		std::string get_tls_version() const;
 
-		/* Return a pointer to the X509 certificate of the Tls server. The peer
-		 * certificate is obtained during the connection.  This pointer remains
-		 * valid until the context is cleared.
+		/**
+		 * Returns a pointer to the X509 certificate received from the TLS server.
+		 *
+		 * The peer certificate is obtained during the connection.  This pointer
+		 * remains valid until the context is cleared.
 		*/
 		const mbedtls_x509_crt* get_peer_crt() const;
 

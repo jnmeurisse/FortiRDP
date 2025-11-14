@@ -35,7 +35,8 @@ namespace fw {
 
 		/**
 		 * Starts the tunneler.
-		 *
+		 * 
+		 * The function opens an encrypted TLS socket and starts the tunnel.
 		 */
 		bool start();
 

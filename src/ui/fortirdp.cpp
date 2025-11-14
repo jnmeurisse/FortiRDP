@@ -59,7 +59,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	bool invalid_args = !cmdline_params.initialize();
 	
 	if (invalid_args) {
-		// display command line syntax if an invalid argument was specified.
+		// Display command line syntax if an invalid argument was specified.
 		RedirectStdioToConsole();
 		std::cout << "Error: invalid command line" << std::endl;
 		cmdline_params.print_usage();
@@ -73,12 +73,12 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 		return 1;
 	}
 
-	// Get the application path
+	// Get the application path.
 	tools::Path desktop_path{ tools::Path::get_desktop_path() };
 
 	// Should we write to a log file ?
 	if (cmdline_params.verbose()) {
-		// the log file is created on the desktop of the current user
+		// The log file is created on the desktop of the current user.
 		writer.open(tools::Path(desktop_path.folder(), L"fortirpd.log").to_string());
 		logger->add_writer(&writer);
 
@@ -87,7 +87,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 			logger->set_level(tools::Logger::LL_TRACE);
 	}
 
-	// Initialize lwip stack
+	// Initialize lwIP stack
 	lwip_init();
 	dns_init();
 	sys_set_logger(lwip_log_cb, logger);
@@ -99,7 +99,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 		ui::ConnectDialog main_dialog(hInstance, cmdline_params);
 		main_dialog.show_window(nCmdShow);
 
-		// Main application loop
+		// Main application loop.
 		while (GetMessage(&msg, nullptr, 0, 0)) {
 			if (IsDialogMessage(main_dialog.window_handle(), &msg))
 				continue;
@@ -128,13 +128,13 @@ static void RedirectStdioToConsole()
 		COORD size = { 120, 1000 };
 		SMALL_RECT position = { 0, 0, 119, 50 };
 
-		// set the screen buffer large enough
+		// Set the screen buffer large enough
 		SetConsoleScreenBufferSize(hStdOut, size);
 
-		// set text color 
+		// Set text color
 		SetConsoleTextAttribute(hStdOut, FOREGROUND_GREEN | FOREGROUND_INTENSITY);
 
-		// and font
+		// and font.
 		CONSOLE_FONT_INFOEX cfi;
 		cfi.cbSize = sizeof cfi;
 		cfi.nFont = 0;
@@ -145,7 +145,7 @@ static void RedirectStdioToConsole()
 		wcscpy_s(cfi.FaceName, L"Lucida Console");
 		SetCurrentConsoleFontEx(hStdOut, FALSE, &cfi);
 
-		// set position and size
+		// Set position and size
 		SetConsoleWindowInfo(hStdOut, TRUE, &position);
 
 		// reopen stdout and stderr 

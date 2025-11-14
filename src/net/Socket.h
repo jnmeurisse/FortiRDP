@@ -109,7 +109,8 @@ namespace net {
 	class Socket
 	{
 	public:
-		/* Destroys a Socket object.
+		/**
+		 * Destroys a Socket object.
 		 *
 		 * Ensures the socket is closed and resources are released. If connected,
 		 * the destructor terminates the connection and cleans up the underlying
@@ -117,7 +118,8 @@ namespace net {
 		 */
 		virtual ~Socket();
 
-		/* Initiates a connection to the specified endpoint.
+		/**
+		 * Initiates a connection to the specified endpoint.
 		 *
 		 * This function attempts to establish a connection to the given endpoint within
 		 * the time specified by the `timer` parameter. If the connection process exceeds
@@ -134,28 +136,32 @@ namespace net {
 		 */
 		virtual mbed_err connect(const Endpoint& ep, net::net_protocol protocol, Timer& timer);
 
-		/* Binds the listener to a specified endpoint.
+		/**
+		 * Binds the listener to a specified endpoint.
 		 *
-		 * This function binds a listener to the provided endpoint, defined by a hostname
+		 * This function binds a listener to the provided endpoint, defined by a host name
 		 * and port, and sets up the socket for non-blocking mode. The function ensures
 		 * proper error handling and logging during the binding process.
 		 *
-		 * @param endpoint The endpoint to bind the listener to, specified by its hostname
+		 * @param endpoint The endpoint to bind the listener to, specified by its host name
 		 *                 and port.
 		 *
 		 * @return mbed_err 0 on success; a negative error code on failure.
 		 */
 		virtual mbed_err bind(const Endpoint& ep, net::net_protocol protocol);
 
-		/* Closes the socket.
+		/**
+		 * Closes the socket.
 		*/
 		virtual void close();
 
-		/* Closes gracefully the socket.
+		/**
+		 * Closes gracefully the socket.
 		*/
 		virtual void shutdown();
 
-		/* Enables or disables the blocking mode.
+		/**
+		 * Enables or disables the blocking mode.
 		 *
 		 * This function enables or disables the socket blocking mode.  The function
 		 * must be called when the socket is connected.
@@ -165,7 +171,8 @@ namespace net {
 		*/
 		mbed_err set_blocking_mode(bool enable);
 
-		/* Configures the no-delay option for the socket.
+		/**
+		 * Configures the no-delay option for the socket.
 		 *
 		 * This function enables or disables the Nagle algorithm, which controls the
 		 * behavior of small packet transmission. When enabled (`no_delay` is `true`),
@@ -183,7 +190,8 @@ namespace net {
 		 */
 		mbed_err set_nodelay(bool no_delay);
 
-		/* Receives data from the socket.
+		/**
+		 * Receives data from the socket.
 		 *
 		 * The received data is stored in the buffer pointed to by the `buf` parameter.
 		 * The `len` parameter specifies the maximum amount of data to be received in a
@@ -194,7 +202,8 @@ namespace net {
 		 */
 		virtual net::rcv_status recv_data(unsigned char* buf, size_t len);
 
-		/* Sends data to the socket.
+		/**
+		 * Sends data to the socket.
 		 *
 		 * The buffer pointed to by the `buf` parameter must contain the data to be sent.
 		 * The `len` parameter specifies the amount of data to send.
@@ -204,17 +213,20 @@ namespace net {
 		 */
 		virtual net::snd_status send_data(const unsigned char* buf, size_t len);
 
-		/* Returns true if the socket is connected.
+		/**
+		 * Returns true if the socket is connected.
 		*/
 		inline bool is_connected() const noexcept { return get_fd() != -1; }
 
-		/* Returns the socket file descriptor.
+		/**
+		 * Returns the socket file descriptor.
 		 * 
 		 * The function returns -1 if the socket is not connected.
 		*/
 		inline int get_fd() const noexcept { return _netctx.fd; }
 
-		/* Retrieves the port number associated with the socket.
+		/**
+		 * Retrieves the port number associated with the socket.
 		 *
 		 * This method determines the port number of the local endpoint of the socket,
 		 * if the socket file descriptor is valid. It supports both IPv4 and IPv6
@@ -270,7 +282,8 @@ namespace net {
 			int rc;
 		};
 
-		/* Checks and waits for the socket to be ready for reading and/or writing data.
+		/**
+		 * Checks and waits for the socket to be ready for reading and/or writing data.
 		 *
 		 * This function monitors the socket and waits for either read or write operations
 		 * to be possible. If `read` is `true`, it waits until data is available for reading.
@@ -289,7 +302,8 @@ namespace net {
 		 */
 		virtual net::Socket::poll_status poll(int rw, uint32_t timeout);
 
-		/* Accepts a new connection on the current socket and assigns it to the client socket.
+		/**
+		 * Accepts a new connection on the current socket and assigns it to the client socket.
 		 *
 		 * This method listens for an incoming connection on the current socket and, upon
 		 * success, initializes the provided `client_socket` with the connection details.

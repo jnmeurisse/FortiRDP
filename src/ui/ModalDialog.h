@@ -23,12 +23,16 @@ namespace ui {
 	public:
 		explicit ModalDialog(HINSTANCE hInstance, HWND hParent, int idd);
 
-		/* destroys this modal dialog.
+		/**
+		 * Closes this modal dialog.
+		 * 
 		*/
 		bool close_dialog(INT_PTR result);
 
-		/* creates and shows this modal dialog.  The function returns the value
-		*  passed in the call to close_dialog.
+		/**
+		 * Creates and shows this modal dialog.
+		 *
+		 * The function returns the value passed in the call to close_dialog.
 		*/
 		INT_PTR show_modal();
 	};

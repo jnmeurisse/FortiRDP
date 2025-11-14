@@ -17,7 +17,7 @@ namespace ui {
 
 	/**
 	* A synchronous procedure that disconnects this client from the firewall and terminates the tunnel
-	* listeners. The procedure posts a DisconnectedEvent to the window when done.
+	* listeners. The procedure posts a DisconnectedEvent to the main window when done.
 	*/
 	class SyncDisconnect final : public SyncProc
 	{
@@ -26,12 +26,13 @@ namespace ui {
 		~SyncDisconnect();
 
 	private:
-		//- portal to disconnect from
+		//- portal to disconnect from.
 		fw::FirewallClient& _portal_client;
 
 		//- tunnel to terminate if not null.
 		fw::FirewallTunnel* const _tunnel;
 
+		// disconnect procedure.
 		virtual bool procedure() override;
 	};
 

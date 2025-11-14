@@ -57,10 +57,10 @@ namespace tools {
 	{
 		const size_t current_size = _buffer.size();
 
-		// make sure we have enough space
+		// Make sure we have enough space.
 		_buffer.resize(_buffer.size() + data.size());
 
-		// append the decrypted data at the end of the buffer
+		// Append the decrypted data at the end of the buffer.
 		data.uncrypt((char *)_buffer.data(), _buffer.capacity(), current_size);
 
 		return *this;

@@ -46,7 +46,7 @@ namespace ui {
 				_tunnel->terminate();
 
 				// Wait the end of the tunnel.  15 seconds should be enough to
-				// let LwIp close the ppp interface.
+				// let LwIp close the PPP interface.
 				bool wait = true;
 				for (int i = 0; i < 5 && wait; i++) {
 					if (!_tunnel->wait(5 * 1000)) {

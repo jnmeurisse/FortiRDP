@@ -42,11 +42,11 @@ namespace net {
 
 	// Recommended ciphers from https://ciphersuite.info. 
 	static const int default_ciphers[] = {
-		// TLS 1.3 ciphersuites
+		// TLS 1.3 cipher suites
 		MBEDTLS_TLS1_3_CHACHA20_POLY1305_SHA256,
 		MBEDTLS_TLS1_3_AES_128_GCM_SHA256,
 
-		// TLS 1.2 ciphersuites
+		// TLS 1.2 ciphe rsuites
 		//    Key exchange   : elliptic curve diffie-hellman key exchange
 		//    Authentication : RSA
 		//    Encryption     : CHACHA20 or AES

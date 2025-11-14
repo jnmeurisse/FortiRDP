@@ -33,10 +33,10 @@ namespace ui {
 		LPWSTR* const argv = ::CommandLineToArgvW(::GetCommandLineW(), &argc);
 
 		if (argv) {
-			// skip first argument which is the program name
+			// Skip first argument which is the program name.
 			rc = initialize(argc - 1, &argv[1]);
 
-			// free storage used by the argv array
+			// Free storage used by the argv array
 			::LocalFree(argv);
 		}
 
@@ -160,28 +160,28 @@ namespace ui {
 			}
 		}
 
-		// trace allowed only if verbose
+		// Trace is allowed only if verbose is enabled.
 		if (_trace && !_verbose)
 			return false;
 
-		// console mode, full screen, span, multi options and rdp file allowed only if app is rdp
+		// Console mode, full screen, span, multi options and RDP file allowed only if app is mstsc.
 		if ((_admin_console || _full_screen || _span_mode || _multimon_mode || !_rdp_filename.empty())
 			&& (!is_mstsc()))
 			return false;
 
-		// screen size allowed only if app is rdp
+		// Screen size configuration is allowed only if app is mstsc.
 		if ((_screen_size.height != 0 || _screen_size.width != 0) && (!is_mstsc()))
 			return false;
 
-		// is screen size valid
+		// Check if the screen size is valid.
 		if (!_screen_size.is_valid())
 			return false;
 
-		// is local port valid ?
+		// Check if the local TCP port is valid.
 		if (_local_port < 0 || _local_port > 65535)
 			return false;
 
-		// validate authentication method
+		// Validate the authentication method.
 		bool auth_method_valid = false;
 		switch (_auth_method) {
 			case fw::AuthMethod::DEFAULT:
@@ -200,10 +200,11 @@ namespace ui {
 				auth_method_valid = _username.size() == 0 && _us_cert_filename.size() > 0;
 				break;
 		}
+
 		if (!auth_method_valid)
 			return false;
 
-		// get the last two arguments
+		// Get the last two arguments on the command line.
 		int i = 0;
 		for (; optind < argc; optind++) {
 			if (i == 0) {
@@ -218,7 +219,7 @@ namespace ui {
 			i++;
 		}
 
-		// tcp nodelay is always set for rdp connection
+		// TCP no delay is always set for a RDP connection.
 		if (is_mstsc())
 			_tcp_nodelay = true;
 
@@ -232,7 +233,7 @@ namespace ui {
 		const tools::Path app_path{ tools::Path::get_module_path() };
 		const std::string version{ tools::get_file_ver(app_path.to_string()) };
 
-		// show program parameters
+		// Show program parameters.
 		std::cout << tools::string_format("fortirdp %s (jn.meurisse@gmail.com)\n\n", version.c_str());
 		std::cout << "fortirdp [-v [-t]] [-A auth] [-u username] [-c cacert_file] [-x app] [-f] [-a] [-s] [-p port]\n";
 		std::cout << "         [-r rdp_file] [-m] [-l] [-C] [-M] [-n] firewall-ip[:port1] remote-ip[:port2]\n";

@@ -53,9 +53,9 @@ namespace ui {
 	}
 
 
-	bool SyncConnect::ask_credentials(fw::AuthCredentials& credential)
+	bool SyncConnect::ask_credentials(fw::AuthCredentials& credentials)
 	{
-		return AsyncMessage::ShowCredentialsDialogRequest.send(_hwnd, (void*)&credential) == TRUE;
+		return AsyncMessage::ShowCredentialsDialogRequest.send(_hwnd, (void*)&credentials) == TRUE;
 	}
 
 
@@ -77,7 +77,7 @@ namespace ui {
 
 		bool connected = false;
 
-		// Open an https connection with the firewall portal.
+		// Open an HTTPS connection with the firewall portal.
 		{
 			fw::confirm_crt_fn confirm_crt_callback = [this](const mbedtls_x509_crt* crt, int status) {
 				return confirm_certificate(crt, status);
@@ -85,7 +85,6 @@ namespace ui {
 			fw::portal_err rc = _portal_client.open(confirm_crt_callback);
 
 			if (rc != fw::portal_err::NONE) {
-				// report errors.
 				if (rc != fw::portal_err::CERT_UNTRUSTED) {
 					showErrorMessageDialog(L"Connection error");
 				}
@@ -108,12 +107,11 @@ namespace ui {
 						return ask_pincode(code);
 					};
 
-					// loop while user enter wrong credentials
+					// Loop while user enter wrong credentials.
 					fw::portal_err rc;
 					do {
 						rc = _portal_client.login_basic(ask_credentials_callback, ask_pincode_callback);
 						if (rc != fw::portal_err::NONE) {
-							// report errors.
 							if (rc != fw::portal_err::LOGIN_CANCELLED) {
 								showErrorMessageDialog(L"Login error");
 							}

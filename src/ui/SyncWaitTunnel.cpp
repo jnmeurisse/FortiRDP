@@ -29,13 +29,12 @@ namespace ui {
 		DEBUG_ENTER(_logger, "SyncWaitTunnel", "procedure");
 		bool started = false;
 
-		// connect the socket and launch the listener thread.
 		if (_tunnel.start()) {
 			// Wait until the listener is in LISTENING state.
 			started = _tunnel.wait_listening(7000);
 		}
 
-		// Return that tunneler is listening or has failed to start
+		// Return whether the tunneler is listening or has failed to start
 		return started;
 	}
 

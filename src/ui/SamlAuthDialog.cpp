@@ -83,7 +83,6 @@ namespace ui {
 	}
 
 
-
 	SamlAuthDialog::SamlAuthDialog(HINSTANCE hInstance, HWND hParent, fw::AuthSamlInfo* pSamlInfo) :
 		ModalDialog(hInstance, hParent, IDD_SAMLAUTH_DIALOG),
 		_logger(tools::Logger::get_logger()),

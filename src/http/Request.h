@@ -25,7 +25,8 @@ namespace http {
 	class Request final
 	{
 	public:
-		/* Allocates and initializes an HTTP request message.
+		/**
+		 * Allocates and initializes an HTTP request message.
 		 *
 		 * This constructor creates a new HTTP request with the specified HTTP verb, URL,
 		 * and cookie jar.  It is used to set up the components of an HTTP request message,
@@ -38,13 +39,15 @@ namespace http {
 		 */
 		explicit Request(const std::string& verb, const Url& url, const Cookies& cookie_jar);
 
-		/* Clears the request.
-		*
-		*  This function erases all headers and body.
+		/**
+		 * Clears the request.
+		 *
+		 *  This function erases all headers and body.
 		*/
 		void clear();
 
-		/* Sets the body of the HTTP request.
+		/**
+		 * Sets the body of the HTTP request.
 		 *
 		 * This function sets the body content of the HTTP request message. It allows
 		 * us to include raw data to be sent with the request, such as form data, or
@@ -59,15 +62,18 @@ namespace http {
 		 */
 		Request& set_body(const unsigned char* data, size_t size);
 
-		/* Returns the request's url.
+		/**
+		 * Returns the request's url.
 		*/
 		inline const Url& url() const noexcept { return _url; }
 
-		/* The request's headers
+		/**
+		 * Returns the request's headers
 		*/
 		inline Headers& headers() { return _headers; }
 		
-		/* Sends this HTTP request to the server.
+		/**
+		 * Sends this HTTP request to the server.
 		 *
 		 * This function transmits the HTTP request, including its method, headers, and body
 		 * (if any), to the server using the provided socket connection. It ensures that the
@@ -95,17 +101,17 @@ namespace http {
 		static const std::string TRACE_VERB;
 
 	private:
-		// A reference to the application logger
+		// A reference to the application logger.
 		tools::Logger* const _logger;
 
-		// All cookies (a reference to the cookie jar)
+		// All cookies (a reference to the cookie jar).
 		const Cookies& _cookies;
 
-		// Fixed components of the HTTP request
+		// Fixed components of the HTTP request.
 		const std::string _verb;
 		const Url _url;
 
-		// Dynamic components of the HTTP request
+		// Dynamic components of the HTTP request.
 		Headers _headers;
 		tools::ByteBuffer _body;
 

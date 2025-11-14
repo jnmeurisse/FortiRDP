@@ -20,19 +20,23 @@ namespace ui {
 		explicit CredentialDialog(HINSTANCE hInstance, HWND hParent);
 		virtual ~CredentialDialog();
 
-		/* Initializes the text to show in the login dialog
+		/**
+		 * Initializes the information label.
 		*/
 		void setText(const std::wstring& text);
 
-		/* Initializes the user name
+		/**
+		 * Initializes the user name.
 		*/
 		void setUsername(const std::wstring& username);
 
-		/* Returns the user name from the login dialog
+		/**
+		 * Returns the user name from the login dialog.
 		*/
 		const std::wstring& getUsername() const;
 
-		/* Returns the password from the login dialog
+		/**
+		 * Returns the password from the login dialog.
 		*/
 		const std::wstring& getPassword() const;
 

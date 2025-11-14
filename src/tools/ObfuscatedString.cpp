@@ -45,10 +45,10 @@ namespace tools {
 	{
 		const size_t old_size = _obfuscated_text.size();
 
-		// Extend the buffer to hold the concatenated string
+		// Extend the buffer to hold the concatenated string.
 		_obfuscated_text.resize(old_size + n, 0x00);
 
-		// Concatenate : obfuscate the string that it is appended
+		// Concatenate : obfuscate the string that it is appended.
 		char *p = &_obfuscated_text[old_size];
 		for (int index = 0; index < n; index++, p++) {
 			*p = encode(str[index], _key);
@@ -68,10 +68,10 @@ namespace tools {
 	{
 		const size_t old_size = _obfuscated_text.size();
 
-		// Extend the buffer to hold the concatenated string
+		// Extend the buffer to hold the concatenated string.
 		_obfuscated_text.resize(old_size + str.size(), 0x00);
 
-		// Concatenate : de-obfuscate the given string and obfuscate when appending
+		// Concatenate : de-obfuscate the given string and obfuscate when appending.
 		char *p = &_obfuscated_text[old_size];
 		for (int index = 0; index < str.size(); index++, p++) {
 			*p = encode(str[index], _key);

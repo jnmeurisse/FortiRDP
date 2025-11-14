@@ -31,7 +31,7 @@ extern "C" {
 	typedef u32_t(*pppossl_output_cb_fn)(ppp_pcb *pcb, struct pbuf* pbuf, void *ctx);
 
 	/*
-	* Fortinet ppp header
+	* Fortinet PPP header
 	*   header[0] = payload len + sizeof(ppp_header)
 	*   header[1] = 0x5050 (tag)
 	*   header[2] = payload len

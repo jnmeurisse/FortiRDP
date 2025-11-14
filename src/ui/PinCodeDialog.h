@@ -19,11 +19,13 @@ namespace ui {
 		explicit PinCodeDialog(HINSTANCE hInstance, HWND hParent);
 		~PinCodeDialog();
 
-		/* Initializes the text to show in the ask code dialog
+		/**
+		 * Initializes the information text.
 		*/
 		void setText(const std::wstring& text);
 
-		/* Returns the code specified by the user
+		/**
+		 * Returns the pin code.
 		*/
 		const std::wstring& getCode() const;
 
