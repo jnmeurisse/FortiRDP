@@ -30,9 +30,9 @@ namespace tools {
 		mbed_err get_info(char* buf, size_t size, const char* prefix) const;
 
 		/**
-		 * Returns a pointer to the certificate chain.
+		 * Returns a reference to the certificate chain.
 		*/
-		inline mbedtls_x509_crt* get_crt() { return &_crt; }
+		inline mbedtls_x509_crt& get_crt() { return _crt; }
 
 	private:
 		mbedtls_x509_crt _crt;

@@ -121,18 +121,18 @@ namespace net {
 	}
 
     
-	void TlsConfig::set_ca_crt(mbedtls_x509_crt* ca_crt)
+	void TlsConfig::set_ca_crt(mbedtls_x509_crt& ca_crt)
 	{
 		DEBUG_ENTER(_logger, "TlsConfig", "set_ca_ctr");
 
-		mbedtls_ssl_conf_ca_chain(&_ssl_config, ca_crt, nullptr);
+		mbedtls_ssl_conf_ca_chain(&_ssl_config, &ca_crt, nullptr);
 		mbedtls_ssl_conf_authmode(&_ssl_config, MBEDTLS_SSL_VERIFY_OPTIONAL);
 	}
 
 
-	mbed_err TlsConfig::set_user_crt(mbedtls_x509_crt* own_crt, mbedtls_pk_context* own_key)
+	mbed_err TlsConfig::set_user_crt(mbedtls_x509_crt& own_crt, mbedtls_pk_context& own_key)
 	{
-		return mbedtls_ssl_conf_own_cert(&_ssl_config, own_crt, own_key);
+		return mbedtls_ssl_conf_own_cert(&_ssl_config, &own_crt, &own_key);
 	}
 
 

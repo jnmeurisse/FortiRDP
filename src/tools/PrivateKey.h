@@ -28,7 +28,7 @@ namespace tools {
 		/**
 		* Returns a reference to the private key.
 		*/
-		inline mbedtls_pk_context* get_pk() { return &_key; }
+		inline mbedtls_pk_context& get_pk() { return _key; }
 
 	private:
 		mbedtls_ctr_drbg_context _ctr_drbg;

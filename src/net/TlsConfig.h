@@ -28,12 +28,12 @@ namespace net {
 		/**
 		 * Defines the CA certificates.
 		*/
-		void set_ca_crt(mbedtls_x509_crt* ca_crt);
+		void set_ca_crt(mbedtls_x509_crt& ca_crt);
 
 		/**
 		 * Defines the client certificate.
 		*/
-		mbed_err set_user_crt(mbedtls_x509_crt* own_crt, mbedtls_pk_context* own_key);
+		mbed_err set_user_crt(mbedtls_x509_crt& own_crt, mbedtls_pk_context& own_key);
 
 		/**
 		 * @return the mbedtls_ssl_config.
