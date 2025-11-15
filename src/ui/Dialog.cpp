@@ -272,7 +272,7 @@ namespace ui {
 			name.c_str());
 	}
 
-	INT_PTR Dialog::onCommandMessage(WPARAM wParam, LPARAM lParam)
+	INT_PTR Dialog::onCommandMessage(WPARAM wParam, [[maybe_unused]] LPARAM lParam)
 	{
 		int cid = LOWORD(wParam);
 

@@ -34,7 +34,7 @@ namespace net {
 	}
 
 
-	mbed_err Socket::connect(const Endpoint& ep, net::net_protocol protocol, Timer& timer)
+	mbed_err Socket::connect(const Endpoint& ep, net::net_protocol protocol, [[maybe_unused]] Timer& timer)
 	{
 		if (get_fd() != -1) {
 			// The socket is connected.

@@ -35,7 +35,7 @@ static void lwip_log_cb(void *ctx, int level, const char* fmt, va_list args);
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	_In_opt_ HINSTANCE hPrevInstance,
-	_In_ LPWSTR    lpCmdLine,
+	[[maybe_unused]] _In_ LPWSTR lpCmdLine,
 	_In_ int       nCmdShow)
 {
 	UNREFERENCED_PARAMETER(hPrevInstance);

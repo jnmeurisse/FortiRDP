@@ -184,17 +184,17 @@ namespace ui {
 		HFONT create_font(int size, const std::wstring& name);
 
 		// Windows Event handlers
-		virtual INT_PTR onCreateDialogMessage(WPARAM wParam, LPARAM lParam) { return TRUE; }
-		virtual INT_PTR onDestroyDialogMessage(WPARAM wParam, LPARAM lParam) { return FALSE; }
-		virtual INT_PTR onCloseDialogMessage(WPARAM wParam, LPARAM lParam) { return FALSE; }
+		virtual INT_PTR onCreateDialogMessage([[maybe_unused]] WPARAM wParam, [[maybe_unused]] LPARAM lParam) { return TRUE; }
+		virtual INT_PTR onDestroyDialogMessage([[maybe_unused]] WPARAM wParam, [[maybe_unused]] LPARAM lParam) { return FALSE; }
+		virtual INT_PTR onCloseDialogMessage([[maybe_unused]] WPARAM wParam, [[maybe_unused]] LPARAM lParam) { return FALSE; }
 		virtual INT_PTR onCommandMessage(WPARAM wParam, LPARAM lParam);
-		virtual INT_PTR onSysCommandMessage(WPARAM wParam, LPARAM lParam) { return FALSE; }
-		virtual INT_PTR onCtlColorStaticMessage(WPARAM wParam, LPARAM lParam) { return FALSE; }
-		virtual INT_PTR onTimerMessage(WPARAM wParam, LPARAM lParam) { return FALSE; }
-		virtual INT_PTR onHotKey(WPARAM wParam, LPARAM lParam) { return FALSE; }
-		virtual INT_PTR onButtonClick(int idc, LPARAM lParam) { return FALSE; }
-		virtual INT_PTR onTextChange(int idc, LPARAM lParam) { return FALSE; }
-		virtual INT_PTR onUserEventMessage(UINT eventNumber, void* param) { return FALSE; }
+		virtual INT_PTR onSysCommandMessage([[maybe_unused]] WPARAM wParam, [[maybe_unused]] LPARAM lParam) { return FALSE; }
+		virtual INT_PTR onCtlColorStaticMessage([[maybe_unused]] WPARAM wParam, [[maybe_unused]] LPARAM lParam) { return FALSE; }
+		virtual INT_PTR onTimerMessage([[maybe_unused]] WPARAM wParam, [[maybe_unused]] LPARAM lParam) { return FALSE; }
+		virtual INT_PTR onHotKey([[maybe_unused]] WPARAM wParam, [[maybe_unused]] LPARAM lParam) { return FALSE; }
+		virtual INT_PTR onButtonClick([[maybe_unused]] int idc, [[maybe_unused]] LPARAM lParam) { return FALSE; }
+		virtual INT_PTR onTextChange([[maybe_unused]] int idc, [[maybe_unused]] LPARAM lParam) { return FALSE; }
+		virtual INT_PTR onUserEventMessage([[maybe_unused]] UINT eventNumber, [[maybe_unused]] void* param) { return FALSE; }
 
 	private:
 		// The application instance handle.

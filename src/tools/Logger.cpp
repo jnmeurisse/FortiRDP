@@ -212,7 +212,7 @@ namespace tools {
 	}
 
 
-	void FileLogWriter::write(Logger::Level level, const char * text)
+	void FileLogWriter::write([[maybe_unused]] Logger::Level level, const char* text)
 	{
 		if (_ofs.is_open()) {
 			_ofs << datetime() << " > " << text << std::endl;

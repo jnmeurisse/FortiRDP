@@ -29,7 +29,7 @@ namespace ui {
 	}
 
 
-	INT_PTR AboutDialog::onCreateDialogMessage(WPARAM wParam, LPARAM lParam)
+	INT_PTR AboutDialog::onCreateDialogMessage(WPARAM wParam, [[maybe_unused]] LPARAM lParam)
 	{
 		using namespace tools;
 
@@ -71,7 +71,7 @@ namespace ui {
 		return TRUE;
 	}
 
-	INT_PTR AboutDialog::onButtonClick(int cid, LPARAM lParam)
+	INT_PTR AboutDialog::onButtonClick(int cid, [[maybe_unused]] LPARAM lParam)
 	{
 		INT_PTR rc = FALSE;
 

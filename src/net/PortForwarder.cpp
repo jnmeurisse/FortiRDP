@@ -367,7 +367,7 @@ namespace net {
 	}
 
 
-	err_t tcp_connected_cb(void *arg, struct tcp_pcb *tpcb, err_t err)
+	err_t tcp_connected_cb(void *arg, [[maybe_unused]] struct tcp_pcb *tpcb, err_t err)
 	{
 		PortForwarder* const pf = (PortForwarder*) arg;
 
@@ -416,7 +416,7 @@ namespace net {
 	}
 
 
-	err_t tcp_sent_cb(void* arg, tcp_pcb* tpcb, u16_t len)
+	err_t tcp_sent_cb(void* arg, [[maybe_unused]] tcp_pcb* tpcb, u16_t len)
 	{
 		PortForwarder* const pf = (PortForwarder*)arg;
 		pf->_forwarded_bytes -= len;

@@ -34,7 +34,7 @@ namespace ui {
 	}
 
 
-	INT_PTR PinCodeDialog::onCreateDialogMessage(WPARAM wParam, LPARAM lParam)
+	INT_PTR PinCodeDialog::onCreateDialogMessage(WPARAM wParam, [[maybe_unused]] LPARAM lParam)
 	{
 		set_control_textlen(IDC_CODE, 128);
 		set_control_text(IDC_CODE_LABEL, _text);
@@ -52,7 +52,7 @@ namespace ui {
 	}
 
 
-	INT_PTR PinCodeDialog::onButtonClick(int cid, LPARAM lParam)
+	INT_PTR PinCodeDialog::onButtonClick(int cid, [[maybe_unused]] LPARAM lParam)
 	{
 		INT_PTR rc = FALSE;
 
@@ -76,10 +76,11 @@ namespace ui {
 	}
 
 
-	INT_PTR PinCodeDialog::onTextChange(int idc, LPARAM lParam)
+	INT_PTR PinCodeDialog::onTextChange(int idc, [[maybe_unused]] LPARAM lParam)
 	{
 		INT_PTR rc = FALSE;
-		set_control_enable(IDOK, get_control_text(IDC_CODE).size() > 0);
+		if (idc == IDC_CODE)
+			set_control_enable(IDOK, get_control_text(IDC_CODE).size() > 0);
 		return rc;
 	}
 

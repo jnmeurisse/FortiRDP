@@ -441,7 +441,7 @@ namespace ui {
 	}
 
 
-	INT_PTR ConnectDialog::onDestroyDialogMessage(WPARAM wParam, LPARAM lParam)
+	INT_PTR ConnectDialog::onDestroyDialogMessage([[maybe_unused]] WPARAM wParam, [[maybe_unused]] LPARAM lParam)
 	{
 		// Stop AsyncConnect if still running.
 		disconnect();
@@ -453,7 +453,7 @@ namespace ui {
 	}
 
 
-	INT_PTR ConnectDialog::onCloseDialogMessage(WPARAM wParam, LPARAM lParam)
+	INT_PTR ConnectDialog::onCloseDialogMessage([[maybe_unused]] WPARAM wParam, [[maybe_unused]] LPARAM lParam)
 	{
 		return ::DestroyWindow(window_handle());
 	}
@@ -485,7 +485,7 @@ namespace ui {
 	}
 
 
-	INT_PTR ConnectDialog::onSysCommandMessage(WPARAM wParam, LPARAM lParam)
+	INT_PTR ConnectDialog::onSysCommandMessage([[maybe_unused]] WPARAM wParam, [[maybe_unused]] LPARAM lParam)
 	{
 		INT_PTR rc = TRUE;
 
@@ -533,7 +533,7 @@ namespace ui {
 	}
 
 
-	INT_PTR ConnectDialog::onTimerMessage(WPARAM wParam, LPARAM lParam)
+	INT_PTR ConnectDialog::onTimerMessage([[maybe_unused]] WPARAM wParam, [[maybe_unused]] LPARAM lParam)
 	{
 		net::Tunneler* tunneler = nullptr;
 		if (_controller)
@@ -582,7 +582,7 @@ namespace ui {
 		return 0;
 	}
 
-	INT_PTR ConnectDialog::onHotKey(WPARAM wParam, LPARAM lParam)
+	INT_PTR ConnectDialog::onHotKey(WPARAM wParam, [[maybe_unused]] LPARAM lParam)
 	{
 		INT_PTR rc = TRUE;
 
@@ -691,7 +691,7 @@ namespace ui {
 	}
 
 
-	void ConnectDialog::disconnectFromFirewall(bool success)
+	void ConnectDialog::disconnectFromFirewall([[maybe_unused]] bool success)
 	{
 		disconnect();
 	}
