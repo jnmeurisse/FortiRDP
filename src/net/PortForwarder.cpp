@@ -442,7 +442,8 @@ namespace net {
 			if (!pf->_local_server.is_connected()) {
 				// The local server is disconnected, we can discard any received data.
 				// It is no longer possible to forward it.
-				tcp_recved(tpcb, p->tot_len);
+				tcp_recved(tpcb, len);
+				pbuf_free(p);
 			}
 			else {
 				if (!pf->_reply_queue.push(p)) {
@@ -460,6 +461,7 @@ namespace net {
 		}
 		else if (err == ERR_OK) {
 			if (pf->_state == PortForwarder::State::CONNECTED) {
+				// pbuf is NULL which indicate that the remote host has closed the connection.
 				pf->_state = PortForwarder::State::DISCONNECTING;
 
 				// Remove all callbacks.  We are not interested to be called on such events
