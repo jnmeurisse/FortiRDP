@@ -85,7 +85,7 @@ static err_t
 pppossl_write(ppp_pcb *ppp, void *ctx, struct pbuf *pbuf)
 {
 	pppossl_pcb* const pppos = (pppossl_pcb *)ctx;
-	int err = ERR_OK;
+	err_t err = ERR_OK;
 
 	if (!pbuf) {
 		err = ERR_BUF;
