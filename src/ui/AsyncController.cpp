@@ -99,7 +99,7 @@ namespace ui {
 				}
 				else {
 					// Try to load the private key without a password.
-					tools::mbed_err rc = _user_crt->pk.load(crt_filename.c_str(), nullptr);
+					rc = _user_crt->pk.load(crt_filename.c_str(), nullptr);
 
 					if (rc == MBEDTLS_ERR_PK_PASSWORD_REQUIRED) {
 						std::string passcode;
