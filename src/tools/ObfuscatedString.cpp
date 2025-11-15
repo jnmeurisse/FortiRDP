@@ -19,7 +19,7 @@ namespace tools {
 	}
 
 
-	obfstring::obfstring(char key, const char* secstr) :
+	obfstring::obfstring(uint8_t key, const char* secstr) :
 		_key(key),
 		_obfuscated_text(secstr)
 	{
@@ -142,7 +142,7 @@ namespace tools {
 	}
 
 
-	char obfstring::create_obfuscation_key() noexcept
+	uint8_t obfstring::create_obfuscation_key() noexcept
 	{
 		clock_t value = std::clock();
 		return (value % 7) + 1;

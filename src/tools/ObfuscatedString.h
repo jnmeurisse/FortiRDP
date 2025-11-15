@@ -126,19 +126,19 @@ namespace tools {
 
 	private:
 		// Generates a random key.
-		static char create_obfuscation_key() noexcept;
+		static uint8_t create_obfuscation_key() noexcept;
 
 		// Obfuscate a character (assuming 1 <= k <= 7).
-		inline static char encode(char c, int k) noexcept { return _rotl8(c, k); }
+		inline static char encode(char c, uint8_t k) noexcept { return _rotl8(c, k); }
 
 		// De-obfuscated a character (assuming 1 <= k <= 7).
-		inline static char decode(char c, int k) noexcept { return _rotr8(c, k); }
+		inline static char decode(char c, uint8_t k) noexcept { return _rotr8(c, k); }
 
 		// Allocates a copy of the key and the obfuscated string.
-		obfstring(char key, const char* secstr);
+		obfstring(uint8_t key, const char* secstr);
 
 		// Obfuscation key (between 1 and 7).
-		char _key;
+		uint8_t _key;
 
 		// The obfuscated string.
 		std::string _obfuscated_text;
