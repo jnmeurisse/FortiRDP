@@ -74,7 +74,7 @@ namespace net {
 		// is sent to the FortiGate firewall and is asynchronous.  dns_found_cb is 
 		// called when the host name is resolved or if the resolution fails.
 		ip_addr_t addr;
-		const mbed_err rc_query = DnsClient::query(_endpoint.hostname(), addr, dns_found_cb, this);
+		const lwip_err rc_query = DnsClient::query(_endpoint.hostname(), addr, dns_found_cb, this);
 		if (rc_query == ERR_OK || rc_query == ERR_INPROGRESS) {
 			// host name is already resolved or not yet resolved.
 			_state = State::CONNECTING;
