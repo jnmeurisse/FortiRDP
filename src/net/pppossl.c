@@ -268,7 +268,7 @@ pppossl_input(ppp_pcb *ppp, u8_t* s, size_t l)
 				pppossl->in.counter = 0;
 				pppossl->in.header[0] = lwip_ntohs(pppossl->in.header[0]);
 				pppossl->in.header[2] = lwip_ntohs(pppossl->in.header[2]);
-				int frame_size = pppossl->in.header[2];
+				u16_t frame_size = pppossl->in.header[2];
 
 				// Check header consistency
 				if ((pppossl->in.header[0] != frame_size + sizeof(ppp_header)) ||
