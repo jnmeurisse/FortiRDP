@@ -8,6 +8,8 @@
 #include "RegistrySettings.h"
 
 #include <Windows.h>
+#include <algorithm>
+
 
 namespace ui {
 	RegistrySettings::RegistrySettings() :
@@ -144,8 +146,8 @@ namespace ui {
 	ScreenSize RegistrySettings::get_screen_size() const
 	{
 		ScreenSize size{
-			min(ScreenSize::max_height, max(0, get_int(SCREEN_HEIGHT, 0))),
-			min(ScreenSize::max_width, max(0, get_int(SCREEN_WIDTH, 0)))
+			std::min(ScreenSize::max_height, std::max(0, get_int(SCREEN_HEIGHT, 0))),
+			std::min(ScreenSize::max_width, std::max(0, get_int(SCREEN_WIDTH, 0)))
 		};
 
 		return size;

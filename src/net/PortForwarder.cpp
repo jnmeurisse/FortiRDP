@@ -8,6 +8,7 @@
 
 #include "PortForwarder.h"
 
+#include <algorithm>
 #include <lwip/timeouts.h>
 #include <lwip/tcp.h>
 #include "net/DnsClient.h"
@@ -184,7 +185,7 @@ namespace net {
 
 		byte data[2048];
 
-		const size_t available_space = min(sizeof(data), _forward_queue.remaining_space());
+		const size_t available_space = std::min(sizeof(data), _forward_queue.remaining_space());
 		if (available_space == 0) {
 			// There is no space in the queue to store data that could be
 			// available in the socket.

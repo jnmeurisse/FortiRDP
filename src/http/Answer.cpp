@@ -7,6 +7,7 @@
 */
 #include "Answer.h"
 
+#include <algorithm>
 #include <string>
 #include <zlib.h>
 #include "http/Cookie.h"
@@ -170,8 +171,8 @@ namespace http {
 		unsigned char out[1024];
 
 		do {
-			const size_t len = min(size, sizeof(buffer));
-			if (!read_buffer(socket, buffer, min(size, sizeof(buffer)), timer)) {
+			const size_t len = std::min(size, sizeof(buffer));
+			if (!read_buffer(socket, buffer, std::min(size, sizeof(buffer)), timer)) {
 				inflateEnd(&strm);
 				return false;
 			}
@@ -190,11 +191,11 @@ namespace http {
 						(void)inflateEnd(&strm);
 						return false;
 				}
-				const int have = sizeof(out) - strm.avail_out;
+				const size_t have = sizeof(out) - strm.avail_out;
 
 				const size_t available_space = max_size - _body.size();
 				if (available_space > 0) {
-					_body.append(out, min(have, available_space));
+					_body.append(out, std::min(have, available_space));
 				}
 			} while (strm.avail_out == 0);
 
@@ -214,14 +215,14 @@ namespace http {
 
 		do {
 			// read a chunk of bytes
-			const size_t len = min(size, sizeof(buffer));
+			const size_t len = std::min(size, sizeof(buffer));
 			if (!read_buffer(socket, buffer, len, timer))
 				break;
 
 			// append what we can in the buffer
 			const size_t available_space = max_size - _body.size();
 			if (available_space > 0) {
-				_body.append(buffer, min(len, available_space));
+				_body.append(buffer, std::min(len, available_space));
 			}
 
 			size = size - len;
