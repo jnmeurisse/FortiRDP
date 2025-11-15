@@ -8,6 +8,7 @@
 #pragma once
 
 #include <string>
+#include <cstdint>
 
 
 namespace net {
@@ -36,7 +37,7 @@ namespace net {
 		 * if the syntax is not valid or if the port is not a valid integer.
 		 *
 		*/
-		explicit Endpoint(const std::string& address, const int default_port);
+		explicit Endpoint(const std::string& address, const uint16_t default_port);
 
 		/**
 		 * Converts this Endpoint to a printable string.
@@ -51,7 +52,7 @@ namespace net {
 		/**
 		 * Returns the port from this end point.
 		*/
-		inline const int port() const { return _port; }
+		inline const uint16_t port() const { return _port; }
 
 		/**
 		 * Returns true if this end point is undefined.
@@ -60,7 +61,7 @@ namespace net {
 
 	private:
 		std::string _hostname;
-		int _port;
+		uint16_t _port;
 
 		/**
 		 * Initializes this end point from the specified parameters.
@@ -68,7 +69,7 @@ namespace net {
 		 * @param address The endpoint address
 		 * @param default_port The default port if not specified in the address.
 		*/
-		void init(const std::string& address, int default_port);
+		void init(const std::string& address, uint16_t default_port);
 	};
 
 }

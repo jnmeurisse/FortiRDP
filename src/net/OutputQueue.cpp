@@ -70,7 +70,7 @@ namespace net {
 
 		written = 0;
 
-		lwip_err rc = 0;
+		lwip_err rc = ERR_OK;
 
 		while (!is_empty()) {
 			// Determine the space available in the TCP send buffer.

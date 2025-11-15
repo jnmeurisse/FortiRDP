@@ -9,6 +9,7 @@
 #include <Ws2ipdef.h>
 
 #include "Socket.h"
+#include <cstdint>
 
 
 
@@ -187,9 +188,9 @@ namespace net {
 	}
 
 
-	int Socket::get_port() const noexcept
+	bool Socket::get_port(uint16_t& port) const noexcept
 	{
-		int port = -1;
+		bool rc = false;
 
 		if (get_fd() != -1) {
 			struct sockaddr_storage sock_addr;
@@ -199,15 +200,17 @@ namespace net {
 				if (sock_addr.ss_family == AF_INET) {
 					struct sockaddr_in* addr4 = (struct sockaddr_in*)&sock_addr;
 					port = ntohs(addr4->sin_port);
+					rc = true;
 				}
 				else if (sock_addr.ss_family == AF_INET6) {
 					struct sockaddr_in6* addr6 = (struct sockaddr_in6*)&sock_addr;
 					port = ntohs(addr6->sin6_port);
+					rc = true;
 				}
 			}
 		}
 
-		return port;
+		return rc;
 	}
 
 

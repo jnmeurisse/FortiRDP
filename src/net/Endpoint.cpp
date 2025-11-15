@@ -7,6 +7,7 @@
 */
 #include "Endpoint.h"
 
+#include <limits>
 #include <stdexcept>
 #include "tools/StrUtil.h"
 
@@ -20,7 +21,7 @@ namespace net {
 	}
 
 
-	Endpoint::Endpoint(const std::string& address, const int default_port) :
+	Endpoint::Endpoint(const std::string& address, const uint16_t default_port) :
 		Endpoint()
 	{
 		init(address, default_port);
@@ -39,7 +40,7 @@ namespace net {
 	}
 
 
-	void Endpoint::init(const std::string& address, const int default_port)
+	void Endpoint::init(const std::string& address, const uint16_t default_port)
 	{
 		bool valid_port = true;
 
@@ -53,8 +54,12 @@ namespace net {
 		if ((p >= str) &&  (*p == ':')) {
 			// Extract the host name and port.
 			_hostname = tools::trim(std::string(str, p));
-			valid_port = tools::str2i((std::string(p + 1, str + address.length())), _port) &&
-							(_port > 0);
+			int port_value;
+			valid_port = tools::str2i((std::string(p + 1, str + address.length())), port_value) 
+						&& (port_value > 0) 
+						&& (port_value <= std::numeric_limits<uint16_t>::max());
+			if (valid_port)
+				_port = static_cast<uint16_t>(valid_port);
 		}
 		else {
 			_hostname = tools::trim(str);

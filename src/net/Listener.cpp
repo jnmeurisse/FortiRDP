@@ -42,8 +42,8 @@ namespace net {
 		}
 
 		// Get the port that has been assigned during the bind.
-		const int bind_port = Socket::get_port();
-		if (bind_port == -1) {
+		uint16_t bind_port;
+		if (!Socket::get_port(bind_port)) {
 			_logger->error("ERROR: Listener::bind get_port error %d", WSAGetLastError());
 
 			rc = MBEDTLS_ERR_NET_BIND_FAILED;

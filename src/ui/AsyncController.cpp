@@ -151,7 +151,7 @@ namespace ui {
 	}
 
 
-	bool AsyncController::create_tunnel(const net::Endpoint& remote_endpoint, int local_port,
+	bool AsyncController::create_tunnel(const net::Endpoint& remote_endpoint, uint16_t local_port,
 		bool multi_clients, bool tcp_nodelay)
 	{
 		if (_logger->is_debug_enabled()) {

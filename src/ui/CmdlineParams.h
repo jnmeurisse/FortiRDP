@@ -8,6 +8,7 @@
 #pragma once
 
 #include <Windows.h>
+#include <cstdint>
 #include <string>
 #include "fw/AuthTypes.h"
 #include "ScreenSize.h"
@@ -120,7 +121,7 @@ namespace ui {
 		 * Returns a local port to listen to.
 		 * If not specified or 0, the listener uses a random port number.
 		*/
-		inline int local_port() const { return _local_port; }
+		inline uint16_t local_port() const { return _local_port; }
 
 		/**
 		 * Returns false if Nagle algorithm must be disabled.
@@ -155,7 +156,7 @@ namespace ui {
 		std::wstring _app_name;
 		std::wstring _rdp_filename;
 		ScreenSize _screen_size{ 0,0 };
-		int _local_port = 0;
+		uint16_t _local_port = 0;
 
 		// Command line options
 		bool _full_screen = false;

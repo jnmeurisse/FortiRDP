@@ -66,14 +66,14 @@ namespace ui {
 
 		// Connection parameters :
 		// - Firewall endpoint
-		const int DEFAULT_FW_PORT = 10443;
+		const uint16_t DEFAULT_FW_PORT = 10443;
 		net::Endpoint _firewall_endpoint;
 
 		// - Firewall domain
 		std::string _firewall_domain;
 
 		// - Host endpoint
-		const int DEFAULT_RDP_PORT = 3389;
+		const uint16_t DEFAULT_RDP_PORT = 3389;
 		net::Endpoint _host_endpoint;
 
 		// - User name

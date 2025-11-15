@@ -8,6 +8,7 @@
 #pragma once
 
 #include <Windows.h>
+#include <cstdint>
 #include <functional>
 #include <memory>
 #include <string>
@@ -70,7 +71,7 @@ namespace ui {
 		/**
 		 * Creates a tunnel with the firewall.
 		*/
-		bool create_tunnel(const net::Endpoint& remote_endpoint, int local_port, bool multi_clients, bool tcp_nodelay);
+		bool create_tunnel(const net::Endpoint& remote_endpoint, uint16_t local_port, bool multi_clients, bool tcp_nodelay);
 
 		/**
 		 * Starts an external task. 

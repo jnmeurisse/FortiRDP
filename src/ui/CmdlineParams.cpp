@@ -8,6 +8,7 @@
 #include "CmdlineParams.h"
 
 #include <iostream>
+#include <limits>
 #include "tools/Path.h"
 #include "tools/SysUtil.h"
 #include "tools/StrUtil.h"
@@ -87,8 +88,9 @@ namespace ui {
 				break;
 
 			case L'p':
-				if (!tools::str2i(optarg, _local_port))
-					_local_port = -1;
+				int port;
+				if (tools::str2i(optarg, port) && port > 0 && (port <= std::numeric_limits<uint16_t>::max()))
+					_local_port = static_cast<uint16_t>(port);
 				break;
 
 			case L'c':
@@ -178,7 +180,7 @@ namespace ui {
 			return false;
 
 		// Check if the local TCP port is valid.
-		if (_local_port < 0 || _local_port > 65535)
+		if (_local_port > 0)
 			return false;
 
 		// Validate the authentication method.

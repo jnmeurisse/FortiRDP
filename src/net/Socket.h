@@ -232,11 +232,10 @@ namespace net {
 		 * if the socket file descriptor is valid. It supports both IPv4 and IPv6
 		 * address families.
 		 *
-		 * @return The port number of the socket as an integer. If the socket is not
-		 *         bound or the file descriptor is invalid, the method returns -1.
+		 * @return False if the socket is not bound or the file descriptor is invalid.
 		 *
 		 */
-		int get_port() const noexcept;
+		bool get_port(uint16_t& port) const noexcept;
 
 	protected:
 		// A reference to the application logger.
