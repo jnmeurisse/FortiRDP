@@ -170,13 +170,13 @@ namespace net {
 		// This callback is responsible to create a TCP socket with
 		// the remote host.  This socket is established through the secure
 		// socket.
-		friend void  dns_found_cb(const char *name, const ip_addr_t *ipaddr, void *callback_arg);
+		friend void dns_found_cb(const char *name, const ip_addr_t *ipaddr, void *callback_arg);
 
 		// A callback for successful TCP connection establishment.
 		friend err_t tcp_connected_cb(void *arg, struct tcp_pcb *tpcb, err_t err);
 
 		// A callback for handling TCP errors.
-		friend void  tcp_err_cb(void *arg, err_t err);
+		friend void tcp_err_cb(void *arg, err_t err);
 
 		// A callback for confirming data sent to the remote endpoint.  This callback
 		// is responsible for updating the count of forwarded bytes.
@@ -186,7 +186,7 @@ namespace net {
 		friend err_t tcp_recv_cb(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, err_t err);
 
 		// A callback for handling timeouts.
-		friend void  timeout_cb(void *arg);
+		friend void timeout_cb(void *arg);
 
 		// A reference to the application logger.
 		tools::Logger* const _logger;

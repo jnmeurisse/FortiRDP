@@ -267,7 +267,7 @@ namespace net {
 	}
 
 
-	static u32_t ppp_output_cb(ppp_pcb *pcb, struct pbuf* pbuf, void *ctx)
+	u32_t ppp_output_cb(ppp_pcb *pcb, struct pbuf* pbuf, void *ctx)
 	{
 		LWIP_UNUSED_ARG(pcb);
 		net::PPInterface* const pp_interface = (net::PPInterface *)ctx;
@@ -276,7 +276,7 @@ namespace net {
 	}
 
 
-	static void	ppp_link_status_cb(ppp_pcb *pcb, int err_code, void *ctx)
+	void ppp_link_status_cb(ppp_pcb *pcb, int err_code, void *ctx)
 	{
 		LWIP_UNUSED_ARG(pcb);
 		net::PPInterface* pp_interface = (net::PPInterface *)ctx;

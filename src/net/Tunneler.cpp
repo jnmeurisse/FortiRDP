@@ -362,7 +362,7 @@ namespace net {
 	}
 
 
-	static void timeout_cb(void* arg)
+	void timeout_cb(void* arg)
 	{
 		bool* timeout = (bool *)arg;
 

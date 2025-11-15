@@ -14,7 +14,7 @@
 namespace tools {
 
 	/* Internal functions */
-	static unsigned __stdcall thread_entry_point(void *);
+	unsigned __stdcall thread_entry_point(void *);
 
 	Thread::Thread(bool auto_delete) : 
 		_logger(Logger::get_logger()),

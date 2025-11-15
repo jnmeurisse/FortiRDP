@@ -228,6 +228,7 @@ pppossl_connect(ppp_pcb *ppp, void *ctx)
 static void
 pppossl_disconnect(ppp_pcb *ppp, void *ctx)
 {
+	LWIP_UNUSED_ARG(ctx);
 	ppp_link_end(ppp); /* notify upper layers */
 }
 
@@ -334,7 +335,8 @@ exit:
 static void
 pppossl_send_config(ppp_pcb *ppp, void *ctx, u32_t accm, int pcomp, int accomp)
 {
-	pppossl_pcb* const pppos = (pppossl_pcb *)ctx;
+	LWIP_UNUSED_ARG(ctx);
+	LWIP_UNUSED_ARG(accm);
 	LWIP_UNUSED_ARG(ppp);
 	LWIP_UNUSED_ARG(pcomp);
 	LWIP_UNUSED_ARG(accomp);
@@ -344,7 +346,8 @@ pppossl_send_config(ppp_pcb *ppp, void *ctx, u32_t accm, int pcomp, int accomp)
 static void
 pppossl_recv_config(ppp_pcb *ppp, void *ctx, u32_t accm, int pcomp, int accomp)
 {
-	pppossl_pcb* const pppos = (pppossl_pcb *)ctx;
+	LWIP_UNUSED_ARG(ctx);
+	LWIP_UNUSED_ARG(accm);
 	LWIP_UNUSED_ARG(ppp);
 	LWIP_UNUSED_ARG(pcomp);
 	LWIP_UNUSED_ARG(accomp);

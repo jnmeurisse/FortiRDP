@@ -318,7 +318,7 @@ namespace net {
 	}
 
 
-	static void dns_found_cb(const char *name, const ip_addr_t *ipaddr, void *callback_arg)
+	void dns_found_cb(const char *name, const ip_addr_t *ipaddr, void *callback_arg)
 	{
 		PortForwarder* const pf = (PortForwarder*)callback_arg;
 
@@ -493,7 +493,7 @@ namespace net {
 	}
 
 
-	static void timeout_cb(void* arg)
+	void timeout_cb(void* arg)
 	{
 		bool* timeout = (bool *)arg;
 
