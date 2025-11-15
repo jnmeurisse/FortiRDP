@@ -14,7 +14,6 @@
 
 namespace net {
 
-	using namespace net;
 	using namespace tools;
 
 	PPInterface::PPInterface(TlsSocket& tunnel, Counters& counters) :

@@ -12,7 +12,6 @@
 
 
 namespace tools {
-	using namespace tools;
 
 	class UserCrt {
 	public:
