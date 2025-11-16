@@ -29,8 +29,10 @@
 INT_PTR CALLBACK MainDialogProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK About(HWND, UINT, WPARAM, LPARAM);
 static void RedirectStdioToConsole();
-static bool is_wow64();
 static void lwip_log_cb(void *ctx, int level, const char* fmt, va_list args);
+#ifndef _WIN64
+static bool is_wow64();
+#endif
 
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
@@ -165,28 +167,6 @@ static void RedirectStdioToConsole()
 	return;
 }
 
-
-static bool is_wow64()
-{
-	BOOL bIsWow64 = FALSE;
-	typedef BOOL(APIENTRY *LPFN_ISWOW64PROCESS)(HANDLE, PBOOL);
-	LPFN_ISWOW64PROCESS fnIsWow64Process;
-	HMODULE module = GetModuleHandle(L"kernel32");
-	const char funcName[] = "IsWow64Process";
-
-	if (!module)
-		return false;
-
-	fnIsWow64Process = (LPFN_ISWOW64PROCESS)GetProcAddress(module, funcName);
-	if (fnIsWow64Process != NULL) {
-		if (!fnIsWow64Process(GetCurrentProcess(), &bIsWow64))
-			throw std::exception("IsWow64Process error");
-	}
-
-	return bIsWow64 != FALSE;
-}
-
-
 static void lwip_log_cb(void *ctx, int level, const char* fmt, va_list args)
 {
 	tools::Logger* const logger = static_cast<tools::Logger*>(ctx);
@@ -206,3 +186,25 @@ static void lwip_log_cb(void *ctx, int level, const char* fmt, va_list args)
 		break;
 	}
 }
+
+#ifndef _WIN64
+static bool is_wow64()
+{
+	BOOL bIsWow64 = FALSE;
+	typedef BOOL(APIENTRY* LPFN_ISWOW64PROCESS)(HANDLE, PBOOL);
+	LPFN_ISWOW64PROCESS fnIsWow64Process;
+	HMODULE module = GetModuleHandle(L"kernel32");
+	const char funcName[] = "IsWow64Process";
+
+	if (!module)
+		return false;
+
+	fnIsWow64Process = (LPFN_ISWOW64PROCESS)GetProcAddress(module, funcName);
+	if (fnIsWow64Process != NULL) {
+		if (!fnIsWow64Process(GetCurrentProcess(), &bIsWow64))
+			throw std::exception("IsWow64Process error");
+	}
+
+	return bIsWow64 != FALSE;
+}
+#endif
