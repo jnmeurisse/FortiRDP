@@ -37,7 +37,7 @@ namespace tools {
 
 	mbed_err X509Crt::get_info(char* buf, size_t size, const char* prefix) const
 	{
-		mbed_err errnum = mbedtls_x509_crt_info(buf, size, "   ", &_crt);
+		mbed_err errnum = mbedtls_x509_crt_info(buf, size, prefix, &_crt);
 
 		return errnum >= 0 ? 0 : errnum;
 	}
@@ -78,7 +78,7 @@ namespace tools {
 
 
 	static DWORD WinVerifySslCert(PCCERT_CONTEXT certContext) {
-		DWORD errorStatus = -1;
+		DWORD errorStatus = (DWORD) - 1;
 
 		static const LPCSTR usage[] = {
 			szOID_PKIX_KP_SERVER_AUTH,
