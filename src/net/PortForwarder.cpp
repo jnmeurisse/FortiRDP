@@ -340,7 +340,7 @@ namespace net {
 		if (ipaddr == nullptr) {
 			pf->_state = PortForwarder::State::FAILED;
 			pf->_logger->error(
-				"ERROR: can not resolve host %s, dns query failed",
+				"ERROR: can not resolve host %s, DNS query failed",
 				name);
 
 			return;
@@ -379,7 +379,7 @@ namespace net {
 
 		Logger* logger = pf->_logger;
 		if (logger->is_debug_enabled()) {
-			logger->debug(".... %x PortForwarder tcp connected err=%d", (uintptr_t)pf, err);
+			logger->debug(".... %x PortForwarder TCP connected err=%d", (uintptr_t)pf, err);
 		}
 
 		// We are now connected.
@@ -399,7 +399,7 @@ namespace net {
 
 		Logger* logger = pf->_logger;
 		if (logger->is_debug_enabled()) {
-			logger->debug("... %x PortForwarder tcp error err=%d", (uintptr_t)pf, err);
+			logger->debug("... %x PortForwarder TCP error err=%d", (uintptr_t)pf, err);
 		}
 
 		if (err != ERR_OK) {
@@ -440,7 +440,7 @@ namespace net {
 
 		if (logger->is_trace_enabled()) {
 			logger->trace(
-				".... %x PortForwarder tcp rcv", (uintptr_t)pf, pf->_state);
+				".... %x PortForwarder tcp_rcv_cb", (uintptr_t)pf, pf->_state);
 		}
 
 		if (p) {
@@ -488,7 +488,7 @@ namespace net {
 
 		if (logger->is_trace_enabled()) {
 			logger->trace(
-				".... %x PortForwarder tcp rcv len=%d err=%d state=%d", 
+				".... %x PortForwarder tcp_rcv_cb len=%d err=%d state=%d", 
 				(uintptr_t)pf,
 				len,
 				err,
