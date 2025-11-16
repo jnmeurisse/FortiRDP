@@ -13,6 +13,12 @@
 #include <lwip/tcp.h>
 #include "net/DnsClient.h"
 
+static void timeout_cb(void* arg)
+{
+	bool* timeout = (bool*)arg;
+	*timeout = true;
+}
+
 
 namespace net {
 
@@ -490,14 +496,6 @@ namespace net {
 		}
 
 		return rc;
-	}
-
-
-	void timeout_cb(void* arg)
-	{
-		bool* timeout = (bool *)arg;
-
-		*timeout = true;
 	}
 
 }

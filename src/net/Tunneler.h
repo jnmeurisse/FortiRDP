@@ -100,7 +100,6 @@ namespace net {
 
 	private:
 		void compute_sleep_time(timeval &timeout) const;
-		friend void  timeout_cb(void *arg);
 
 		// a reference to the application logger.
 		tools::Logger* const _logger;

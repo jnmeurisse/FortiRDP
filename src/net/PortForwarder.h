@@ -185,9 +185,6 @@ namespace net {
 		// A callback for receiving data from the remote endpoint.
 		friend err_t tcp_recv_cb(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, err_t err);
 
-		// A callback for handling timeouts.
-		friend void timeout_cb(void *arg);
-
 		// A reference to the application logger.
 		tools::Logger* const _logger;
 

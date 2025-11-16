@@ -14,6 +14,13 @@
 #include "tools/ErrUtil.h"
 
 
+static void timeout_cb(void* arg)
+{
+	bool* timeout = (bool*)arg;
+	*timeout = true;
+}
+
+
 namespace net {
 
 	Tunneler::Tunneler(TlsSocket& tunnel, const Endpoint& local_ep, const Endpoint& remote_ep,
@@ -361,12 +368,6 @@ namespace net {
 		return;
 	}
 
-
-	void timeout_cb(void* arg)
-	{
-		bool* timeout = (bool *)arg;
-
-		*timeout = true;
-	}
-
 }
+
+
