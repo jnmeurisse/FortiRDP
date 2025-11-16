@@ -250,10 +250,10 @@ namespace net {
 			sys_check_timeouts();
 
 			// Delete all failed port forwarders
-			active_port_forwarders.delete_having_state([](PortForwarder* pf) {return pf->failed(); });
+			active_port_forwarders.delete_having_state([](const PortForwarder* pf) {return pf->failed(); });
 
 			// Delete all closed port forwarders
-			active_port_forwarders.delete_having_state([](PortForwarder* pf) {return pf->disconnected(); });
+			active_port_forwarders.delete_having_state([](const PortForwarder* pf) {return pf->disconnected(); });
 
 			switch (_state) {
 			case State::CONNECTING:

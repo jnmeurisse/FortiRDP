@@ -21,7 +21,7 @@ namespace net {
 	{
 		DEBUG_DTOR(_logger);
 
-		delete_having_state([](PortForwarder*) {return true; });
+		delete_having_state([](const PortForwarder*) {return true; });
 	}
 
 
