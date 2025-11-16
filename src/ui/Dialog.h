@@ -10,7 +10,13 @@
 #include <Windows.h>
 #include <string>
 
+#define WPARAM_UNUSED() UNREFERENCED_PARAMETER(wParam)
+#define LPARAM_UNUSED() UNREFERENCED_PARAMETER(lParam)
+#define CTRLID_UNUSED() UNREFERENCED_PARAMETER(control_id)
+
+
 namespace ui {
+
 
 	/**
 	* A Dialog abstract base class.
@@ -18,7 +24,7 @@ namespace ui {
 	class Dialog
 	{
 	public:
-		explicit Dialog(HINSTANCE hInstance, HWND hParent, int idd);
+		explicit Dialog(HINSTANCE hInstance, HWND hParent, int dialog_id);
 		virtual ~Dialog();
 
 		/**
@@ -37,7 +43,7 @@ namespace ui {
 		/**
 		 * Returns the handle of the given control.
 		 */
-		HWND control_handle(int idc) const;
+		HWND control_handle(int control_id) const;
 
 		/**
 		 * Centers the dialog window relative to the given window.
@@ -74,78 +80,78 @@ namespace ui {
 		 * 
  		 * @return true if the function succeeds.
 		*/
-		bool set_control_text(int idc, const std::wstring& text);
+		bool set_control_text(int control_id, const std::wstring& text);
 
 		/**
 		 * Returns the text from a specified dialog control.
 		*/
-		std::wstring get_control_text(int idc) const;
+		std::wstring get_control_text(int control_id) const;
 
 		/**
 		 * Sets the text length limit for the specified dialog control.
 		*/
-		void set_control_textlen(int idc, int length);
+		void set_control_textlen(int control_id, int length);
 
 		/**
 		 * Enables or disables a dialog control.
 		*/
-		void set_control_enable(int idc, bool enable);
+		void set_control_enable(int control_id, bool enable);
 
 		/**
 		 * Checks if a dialog control is enabled.
 		*/
-		bool is_control_enabled(int idc) const;
+		bool is_control_enabled(int control_id) const;
 
 		/**
 		 * Shows or hides a dialog control.
 		*/
-		void set_control_visible(int idc, bool visible);
+		void set_control_visible(int control_id, bool visible);
 
 		/**
 		 * Assigns a font to a dialog control.
 		*/
-		void set_control_font(int idc, HFONT font);
+		void set_control_font(int control_id, HFONT font);
 
 		/**
 		 * Sets the mouse focus to the specified control.
 		*/
-		bool set_focus(int idc);
+		bool set_focus(int control_id);
 
 		/**
 		 * Sets a check box state.
 		*/
-		void set_checkbox_state(int idc, int state);
+		void set_checkbox_state(int control_id, int state);
 
 		/**
 		 * Gets a check box state.
 		 * 
 		 * @return true of the box is checked.
 		*/
-		bool get_checkbox_state(int idc) const;
+		bool get_checkbox_state(int control_id) const;
 
 		/**
 		 * Adds a text to the specified combo box.
 		 * 
 		 * @return true if the function succeeds.
 		*/
-		bool add_combo_text(int idc, const std::wstring& text);
+		bool add_combo_text(int control_id, const std::wstring& text);
 
 		/**
 		 * Selects a string at position 'index' in the combo box.
 		 * 
 		 * @return true if the function succeeds.
 		*/
-		bool set_combo_index(int idc, int index);
+		bool set_combo_index(int control_id, int index);
 
 		/**
 		 * Returns the selected string in the combo box.
 		*/
-		int get_combo_index(int idc) const;
+		int get_combo_index(int control_id) const;
 
 		/**
 		 * Returns the dialog control rectangle.
 		*/
-		RECT get_control_rect(int idc) const;
+		RECT get_control_rect(int control_id) const;
 
 		/**
 		 * Returns the dialog window client rectangle.
@@ -184,17 +190,17 @@ namespace ui {
 		HFONT create_font(int size, const std::wstring& name);
 
 		// Windows Event handlers
-		virtual INT_PTR onCreateDialogMessage([[maybe_unused]] WPARAM wParam, [[maybe_unused]] LPARAM lParam) { return TRUE; }
-		virtual INT_PTR onDestroyDialogMessage([[maybe_unused]] WPARAM wParam, [[maybe_unused]] LPARAM lParam) { return FALSE; }
-		virtual INT_PTR onCloseDialogMessage([[maybe_unused]] WPARAM wParam, [[maybe_unused]] LPARAM lParam) { return FALSE; }
+		virtual INT_PTR onCreateDialogMessage(WPARAM wParam, LPARAM lParam) { WPARAM_UNUSED(); LPARAM_UNUSED(); return TRUE; }
+		virtual INT_PTR onDestroyDialogMessage(WPARAM wParam, LPARAM lParam) { WPARAM_UNUSED(); LPARAM_UNUSED(); return FALSE; }
+		virtual INT_PTR onCloseDialogMessage(WPARAM wParam, LPARAM lParam) { WPARAM_UNUSED(); LPARAM_UNUSED(); return FALSE; }
 		virtual INT_PTR onCommandMessage(WPARAM wParam, LPARAM lParam);
-		virtual INT_PTR onSysCommandMessage([[maybe_unused]] WPARAM wParam, [[maybe_unused]] LPARAM lParam) { return FALSE; }
-		virtual INT_PTR onCtlColorStaticMessage([[maybe_unused]] WPARAM wParam, [[maybe_unused]] LPARAM lParam) { return FALSE; }
-		virtual INT_PTR onTimerMessage([[maybe_unused]] WPARAM wParam, [[maybe_unused]] LPARAM lParam) { return FALSE; }
-		virtual INT_PTR onHotKey([[maybe_unused]] WPARAM wParam, [[maybe_unused]] LPARAM lParam) { return FALSE; }
-		virtual INT_PTR onButtonClick([[maybe_unused]] int idc, [[maybe_unused]] LPARAM lParam) { return FALSE; }
-		virtual INT_PTR onTextChange([[maybe_unused]] int idc, [[maybe_unused]] LPARAM lParam) { return FALSE; }
-		virtual INT_PTR onUserEventMessage([[maybe_unused]] UINT eventNumber, [[maybe_unused]] void* param) { return FALSE; }
+		virtual INT_PTR onSysCommandMessage(WPARAM wParam, LPARAM lParam) { WPARAM_UNUSED(); LPARAM_UNUSED(); return FALSE; }
+		virtual INT_PTR onCtlColorStaticMessage(WPARAM wParam, LPARAM lParam) { WPARAM_UNUSED(); LPARAM_UNUSED(); return FALSE; }
+		virtual INT_PTR onTimerMessage(WPARAM wParam, LPARAM lParam) { WPARAM_UNUSED(); LPARAM_UNUSED(); return FALSE; }
+		virtual INT_PTR onHotKey(WPARAM wParam, LPARAM lParam) { WPARAM_UNUSED(); LPARAM_UNUSED(); return FALSE; }
+		virtual INT_PTR onButtonClick(int control_id, LPARAM lParam) { CTRLID_UNUSED(); LPARAM_UNUSED(); return FALSE; }
+		virtual INT_PTR onTextChange(int control_id, LPARAM lParam) { CTRLID_UNUSED(); LPARAM_UNUSED(); return FALSE; }
+		virtual INT_PTR onUserEventMessage(UINT eventNumber, void* param) { return FALSE; }
 
 	private:
 		// The application instance handle.
@@ -204,7 +210,7 @@ namespace ui {
 		const HWND _hParent;
 
 		// This dialog id.
-		const int _idd;
+		const int _dialog_id;
 
 		// This dialog handle.
 		HWND _hWindow;

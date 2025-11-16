@@ -34,8 +34,9 @@ namespace net {
 	}
 
 
-	mbed_err Socket::connect(const Endpoint& ep, net::net_protocol protocol, [[maybe_unused]] const Timer& timer)
+	mbed_err Socket::connect(const Endpoint& ep, net::net_protocol protocol, const Timer& timer)
 	{
+		LWIP_UNUSED_ARG(timer);
 		if (get_fd() != -1) {
 			// The socket is connected.
 			return MBEDTLS_ERR_NET_INVALID_CONTEXT;

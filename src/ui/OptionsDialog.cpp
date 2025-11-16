@@ -23,8 +23,11 @@ namespace ui {
 	}
 
 
-	INT_PTR OptionsDialog::onCreateDialogMessage([[maybe_unused]] WPARAM wParam, [[maybe_unused]] LPARAM lParam)
+	INT_PTR OptionsDialog::onCreateDialogMessage(WPARAM wParam, LPARAM lParam)
 	{
+		WPARAM_UNUSED();
+		LPARAM_UNUSED();
+
 		set_checkbox_state(IDC_CHECK_FULLSCREEN, full_screen);
 		set_control_enable(IDC_CHECK_FULLSCREEN, full_screen_updatable);
 
@@ -72,12 +75,14 @@ namespace ui {
 	}
 
 
-	INT_PTR OptionsDialog::onButtonClick(int cid, [[maybe_unused]] LPARAM lParam)
+	INT_PTR OptionsDialog::onButtonClick(int control_id, LPARAM lParam)
 	{
+		LPARAM_UNUSED();
+
 		INT_PTR rc = FALSE;
 		std::wstring filename;
 
-		switch (cid) {
+		switch (control_id) {
 		case IDOK:
 			full_screen = get_checkbox_state(IDC_CHECK_FULLSCREEN);
 			if (!full_screen && screen_size_updatable) {

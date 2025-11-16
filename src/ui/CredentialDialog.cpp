@@ -46,8 +46,10 @@ namespace ui {
 	}
 
 
-	INT_PTR CredentialDialog::onCreateDialogMessage(WPARAM wParam, [[maybe_unused]] LPARAM lParam)
+	INT_PTR CredentialDialog::onCreateDialogMessage(WPARAM wParam, LPARAM lParam)
 	{
+		LPARAM_UNUSED();
+
 		set_control_textlen(IDC_LOGIN_INFO, 128);
 		set_control_textlen(IDC_USERNAME, 128);
 
@@ -65,11 +67,13 @@ namespace ui {
 	}
 
 
-	INT_PTR CredentialDialog::onButtonClick(int cid, [[maybe_unused]] LPARAM lParam)
+	INT_PTR CredentialDialog::onButtonClick(int control_id, LPARAM lParam)
 	{
+		LPARAM_UNUSED();
+
 		INT_PTR rc = FALSE;
 
-		switch (cid) {
+		switch (control_id) {
 		case IDOK:
 			_username = get_control_text(IDC_USERNAME);
 			_password = get_control_text(IDC_PASSWORD);

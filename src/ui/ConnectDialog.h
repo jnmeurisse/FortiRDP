@@ -105,7 +105,7 @@ namespace ui {
 		// Windows Event message handlers
 		virtual INT_PTR onDestroyDialogMessage(WPARAM wParam, LPARAM lParam) override;
 		virtual INT_PTR onCloseDialogMessage(WPARAM wParam, LPARAM lParam) override;
-		virtual INT_PTR onButtonClick(int cid, LPARAM lParam) override;
+		virtual INT_PTR onButtonClick(int control_id, LPARAM lParam) override;
 		virtual INT_PTR onSysCommandMessage(WPARAM wParam, LPARAM lParam) override;
 		virtual INT_PTR onCtlColorStaticMessage(WPARAM wParam, LPARAM lParam) override;
 		virtual INT_PTR onTimerMessage(WPARAM wParam, LPARAM lParam) override;

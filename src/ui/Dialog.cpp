@@ -22,11 +22,11 @@ namespace ui {
 	}
 
 
-	Dialog::Dialog(HINSTANCE hInstance, HWND hParent, int idd) :
+	Dialog::Dialog(HINSTANCE hInstance, HWND hParent, int dialog_id) :
 		_hWindow(0),
 		_hInstance(hInstance),
 		_hParent(hParent),
-		_idd(idd)
+		_dialog_id(dialog_id)
 	{
 	}
 
@@ -36,9 +36,9 @@ namespace ui {
 	}
 
 
-	HWND Dialog::control_handle(int idc) const
+	HWND Dialog::control_handle(int control_id) const
 	{
-		return ::GetDlgItem(window_handle(), idc);
+		return ::GetDlgItem(window_handle(), control_id);
 	}
 
 
@@ -101,45 +101,45 @@ namespace ui {
 	}
 
 
-	bool Dialog::set_control_text(int idc, const std::wstring& text)
+	bool Dialog::set_control_text(int control_id, const std::wstring& text)
 	{
-		return Dialog::set_window_text(control_handle(idc), text);
+		return Dialog::set_window_text(control_handle(control_id), text);
 	}
 
 
-	std::wstring Dialog::get_control_text(int idc) const
+	std::wstring Dialog::get_control_text(int control_id) const
 	{
-		return Dialog::get_window_text(control_handle(idc));
+		return Dialog::get_window_text(control_handle(control_id));
 	}
 
 
-	void Dialog::set_control_textlen(int idc, int length)
+	void Dialog::set_control_textlen(int control_id, int length)
 	{
-		::SendMessage(control_handle(idc), EM_SETLIMITTEXT, length, 0);
+		::SendMessage(control_handle(control_id), EM_SETLIMITTEXT, length, 0);
 	}
 
 
-	void Dialog::set_control_enable(int idc, bool enable)
+	void Dialog::set_control_enable(int control_id, bool enable)
 	{
-		::EnableWindow(control_handle(idc), enable);
+		::EnableWindow(control_handle(control_id), enable);
 	}
 
 
-	bool Dialog::is_control_enabled(int idc) const
+	bool Dialog::is_control_enabled(int control_id) const
 	{
-		return ::IsWindowEnabled(control_handle(idc)) == TRUE;
+		return ::IsWindowEnabled(control_handle(control_id)) == TRUE;
 	}
 
 
-	void Dialog::set_control_visible(int idc, bool visible)
+	void Dialog::set_control_visible(int control_id, bool visible)
 	{
-		::ShowWindow(control_handle(idc), visible ? SW_SHOW : SW_HIDE);
+		::ShowWindow(control_handle(control_id), visible ? SW_SHOW : SW_HIDE);
 	}
 
 
-	void Dialog::set_control_font(int idc, HFONT font)
+	void Dialog::set_control_font(int control_id, HFONT font)
 	{
-		::SendMessage(control_handle(idc), WM_SETFONT, (WPARAM)font, TRUE);
+		::SendMessage(control_handle(control_id), WM_SETFONT, (WPARAM)font, TRUE);
 	}
 
 
@@ -163,47 +163,47 @@ namespace ui {
 	}
 
 
-	bool Dialog::set_focus(int idc)
+	bool Dialog::set_focus(int control_id)
 	{
-		return ::SetFocus(control_handle(idc)) != NULL;
+		return ::SetFocus(control_handle(control_id)) != NULL;
 	}
 
 
-	void Dialog::set_checkbox_state(int idc, int state)
+	void Dialog::set_checkbox_state(int control_id, int state)
 	{
-		::SendMessage(control_handle(idc), BM_SETCHECK, state, 0);
+		::SendMessage(control_handle(control_id), BM_SETCHECK, state, 0);
 	}
 
 
-	bool Dialog::get_checkbox_state(int idc) const
+	bool Dialog::get_checkbox_state(int control_id) const
 	{
-		return ::SendMessage(control_handle(idc), BM_GETCHECK, 0, 0) == BST_CHECKED;
+		return ::SendMessage(control_handle(control_id), BM_GETCHECK, 0, 0) == BST_CHECKED;
 	}
 
 
-	bool Dialog::add_combo_text(int idc, const std::wstring& text)
+	bool Dialog::add_combo_text(int control_id, const std::wstring& text)
 	{
-		return ::SendMessage(control_handle(idc), CB_ADDSTRING, 0, (LPARAM)text.c_str()) >= 0;
+		return ::SendMessage(control_handle(control_id), CB_ADDSTRING, 0, (LPARAM)text.c_str()) >= 0;
 	}
 
 
-	bool Dialog::set_combo_index(int idc, int index)
+	bool Dialog::set_combo_index(int control_id, int index)
 	{
-		return ::SendMessage(control_handle(idc), CB_SETCURSEL, index, 0) == index;
+		return ::SendMessage(control_handle(control_id), CB_SETCURSEL, index, 0) == index;
 	}
 
 
-	int Dialog::get_combo_index(int idc) const
+	int Dialog::get_combo_index(int control_id) const
 	{
-		return static_cast<int>(::SendMessage(control_handle(idc), CB_GETCURSEL, 0, 0));
+		return static_cast<int>(::SendMessage(control_handle(control_id), CB_GETCURSEL, 0, 0));
 	}
 
 
-	RECT Dialog::get_control_rect(int idc) const
+	RECT Dialog::get_control_rect(int control_id) const
 	{
 		RECT bounds;
 
-		::GetClientRect(control_handle(idc), &bounds);
+		::GetClientRect(control_handle(control_id), &bounds);
 		return bounds;
 	}
 
@@ -233,7 +233,7 @@ namespace ui {
 	{
 		return ::CreateDialogParam(
 			_hInstance,
-			MAKEINTRESOURCE(_idd),
+			MAKEINTRESOURCE(_dialog_id),
 			_hParent,
 			MainDialogProc,
 			(LPARAM)this);
@@ -244,7 +244,7 @@ namespace ui {
 	{
 		return ::DialogBoxParam(
 			_hInstance,
-			MAKEINTRESOURCE(_idd),
+			MAKEINTRESOURCE(_dialog_id),
 			_hParent,
 			MainDialogProc,
 			(LPARAM)this);
@@ -272,16 +272,17 @@ namespace ui {
 			name.c_str());
 	}
 
-	INT_PTR Dialog::onCommandMessage(WPARAM wParam, [[maybe_unused]] LPARAM lParam)
+	INT_PTR Dialog::onCommandMessage(WPARAM wParam, LPARAM lParam)
 	{
-		int cid = LOWORD(wParam);
+		LPARAM_UNUSED();
+		int control_id = LOWORD(wParam);
 
 		switch (HIWORD(wParam)) {
 		case BN_CLICKED:		// Button or menu clicked
-			return onButtonClick(cid, lParam);
+			return onButtonClick(control_id, lParam);
 
 		case EN_CHANGE:			// Text changed
-			return onTextChange(cid, lParam);
+			return onTextChange(control_id, lParam);
 
 		default:				// message not processed by this application
 			return TRUE;

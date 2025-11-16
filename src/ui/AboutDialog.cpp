@@ -29,9 +29,10 @@ namespace ui {
 	}
 
 
-	INT_PTR AboutDialog::onCreateDialogMessage(WPARAM wParam, [[maybe_unused]] LPARAM lParam)
+	INT_PTR AboutDialog::onCreateDialogMessage(WPARAM wParam, LPARAM lParam)
 	{
 		using namespace tools;
+		LPARAM_UNUSED();
 
 		// Retrieve major/minor version from .exe
 		Path app_path{ Path::get_module_path() };
@@ -71,11 +72,12 @@ namespace ui {
 		return TRUE;
 	}
 
-	INT_PTR AboutDialog::onButtonClick(int cid, [[maybe_unused]] LPARAM lParam)
+	INT_PTR AboutDialog::onButtonClick(int control_id, LPARAM lParam)
 	{
+		LPARAM_UNUSED();
 		INT_PTR rc = FALSE;
 
-		switch (cid) {
+		switch (control_id) {
 		case IDOK:
 			close_dialog(TRUE);
 			break;

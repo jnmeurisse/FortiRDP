@@ -440,8 +440,11 @@ namespace ui {
 	}
 
 
-	INT_PTR ConnectDialog::onDestroyDialogMessage([[maybe_unused]] WPARAM wParam, [[maybe_unused]] LPARAM lParam)
+	INT_PTR ConnectDialog::onDestroyDialogMessage(WPARAM wParam, LPARAM lParam)
 	{
+		WPARAM_UNUSED();
+		LPARAM_UNUSED();
+
 		// Stop AsyncConnect if still running.
 		disconnect();
 
@@ -452,17 +455,20 @@ namespace ui {
 	}
 
 
-	INT_PTR ConnectDialog::onCloseDialogMessage([[maybe_unused]] WPARAM wParam, [[maybe_unused]] LPARAM lParam)
+	INT_PTR ConnectDialog::onCloseDialogMessage(WPARAM wParam, LPARAM lParam)
 	{
+		WPARAM_UNUSED();
+		LPARAM_UNUSED();
+
 		return ::DestroyWindow(window_handle());
 	}
 
 
-	INT_PTR ConnectDialog::onButtonClick(int cid, LPARAM lParam)
+	INT_PTR ConnectDialog::onButtonClick(int control_id, LPARAM lParam)
 	{
 		INT_PTR rc = FALSE;
 
-		switch (cid) {
+		switch (control_id) {
 		case IDC_QUIT:
 			::DestroyWindow(window_handle());
 			break;
@@ -484,8 +490,9 @@ namespace ui {
 	}
 
 
-	INT_PTR ConnectDialog::onSysCommandMessage([[maybe_unused]] WPARAM wParam, [[maybe_unused]] LPARAM lParam)
+	INT_PTR ConnectDialog::onSysCommandMessage(WPARAM wParam, LPARAM lParam)
 	{
+		LPARAM_UNUSED();
 		INT_PTR rc = TRUE;
 
 		switch (wParam) {
@@ -532,8 +539,11 @@ namespace ui {
 	}
 
 
-	INT_PTR ConnectDialog::onTimerMessage([[maybe_unused]] WPARAM wParam, [[maybe_unused]] LPARAM lParam)
+	INT_PTR ConnectDialog::onTimerMessage(WPARAM wParam, LPARAM lParam)
 	{
+		WPARAM_UNUSED();
+		LPARAM_UNUSED();
+
 		net::Tunneler* tunneler = nullptr;
 		if (_controller)
 			tunneler = _controller->tunnel();
@@ -581,8 +591,9 @@ namespace ui {
 		return 0;
 	}
 
-	INT_PTR ConnectDialog::onHotKey(WPARAM wParam, [[maybe_unused]] LPARAM lParam)
+	INT_PTR ConnectDialog::onHotKey(WPARAM wParam, LPARAM lParam)
 	{
+		LPARAM_UNUSED();
 		INT_PTR rc = TRUE;
 
 		switch (wParam) {
@@ -690,8 +701,10 @@ namespace ui {
 	}
 
 
-	void ConnectDialog::disconnectFromFirewall([[maybe_unused]] bool success)
+	void ConnectDialog::disconnectFromFirewall(bool success)
 	{
+		UNREFERENCED_PARAMETER(success);
+
 		disconnect();
 	}
 

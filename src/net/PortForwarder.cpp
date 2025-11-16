@@ -373,8 +373,9 @@ namespace net {
 	}
 
 
-	err_t tcp_connected_cb(void *arg, [[maybe_unused]] struct tcp_pcb *tpcb, err_t err)
+	err_t tcp_connected_cb(void *arg, struct tcp_pcb *tpcb, err_t err)
 	{
+		LWIP_UNUSED_ARG(tpcb);
 		PortForwarder* const pf = (PortForwarder*) arg;
 
 		Logger* logger = pf->_logger;
@@ -422,8 +423,9 @@ namespace net {
 	}
 
 
-	err_t tcp_sent_cb(void* arg, [[maybe_unused]] tcp_pcb* tpcb, u16_t len)
+	err_t tcp_sent_cb(void* arg, tcp_pcb* tpcb, u16_t len)
 	{
+		LWIP_UNUSED_ARG(tpcb);
 		PortForwarder* const pf = (PortForwarder*)arg;
 		pf->_forwarded_bytes -= len;
 
