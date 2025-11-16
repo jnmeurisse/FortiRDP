@@ -57,7 +57,6 @@ namespace tools {
 		size_t buffer_size = MAX_PATH;
 
 		do {
-			size_t written = 0;
 			std::vector<wchar_t> buffer(buffer_size);
 
 			int rc = ::GetModuleFileName(hModule, buffer.data(), static_cast<DWORD>(buffer.size()));

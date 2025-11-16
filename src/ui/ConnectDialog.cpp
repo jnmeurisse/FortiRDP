@@ -414,7 +414,6 @@ namespace ui {
 
 	void ConnectDialog::showSamlDialog(fw::AuthSamlInfo* pSamlInfo)
 	{
-		saml_err saml_error = saml_err::NONE;
 		SamlAuthDialog samlDialog{ instance_handle(), window_handle(), pSamlInfo };
 
 		const bool modal_result = samlDialog.show_modal() == TRUE;
