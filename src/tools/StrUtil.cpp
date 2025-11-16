@@ -113,11 +113,9 @@ namespace tools {
 	bool str2i(const std::string& str, int& value)
 	{
 		long tmp;
-		bool ok;
-
-		if (ok = str2num(str, 10, INT_MIN, INT_MAX, tmp)) {
+		const bool ok = str2num(str, 10, INT_MIN, INT_MAX, tmp);
+		if (ok)
 			value = tmp;
-		}
 
 		return ok;
 	}
