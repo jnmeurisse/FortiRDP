@@ -30,7 +30,7 @@ namespace http {
 		 * 
 		 * Note: No validation of the input string is performed by this constructor.
 		*/
-		Url(const std::string& url);
+		explicit Url(const std::string& url);
 
 		/**
 		 * Create an URL from the different parts (scheme, authority, path, ...)

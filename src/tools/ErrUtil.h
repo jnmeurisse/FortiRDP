@@ -57,7 +57,7 @@ namespace tools {
 
 	class httpcli_error : public frdp_error {
 	public:
-		httpcli_error(const std::string& message) : _message(message) {};
+		explicit httpcli_error(const std::string& message) : _message(message) {};
 
 		std::string message() const noexcept override { return _message; }
 
