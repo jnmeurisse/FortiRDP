@@ -7,12 +7,14 @@
 */
 #include "HttpsClient.h"
 
+#include <algorithm>
 #include <cctype>
 #include <iosfwd>
 #include <iostream>
 #include <sstream>
 #include <codecvt>
 #include "tools/StringMap.h"
+#include <algorithm>
 
 
 namespace http {
@@ -196,8 +198,8 @@ namespace http {
 			keep_alive_params.get_int("max", max_requests);
 		}
 
-		_max_requests = max(0, max_requests);
-		_keepalive_timeout = max(0, timeout);
+		_max_requests = std::max(0, max_requests);
+		_keepalive_timeout = std::max(0, timeout);
 
 		if (_logger->is_trace_enabled())
 			_logger->trace("... %x leave HttpsClient::recv_answer rc=%d max=%d timeout=%d",
