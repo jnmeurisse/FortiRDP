@@ -23,7 +23,7 @@ namespace net {
 	{
 	public:
 		Listener();
-		~Listener();
+		virtual ~Listener() override;
 
 		/**
 		 * Binds the listener to a specified endpoint.

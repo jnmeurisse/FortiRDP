@@ -35,7 +35,7 @@ namespace ui {
 	{
 	public:
 		explicit SamlAuthDialog(HINSTANCE hInstance, HWND hParent, fw::AuthSamlInfo* pSamlInfo);
-		~SamlAuthDialog();
+		virtual ~SamlAuthDialog() override;
 
 		ui::saml_err get_saml_error() const;
 

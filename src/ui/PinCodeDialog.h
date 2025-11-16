@@ -17,7 +17,7 @@ namespace ui {
 	{
 	public:
 		explicit PinCodeDialog(HINSTANCE hInstance, HWND hParent);
-		~PinCodeDialog();
+		virtual ~PinCodeDialog() override;
 
 		/**
 		 * Initializes the information text.

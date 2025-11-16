@@ -17,7 +17,7 @@ namespace ui {
 	{
 	public:
 		explicit InfoLogWriter(HWND hWnd);
-		virtual ~InfoLogWriter();
+		virtual ~InfoLogWriter() override;
 
 		virtual void write(tools::Logger::Level level, const char* text) override;
 

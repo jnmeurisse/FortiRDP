@@ -26,7 +26,7 @@ namespace net {
 		/**
 		 * Destroys a TcpSocket object.
 		*/
-		virtual ~TcpSocket();
+		virtual ~TcpSocket() override;
 
 		/**
 		 * Connects this socket to the specified end point.

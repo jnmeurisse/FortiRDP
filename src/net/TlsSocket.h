@@ -39,7 +39,7 @@ namespace net {
 		 * Destroys a TlsSocket object.
 		 * See base class.
 		*/
-		virtual ~TlsSocket();
+		virtual ~TlsSocket() override;
 
 		/**
 		 * Enables or disables host name verification.

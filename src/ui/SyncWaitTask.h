@@ -23,7 +23,7 @@ namespace ui {
 	{
 	public:
 		explicit SyncWaitTask(HWND hwnd, tools::Task* task);
-		~SyncWaitTask();
+		virtual ~SyncWaitTask() override;
 
 	private:
 		// The class name.

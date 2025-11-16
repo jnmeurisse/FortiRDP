@@ -23,7 +23,7 @@ namespace ui {
 	{
 	public:
 		explicit SyncDisconnect(HWND hwnd, fw::FirewallClient& portal_client, fw::FirewallTunnel* tunnel);
-		~SyncDisconnect();
+		virtual ~SyncDisconnect() override;
 
 	private:
 		// The class name.

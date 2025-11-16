@@ -34,7 +34,7 @@ namespace ui {
 	{
 	public:
 		explicit ConnectDialog(HINSTANCE hInstance, const CmdlineParams& cmdlineParams);
-		virtual ~ConnectDialog();
+		virtual ~ConnectDialog() override;
 
 		std::wstring getFirewallAddress() const;
 		void setFirewallAddress(const std::wstring& addr);

@@ -137,7 +137,6 @@ namespace tools {
 	class LogWriter
 	{
 	public:
-		explicit LogWriter() {}
 		virtual ~LogWriter() {}
 
 		virtual void write(Logger::Level level, const char* text) = 0;
@@ -152,7 +151,7 @@ namespace tools {
 	{
 	public:
 		explicit FileLogWriter();
-		virtual ~FileLogWriter();
+		virtual ~FileLogWriter() override;
 
 		bool open(const std::wstring& filename);
 		virtual void write(Logger::Level level, const char* text) override;

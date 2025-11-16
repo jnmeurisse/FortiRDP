@@ -18,7 +18,7 @@ namespace ui {
 	{
 	public:
 		explicit CredentialDialog(HINSTANCE hInstance, HWND hParent);
-		virtual ~CredentialDialog();
+		virtual ~CredentialDialog() override;
 
 		/**
 		 * Initializes the information label.

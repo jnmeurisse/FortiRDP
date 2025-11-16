@@ -47,7 +47,7 @@ namespace net {
 		/**
 		* Tunneler destructor
 		*/
-		virtual ~Tunneler();
+		virtual ~Tunneler() override;
 
 		/**
 		* Deleted copy constructor and copy assignment operator

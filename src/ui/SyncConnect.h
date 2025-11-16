@@ -24,7 +24,7 @@ namespace ui {
 	{
 	public:
 		explicit SyncConnect(HWND hwnd, fw::AuthMethod auth_method, fw::FirewallClient& portal_client);
-		~SyncConnect();
+		virtual ~SyncConnect() override;
 
 	private:
 		// The class name.

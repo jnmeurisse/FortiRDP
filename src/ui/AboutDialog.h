@@ -18,7 +18,7 @@ namespace ui {
 	{
 	public:
 		explicit AboutDialog(HINSTANCE hInstance, HWND hParent);
-		virtual ~AboutDialog();
+		virtual ~AboutDialog() override;
 
 	private:
 		HFONT _hFont;

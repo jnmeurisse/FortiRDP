@@ -21,7 +21,7 @@ namespace ui {
 	{
 	public:
 		explicit SyncWaitTunnel(HWND hwnd, fw::FirewallTunnel& tunnel);
-		~SyncWaitTunnel();
+		virtual ~SyncWaitTunnel() override;
 
 	private:
 		// The class name.

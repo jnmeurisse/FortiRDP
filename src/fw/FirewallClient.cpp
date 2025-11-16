@@ -41,7 +41,6 @@ namespace fw {
 	FirewallClient::~FirewallClient()
 	{
 		DEBUG_DTOR(_logger);
-
 	}
 
 

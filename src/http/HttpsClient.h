@@ -26,7 +26,7 @@ namespace http {
 	{
 	public:
 		explicit HttpsClient(const net::Endpoint& ep, const net::TlsConfig& config);
-		virtual ~HttpsClient();
+		virtual ~HttpsClient() override;
 
 		/**
 		 * Sets the timeout values for an HTTPS transaction.

@@ -19,7 +19,7 @@ namespace ui {
 	{
 	public:
 		explicit OptionsDialog(HINSTANCE hInstance, HWND hParent);
-		virtual ~OptionsDialog();
+		virtual ~OptionsDialog() override;
 
 		fw::AuthMethod auth_method = fw::AuthMethod::BASIC;
 
