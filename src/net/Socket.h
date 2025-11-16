@@ -134,7 +134,7 @@ namespace net {
 		 *
 		 * @return A status code indicating the success or failure of the connection attempt.
 		 */
-		virtual mbed_err connect(const Endpoint& ep, net::net_protocol protocol, Timer& timer);
+		virtual mbed_err connect(const Endpoint& ep, net::net_protocol protocol, const Timer& timer);
 
 		/**
 		 * Binds the listener to a specified endpoint.

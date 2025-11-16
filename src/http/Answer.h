@@ -77,7 +77,7 @@ namespace http {
 		 *                    response reading process, indicating failure at a system or
 		 *                    connection level.
 		 */
-		int recv(net::TcpSocket& socket, tools::Timer& timer);
+		int recv(net::TcpSocket& socket, const tools::Timer& timer);
 
 		/**
 		 * Returns the HTTP version.
@@ -155,7 +155,7 @@ namespace http {
 		 * @throws mbed_error If an error occurs while reading from the socket, such as network
 		 *                    or socket-related failures.
 		 */
-		int read_buffer(net::TcpSocket& socket, unsigned char* buf, const size_t len, tools::Timer& timer);
+		int read_buffer(net::TcpSocket& socket, unsigned char* buf, const size_t len, const tools::Timer& timer);
 
 		/* Reads a single character from the socket.
 		 *
@@ -173,7 +173,7 @@ namespace http {
 		 * @throws mbed_error If an error occurs during the read operation (e.g., network or
 		 *                    socket-related failures).
 		 */
-		int read_char(net::TcpSocket& socket, char& c, tools::Timer& timer);
+		int read_char(net::TcpSocket& socket, char& c, const tools::Timer& timer);
 
 		/* Reads a string from the socket until a newline sequence (\r\n) is encountered.
 		 * The \r\n characters are not included in the returned line.
@@ -194,7 +194,7 @@ namespace http {
 		 * @throws mbed_error If a failure occurs while reading from the socket (e.g.,
 		 *                    network or socket-related errors).
 		 */
-		int read_line(net::TcpSocket& socket, int max_len, tools::obfstring& line, tools::Timer& timer);
+		int read_line(net::TcpSocket& socket, int max_len, tools::obfstring& line, const tools::Timer& timer);
 
 		/* Reads the HTTP status response from the server.
 		 *
@@ -216,7 +216,7 @@ namespace http {
 		 * @throws mbed_error If a failure occurs while reading from the socket (e.g.,
 		 *                    network or socket-related errors).
 		 */
-		int read_http_status(net::TcpSocket& socket, tools::Timer& timer);
+		int read_http_status(net::TcpSocket& socket, const tools::Timer& timer);
 
 		/* Reads and decompresses a gzip body from the server.
 		 *
@@ -238,7 +238,7 @@ namespace http {
 		 *
 		 * @throws mbed_error If a failure occurs while reading from the socket or other network-related issues.
 		 */
-		bool read_gzip_body(net::TcpSocket& socket, size_t size, size_t max_size, tools::Timer& timer);
+		bool read_gzip_body(net::TcpSocket& socket, size_t size, size_t max_size, const tools::Timer& timer);
 
 		/* Reads the body of the HTTP response from the server in chunks and appends it to the body.
 		 *
@@ -260,7 +260,7 @@ namespace http {
 		 *
 		 * @throws mbed_error If a failure occurs while reading from the socket, such as network or socket-related errors.
 		 */
-		bool read_body(net::TcpSocket& socket, size_t size, size_t max_size, tools::Timer& timer);
+		bool read_body(net::TcpSocket& socket, size_t size, size_t max_size, const tools::Timer& timer);
 	};
 
 }

@@ -45,7 +45,7 @@ namespace http {
 	}
 
 
-	int Answer::read_buffer(net::TcpSocket& socket, unsigned char* buf, const size_t len, tools::Timer& timer)
+	int Answer::read_buffer(net::TcpSocket& socket, unsigned char* buf, const size_t len, const tools::Timer& timer)
 	{
 		const rcv_status status{ socket.read(buf, len, timer) };
 
@@ -59,13 +59,13 @@ namespace http {
 	}
 
 
-	int Answer::read_char(net::TcpSocket& socket, char& c, tools::Timer& timer)
+	int Answer::read_char(net::TcpSocket& socket, char& c, const tools::Timer& timer)
 	{
 		return read_buffer(socket, (unsigned char *)&c, sizeof(char), timer);
 	}
 
 
-	int Answer::read_line(net::TcpSocket& socket, int max_len, tools::obfstring& line, tools::Timer& timer)
+	int Answer::read_line(net::TcpSocket& socket, int max_len, tools::obfstring& line, const tools::Timer& timer)
 	{
 		DEBUG_ENTER(_logger, "Answer", "read_line");
 
@@ -107,7 +107,7 @@ namespace http {
 	}
 
 
-	int Answer::read_http_status(net::TcpSocket& socket, tools::Timer& timer)
+	int Answer::read_http_status(net::TcpSocket& socket, const tools::Timer& timer)
 	{
 		DEBUG_ENTER(_logger, "Answer", "read_http_status");
 		tools::obfstring line;
@@ -152,7 +152,7 @@ namespace http {
 	}
 
 
-	bool Answer::read_gzip_body(net::TcpSocket& socket, size_t size, size_t max_size, tools::Timer& timer)
+	bool Answer::read_gzip_body(net::TcpSocket& socket, size_t size, size_t max_size, const tools::Timer& timer)
 	{
 		DEBUG_ENTER(_logger, "Answer", "read_gzip_body");
 
@@ -206,7 +206,7 @@ namespace http {
 	}
 
 
-	bool Answer::read_body(net::TcpSocket& socket, size_t size, size_t max_size, tools::Timer& timer)
+	bool Answer::read_body(net::TcpSocket& socket, size_t size, size_t max_size, const tools::Timer& timer)
 	{
 		DEBUG_ENTER(_logger, "Answer", "read_body");
 
@@ -233,7 +233,7 @@ namespace http {
 	}
 
 
-	int Answer::recv(net::TcpSocket& socket, tools::Timer& timer)
+	int Answer::recv(net::TcpSocket& socket, const tools::Timer& timer)
 	{
 		if (_logger->is_trace_enabled())
 			_logger->trace("... %x enter Answer::recv timeout=%lu",

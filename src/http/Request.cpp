@@ -52,7 +52,7 @@ namespace http {
 	}
 
 
-	void Request::send(net::TcpSocket& socket, tools::Timer& timer)
+	void Request::send(net::TcpSocket& socket, const tools::Timer& timer)
 	{
 		DEBUG_ENTER(_logger, "Request", "send");
 
@@ -113,7 +113,7 @@ namespace http {
 	}
 
 
-	void Request::write_buffer(net::TcpSocket& socket, const byte* buffer, size_t len, Timer& timer)
+	void Request::write_buffer(net::TcpSocket& socket, const byte* buffer, size_t len, const Timer& timer)
 	{
 		const snd_status status{ socket.write(buffer, len, timer) };
 

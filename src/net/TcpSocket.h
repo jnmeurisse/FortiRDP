@@ -35,7 +35,7 @@ namespace net {
 		 * 	     https://github.com/Mbed-TLS/mbedtls/issues/8027
 		 *
 		*/
-		virtual mbed_err connect(const Endpoint& ep, Timer& timer);
+		virtual mbed_err connect(const Endpoint& ep, const Timer& timer);
 
 		/**
 		 * Reads a sequence of bytes from the socket.
@@ -51,7 +51,7 @@ namespace net {
 		 * @return A value of type `rcv_status` indicating the status of the
 		 *         read operation.
 		 */
-		virtual net::rcv_status read(unsigned char* buf, size_t len, Timer& timer);
+		virtual net::rcv_status read(unsigned char* buf, size_t len, const Timer& timer);
 
 		/**
 		 * Writes a sequence of bytes to the socket.
@@ -67,7 +67,7 @@ namespace net {
 		 * @return A value of type `snd_status` indicating the status of the
 		 *         write operation.
 		 */
-		virtual net::snd_status write(const unsigned char* buf, size_t len, Timer& timer);
+		virtual net::snd_status write(const unsigned char* buf, size_t len, const Timer& timer);
 
 	protected:
 		/**

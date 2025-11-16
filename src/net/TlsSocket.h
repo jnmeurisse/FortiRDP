@@ -57,7 +57,7 @@ namespace net {
 		 * Initiates a connection to the specified endpoint.
 		 * See base class.
 		*/
-		mbed_err connect(const Endpoint& ep, Timer& timer) override;
+		mbed_err connect(const Endpoint& ep, const Timer& timer) override;
 
 		/**
 		 * Performs the SSL/TLS handshake.
@@ -73,7 +73,7 @@ namespace net {
 		 *
 		 * @return A `tls_handshake_status` indicating the result of the handshake.
 		 */
-		tls_handshake_status handshake(Timer& timer);
+		tls_handshake_status handshake(const Timer& timer);
 
 		/**
 		 * Closes gracefully the socket.

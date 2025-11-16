@@ -34,7 +34,7 @@ namespace net {
 	}
 
 
-	mbed_err TlsSocket::connect(const Endpoint& ep, Timer& timer)
+	mbed_err TlsSocket::connect(const Endpoint& ep, const Timer& timer)
 	{
 		if (_logger->is_debug_enabled())
 			_logger->debug(
@@ -70,7 +70,7 @@ namespace net {
 	}
 
 
-	tls_handshake_status TlsSocket::handshake(Timer& timer)
+	tls_handshake_status TlsSocket::handshake(const Timer& timer)
 	{
 		DEBUG_ENTER(_logger, "TlsSocket", "handshake");
 

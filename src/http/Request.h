@@ -89,7 +89,7 @@ namespace http {
 		 * @throws mbed_error If an error occurs while sending the request, such as network
 		 *                    issues or socket failure.
 		 */
-		void send(net::TcpSocket& socket, tools::Timer& timer);
+		void send(net::TcpSocket& socket, const tools::Timer& timer);
 
 		/* Most common HTTP verbs */
 		static const std::string GET_VERB;
@@ -115,7 +115,7 @@ namespace http {
 		Headers _headers;
 		tools::ByteBuffer _body;
 
-		void write_buffer(net::TcpSocket& socket, const byte* buffer, size_t len, Timer& timer);
+		void write_buffer(net::TcpSocket& socket, const byte* buffer, size_t len, const Timer& timer);
 	};
 
 }

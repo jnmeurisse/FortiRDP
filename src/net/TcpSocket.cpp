@@ -22,7 +22,7 @@ namespace net {
 	}
 
 
-	mbed_err TcpSocket::connect(const Endpoint& ep, Timer& timer)
+	mbed_err TcpSocket::connect(const Endpoint& ep, const Timer& timer)
 	{
 		if (_logger->is_debug_enabled())
 			_logger->debug("... %x enter TcpSocket::connect ep=%s",
@@ -49,7 +49,7 @@ namespace net {
 	}
 
 
-	net::rcv_status TcpSocket::read(unsigned char* buf, size_t len, Timer& timer)
+	net::rcv_status TcpSocket::read(unsigned char* buf, size_t len, const Timer& timer)
 	{
 		if (_logger->is_trace_enabled())
 			_logger->trace(
@@ -95,7 +95,7 @@ namespace net {
 	}
 
 
-	net::snd_status TcpSocket::write(const unsigned char* buf, size_t len, Timer& timer)
+	net::snd_status TcpSocket::write(const unsigned char* buf, size_t len, const Timer& timer)
 	{
 		if (_logger->is_trace_enabled())
 			_logger->trace(
