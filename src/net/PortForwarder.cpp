@@ -39,13 +39,13 @@ namespace net {
 		_rflush_timeout(false),
 		_connect_timeout(false)
 	{
-		DEBUG_CTOR(_logger, "PortForwarder");
+		DEBUG_CTOR(_logger);
 	}
 
 
 	PortForwarder::~PortForwarder()
 	{
-		DEBUG_DTOR(_logger, "PortForwarder");
+		DEBUG_DTOR(_logger);
 
 		// Remove all potential active timers
 		sys_untimeout(timeout_cb, &_connect_timeout);
@@ -56,19 +56,25 @@ namespace net {
 
 	bool PortForwarder::connect(Listener& listener)
 	{
-		DEBUG_ENTER(_logger, "PortForwarder", "connect");
+		DEBUG_ENTER(_logger);
 
 		if (_state != State::READY) {
-			_logger->error("ERROR: PortForwarder %x not in READY state", (uintptr_t)this);
+			_logger->error("ERROR: %s %x not in READY state",
+				__class__,
+				(uintptr_t)this
+			);
+
 			return false;
 		}
 
 		// Accept the connection from a local client.
 		const mbed_err rc_accept = listener.accept(_local_server);
 		if (rc_accept != 0) {
-			_logger->error("ERROR: PortForwarder %x - accept error (%s)",
+			_logger->error("ERROR: %s %x - accept error (%s)",
+				__class__,
 				(uintptr_t)this,
-				mbed_errmsg(rc_accept).c_str());
+				mbed_errmsg(rc_accept).c_str()
+			);
 
 			_state = State::FAILED;
 			return false;
@@ -89,16 +95,20 @@ namespace net {
 		else if (rc_query == ERR_VAL) {
 			// DNS server is not configured, abort the connection.
 			_state = State::FAILED;
-			_logger->error("ERROR: PortForwarder %x - can not resolve %s",
+			_logger->error("ERROR: %s %x - can not resolve %s",
+				__class__,
 				(uintptr_t)this,
-				_endpoint.hostname().c_str());
+				_endpoint.hostname().c_str()
+			);
 		}
 		else {
 			// There was an error during name resolution, abort the connection.
 			_state = State::FAILED;
-			_logger->error("ERROR: PortForwarder %x - DNS error (%s)",
+			_logger->error("ERROR: %s %x - DNS error (%s)",
+				__class__,
 				(uintptr_t)this,
-				lwip_errmsg(rc_query).c_str());
+				lwip_errmsg(rc_query).c_str()
+			);
 		}
 
 		if (_state == State::FAILED)
@@ -107,7 +117,10 @@ namespace net {
 		// Allocate the TCP client.
 		_local_client = tcp_new();
 		if (!_local_client) {
-			_logger->error("ERROR: PortForwarder %x - memory allocation failure", (uintptr_t)this);
+			_logger->error("ERROR: %s %x - memory allocation failure",
+				__class__,
+				(uintptr_t)this
+			);
 
 			_state = State::FAILED;
 			return false;
@@ -137,7 +150,7 @@ namespace net {
 
 	void PortForwarder::disconnect()
 	{
-		DEBUG_ENTER(_logger, "PortForwarder", "disconnect");
+		DEBUG_ENTER(_logger);
 
 		if (_state != State::CONNECTED)
 			return;
@@ -162,10 +175,14 @@ namespace net {
 
 	void PortForwarder::abort()
 	{
-		DEBUG_ENTER(_logger, "PortForwarder", "abort");
+		DEBUG_ENTER(_logger);
 
 		if (!(_state == State::CONNECTED || _state == State::CONNECTING)) {
-			_logger->error("ERROR: PortForwarder %x - not in connected or connecting state", (uintptr_t)this);
+			_logger->error("ERROR: %s %x - not in connected or connecting state",
+				__class__,
+				(uintptr_t)this
+			);
+
 			return;
 		}
 		_state = State::DISCONNECTING;
@@ -184,7 +201,7 @@ namespace net {
 
 	bool PortForwarder::recv()
 	{
-		TRACE_ENTER(_logger, "PortForwarder", "recv");
+		TRACE_ENTER(_logger);
 
 		if (_state != State::CONNECTED)
 			return false;
@@ -207,7 +224,10 @@ namespace net {
 		const u16_t length = static_cast<u16_t>(status.rbytes);
 		pbuf* const buffer = pbuf_alloc(PBUF_RAW, length, PBUF_RAM);
 		if (!buffer) {
-			_logger->error("ERROR: PortForwarder %x - memory allocation error", (uintptr_t)this);
+			_logger->error("ERROR: %s %x - memory allocation error",
+				__class__,
+				(uintptr_t)this
+			);
 			return false;
 		}
 
@@ -222,7 +242,11 @@ namespace net {
 
 		// Append the buffer to the queue.
 		if (!_forward_queue.push(buffer)) {
-			_logger->error("INTERNAL ERROR: PortForwarder %x - forward queue data full", (uintptr_t)this);
+			_logger->error("INTERNAL ERROR: %s %x - forward queue data full",
+				__class__,
+				(uintptr_t)this
+			);
+
 			return false;
 		}
 
@@ -235,7 +259,7 @@ namespace net {
 
 	bool PortForwarder::forward()
 	{
-		TRACE_ENTER(_logger, "PortForwarder", "forward");
+		TRACE_ENTER(_logger);
 
 		if (_state != State::CONNECTED) 
 			return false;
@@ -243,7 +267,11 @@ namespace net {
 		size_t written = 0;
 		lwip_err rc = _forward_queue.write(_local_client, written);
 		if (rc) {
-			_logger->error("ERROR: PortForwarder %x - %s", (uintptr_t)this, lwip_errmsg(rc).c_str());
+			_logger->error("ERROR: %s %x - %s",
+				__class__,
+				(uintptr_t)this,
+				lwip_errmsg(rc).c_str()
+			);
 		}
 		else {
 			_forwarded_bytes += written;
@@ -255,7 +283,7 @@ namespace net {
 
 	bool PortForwarder::reply()
 	{
-		TRACE_ENTER(_logger, "PortForwarder", "reply");
+		TRACE_ENTER(_logger);
 
 		if (_state != State::CONNECTED) 
 			return false;
@@ -267,7 +295,11 @@ namespace net {
 	void PortForwarder::fflush()
 	{
 		if (_state != State::DISCONNECTING) {
-			_logger->error("ERROR: PortForwarder %x - not in disconnecting state", (uintptr_t)this);
+			_logger->error("ERROR: %s %x - not in disconnecting state",
+				__class__,
+				(uintptr_t)this
+			);
+
 			return;
 		}
 
@@ -304,7 +336,11 @@ namespace net {
 	void PortForwarder::rflush()
 	{
 		if (_state != State::DISCONNECTING) {
-			_logger->error("ERROR: PortForwarder %x - not in disconnecting state", (uintptr_t)this);
+			_logger->error("ERROR: %s %x - not in disconnecting state",
+				__class__,
+				(uintptr_t)this
+			);
+
 			return;
 		}
 
@@ -499,5 +535,7 @@ namespace net {
 
 		return rc;
 	}
+
+	const char* PortForwarder::__class__ = "PortForwarder";
 
 }

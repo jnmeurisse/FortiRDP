@@ -101,6 +101,9 @@ namespace net {
 	private:
 		void compute_sleep_time(timeval &timeout) const;
 
+		// The class name
+		static const char* __class__;
+
 		// a reference to the application logger.
 		tools::Logger* const _logger;
 

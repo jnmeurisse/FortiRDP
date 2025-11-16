@@ -46,13 +46,13 @@ namespace http {
 		_receive_timeout(DEFAULT_RCV_TIMEOUT * 1000),
 		_request_count(0)
 	{
-		DEBUG_CTOR(_logger, "HttpsClient");
+		DEBUG_CTOR(_logger);
 	}
 
 
 	HttpsClient::~HttpsClient()
 	{
-		DEBUG_DTOR(_logger, "HttpsClient");
+		DEBUG_DTOR(_logger);
 	}
 
 
@@ -82,7 +82,7 @@ namespace http {
 
 	void HttpsClient::connect()
 	{
-		DEBUG_ENTER(_logger, "HttpsClient", "connect");
+		DEBUG_ENTER(_logger);
 
 		_keepalive_timer.start(10000);
 		_request_count = 0;
@@ -91,8 +91,10 @@ namespace http {
 
 		const mbed_err rc = TlsSocket::connect(_host_ep, connect_timer);
 		_logger->debug(
-			"... %x       HttpsClient::connect - TlsSocket::call returns rc=%d",
+			"... %x       %s::%s - TlsSocket::call returns rc=%d",
 			(uintptr_t)this,
+			__class__,
+			__func__,
 			rc);
 
 		if (rc < 0)
@@ -106,7 +108,7 @@ namespace http {
 
 	void HttpsClient::disconnect()
 	{
-		DEBUG_ENTER(_logger, "HttpsClient", "disconnect");
+		DEBUG_ENTER(_logger);
 
 		TlsSocket::shutdown();
 	}
@@ -114,11 +116,13 @@ namespace http {
 
 	void HttpsClient::send_request(Request& request)
 	{
-		DEBUG_ENTER(_logger, "HttpsClient", "send_request");
+		DEBUG_ENTER(_logger);
 
 		if (_logger->is_trace_enabled())
-			_logger->trace("... %x       HttpsClient::send_request send url=%s count=%d max=%d timeout=%d",
+			_logger->trace("... %x       %s::%s send url=%s count=%d max=%d timeout=%d",
 				(uintptr_t)this,
+				__class__,
+				__func__,
 				request.url().to_string(false).c_str(),
 				_request_count,
 				_max_requests,
@@ -131,8 +135,10 @@ namespace http {
 		_keepalive_timer.start(_keepalive_timeout * 1000);
 
 		if (_logger->is_trace_enabled())
-			_logger->trace("... %x leave HttpsClient::send_request count=%d max=%d timeout=%d",
+			_logger->trace("... %x leave %s::%s count=%d max=%d timeout=%d",
 				(uintptr_t)this,
+				__class__,
+				__func__,
 				_request_count,
 				_max_requests,
 				_keepalive_timeout
@@ -144,7 +150,7 @@ namespace http {
 
 	void HttpsClient::recv_answer(Answer& answer)
 	{
-		DEBUG_ENTER(_logger, "HttpsClient", "recv_answer");
+		DEBUG_ENTER(_logger);
 
 		// Make sure the answer buffer is empty.
 		answer.clear();
@@ -153,8 +159,10 @@ namespace http {
 		const int rc = answer.recv(*this, tools::Timer{ _receive_timeout });
 
 		_logger->debug(
-			"... %x       HttpsClient::recv_answer : rc=%d",
+			"... %x       %s::%s : rc=%d",
 			(uintptr_t)this,
+			__class__,
+			__func__,
 			rc
 		);
 		
@@ -202,8 +210,10 @@ namespace http {
 		_keepalive_timeout = std::max(0, timeout);
 
 		if (_logger->is_trace_enabled())
-			_logger->trace("... %x leave HttpsClient::recv_answer rc=%d max=%d timeout=%d",
+			_logger->trace("... %x leave %s::%s rc=%d max=%d timeout=%d",
 				(uintptr_t)this,
+				__class__,
+				__func__,
 				rc,
 				_max_requests,
 				_keepalive_timeout
@@ -295,5 +305,7 @@ namespace http {
 			path,
 			query);
 	}
+
+	const char* HttpsClient::__class__ = "HttpsClient";
 
 }

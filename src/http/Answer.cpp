@@ -67,7 +67,7 @@ namespace http {
 
 	int Answer::read_line(net::TcpSocket& socket, int max_len, tools::obfstring& line, const tools::Timer& timer)
 	{
-		DEBUG_ENTER(_logger, "Answer", "read_line");
+		DEBUG_ENTER(_logger);
 
 		int state = 0;
 		int bytes_received = 0;
@@ -109,7 +109,7 @@ namespace http {
 
 	int Answer::read_http_status(net::TcpSocket& socket, const tools::Timer& timer)
 	{
-		DEBUG_ENTER(_logger, "Answer", "read_http_status");
+		DEBUG_ENTER(_logger);
 		tools::obfstring line;
 
 		// We assume that the server did not understand our request
@@ -154,7 +154,7 @@ namespace http {
 
 	bool Answer::read_gzip_body(net::TcpSocket& socket, size_t size, size_t max_size, const tools::Timer& timer)
 	{
-		DEBUG_ENTER(_logger, "Answer", "read_gzip_body");
+		DEBUG_ENTER(_logger);
 
 		// configure the de-compressor
 		::z_stream strm{ 0 };
@@ -208,7 +208,7 @@ namespace http {
 
 	bool Answer::read_body(net::TcpSocket& socket, size_t size, size_t max_size, const tools::Timer& timer)
 	{
-		DEBUG_ENTER(_logger, "Answer", "read_body");
+		DEBUG_ENTER(_logger);
 
 		// read by chunk of 4096 bytes
 		unsigned char buffer[4096];
@@ -236,8 +236,10 @@ namespace http {
 	int Answer::recv(net::TcpSocket& socket, const tools::Timer& timer)
 	{
 		if (_logger->is_trace_enabled())
-			_logger->trace("... %x enter Answer::recv timeout=%lu",
+			_logger->trace("... %x enter %s::%s timeout=%lu",
 				(uintptr_t)this,
+				__class__,
+				__func__,
 				timer.remaining_time()
 			);
 
@@ -368,5 +370,7 @@ namespace http {
 
 		return ERR_NONE;
 	}
+
+	const char* Answer::__class__ = "Answer";
 
 }

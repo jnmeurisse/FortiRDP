@@ -101,6 +101,9 @@ namespace http {
 		static const std::string TRACE_VERB;
 
 	private:
+		// The class name
+		static const char* __class__;
+
 		// A reference to the application logger.
 		tools::Logger* const _logger;
 

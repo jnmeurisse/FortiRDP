@@ -20,7 +20,7 @@ namespace tools {
 		_logger(Logger::get_logger()),
 		_auto_delete(auto_delete)
 	{
-		DEBUG_CTOR(_logger, "Thread");
+		DEBUG_CTOR(_logger);
 
 		_handle = (HANDLE)::_beginthreadex(nullptr, 0, thread_entry_point, this, CREATE_SUSPENDED, &_id);
 		_logger->debug("... %x created Thread handle=%x", (uintptr_t)this, _handle);
@@ -32,7 +32,7 @@ namespace tools {
 
 	Thread::~Thread()
 	{
-		DEBUG_DTOR(_logger, "Thread");
+		DEBUG_DTOR(_logger);
 		if (_handle != NULL)
 		{
 			_logger->debug("... %x destroyed Thread handle=%x", (uintptr_t)this, _handle);
@@ -43,7 +43,7 @@ namespace tools {
 
 	bool Thread::start()
 	{
-		DEBUG_ENTER(_logger, "Thread", "start");
+		DEBUG_ENTER(_logger);
 		DWORD status = ::ResumeThread(_handle);
 		
 		return status != (DWORD)-1;
@@ -52,7 +52,7 @@ namespace tools {
 
 	bool Thread::wait(DWORD timeout)
 	{
-		DEBUG_ENTER(_logger, "Thread", "wait");
+		DEBUG_ENTER(_logger);
 
 		switch (::WaitForSingleObject(_handle, timeout)) {
 		case WAIT_OBJECT_0: // the thread has ended.
@@ -85,5 +85,7 @@ namespace tools {
 		::_endthreadex(rc);
 		return 0;
 	}
+
+	const char* Thread::__class__ = "Thread";
 
 }

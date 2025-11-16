@@ -113,7 +113,10 @@ namespace net {
 		*/
 		int last_xmit() const;
 
-		// a reference to the application logger.
+		// The class name
+		static const char* __class__;
+
+		// A reference to the application logger.
 		tools::Logger* const _logger;
 
 		// socket connected to the firewall.

@@ -197,6 +197,9 @@ namespace fw {
 
 
 	private:
+		// The class name
+		static const char* __class__;
+
 		// The peer certificate digest.
 		CrtDigest _peer_crt_digest;
 

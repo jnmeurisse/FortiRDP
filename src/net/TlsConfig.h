@@ -41,6 +41,9 @@ namespace net {
 		const mbedtls_ssl_config* get_cfg() const;
 
 	private:
+		// The class name
+		static const char* __class__;
+
 		// A reference to the application logger.
 		tools::Logger* const _logger;
 

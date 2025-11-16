@@ -32,7 +32,7 @@ namespace fw {
 		_realm(realm),
 		_cookie_jar()
 	{
-		DEBUG_CTOR(_logger, "FirewallClient");
+		DEBUG_CTOR(_logger);
 
 		set_hostname_verification(true);
 	}
@@ -40,14 +40,14 @@ namespace fw {
 
 	FirewallClient::~FirewallClient()
 	{
-		DEBUG_DTOR(_logger, "FirewallClient");
+		DEBUG_DTOR(_logger);
 
 	}
 
 
 	portal_err FirewallClient::open(confirm_crt_fn confirm_crt)
 	{
-		DEBUG_ENTER(_logger, "FirewallClient", "open");
+		DEBUG_ENTER(_logger);
 		Mutex::Lock lock{ _mutex };
 		http::Answer answer;
 
@@ -138,7 +138,7 @@ namespace fw {
 
 	portal_err FirewallClient::try_login_check(const tools::StringMap& in_params, tools::StringMap& out_params)
 	{
-		DEBUG_ENTER(_logger, "FirewallClient", "try_login_check");
+		DEBUG_ENTER(_logger);
 
 		http::Answer answer;
 		http::Headers headers;
@@ -180,7 +180,7 @@ namespace fw {
 
 	portal_err FirewallClient::login_basic(ask_credentials_fn ask_credential, ask_pincode_fn ask_code)
 	{
-		DEBUG_ENTER(_logger, "FirewallClient", "login_basic");
+		DEBUG_ENTER(_logger);
 		tools::Mutex::Lock lock{ _mutex };
 
 		// Misc initializations.
@@ -390,7 +390,7 @@ namespace fw {
 
 	portal_err FirewallClient::login_saml(ask_samlauth_fn ask_samlauth)
 	{
-		DEBUG_ENTER(_logger, "FirewallClient", "login_saml");
+		DEBUG_ENTER(_logger);
 		tools::Mutex::Lock lock{ _mutex };
 
 		std::string service_provider_crt;
@@ -417,7 +417,7 @@ namespace fw {
 
 	bool FirewallClient::logout()
 	{
-		DEBUG_ENTER(_logger, "FirewallClient", "logout");
+		DEBUG_ENTER(_logger);
 		tools::Mutex::Lock lock{ _mutex };
 
 		http::Headers headers;
@@ -438,7 +438,7 @@ namespace fw {
 
 	bool FirewallClient::get_info(PortalInfo& portal_info)
 	{
-		DEBUG_ENTER(_logger, "FirewallClient", "get_info");
+		DEBUG_ENTER(_logger);
 		tools::Mutex::Lock lock{ _mutex };
 
 		if (!is_authenticated())
@@ -481,7 +481,7 @@ namespace fw {
 
 	bool FirewallClient::get_config(SslvpnConfig& sslvpn_config)
 	{
-		DEBUG_ENTER(_logger, "FirewallClient", "get_config");
+		DEBUG_ENTER(_logger);
 		tools::Mutex::Lock lock{ _mutex };
 
 		if (!is_authenticated())
@@ -551,7 +551,7 @@ namespace fw {
 	fw::FirewallTunnel* FirewallClient::create_tunnel(const net::Endpoint& local_ep,
 		const net::Endpoint& remote_ep, const net::tunneler_config& config)
 	{
-		DEBUG_ENTER(_logger, "FirewallClient", "create_tunnel");
+		DEBUG_ENTER(_logger);
 
 		return new fw::FirewallTunnel(
 			std::make_unique<http::HttpsClient>(host(), get_tls_config()),
@@ -565,7 +565,7 @@ namespace fw {
 
 	bool FirewallClient::send_and_receive(http::Request& request, http::Answer& answer)
 	{
-		DEBUG_ENTER(_logger, "FirewallClient", "send_and_receive");
+		DEBUG_ENTER(_logger);
 
 		if (is_reconnection_required()) {
 			disconnect();
@@ -630,7 +630,7 @@ namespace fw {
 	bool FirewallClient::do_request(const std::string& verb, const http::Url& url,
 		const std::string& body, const http::Headers& headers, http::Answer& answer)
 	{
-		DEBUG_ENTER(_logger, "FirewallClient", "do_request");
+		DEBUG_ENTER(_logger);
 		
 		http::Request request{ verb, url, _cookie_jar };
 
@@ -702,8 +702,10 @@ namespace fw {
 			}
 		}
 
-		_logger->debug("... %x       FirewallClient::do_request : %s %s (status=%s (%d))",
+		_logger->debug("... %x       %s::%s : %s %s (status=%s (%d))",
 			(uintptr_t)this,
+			__class__,
+			__func__,
 			verb.c_str(),
 			url.to_string(false).c_str(),
 			answer.get_reason_phrase().c_str(),
@@ -751,4 +753,5 @@ namespace fw {
 		return true;
 	}
 
+	const char* FirewallClient::__class__ = "FirewallClient";
 }

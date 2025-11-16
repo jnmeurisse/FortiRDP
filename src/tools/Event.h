@@ -76,6 +76,9 @@ namespace tools {
 		inline HANDLE get_handle() const noexcept { return _handle; }
 
 	private:
+		// The class name.
+		static const char* __class__;
+
 		// A reference to the application logger.
 		Logger* const _logger;
 

@@ -15,23 +15,26 @@ namespace ui {
 		_hwnd(hwnd),
 		_logger(tools::Logger::get_logger())
 	{
-		DEBUG_CTOR(_logger, "SyncProc");
+		DEBUG_CTOR(_logger);
 
 	}
 
 
 	SyncProc::~SyncProc()
 	{
-		DEBUG_DTOR(_logger, "SyncProc");
+		DEBUG_DTOR(_logger);
 	}
 
 
 	void SyncProc::run()
 	{
-		DEBUG_ENTER(_logger, "SyncProc", "run");
+		DEBUG_ENTER(_logger);
 
 		bool success = procedure();
 		_message.post(_hwnd, (void*)success);
 	}
+
+
+	const char* SyncProc::__class__ = "SyncProc";
 
 }

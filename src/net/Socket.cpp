@@ -20,7 +20,7 @@ namespace net {
 		_logger(Logger::get_logger()),
 		_netctx{}
 	{
-		DEBUG_CTOR(_logger, "Socket");
+		DEBUG_CTOR(_logger);
 
 		::mbedtls_net_init(&_netctx);
 	}
@@ -28,7 +28,7 @@ namespace net {
 
 	Socket::~Socket()
 	{
-		DEBUG_DTOR(_logger, "Socket");
+		DEBUG_DTOR(_logger);
 
 		::mbedtls_net_close(&_netctx);
 	}
@@ -256,5 +256,7 @@ namespace net {
 
 		return rc;
 	}
+
+	const char* Socket::__class__ = "Socket";
 
 }

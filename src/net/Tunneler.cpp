@@ -38,19 +38,19 @@ namespace net {
 		_local_endpoint(local_ep),
 		_remote_endpoint(remote_ep)
 	{
-		DEBUG_CTOR(_logger, "Tunneler");
+		DEBUG_CTOR(_logger);
 	}
 
 
 	Tunneler::~Tunneler()
 	{
-		DEBUG_DTOR(_logger, "Tunneler");
+		DEBUG_DTOR(_logger);
 	}
 
 
 	bool Tunneler::start()
 	{
-		DEBUG_ENTER(_logger, "Tunneler", "start");
+		DEBUG_ENTER(_logger);
 		bool started = true;
 
 		mbed_err rc = _listener.bind(_local_endpoint);
@@ -75,7 +75,7 @@ namespace net {
 
 	void Tunneler::terminate()
 	{
-		DEBUG_ENTER(_logger, "Tunneler", "terminate");
+		DEBUG_ENTER(_logger);
 		_terminate = true;
 	}
 
@@ -88,7 +88,7 @@ namespace net {
 
 	unsigned int Tunneler::run()
 	{
-		DEBUG_ENTER(_logger, "Tunneler", "run");
+		DEBUG_ENTER(_logger);
 
 		int rc = 0;
 		bool stop = false;
@@ -367,6 +367,8 @@ namespace net {
 
 		return;
 	}
+
+	const char* Tunneler::__class__ = "Tunneler";
 
 }
 

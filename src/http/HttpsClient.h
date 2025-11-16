@@ -142,6 +142,9 @@ namespace http {
 		bool is_reconnection_required() const;
 
 	private:
+		// The class name
+		static const char* __class__;
+
 		// The endpoint.
 		const net::Endpoint _host_ep;
 

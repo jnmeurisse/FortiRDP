@@ -13,19 +13,19 @@ namespace ui {
 		_portal_client(portal_client),
 		_tunnel(tunnel)
 	{
-		DEBUG_CTOR(_logger, "SyncDisconnect");
+		DEBUG_CTOR(_logger);
 	}
 
 
 	SyncDisconnect::~SyncDisconnect()
 	{
-		DEBUG_DTOR(_logger, "SyncDisconnect");
+		DEBUG_DTOR(_logger);
 	}
 
 
 	bool SyncDisconnect::procedure()
 	{
-		DEBUG_ENTER(_logger, "SyncDisconnect", "procedure");
+		DEBUG_ENTER(_logger);
 		bool stopped = false;
 
 		if (_portal_client.is_authenticated()) {
@@ -69,5 +69,7 @@ namespace ui {
 
 		return stopped;
 	}
+
+	const char* SyncDisconnect::__class__ = "SyncDisconnect";
 
 }

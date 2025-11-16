@@ -54,6 +54,9 @@ namespace net {
 		size_t connected_count() const noexcept;
 
 	private:
+		// The class name.
+		static const char* __class__;
+
 		// a reference to the application logger
 		tools::Logger* const _logger;
 	};

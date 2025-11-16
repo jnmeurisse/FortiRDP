@@ -26,7 +26,10 @@ namespace ui {
 		~SyncWaitTask();
 
 	private:
-		//- a task that we wait for to finish.
+		// The class name.
+		static const char* __class__;
+
+		// A task that we wait for to finish.
 		tools::Task* const _task;
 
 		// The wait procedure.

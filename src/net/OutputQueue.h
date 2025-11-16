@@ -28,6 +28,9 @@ namespace net {
 		lwip_err write(struct tcp_pcb* socket, size_t& written);
 
 	private:
+		// The class name
+		static const char* __class__;
+
 		// a reference to the application logger
 		Logger* const _logger;
 	};

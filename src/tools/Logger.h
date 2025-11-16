@@ -7,6 +7,7 @@
 */
 #pragma once
 
+#include <cstdint>
 #include <string>
 #include <list>
 #include <fstream>
@@ -14,23 +15,24 @@
 
 
 #ifdef _DEBUG
-#define DEBUG_CTOR(logger, clsname) if ((logger)->is_debug_enabled()) { \
-								(logger)->debug("... %x ctor::%s", (uintptr_t)this, clsname); \
+#define DEBUG_CTOR(logger) if ((logger)->is_debug_enabled()) { \
+								(logger)->debug("... %x ctor::%s", (uintptr_t)this, __class__); \
 								}
-#define DEBUG_DTOR(logger, clsname) if ((logger)->is_debug_enabled()) { \
-								(logger)->debug("... %x dtor::%s", (uintptr_t)this, clsname); \
+#define DEBUG_DTOR(logger) if ((logger)->is_debug_enabled()) { \
+								(logger)->debug("... %x dtor::%s", (uintptr_t)this, __class__); \
 								}
 #else
-#define DEBUG_CTOR(logger, clsname)
-#define DEBUG_DTOR(logger, clsname)
+#define DEBUG_CTOR(logger)
+#define DEBUG_DTOR(logger)
 #endif
 
-#define DEBUG_ENTER(logger, clsname, funname) if ((logger)->is_debug_enabled()) { \
-								(logger)->debug("... %x enter %s::%s", (uintptr_t)this, clsname, funname); \
+
+#define DEBUG_ENTER(logger) if ((logger)->is_debug_enabled()) { \
+								(logger)->debug("... %x enter %s::%s", (uintptr_t)this, __class__, __func__); \
 								}
 
-#define TRACE_ENTER(logger, clsname, funname) if ((logger)->is_trace_enabled()) { \
-								(logger)->trace(".... %x enter %s::%s", (uintptr_t)this, clsname, funname); \
+#define TRACE_ENTER(logger) if ((logger)->is_trace_enabled()) { \
+								(logger)->trace(".... %x enter %s::%s", (uintptr_t)this, __class__, __func__); \
 								}
 
 namespace tools {

@@ -18,7 +18,7 @@ namespace tools {
     Timer::Timer(uint32_t duration) :
 		_logger(Logger::get_logger())
 	{
-		DEBUG_CTOR(_logger, "Timer");
+		DEBUG_CTOR(_logger);
 
 		start(duration);
 	}
@@ -26,13 +26,13 @@ namespace tools {
 
 	Timer::~Timer()
 	{
-		DEBUG_DTOR(_logger, "Timer");
+		DEBUG_DTOR(_logger);
 	}
 
 
 	void Timer::start(uint32_t duration) noexcept
 	{
-		DEBUG_ENTER(_logger, "Timer", "start");
+		DEBUG_ENTER(_logger);
 
 		if (_logger->is_debug_enabled())
 			_logger->debug(
@@ -55,5 +55,7 @@ namespace tools {
 		const uint64_t now = ::GetTickCount64();
 		return now >= _due_time ? 0 : static_cast<uint32_t>(_due_time - now);
 	}
+
+	const char* Timer::__class__ = "Timer";
 
 }

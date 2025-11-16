@@ -86,6 +86,9 @@ namespace net {
 		bool is_ready() const;
 
 	private:
+		// The class name
+		static const char* __class__;
+
 		Endpoint _endpoint;
 	};
 

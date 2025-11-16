@@ -26,6 +26,9 @@ namespace ui {
 		~SyncDisconnect();
 
 	private:
+		// The class name.
+		static const char* __class__;
+
 		//- portal to disconnect from.
 		fw::FirewallClient& _portal_client;
 

@@ -32,20 +32,20 @@ namespace ui {
 		_auth_method(fw::AuthMethod::BASIC),
 		_tls_config()
 	{
-		DEBUG_CTOR(_logger, "AsyncController");
+		DEBUG_CTOR(_logger);
 		start();
 	}
 
 
 	AsyncController::~AsyncController()
 	{
-		DEBUG_DTOR(_logger, "AsyncController");
+		DEBUG_DTOR(_logger);
 	}
 
 
 	bool AsyncController::load_ca_crt(const tools::Path& filename)
 	{
-		DEBUG_ENTER(_logger, "AsyncController", "load_ca_crt");
+		DEBUG_ENTER(_logger);
 		bool init_status = true;
 
 		if (!_ca_crt) {
@@ -79,7 +79,7 @@ namespace ui {
 
 	bool AsyncController::load_user_crt(const tools::Path& filename, ask_crt_passcode_fn ask_passcode)
 	{
-		DEBUG_ENTER(_logger, "AsyncController", "load_user_crt");
+		DEBUG_ENTER(_logger);
 		bool init_status = true;
 
 		if (!_user_crt) {
@@ -133,10 +133,13 @@ namespace ui {
 	bool AsyncController::connect(const net::Endpoint& firewall_endpoint, const std::string& realm)
 	{
 		if (_logger->is_debug_enabled()) {
-			_logger->debug("... %x enter AsyncController::connect ep=%s realm=%s",
+			_logger->debug("... %x enter %s::%s ep=%s realm=%s",
 				(uintptr_t)this,
+				__class__,
+				__func__,
 				firewall_endpoint.to_string().c_str(),
-				realm.c_str());
+				realm.c_str()
+			);
 		}
 
 		// Start the async connect procedure.
@@ -155,9 +158,12 @@ namespace ui {
 		bool multi_clients, bool tcp_nodelay)
 	{
 		if (_logger->is_debug_enabled()) {
-			_logger->debug("... %x enter AsyncController::create_tunnel ep=%s",
+			_logger->debug("... %x enter %s::%s ep=%s",
 				(uintptr_t)this,
-				remote_endpoint.to_string().c_str());
+				__class__,
+				__func__,
+				remote_endpoint.to_string().c_str()
+			);
 		}
 		_tunnel.reset();
 
@@ -183,7 +189,7 @@ namespace ui {
 
 	bool AsyncController::start_task(const tools::TaskInfo& task_info, bool monitor)
 	{
-		DEBUG_ENTER(_logger, "AsyncController", "start_task");
+		DEBUG_ENTER(_logger);
 
 		bool started = false;
 
@@ -213,7 +219,7 @@ namespace ui {
 
 	bool AsyncController::disconnect()
 	{
-		DEBUG_ENTER(_logger, "AsyncController", "disconnect");
+		DEBUG_ENTER(_logger);
 
 		request_action(AsyncController::DISCONNECT);
 		return _tunnel != nullptr;
@@ -223,7 +229,7 @@ namespace ui {
 
 	bool AsyncController::terminate()
 	{
-		DEBUG_ENTER(_logger, "AsyncController", "terminate");
+		DEBUG_ENTER(_logger);
 
 		request_action(AsyncController::TERMINATE);
 		return true;
@@ -232,28 +238,40 @@ namespace ui {
 
 	void AsyncController::request_action(ControllerAction action)
 	{
-		_logger->debug("... %x enter AsyncController::request_action action=%s",
+		_logger->debug("... %x enter %s::%s action=%s",
 			(uintptr_t)this,
-			action_name(action));
+			__class__,
+			__func__,
+			action_name(action)
+		);
 
 		// Only one thread can request an action.
 		tools::Mutex::Lock lock(_mutex);
 
 		// Wait that the controller thread is ready
-		_logger->debug(".... %x AsyncController::request_action wait for action=%s",
+		_logger->debug(".... %x %s::%s wait for action=%s",
 			(uintptr_t)this,
-			action_name(action));
+			__class__,
+			__func__,
+			action_name(action)
+		);
 		_readyEvent.wait();
 
 		// Define the action and wake-up the thread.
-		_logger->debug(".... %x AsyncController::request_action set event for action=%s",
+		_logger->debug(".... %x %s::%s set event for action=%s",
 			(uintptr_t)this,
-			action_name(action));
+			__class__,
+			__func__,
+			action_name(action)
+		);
 		_action = action;
 		if (!_requestEvent.set()) {
-			_logger->error("ERROR: %x AsyncController::request_action set event error=%x",
+			_logger->error("ERROR: %x %s::%s set event error=%x",
 				(uintptr_t)this,
-				::GetLastError());
+				__class__,
+				__func__,
+				::GetLastError()
+			);
 		}
 	}
 
@@ -284,9 +302,12 @@ namespace ui {
 
 			// We are ready to accept a new event.
 			if (!_readyEvent.set()) {
-				_logger->error("ERROR: %x AsyncController::run set event error=%x",
+				_logger->error("ERROR: %x %s::%s set event error=%x",
 					(uintptr_t)this,
-					::GetLastError());
+					__class__,
+					__func__,
+					::GetLastError()
+				);
 			}
 
 			/* The function waits for an action and optionally for the end of a task
@@ -294,16 +315,24 @@ namespace ui {
 			 * to 2 if the AsyncProcedure monitors the end of a task.
 			*/
 			const int eventCount = wait_eot ? 2 : 1;
-			DWORD event = WaitForMultipleObjects(eventCount, hEvents, false, INFINITE);
+			DWORD event = ::WaitForMultipleObjects(eventCount, hEvents, false, INFINITE);
 
-			_logger->debug("... %x enter AsyncController::run event=%x", (uintptr_t)this, event);
+			_logger->debug("... %x enter %s::%s event=%x",
+				(uintptr_t)this,
+				__class__,
+				__func__,
+				event
+			);
 
 			// Wait that a new action is requested or that a task ended.
 			switch (event) {
 			case (WAIT_OBJECT_0 + 0):
-				_logger->debug("... %x AsyncController::run action=%s",
+				_logger->debug("... %x %s::%s action=%s",
 					(uintptr_t)this,
-					action_name(_action));
+					__class__,
+					__func__,
+					action_name(_action)
+				);
 
 				// Create a procedure for the requested action.
 				switch (_action)
@@ -343,9 +372,12 @@ namespace ui {
 				break;
 
 			case WAIT_FAILED:
-				_logger->error("ERROR: %x AsyncController::run wait failed error=%x",
+				_logger->error("ERROR: %x %s::%s wait failed error=%x",
 					(uintptr_t)this,
-					::GetLastError());
+					__class__,
+					__func__,
+					::GetLastError()
+				);
 				terminated = true;
 				break;
 
@@ -359,9 +391,12 @@ namespace ui {
 					procedure->run();
 				}
 				catch (const std::exception& e) {
-					_logger->error("ERROR: %x AsyncController::run failure exception=%s",
+					_logger->error("ERROR: %x %s::%s failure exception=%s",
 						(uintptr_t)this,
-						e.what());
+						__class__,
+						__func__,
+						e.what()
+					);
 					terminated = true;
 
 					
@@ -370,9 +405,15 @@ namespace ui {
 			}
 		}
 
-		_logger->debug("... %x leave AsyncController::run", (uintptr_t)this);
+		_logger->debug("... %x leave %s::%s",
+			(uintptr_t)this,
+			__class__,
+			__func__
+		);
 
 		return 0;
 	}
+
+	const char* AsyncController::__class__ = "AsyncController";
 
 }

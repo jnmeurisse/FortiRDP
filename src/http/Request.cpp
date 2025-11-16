@@ -54,11 +54,13 @@ namespace http {
 
 	void Request::send(net::TcpSocket& socket, const tools::Timer& timer)
 	{
-		DEBUG_ENTER(_logger, "Request", "send");
+		DEBUG_ENTER(_logger);
 
 		if (_logger->is_trace_enabled())
-			_logger->trace("... %x enter Request::send timeout=%lu",
+			_logger->trace("... %x enter %s::%s timeout=%lu",
 				(uintptr_t)this,
+				__class__,
+				__func__,
 				timer.remaining_time()
 			);
 
@@ -91,8 +93,10 @@ namespace http {
 		// Send headers to the web server.
 		if (_logger->is_trace_enabled())
 			_logger->trace(
-				"... %x       Request::send : write headers",
-				(uintptr_t)this
+				"... %x       %s::%s : write headers",
+				(uintptr_t)this,
+				__class__,
+				__func__
 			);
 		write_buffer(socket, buffer.cbegin(), buffer.size(), timer);
 
@@ -103,8 +107,10 @@ namespace http {
 			// Send the body to the web server.
 			if (_logger->is_trace_enabled())
 				_logger->trace(
-					"... %x       Request::send : write body",
-					(uintptr_t)this
+					"... %x       %s::%s : write body",
+					(uintptr_t)this,
+					__class__,
+					__func__
 				);
 			write_buffer(socket, _body.cbegin(), _body.size(), timer);
 		}
@@ -119,14 +125,19 @@ namespace http {
 
 		if (_logger->is_trace_enabled())
 			_logger->trace(
-				"... %x       Request::send : write buffer rc = %d",
+				"... %x       %s::%s : write buffer rc = %d",
 				(uintptr_t)this,
-				status.rc);
+				__class__,
+				__func__,
+				status.rc
+			);
 
 		if (status.code == snd_status_code::NETCTX_SND_ERROR || status.code == snd_status_code::NETCTX_SND_RETRY) {
 			// Send failed or timed out.
 			throw mbed_error(status.rc);
 		}
 	}
+
+	const char* Request::__class__ = "Request";
 
 }

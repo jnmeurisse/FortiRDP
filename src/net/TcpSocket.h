@@ -76,6 +76,10 @@ namespace net {
 		*/
 		virtual net::Socket::poll_status poll(int rw, uint32_t timeout) override;
 
+	private:
+		// The class name.
+		static const char* __class__;
+
 	};
 
 }

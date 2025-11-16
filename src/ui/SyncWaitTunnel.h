@@ -24,7 +24,10 @@ namespace ui {
 		~SyncWaitTunnel();
 
 	private:
-		//- a tunnel that we wait for listening.
+		// The class name.
+		static const char* __class__;
+
+		// A tunnel that we wait for listening.
 		fw::FirewallTunnel& _tunnel;
 
 		// The wait procedure

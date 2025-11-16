@@ -21,7 +21,7 @@ namespace tools {
 	Event::Event(bool manual_reset) :
 		_logger(Logger::get_logger())
 	{
-		DEBUG_CTOR(_logger, "Event");
+		DEBUG_CTOR(_logger);
 
 		_handle = ::CreateEvent(nullptr, manual_reset, false, nullptr);
 		if (_handle == NULL)
@@ -35,7 +35,7 @@ namespace tools {
 	Event::Event(const Event& event):
 		_logger(Logger::get_logger())
 	{
-		DEBUG_CTOR(_logger, "Event");
+		DEBUG_CTOR(_logger);
 
 		BOOL rc = ::DuplicateHandle(::GetCurrentProcess(),
 			event.get_handle(),
@@ -55,7 +55,7 @@ namespace tools {
 
 	Event::~Event()
 	{
-		DEBUG_DTOR(_logger, "Event");
+		DEBUG_DTOR(_logger);
 
 		if (_handle != NULL)
 			::CloseHandle(_handle);
@@ -96,5 +96,7 @@ namespace tools {
 			return false;
 		}
 	}
+
+	const char* Event::__class__ = "Event";
 
 }

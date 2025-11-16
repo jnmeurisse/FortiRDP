@@ -123,7 +123,7 @@ namespace net {
     
 	void TlsConfig::set_ca_crt(mbedtls_x509_crt& ca_crt)
 	{
-		DEBUG_ENTER(_logger, "TlsConfig", "set_ca_ctr");
+		DEBUG_ENTER(_logger);
 
 		mbedtls_ssl_conf_ca_chain(&_ssl_config, &ca_crt, nullptr);
 		mbedtls_ssl_conf_authmode(&_ssl_config, MBEDTLS_SSL_VERIFY_OPTIONAL);
@@ -140,5 +140,8 @@ namespace net {
 	{
 		return &_ssl_config;
 	}
+
+
+	const char* TlsConfig::__class__ = "TlsConfig";
 
 }

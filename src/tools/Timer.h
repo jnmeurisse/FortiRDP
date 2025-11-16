@@ -47,6 +47,9 @@ namespace tools {
 		uint32_t remaining_time() const noexcept;
 
 	private:
+		// The class name.
+		static const char* __class__;
+
 		// A reference to the application logger.
 		Logger* const _logger;
 		

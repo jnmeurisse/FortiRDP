@@ -24,13 +24,13 @@ namespace net {
 		_nif(),
 		_output_queue(32 * 1024)
 	{
-		DEBUG_CTOR(_logger, "PPInterface");
+		DEBUG_CTOR(_logger);
 	}
 
 
 	PPInterface::~PPInterface()
 	{
-		DEBUG_DTOR(_logger, "PPInterface");
+		DEBUG_DTOR(_logger);
 
 		if (_pcb)
 			ppp_free(_pcb);
@@ -39,15 +39,15 @@ namespace net {
 
 	bool PPInterface::open()
 	{
-		DEBUG_ENTER(_logger, "PPInterface", "open");
+		DEBUG_ENTER(_logger);
 
 		if (!_tunnel.is_connected()) {
-			_logger->error("ERROR: PP Interface - tunnel not connected.");
+			_logger->error("ERROR: %s - tunnel not connected");
 			return false;
 		}
 
 		if (_pcb) {
-			_logger->error("ERROR: PP Interface already initialized");
+			_logger->error("ERROR: %s already initialized");
 			return false;
 		}
 
@@ -58,7 +58,7 @@ namespace net {
 		// Create a PPP over the SSLVPN connection.
 		_pcb = pppossl_create(&_nif, ppp_output_cb, ppp_link_status_cb, this);
 		if (_pcb == nullptr) {
-			_logger->error("ERROR: PP Interface - memory allocation failure.");
+			_logger->error("ERROR: pppossl_create - memory allocation failure");
 			return false;
 		}
 
@@ -77,8 +77,10 @@ namespace net {
 			ppp_free(_pcb);
 			_pcb = nullptr;
 
-			_logger->error("ERROR: PP Interface - connect failure (%s)",
-				ppp_errmsg(rc_con).c_str());
+			_logger->error("ERROR: %s - connect failure (%s)",
+				__class__,
+				ppp_errmsg(rc_con).c_str()
+			);
 		}
 
 		return rc_con == PPPERR_NONE;
@@ -87,7 +89,7 @@ namespace net {
 
 	void PPInterface::close(bool nocarrier)
 	{
-		DEBUG_ENTER(_logger, "PPInterface", "close");
+		DEBUG_ENTER(_logger);
 
 		if (_logger->is_debug_enabled())
 			stats_display();
@@ -97,8 +99,10 @@ namespace net {
 			ppp_err rc = ppp_close(_pcb, nocarrier? 1 : 0);
 
 			if (rc != PPPERR_NONE) {
-				_logger->error("ERROR: PP Interface - close failure (%s)",
-					ppp_errmsg(rc).c_str());
+				_logger->error("ERROR: %s - close failure (%s)",
+					__class__,
+					ppp_errmsg(rc).c_str()
+				);
 			}
 		}
 
@@ -108,11 +112,11 @@ namespace net {
 
 	void PPInterface::release()
 	{
-		DEBUG_ENTER(_logger, "PPInterface", "release");
+		DEBUG_ENTER(_logger);
 
 		if (_pcb) {
 			if (_pcb->phase != PPP_PHASE_DEAD) {
-				_logger->error("ERROR: PP Interface - active interface released");
+				_logger->error("ERROR: %s - active interface released", __class__);
 			}
 
 			ppp_free(_pcb);
@@ -158,7 +162,7 @@ namespace net {
 
 	bool PPInterface::send()
 	{
-		TRACE_ENTER(_logger, "PPInterface", "send");
+		TRACE_ENTER(_logger);
 		bool rc;
 
 		if (!_output_queue.is_empty()) {
@@ -177,7 +181,7 @@ namespace net {
 			case snd_status_code::NETCTX_SND_ERROR:
 			default:
 				rc = false;
-				_logger->error("ERROR: PP Interface - tunnel send failure");
+				_logger->error("ERROR: %s - tunnel send failure", __class__);
 				_logger->error(mbed_errmsg(status.rc).c_str());
 				break;
 			}
@@ -188,10 +192,13 @@ namespace net {
 
 		if (_logger->is_trace_enabled())
 			_logger->trace(
-				".... %x       PPInterface::send socket fd=%d rc=%d",
+				".... %x       %s::%s socket fd=%d rc=%d",
 				(uintptr_t)this,
+				__class__,
+				__func__,
 				_tunnel.get_fd(),
-				rc);
+				rc
+			);
 
 		return rc;
 	}
@@ -199,7 +206,7 @@ namespace net {
 
 	bool PPInterface::recv()
 	{
-		TRACE_ENTER(_logger, "PPInterface", "recv");
+		TRACE_ENTER(_logger);
 
 		byte buffer[4096];
 		bool rc;
@@ -215,7 +222,8 @@ namespace net {
 			// PPP data available, pass it to the lwIP stack.
 			const ppp_err ppp_rc = pppossl_input(_pcb, buffer, status.rbytes);
 			if (ppp_rc) {
-				_logger->error("ERROR: PP Interface - input failure (%s)",
+				_logger->error("ERROR: %s - input failure (%s)",
+					__class__,
 					ppp_errmsg(ppp_rc).c_str());
 
 				rc = false;
@@ -235,15 +243,17 @@ namespace net {
 		case rcv_status_code::NETCTX_RCV_ERROR:
 		default:
 			rc = false;
-			_logger->error("ERROR: PP Interface - tunnel receive failure");
+			_logger->error("ERROR: %s - tunnel receive failure", __class__);
 			_logger->error(mbed_errmsg(status.rc).c_str());
 			break;
 		}
 
 		if (_logger->is_trace_enabled())
 			_logger->trace(
-				".... %x       PPInterface::recv socket fd=%d rc=%d",
+				".... %x       %s::%s socket fd=%d rc=%d",
 				(uintptr_t)this,
+				__class__,
+				__func__,
 				_tunnel.get_fd(),
 				rc);
 
@@ -290,11 +300,13 @@ namespace net {
 			} 
 			else
 			{
-				logger->error("ERROR: PP Interface - link error (%s)", ppp_errmsg(err_code).c_str());
+				logger->error("ERROR: PPInterface - link error (%s)", ppp_errmsg(err_code).c_str());
 			}
 		} 
 
 		return;
 	}
+
+	const char* PPInterface::__class__ = "PPInterface";
 
 }

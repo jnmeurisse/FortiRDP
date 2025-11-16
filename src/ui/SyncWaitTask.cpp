@@ -15,24 +15,26 @@ namespace ui {
 		SyncProc(hwnd, AsyncMessage::DisconnectFromFirewallRequest),
 		_task(task)
 	{
-		DEBUG_CTOR(_logger, "SyncWaitTask");
+		DEBUG_CTOR(_logger);
 	}
 
 
 	SyncWaitTask::~SyncWaitTask()
 	{
-		DEBUG_DTOR(_logger, "SyncWaitTask");
+		DEBUG_DTOR(_logger);
 	}
 
 
 	bool SyncWaitTask::procedure()
 	{
-		DEBUG_ENTER(_logger, "SyncWaitTask", "procedure");
+		DEBUG_ENTER(_logger);
 
 		if (_task)
 			_task->wait(INFINITE);
 
 		return true;
 	}
+
+	const char* SyncWaitTask::__class__ = "SyncWaitTask";
 
 }

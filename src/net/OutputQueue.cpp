@@ -13,13 +13,13 @@ namespace net {
 		PBufQueue(capacity),
 		_logger(Logger::get_logger())
 	{
-		DEBUG_CTOR(_logger, "OutputQueue");
+		DEBUG_CTOR(_logger);
 	}
 
 
 	OutputQueue::~OutputQueue()
 	{
-		DEBUG_DTOR(_logger, "OutputQueue");
+		DEBUG_DTOR(_logger);
 	}
 
 
@@ -29,9 +29,12 @@ namespace net {
 
 		if (_logger->is_trace_enabled())
 			_logger->trace(
-				".... %x enter OutputQueue::write mbedtls_socket=%x",
+				".... %x enter %s::%s mbedtls_socket=%x",
 				(uintptr_t)this,
-				(uintptr_t)std::addressof(socket));
+				__class__,
+				__func__,
+				(uintptr_t)std::addressof(socket)
+			);
 
 		if (!is_empty()) {
 			// Get the next contiguous block of data.
@@ -49,8 +52,10 @@ namespace net {
 
 		if (_logger->is_trace_enabled())
 			_logger->trace(
-				".... %x leave OutputQueue::write mbedtls_socket=%x status=%d rc=%d written=%zu",
+				".... %x leave %s::%s mbedtls_socket=%x status=%d rc=%d written=%zu",
 				(uintptr_t)this,
+				__class__,
+				__func__,
 				(uintptr_t)std::addressof(socket),
 				snd_status.code,
 				snd_status.rc,
@@ -64,8 +69,10 @@ namespace net {
 	{
 		if (_logger->is_trace_enabled())
 			_logger->trace(
-				".... %x enter OutputQueue::write lwip_socket=%x",
+				".... %x enter %s::%s lwip_socket=%x",
 				(uintptr_t)this,
+				__class__,
+				__func__,
 				(uintptr_t)socket);
 
 		written = 0;
@@ -113,11 +120,14 @@ namespace net {
 	write_error:
 		if (_logger->is_trace_enabled())
 			_logger->trace(
-				".... %x leave OutputQueue::write lwip_socket=%x rc=%d written=%d",
+				".... %x leave %s::%s lwip_socket=%x rc=%d written=%d",
 				(uintptr_t)this,
+				__class__,
+				__func__,
 				(uintptr_t)socket,
 				rc,
-				written);
+				written
+			);
 
 		if (rc == ERR_IF)
 			// The output buffer was full, we will try to send the pbuf chain later
@@ -125,5 +135,7 @@ namespace net {
 
 		return rc;
 	}
+
+	const char* OutputQueue::__class__ = "OutputQueue";
 
 }

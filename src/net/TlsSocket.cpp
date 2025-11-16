@@ -18,13 +18,13 @@ namespace net {
 		_tlscfg{ tls_config },
 		_enable_hostname_verification{ false }
 	{
-		DEBUG_CTOR(_logger, "TlsSocket");
+		DEBUG_CTOR(_logger);
 	}
 
 
 	TlsSocket::~TlsSocket()
 	{
-		DEBUG_DTOR(_logger, "TlsSocket");
+		DEBUG_DTOR(_logger);
 	}
 
 
@@ -38,8 +38,10 @@ namespace net {
 	{
 		if (_logger->is_debug_enabled())
 			_logger->debug(
-				"... %x enter TlsSocket::connect ep=%s",
+				"... %x enter %s::%s ep=%s",
 				(uintptr_t)this,
+				__class__,
+				__func__,
 				ep.to_string().c_str()
 			);
 
@@ -60,8 +62,10 @@ namespace net {
 	abort:
 		if (_logger->is_debug_enabled())
 			_logger->debug(
-				"... %x leave TlsSocket::connect fd=%d rc=%d",
+				"... %x leave %s::%s fd=%d rc=%d",
 				(uintptr_t)this,
+				__class__,
+				__func__,
 				get_fd(),
 				rc
 			);
@@ -72,14 +76,14 @@ namespace net {
 
 	tls_handshake_status TlsSocket::handshake(const Timer& timer)
 	{
-		DEBUG_ENTER(_logger, "TlsSocket", "handshake");
+		DEBUG_ENTER(_logger);
 
 		tls_handshake_status handshake_status;
 
 		do {
 			if (_logger->is_trace_enabled())
 				_logger->trace(
-					".... %x TlsSocket  - call tlsctx_handshake",
+					".... %x calling tlsctx.handshake",
 					(uintptr_t)this
 				);
 
@@ -87,7 +91,7 @@ namespace net {
 
 			if (_logger->is_trace_enabled())
 				_logger->trace(
-					".... %x TlsSocket - return tlsctx.handshake, status_code=%d rc=%d",
+					".... %x return from tlsctx.handshake, status_code=%d rc=%d",
 					(uintptr_t)this,
 					handshake_status.status_code,
 					handshake_status.rc
@@ -118,8 +122,10 @@ namespace net {
 
 		if (_logger->is_debug_enabled())
 			_logger->debug(
-				"... %x leave TlsSocket::handshake status=%d error=%d",
+				"... %x leave %s::%s status=%d error=%d",
 				(uintptr_t)this,
+				__class__,
+				__func__,
 				handshake_status.status_code,
 				handshake_status.rc
 			);
@@ -132,8 +138,10 @@ namespace net {
     {
 		if (_logger->is_debug_enabled())
 			_logger->debug(
-				"... %x enter TlsSocket::shutdown fd=%d",
+				"... %x enter %s::%s fd=%d",
 				(uintptr_t)this,
+				__class__,
+				__func__,
 				get_fd()
 			);
 
@@ -186,7 +194,13 @@ namespace net {
 	net::rcv_status TlsSocket::recv_data(unsigned char* buf, const size_t len)
 	{
 		if (_logger->is_trace_enabled())
-			_logger->trace(".... %x enter TlsSocket::recv_data buffer=%x size=%zu", this, buf, len);
+			_logger->trace(".... %x enter %s::%s buffer=%x size=%zu",
+				(uintptr_t)this,
+				__class__,
+				__func__,
+				buf,
+				len
+			);
 
 		return _tlsctx.recv_data(buf, len);
 	}
@@ -195,9 +209,17 @@ namespace net {
 	net::snd_status TlsSocket::send_data(const unsigned char* buf, const size_t len)
 	{
 		if (_logger->is_trace_enabled())
-			_logger->trace(".... %x enter TlsSocket::send_data buffer=%x size=%zu", this, buf, len);
+			_logger->trace(".... %x enter %s::%s buffer=%x size=%zu",
+				(uintptr_t)this,
+				__class__,
+				__func__,
+				buf,
+				len
+			);
 
 		return _tlsctx.send_data(buf, len);
 	}
+
+	const char* TlsSocket::__class__ = "TlsSocket";
 
 }

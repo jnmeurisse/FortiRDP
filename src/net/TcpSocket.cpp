@@ -12,21 +12,23 @@ namespace net {
 	TcpSocket::TcpSocket() : 
 		Socket()
 	{
-		DEBUG_CTOR(_logger, "TcpSocket");
+		DEBUG_CTOR(_logger);
 	}
 
 
 	TcpSocket::~TcpSocket()
 	{
-		DEBUG_DTOR(_logger, "TcpSocket");
+		DEBUG_DTOR(_logger);
 	}
 
 
 	mbed_err TcpSocket::connect(const Endpoint& ep, const Timer& timer)
 	{
 		if (_logger->is_debug_enabled())
-			_logger->debug("... %x enter TcpSocket::connect ep=%s",
+			_logger->debug("... %x enter %s::%s ep=%s",
 				(uintptr_t)this, 
+				__class__,
+				__func__,
 				ep.to_string().c_str()
 			);
 
@@ -40,8 +42,11 @@ namespace net {
 
 	terminate:
 		if (_logger->is_debug_enabled())
-			_logger->debug("... %x leave TcpSocket::connect fd=%d rc=%d",
-				(uintptr_t)this, get_fd(),
+			_logger->debug("... %x leave %s::%s fd=%d rc=%d",
+				(uintptr_t)this,
+				__class__,
+				__func__,
+				get_fd(),
 				rc
 			);
 
@@ -53,9 +58,11 @@ namespace net {
 	{
 		if (_logger->is_trace_enabled())
 			_logger->trace(
-				".... %x enter TcpSocket::read buffer=%x size=%zu",
+				".... %x enter %s::%s buffer=%x size=%zu",
 				(uintptr_t)this,
-				buf,
+				__class__,
+				__func__,
+				(uintptr_t)buf,
 				len
 			);
 
@@ -83,9 +90,11 @@ namespace net {
 
 		if (_logger->is_trace_enabled())
 			_logger->trace(
-				".... %x leave TcpSocket::read buffer=%x status=%d rc=%d len=%zu",
+				".... %x leave %s::%s buffer=%x status=%d rc=%d len=%zu",
 				(uintptr_t)this,
-				buf,
+				__class__,
+				__func__,
+				(uintptr_t)buf,
 				read_status.code,
 				read_status.rc,
 				read_status.rbytes
@@ -99,9 +108,11 @@ namespace net {
 	{
 		if (_logger->is_trace_enabled())
 			_logger->trace(
-				".... %x enter TcpSocket::write buffer=%x size=%zu",
+				".... %x enter %s::%s buffer=%x size=%zu",
 				(uintptr_t)this,
-				buf,
+				__class__,
+				__func__,
+				(uintptr_t)buf,
 				len
 			);
 
@@ -129,9 +140,11 @@ namespace net {
 
 		if (_logger->is_trace_enabled())
 			_logger->trace(
-				".... %x leave TcpSocket::write buffer=%x status=%d rc=%d len=%zu",
+				".... %x leave %s::%s buffer=%x status=%d rc=%d len=%zu",
 				(uintptr_t)this,
-				buf,
+				__class__,
+				__func__,
+				(uintptr_t)buf,
 				write_status.code,
 				write_status.rc,
 				write_status.sbytes
@@ -145,8 +158,10 @@ namespace net {
 	{
 		if (_logger->is_trace_enabled())
 			_logger->trace(
-				".... %x enter TcpSocket::poll read=%x write=%d timeout=%lu",
+				".... %x enter %s::%s read=%x write=%d timeout=%lu",
 				(uintptr_t)this,
+				__class__,
+				__func__,
 				(rw & 1) != 0 ? 1 : 0,
 				(rw & 2) != 0 ? 1 : 0,
 				timeout
@@ -156,8 +171,10 @@ namespace net {
 
 		if (_logger->is_trace_enabled())
 			_logger->trace(
-				".... %x leave TcpSocket::poll status=%d read=%x write=%d",
+				".... %x leave %s::%s status=%d read=%x write=%d",
 				(uintptr_t)this,
+				__class__,
+				__func__,
 				status.code,
 				(status.rc & 1) != 0 ? 1 : 0,
 				(status.rc & 2) != 0 ? 1 : 0
@@ -165,5 +182,7 @@ namespace net {
 
 		return status;
 	}
+
+	const char* TcpSocket::__class__ = "TcpSocket";
 
 };

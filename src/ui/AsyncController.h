@@ -106,6 +106,9 @@ namespace ui {
 		inline fw::FirewallTunnel* tunnel() const { return _tunnel.get(); }
 
 	private:
+		// The class name.
+		static const char* __class__;
+
 		// The application logger.
 		tools::Logger* const _logger;
 

@@ -69,6 +69,9 @@ namespace tools {
 		virtual unsigned int run() = 0;
 
 	private:
+		// The class name.
+		static const char* __class__;
+
 		// A reference to the application logger.
 		Logger* const _logger;
 

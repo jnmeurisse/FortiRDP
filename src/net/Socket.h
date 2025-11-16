@@ -319,6 +319,9 @@ namespace net {
 		virtual mbed_err accept(Socket& client_socket);
 
 	private:
+		// The class name.
+		static const char* __class__;
+
 		// The network context.
 		mbedtls_net_context _netctx;
 	};

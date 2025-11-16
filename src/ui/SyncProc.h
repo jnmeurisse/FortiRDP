@@ -29,17 +29,20 @@ namespace ui {
 		void run();
 
 	protected:
-		// - the logger.
+		// The logger.
 		tools::Logger* const _logger;
 
-		// - the recipient window of the user event message.
+		// The recipient window of the user event message.
 		const HWND _hwnd;
 
 	private:
-		// - event message sent asynchronously when procedure execution is finished.
+		// The class name.
+		static const char* __class__;
+
+		// An event message sent asynchronously when procedure execution is finished.
 		const AsyncMessage _message;
 
-		// - procedure to execute
+		// The procedure to execute
 		virtual bool procedure() = 0;
 	};
 

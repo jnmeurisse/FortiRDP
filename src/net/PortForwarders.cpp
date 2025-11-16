@@ -13,13 +13,13 @@ namespace net {
 	PortForwarders::PortForwarders() :
 		_logger(Logger::get_logger())
 	{
-		DEBUG_CTOR(_logger, "PortForwarders");
+		DEBUG_CTOR(_logger);
 	}
 
 
 	PortForwarders::~PortForwarders()
 	{
-		DEBUG_DTOR(_logger, "PortForwarders");
+		DEBUG_DTOR(_logger);
 
 		delete_having_state([](PortForwarder*) {return true; });
 	}
@@ -92,5 +92,7 @@ namespace net {
 
 		return counter;
 	}
+
+	const char* PortForwarders::__class__ = "PortForwarders";
 
 }

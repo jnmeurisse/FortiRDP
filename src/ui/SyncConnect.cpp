@@ -17,14 +17,14 @@ namespace ui {
 		_auth_method(auth_method),
 		_portal_client(portal_client)
 	{
-		DEBUG_CTOR(_logger, "SyncConnect");
+		DEBUG_CTOR(_logger);
 
 	}
 
 
 	SyncConnect::~SyncConnect()
 	{
-		DEBUG_DTOR(_logger, "SyncConnect");
+		DEBUG_DTOR(_logger);
 	}
 
 
@@ -73,7 +73,7 @@ namespace ui {
 
 	bool SyncConnect::procedure()
 	{
-		DEBUG_ENTER(_logger, "SyncConnect", "procedure");
+		DEBUG_ENTER(_logger);
 
 		bool connected = false;
 
@@ -161,5 +161,7 @@ namespace ui {
 			_portal_client.is_connected() &&
 			_portal_client.is_authenticated();
 	}
+
+	const char* SyncConnect::__class__ = "SyncConnect";
 
 }

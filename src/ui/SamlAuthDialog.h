@@ -40,7 +40,10 @@ namespace ui {
 		ui::saml_err get_saml_error() const;
 
 	private:
-		// The application logger
+		// The class name.
+		static const char* __class__;
+
+		// The application logger.
 		tools::Logger* const _logger;
 
 		// SAML authentication configuration.

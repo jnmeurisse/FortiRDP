@@ -128,6 +128,9 @@ namespace net {
 		virtual net::snd_status send_data(const unsigned char* buf, size_t len) override;
 
 	private:
+		// The class name
+		static const char* __class__;
+
 		// A reference to the TLS configuration.
 		const TlsConfig& _tlscfg;
 

@@ -156,6 +156,9 @@ namespace net {
 		void rflush();
 
 	private:
+		// The class name
+		static const char* __class__;
+
 		// forwarder states
 		enum State {
 			READY,					// The forwarder is allocated and ready 

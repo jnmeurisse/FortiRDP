@@ -91,7 +91,7 @@ namespace ui {
 		_last_saml_error(saml_err::NONE),
 		_saml_auth_info{ *pSamlInfo }
 	{
-		DEBUG_CTOR(_logger, "SamlAuthDialog");
+		DEBUG_CTOR(_logger);
 
 		HRESULT hr = ::CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
 		if (FAILED(hr)) {
@@ -103,7 +103,7 @@ namespace ui {
 	
 	SamlAuthDialog::~SamlAuthDialog()
 	{
-		DEBUG_DTOR(_logger, "SamlAuthDialog");
+		DEBUG_DTOR(_logger);
 		::CoUninitialize();
 	}
 
@@ -116,7 +116,7 @@ namespace ui {
 	
 	INT_PTR SamlAuthDialog::onCreateDialogMessage(WPARAM wParam, LPARAM lParam)
 	{
-		DEBUG_ENTER(_logger, "SamlAuthDialog", "onCreateDialogMessage");
+		DEBUG_ENTER(_logger);
 
 		auto web_core_created = [this](HRESULT result, ICoreWebView2Controller* controller) {
 			if (FAILED(result)) {
@@ -324,7 +324,7 @@ namespace ui {
 
 	HRESULT SamlAuthDialog::onWebViewNavigationStarting(ICoreWebView2* sender, ICoreWebView2NavigationStartingEventArgs* args)
 	{
-		TRACE_ENTER(_logger, "SamlAuthDialog", "onWebViewNavigationStarting");
+		TRACE_ENTER(_logger);
 		if (!sender || !args) {
 			_last_saml_error = ui::saml_err::WEBVIEW_ERROR;
 			_logger->error("ERROR: invalid argument in onWebViewNavigationStarting");
@@ -346,7 +346,7 @@ namespace ui {
 		ICoreWebView2NavigationCompletedEventArgs* args
 	)
 	{
-		TRACE_ENTER(_logger, "SamlAuthDialog", "onWebViewNavigationCompleted");
+		TRACE_ENTER(_logger);
 
 		// The user can decide to close the webview dialog
 		_can_close = true;
@@ -451,7 +451,7 @@ namespace ui {
 
 	HRESULT SamlAuthDialog::onSourceChanged(ICoreWebView2* sender, ICoreWebView2SourceChangedEventArgs* args)
 	{
-		TRACE_ENTER(_logger, "SamlAuthDialog", "onSourceChanged");
+		TRACE_ENTER(_logger);
 		if (!sender || !args) {
 			_last_saml_error = ui::saml_err::WEBVIEW_ERROR;
 			_logger->error("ERROR: invalid argument in onSourceChanged");
@@ -474,10 +474,10 @@ namespace ui {
 		ICoreWebView2ServerCertificateErrorDetectedEventArgs* args
 	)
 	{
-		TRACE_ENTER(_logger, "SamlAuthDialog", "onWebViewServerCertificateErrorDetected");
+		TRACE_ENTER(_logger);
 		if (!sender || !args) {
 			_last_saml_error = ui::saml_err::WEBVIEW_ERROR;
-			_logger->error("ERROR: invalid argument in onWebViewServerCertificateErrorDetected");
+			_logger->error("ERROR: invalid argument in %s", __func__);
 		}
 		else {
 			try {
@@ -597,7 +597,7 @@ namespace ui {
 		ICoreWebView2CookieList* list
 	)
 	{
-		TRACE_ENTER(_logger, "SamlAuthDialog", "onCookiesAvailable");
+		TRACE_ENTER(_logger);
 
 		if (FAILED(result)) {
 			_last_saml_error = ui::saml_err::WEBVIEW_ERROR;
@@ -652,5 +652,7 @@ namespace ui {
 		}
 		return S_OK;
 	}
+
+	const char* SamlAuthDialog::__class__ = "SamlAuthDialog";
 
 }

@@ -111,6 +111,9 @@ namespace http {
 		inline const tools::ByteBuffer& body() const { return _body; }
 
 	private:
+		// The class name
+		static const char* __class__;
+
 		// A reference to the application logger
 		tools::Logger* const _logger;
 

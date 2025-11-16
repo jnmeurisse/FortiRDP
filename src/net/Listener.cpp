@@ -18,19 +18,19 @@ namespace net {
 		Socket(),
 		_endpoint()
 	{
-		DEBUG_CTOR(_logger, "Listener");
+		DEBUG_CTOR(_logger);
 	}
 
 
 	Listener::~Listener()
 	{
-		DEBUG_DTOR(_logger, "Listener");
+		DEBUG_DTOR(_logger);
 	}
 
 
 	mbed_err Listener::bind(const Endpoint& endpoint)
 	{
-		DEBUG_ENTER(_logger, "Listener", "bind");
+		DEBUG_ENTER(_logger);
 
 		mbed_err rc = 0;
 
@@ -44,7 +44,11 @@ namespace net {
 		// Get the port that has been assigned during the bind.
 		uint16_t bind_port;
 		if (!Socket::get_port(bind_port)) {
-			_logger->error("ERROR: Listener::bind get_port error %d", WSAGetLastError());
+			_logger->error("ERROR: %s::%s get_port error %d",
+				__class__,
+				__func__,
+				WSAGetLastError()
+			);
 
 			rc = MBEDTLS_ERR_NET_BIND_FAILED;
 			goto terminate;
@@ -53,7 +57,11 @@ namespace net {
 
 		// Set the socket in non blocking mode.
 		if (Socket::set_blocking_mode(false) != 0) {
-			_logger->error("ERROR: Listener::bind set_blocking error %d", WSAGetLastError());
+			_logger->error("ERROR: %s::%s set_blocking error %d",
+				__class__,
+				__func__,
+				WSAGetLastError()
+			);
 
 			rc = MBEDTLS_ERR_NET_BIND_FAILED;
 			goto terminate;
@@ -62,8 +70,10 @@ namespace net {
 terminate:
 		if (_logger->is_debug_enabled()) {
 			_logger->debug(
-				"... %x Listener::bind endpoint=%s rc=%d",
+				"... %x %s::%s endpoint=%s rc=%d",
 				(uintptr_t)this,
+				__class__,
+				__func__,
 				endpoint.to_string().c_str(),
 				rc);
 		}
@@ -74,14 +84,16 @@ terminate:
 
 	mbed_err Listener::accept(Socket& client_socket)
 	{
-		DEBUG_ENTER(_logger, "Listener", "accept");
+		DEBUG_ENTER(_logger);
 
 		const int rc = Socket::accept(client_socket);
 
 		if (_logger->is_debug_enabled()) {
 			_logger->debug(
-				"... %x Listener::accept endpoint=%s rc=%d",
+				"... %x %s::%s endpoint=%s rc=%d",
 				(uintptr_t)this,
+				__class__,
+				__func__,
 				_endpoint.to_string().c_str(),
 				rc);
 		}
@@ -92,7 +104,7 @@ terminate:
 
 	void Listener::close()
 	{
-		DEBUG_ENTER(_logger, "Listener", "close");
+		DEBUG_ENTER(_logger);
 		Socket::close();
 	}
 
@@ -112,4 +124,5 @@ terminate:
 		return opt_val != 0;
 	}
 
+	const char* Listener::__class__ = "Listener";
 }

@@ -27,6 +27,9 @@ namespace ui {
 		~SyncConnect();
 
 	private:
+		// The class name.
+		static const char* __class__;
+
 		const fw::AuthMethod _auth_method;
 		fw::FirewallClient& _portal_client;
 
