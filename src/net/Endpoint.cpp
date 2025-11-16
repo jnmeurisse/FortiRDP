@@ -59,7 +59,7 @@ namespace net {
 						&& (port_value > 0) 
 						&& (port_value <= std::numeric_limits<uint16_t>::max());
 			if (valid_port)
-				_port = static_cast<uint16_t>(valid_port);
+				_port = static_cast<uint16_t>(port_value);
 		}
 		else {
 			_hostname = tools::trim(str);
