@@ -75,7 +75,7 @@ namespace tools {
 	*/
 	static unsigned __stdcall thread_entry_point(void* data)
 	{
-		Thread* const thread = (Thread*)data;
+		Thread* const thread = reinterpret_cast<Thread*>(data);
 		unsigned int rc = thread->run();
 
 		if (thread->_auto_delete) {

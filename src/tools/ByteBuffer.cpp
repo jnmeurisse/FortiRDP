@@ -49,7 +49,7 @@ namespace tools {
 
 	ByteBuffer& ByteBuffer::append(const std::string& data)
 	{
-		return append((const byte*)data.c_str(), data.size());
+		return append(reinterpret_cast<const byte*>(data.c_str()), data.size());
 	}
 
 
@@ -61,7 +61,7 @@ namespace tools {
 		_buffer.resize(_buffer.size() + data.size());
 
 		// Append the decrypted data at the end of the buffer.
-		data.uncrypt((char *)_buffer.data(), _buffer.capacity(), current_size);
+		data.uncrypt(reinterpret_cast<char *>(_buffer.data()), _buffer.capacity(), current_size);
 
 		return *this;
 	}

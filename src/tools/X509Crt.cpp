@@ -67,7 +67,7 @@ namespace tools {
 				);
 
 				if (ret == 0)
-					pem = std::string((char*)&buffer[0]);
+					pem = std::string(reinterpret_cast<char*>(& buffer[0]));
 				else if (ret == MBEDTLS_ERR_BASE64_BUFFER_TOO_SMALL)
 					buffer_size += 1024;
 			} while (ret == MBEDTLS_ERR_BASE64_BUFFER_TOO_SMALL);

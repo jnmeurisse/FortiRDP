@@ -15,7 +15,7 @@
 
 static void timeout_cb(void* arg)
 {
-	bool* timeout = (bool*)arg;
+	bool* timeout = reinterpret_cast<bool*>(arg);
 	*timeout = true;
 }
 
@@ -362,7 +362,7 @@ namespace net {
 
 	void dns_found_cb(const char *name, const ip_addr_t *ipaddr, void *callback_arg)
 	{
-		PortForwarder* const pf = (PortForwarder*)callback_arg;
+		PortForwarder* const pf = reinterpret_cast<PortForwarder*>(callback_arg);
 
 		if (pf->_endpoint.hostname().compare(name) != 0) {
 			pf->_state = PortForwarder::State::FAILED;
@@ -412,7 +412,7 @@ namespace net {
 	err_t tcp_connected_cb(void *arg, struct tcp_pcb *tpcb, err_t err)
 	{
 		LWIP_UNUSED_ARG(tpcb);
-		PortForwarder* const pf = (PortForwarder*) arg;
+		PortForwarder* const pf = reinterpret_cast<PortForwarder*>(arg);
 
 		Logger* logger = pf->_logger;
 		if (logger->is_debug_enabled()) {
@@ -432,7 +432,7 @@ namespace net {
 
 	void tcp_err_cb(void* arg, err_t err)
 	{
-		PortForwarder* const pf = (PortForwarder*)arg;
+		PortForwarder* const pf = reinterpret_cast<PortForwarder*>(arg);
 
 		Logger* logger = pf->_logger;
 		if (logger->is_debug_enabled()) {
@@ -462,7 +462,7 @@ namespace net {
 	err_t tcp_sent_cb(void* arg, tcp_pcb* tpcb, u16_t len)
 	{
 		LWIP_UNUSED_ARG(tpcb);
-		PortForwarder* const pf = (PortForwarder*)arg;
+		PortForwarder* const pf = reinterpret_cast<PortForwarder*>(arg);
 		pf->_forwarded_bytes -= len;
 
 		return ERR_OK;
@@ -471,7 +471,7 @@ namespace net {
 
 	err_t tcp_recv_cb(void* arg, tcp_pcb* tpcb, pbuf* p, err_t err)
 	{
-		PortForwarder* const pf = (PortForwarder*)arg;
+		PortForwarder* const pf = reinterpret_cast<PortForwarder*>(arg);
 		err_t rc = ERR_OK;
 		uint16_t len = 0;
 		Logger* const logger = pf->_logger;

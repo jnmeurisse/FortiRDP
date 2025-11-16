@@ -16,7 +16,7 @@
 
 static void timeout_cb(void* arg)
 {
-	bool* timeout = (bool*)arg;
+	bool* timeout = reinterpret_cast<bool*>(arg);
 	*timeout = true;
 }
 

@@ -609,11 +609,11 @@ namespace ui {
 	}
 
 
-	void ConnectDialog::outputInfoMessage(const char* pText)
+	void ConnectDialog::outputInfoMessage(char* pText)
 	{
 		if (pText) {
 			writeInfo(tools::str2wstr(std::string(pText)));
-			free((void*)pText);
+			free(pText);
 		}
 	}
 
@@ -861,27 +861,27 @@ namespace ui {
 		INT_PTR rc = TRUE;
 
 		if (AsyncMessage::OutputInfoMessageRequest == eventNumber) {
-			outputInfoMessage(static_cast<const char*>(param));
+			outputInfoMessage(reinterpret_cast<char*>(param));
 
 		}
 		else if (AsyncMessage::ShowCredentialsDialogRequest == eventNumber) {
-			showCredentialsDialog(static_cast<fw::AuthCredentials*>(param));
+			showCredentialsDialog(reinterpret_cast<fw::AuthCredentials*>(param));
 
 		}
 		else if (AsyncMessage::ShowPinCodeDialogRequest == eventNumber) {
-			showPinCodeDialog(static_cast<fw::AuthCode*>(param));
+			showPinCodeDialog(reinterpret_cast<fw::AuthCode*>(param));
 
 		}
 		else if (AsyncMessage::ShowSamlAuthDialogRequest == eventNumber) {
-			showSamlDialog(static_cast<fw::AuthSamlInfo*>(param));
+			showSamlDialog(reinterpret_cast<fw::AuthSamlInfo*>(param));
 
 		}
 		else if (AsyncMessage::ShowInvalidCertificateDialogRequest == eventNumber) {
-			showInvalidCertificateDialog(static_cast<char*>(param));
+			showInvalidCertificateDialog(reinterpret_cast<char*>(param));
 
 		}
 		else if (AsyncMessage::ShowErrorMessageDialogRequest == eventNumber) {
-			showErrorMessageDialog(static_cast<wchar_t*>(param));
+			showErrorMessageDialog(reinterpret_cast<wchar_t*>(param));
 
 		}
 		else if (AsyncMessage::DisconnectFromFirewallRequest == eventNumber) {

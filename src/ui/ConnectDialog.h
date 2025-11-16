@@ -113,7 +113,7 @@ namespace ui {
 		virtual INT_PTR onUserEventMessage(UINT eventNumber, void* param) override;
 
 		// Async message request handlers
-		void outputInfoMessage(const char* pText);
+		void outputInfoMessage(char* pText);
 		void showAboutDialog();
 		void showOptionsDialog();
 		void showErrorMessageDialog(const wchar_t* pText);

@@ -397,7 +397,7 @@ namespace fw {
 			return portal_err::CERT_INVALID;
 
 		AuthSamlInfo saml_auth_info{
-			make_url("/remote/saml/start", "realm=" + _realm).to_string(false),
+			make_url("/remote/saml/start", "realm=" + _realm),
 			service_provider_crt,
 			_cookie_jar,
 			[this]() -> bool { return this->is_authenticated(); }
@@ -644,7 +644,7 @@ namespace fw {
 			.add(headers);
 
 		_logger->debug("url=%s", url.to_string(true).c_str());
-		request.set_body((unsigned char *)body.c_str(), body.length());
+		request.set_body(reinterpret_cast<const unsigned char*>(body.c_str()), body.length());
 
 		// Send and wait for a response
 		const bool success = FirewallClient::send_and_receive(request, answer);
@@ -748,7 +748,7 @@ namespace fw {
 		if (!params.get_str("redir", redir))
 			return false;
 		
-		url = decode_url(redir);
+		url = http::Url(decode_url(redir));
 		return true;
 	}
 

@@ -271,7 +271,7 @@ namespace net {
 
 	int PPInterface::last_xmit() const
 	{
-		pppossl_pcb* const pcbssl = (pppossl_pcb *)_pcb->link_ctx_cb;
+		pppossl_pcb* const pcbssl = reinterpret_cast<pppossl_pcb *>(_pcb->link_ctx_cb);
 
 		return pcbssl->last_xmit;
 	}
@@ -280,7 +280,7 @@ namespace net {
 	u32_t ppp_output_cb(ppp_pcb *pcb, struct pbuf* pbuf, void *ctx)
 	{
 		LWIP_UNUSED_ARG(pcb);
-		net::PPInterface* const pp_interface = (net::PPInterface *)ctx;
+		net::PPInterface* const pp_interface = reinterpret_cast<net::PPInterface *>(ctx);
 
 		return pp_interface->_output_queue.push(pbuf) ? pbuf->tot_len : 0;
 	}
@@ -289,7 +289,7 @@ namespace net {
 	void ppp_link_status_cb(ppp_pcb *pcb, int err_code, void *ctx)
 	{
 		LWIP_UNUSED_ARG(pcb);
-		net::PPInterface* pp_interface = (net::PPInterface *)ctx;
+		net::PPInterface* const pp_interface = reinterpret_cast<net::PPInterface*>(ctx);
 
 		if (err_code) {
 			Logger* const logger = pp_interface->_logger;

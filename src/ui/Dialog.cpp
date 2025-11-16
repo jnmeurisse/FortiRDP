@@ -17,7 +17,7 @@ namespace ui {
 		if (message == WM_INITDIALOG)
 			::SetWindowLongPtr(hWnd, DWLP_USER, lParam);
 
-		Dialog* const dialog = (Dialog*)GetWindowLongPtr(hWnd, DWLP_USER);
+		Dialog* const dialog = reinterpret_cast<Dialog*>(GetWindowLongPtr(hWnd, DWLP_USER));
 		return dialog ? dialog->dialogProc(hWnd, message, wParam, lParam) : 0;
 	}
 
@@ -326,7 +326,7 @@ namespace ui {
 
 		default:
 			if (AsyncMessage::isAsyncMessage(message)) {
-				rc = onUserEventMessage((UINT)wParam, (void*)lParam);
+				rc = onUserEventMessage(static_cast<UINT>(wParam), reinterpret_cast<void*>(lParam));
 			}
 			else {
 				// message was not processed

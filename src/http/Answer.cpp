@@ -61,7 +61,7 @@ namespace http {
 
 	int Answer::read_char(net::TcpSocket& socket, char& c, const tools::Timer& timer)
 	{
-		return read_buffer(socket, (unsigned char *)&c, sizeof(char), timer);
+		return read_buffer(socket, reinterpret_cast<unsigned char*>(&c), sizeof(char), timer);
 	}
 
 
