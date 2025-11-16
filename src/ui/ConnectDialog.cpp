@@ -518,7 +518,7 @@ namespace ui {
 
 	INT_PTR ConnectDialog::onCtlColorStaticMessage(WPARAM wParam, LPARAM lParam)
 	{
-		if (lParam == (WPARAM)control_handle(IDC_STATUSTEXT)) {
+		if (lParam == (LPARAM)control_handle(IDC_STATUSTEXT)) {
 			HDC static_text = (HDC)wParam;
 			::SetTextColor(static_text, RGB(0, 255, 255));
 			::SetBkColor(static_text, RGB(0, 0, 0));
