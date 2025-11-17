@@ -9,11 +9,8 @@
 
 #include <algorithm>
 #include <cctype>
-#include <stdlib.h>
 #include <codecvt>
 #include <cstdarg>
-#include <stdio.h>
-#include <vadefs.h>
 
 
 namespace tools {
@@ -310,26 +307,28 @@ namespace tools {
 	}
 
 
-	std::string string_format(const std::string fmt, ...) 
+	std::string string_format(const char *fmt, ...) 
 	{
-		int n, size=100;
-		bool b=false;
+		int n;
+		size_t size = 100;
+		bool b = false;
 		va_list marker;
-		std::string s;
+		std::vector<char> s;
 
 		while (!b)
 		{
 			s.resize(size);
 			va_start(marker, fmt);
-			n = vsnprintf_s((char*)s.c_str(), size, _TRUNCATE, fmt.c_str(), marker);
+			n = vsnprintf_s(s.data(), size, _TRUNCATE, fmt, marker);
 			va_end(marker);
-			if ((n > 0) && ((b=(n < size)))) 
+
+			if ((n > 0) && ((b = (n < size)))) 
 				s.resize(n);
 			else 
-				size*=2;
+				size *= 2;
 		}
 
-		return s;
+		return std::string(s.data(), s.size());
 	}
 
 

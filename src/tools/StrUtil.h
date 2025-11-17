@@ -76,7 +76,7 @@ std::wstring substvar(const std::wstring& str, const strimap& vars);
 std::wstring quote(const std::wstring& str);
 
 // Formats a string
-std::string string_format(const std::string fmt, ...);
+std::string string_format(const char* fmt, ...);
 
 // Converts wstring to string
 std::string wstr2str(const std::wstring& wstr);
