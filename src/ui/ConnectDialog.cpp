@@ -205,7 +205,7 @@ namespace ui {
 	}
 
 
-	static bool in_range(int value, int min, int max)
+	static bool in_range(size_t value, size_t min, size_t max)
 	{
 		return (value >= min) && (value <= max);
 	}

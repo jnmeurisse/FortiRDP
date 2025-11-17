@@ -29,11 +29,11 @@ typedef std::map<const std::string, std::string, priv::comp> strimap;
 
 // Splits a string into multiple parts which are separated by a delimiter. The function
 // adds the parts to the specified vector and returns the number of added parts.
-int split(const char* str, const char delim, std::vector<std::string>& parts);
-int split(const wchar_t* str, const wchar_t delim, std::vector<std::wstring>& parts);
-int split(const std::string& str, const char delim, std::vector<std::string>& parts);
-int split(const std::wstring& str, const wchar_t delim, std::vector<std::wstring>& parts);
-int split(const obfstring& str, const char delim, std::vector<obfstring>& parts);
+size_t split(const char* str, const char delim, std::vector<std::string>& parts);
+size_t split(const wchar_t* str, const wchar_t delim, std::vector<std::wstring>& parts);
+size_t split(const std::string& str, const char delim, std::vector<std::string>& parts);
+size_t split(const std::wstring& str, const wchar_t delim, std::vector<std::wstring>& parts);
+size_t split(const obfstring& str, const char delim, std::vector<obfstring>& parts);
 
 // Performs a case insensitive string comparison 
 bool iequal(std::string const& s1, std::string const& s2);

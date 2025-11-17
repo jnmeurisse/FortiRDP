@@ -15,7 +15,7 @@
 
 namespace tools {
 
-	int split(const char* str, const char delim, std::vector<std::string>& parts) 
+	size_t split(const char* str, const char delim, std::vector<std::string>& parts)
 	{
 		const size_t count = parts.size();
 
@@ -28,17 +28,17 @@ namespace tools {
 			parts.push_back(std::string(begin, str));
 		} while (0 != *str++);
 
-		return (int) (parts.size() - count);
+		return parts.size() - count;
 	}
 
 
-	int split(const std::string& str, const char delim, std::vector<std::string>& parts)
+	size_t split(const std::string& str, const char delim, std::vector<std::string>& parts)
 	{
 		return split(str.c_str(), delim, parts);
 	}
 
 
-	int split(const wchar_t* str, const wchar_t delim, std::vector<std::wstring>& parts)
+	size_t split(const wchar_t* str, const wchar_t delim, std::vector<std::wstring>& parts)
 	{
 		const size_t count = parts.size();
 
@@ -51,17 +51,17 @@ namespace tools {
 			parts.push_back(std::wstring(begin, str));
 		} while (0 != *str++);
 
-		return (int)(parts.size() - count);
+		return parts.size() - count;
 	}
 
 
-	int split(const std::wstring& str, const wchar_t delim, std::vector<std::wstring>& parts)
+	size_t split(const std::wstring& str, const wchar_t delim, std::vector<std::wstring>& parts)
 	{
 		return split(str.c_str(), delim, parts);
 	}
 
 
-	int split(const obfstring& str, const char delim, std::vector<obfstring>& parts)
+	size_t split(const obfstring& str, const char delim, std::vector<obfstring>& parts)
 	{
 		const size_t count = parts.size();
 
@@ -75,7 +75,7 @@ namespace tools {
 			index++;
 		} while (index < str.size());
 
-		return (int)(parts.size() - count);
+		return parts.size() - count;
 	}
 
 

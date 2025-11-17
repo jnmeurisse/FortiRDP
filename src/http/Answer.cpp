@@ -124,7 +124,7 @@ namespace http {
 		// The answer should have the following syntax :  HTTP-Version SP Status-Code SP Reason-Phrase
 		// See https://www.rfc-editor.org/rfc/rfc9110.html 
 		std::vector<std::string> parts;
-		int count = tools::split(line.uncrypt(), ' ', parts);
+		const size_t count = tools::split(line.uncrypt(), ' ', parts);
 		if (count >= 1) {
 			_version = parts[0];
 			if (_version.compare("HTTP/1.1") != 0) {
@@ -142,7 +142,7 @@ namespace http {
 		if (count >= 3) {
 			// Merge all others parts and rebuild the reason phrase if specified
 			_reason_phrase = parts[2];
-			for (int idx = 3; idx < count; idx++) {
+			for (size_t idx = 3; idx < count; idx++) {
 				_reason_phrase.append(" ");
 				_reason_phrase.append(parts[idx]);
 			}
