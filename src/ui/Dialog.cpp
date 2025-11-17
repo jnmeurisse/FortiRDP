@@ -250,6 +250,7 @@ namespace ui {
 			(LPARAM)this);
 	}
 
+
 	HFONT Dialog::create_font(int size, const std::wstring& name)
 	{
 		HDC hdc = ::GetDC(_hWindow);
@@ -272,6 +273,31 @@ namespace ui {
 			name.c_str());
 	}
 
+
+	INT_PTR Dialog::onCreateDialogMessage(WPARAM wParam, LPARAM lParam) 
+	{
+		WPARAM_UNUSED();
+		LPARAM_UNUSED();
+		return TRUE;
+	}
+
+
+	INT_PTR Dialog::onDestroyDialogMessage(WPARAM wParam, LPARAM lParam)
+	{
+		WPARAM_UNUSED();
+		LPARAM_UNUSED();
+		return FALSE;
+	}
+
+
+	INT_PTR Dialog::onCloseDialogMessage(WPARAM wParam, LPARAM lParam)
+	{
+		WPARAM_UNUSED();
+		LPARAM_UNUSED();
+		return FALSE;
+	}
+
+
 	INT_PTR Dialog::onCommandMessage(WPARAM wParam, LPARAM lParam)
 	{
 		LPARAM_UNUSED();
@@ -287,6 +313,62 @@ namespace ui {
 		default:				// message not processed by this application
 			return TRUE;
 		}
+	}
+
+
+	INT_PTR Dialog::onSysCommandMessage(WPARAM wParam, LPARAM lParam)
+	{
+		WPARAM_UNUSED();
+		LPARAM_UNUSED();
+		return FALSE;
+	}
+
+
+	INT_PTR Dialog::onCtlColorStaticMessage(WPARAM wParam, LPARAM lParam)
+	{
+		WPARAM_UNUSED();
+		LPARAM_UNUSED();
+		return FALSE;
+	}
+
+
+	INT_PTR Dialog::onTimerMessage(WPARAM wParam, LPARAM lParam)
+	{
+		WPARAM_UNUSED();
+		LPARAM_UNUSED();
+		return FALSE;
+	}
+
+
+	INT_PTR Dialog::onHotKey(WPARAM wParam, LPARAM lParam)
+	{
+		WPARAM_UNUSED();
+		LPARAM_UNUSED();
+		return FALSE;
+	}
+
+
+	INT_PTR Dialog::onButtonClick(int control_id, LPARAM lParam) {
+		CTRLID_UNUSED();
+		LPARAM_UNUSED();
+		return FALSE;
+	}
+
+
+	INT_PTR Dialog::onTextChange(int control_id, LPARAM lParam)
+	{
+		CTRLID_UNUSED();
+		LPARAM_UNUSED();
+		return FALSE;
+	}
+
+
+	INT_PTR Dialog::onUserEventMessage(UINT eventNumber, void* param)
+	{
+		UNREFERENCED_PARAMETER(eventNumber);
+		UNREFERENCED_PARAMETER(param);
+
+		return FALSE;
 	}
 
 

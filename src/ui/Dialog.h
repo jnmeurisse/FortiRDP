@@ -190,17 +190,17 @@ namespace ui {
 		HFONT create_font(int size, const std::wstring& name);
 
 		// Windows Event handlers
-		virtual INT_PTR onCreateDialogMessage(WPARAM wParam, LPARAM lParam) { WPARAM_UNUSED(); LPARAM_UNUSED(); return TRUE; }
-		virtual INT_PTR onDestroyDialogMessage(WPARAM wParam, LPARAM lParam) { WPARAM_UNUSED(); LPARAM_UNUSED(); return FALSE; }
-		virtual INT_PTR onCloseDialogMessage(WPARAM wParam, LPARAM lParam) { WPARAM_UNUSED(); LPARAM_UNUSED(); return FALSE; }
+		virtual INT_PTR onCreateDialogMessage(WPARAM wParam, LPARAM lParam);
+		virtual INT_PTR onDestroyDialogMessage(WPARAM wParam, LPARAM lParam);
+		virtual INT_PTR onCloseDialogMessage(WPARAM wParam, LPARAM lParam);
 		virtual INT_PTR onCommandMessage(WPARAM wParam, LPARAM lParam);
-		virtual INT_PTR onSysCommandMessage(WPARAM wParam, LPARAM lParam) { WPARAM_UNUSED(); LPARAM_UNUSED(); return FALSE; }
-		virtual INT_PTR onCtlColorStaticMessage(WPARAM wParam, LPARAM lParam) { WPARAM_UNUSED(); LPARAM_UNUSED(); return FALSE; }
-		virtual INT_PTR onTimerMessage(WPARAM wParam, LPARAM lParam) { WPARAM_UNUSED(); LPARAM_UNUSED(); return FALSE; }
-		virtual INT_PTR onHotKey(WPARAM wParam, LPARAM lParam) { WPARAM_UNUSED(); LPARAM_UNUSED(); return FALSE; }
-		virtual INT_PTR onButtonClick(int control_id, LPARAM lParam) { CTRLID_UNUSED(); LPARAM_UNUSED(); return FALSE; }
-		virtual INT_PTR onTextChange(int control_id, LPARAM lParam) { CTRLID_UNUSED(); LPARAM_UNUSED(); return FALSE; }
-		virtual INT_PTR onUserEventMessage(UINT eventNumber, void* param) { return FALSE; }
+		virtual INT_PTR onSysCommandMessage(WPARAM wParam, LPARAM lParam);
+		virtual INT_PTR onCtlColorStaticMessage(WPARAM wParam, LPARAM lParam);
+		virtual INT_PTR onTimerMessage(WPARAM wParam, LPARAM lParam);
+		virtual INT_PTR onHotKey(WPARAM wParam, LPARAM lParam);
+		virtual INT_PTR onButtonClick(int control_id, LPARAM lParam);
+		virtual INT_PTR onTextChange(int control_id, LPARAM lParam);
+		virtual INT_PTR onUserEventMessage(UINT eventNumber, void* param);
 
 	private:
 		// The application instance handle.
