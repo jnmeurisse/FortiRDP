@@ -43,7 +43,7 @@ namespace ui {
 	{
 	public:
 		explicit AsyncController(HWND hwnd);
-		~AsyncController();
+		virtual ~AsyncController() override;
 
 		/**
 		 * Initialize the CA certificate chain from the given file.

@@ -62,7 +62,7 @@ namespace ui {
 		wil::com_ptr <ICoreWebView2CookieManager> _web_cookie_manager;
 
 		virtual INT_PTR onCreateDialogMessage(WPARAM wParam, LPARAM lParam) override;
-		virtual INT_PTR onSysCommandMessage(WPARAM wParam, LPARAM lParam);
+		virtual INT_PTR onSysCommandMessage(WPARAM wParam, LPARAM lParam) override;
 
 		HRESULT onWebViewNavigationStarting(ICoreWebView2* sender, ICoreWebView2NavigationStartingEventArgs* args);
 		HRESULT onWebViewNavigationCompleted(ICoreWebView2* sender, ICoreWebView2NavigationCompletedEventArgs* args);

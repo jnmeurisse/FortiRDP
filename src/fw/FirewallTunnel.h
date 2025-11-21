@@ -38,7 +38,7 @@ namespace fw {
 		 * 
 		 * The function opens an encrypted TLS socket and starts the tunnel.
 		 */
-		bool start();
+		virtual bool start() override;
 
 	private:
 		// A reference to the application logger.

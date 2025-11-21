@@ -40,7 +40,7 @@ namespace tools {
 		 * The method returns true if the function succeed to start the
 		 * execution of this thread.
 		*/
-		bool start();
+		virtual bool start();
 
 		/**
 		 * Waits 'timeout' milliseconds for the thread to finish.

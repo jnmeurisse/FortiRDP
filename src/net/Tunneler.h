@@ -68,7 +68,7 @@ namespace net {
 		/**
 		 * Starts the tunnel listener
 		*/
-		bool start();
+		virtual bool start() override;
 
 		/**
 		 * Terminates the tunnel listener.
@@ -96,7 +96,7 @@ namespace net {
 		inline const Endpoint& local_endpoint() const { return _listener.endpoint(); }
 
 	protected:
-		virtual unsigned int run();
+		virtual unsigned int run() override;
 
 	private:
 		void compute_sleep_time(timeval &timeout) const;
