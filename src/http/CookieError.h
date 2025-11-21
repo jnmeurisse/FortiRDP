@@ -19,7 +19,7 @@ namespace http {
 	class CookieError final : public std::logic_error
 	{
 	public:
-		explicit CookieError(const std::string msg);
+		explicit CookieError(const std::string& msg);
 	};
 
 }

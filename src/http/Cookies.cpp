@@ -19,7 +19,7 @@ namespace http {
 	}
 
 
-	const Cookies& Cookies::add(const Cookies cookies)
+	const Cookies& Cookies::add(const Cookies& cookies)
 	{
 		for (auto it = cookies.cbegin(); it != cookies.cend(); it++) {
 			add(it->second);

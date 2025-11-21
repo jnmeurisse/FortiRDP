@@ -10,7 +10,7 @@
 
 namespace http {
 
-	CookieError::CookieError(const std::string msg) :
+	CookieError::CookieError(const std::string& msg) :
 		std::logic_error(msg)
 	{
 	}

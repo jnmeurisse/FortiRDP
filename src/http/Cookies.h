@@ -42,7 +42,7 @@ namespace http {
 		 *
 		 * @param cookies The collection of cookies to be copied into this collection.
 		*/
-		const Cookies& add(const Cookies cookies);
+		const Cookies& add(const Cookies& cookies);
 
 		/**
 		 * Adds a cookie to the collection.
