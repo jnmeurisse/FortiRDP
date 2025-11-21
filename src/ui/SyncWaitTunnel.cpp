@@ -11,7 +11,7 @@
 namespace ui {
 
 	SyncWaitTunnel::SyncWaitTunnel(HWND hwnd, fw::FirewallTunnel& tunnel) :
-		SyncProc(hwnd, AsyncMessage::TunnelListeningEvent),
+		SyncProc(hwnd, AsyncMessage::TunnelListeningEvent.get()),
 		_tunnel(tunnel)
 	{
 		DEBUG_CTOR(_logger);

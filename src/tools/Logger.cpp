@@ -228,4 +228,29 @@ namespace tools {
 		}
 	}
 
+
+	LogQueue::LogQueue() :
+		_queue(),
+		_mutex()
+	{
+	}
+
+
+	void LogQueue::push(const std::string& text)
+	{
+		Mutex::Lock lock(_mutex);
+		_queue.push(text);
+	}
+
+	
+	std::string LogQueue::pop()
+	{
+		tools::Mutex::Lock lock(_mutex);
+
+		std::string text = _queue.front();
+		_queue.pop();
+		return text;
+	}
+
+
 }

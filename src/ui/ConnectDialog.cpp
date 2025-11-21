@@ -7,7 +7,6 @@
 */
 #include "ConnectDialog.h"
 
-#include <malloc.h>
 #include <stdexcept>
 #include <system_error>
 #include <vector>
@@ -609,15 +608,6 @@ namespace ui {
 	}
 
 
-	void ConnectDialog::outputInfoMessage(char* pText)
-	{
-		if (pText) {
-			writeInfo(tools::str2wstr(std::string(pText)));
-			free(pText);
-		}
-	}
-
-
 	void ConnectDialog::showAboutDialog()
 	{
 		AboutDialog aboutDialog(instance_handle(), window_handle());
@@ -856,47 +846,57 @@ namespace ui {
 	}
 
 
-	INT_PTR ConnectDialog::onUserEventMessage(UINT eventNumber, void* param)
+	void ConnectDialog::onOutputInfoEvent(tools::LogQueue* pLogQueue)
+	{
+		if (pLogQueue) {
+			tools::Mutex::Lock lock{ pLogQueue->mutex() };
+			while (pLogQueue->size() > 0)
+				writeInfo(tools::str2wstr(pLogQueue->pop()));
+		}
+	}
+
+
+	INT_PTR ConnectDialog::onAsyncMessage(UINT eventId, void* param)
 	{
 		INT_PTR rc = TRUE;
 
-		if (AsyncMessage::OutputInfoMessageRequest == eventNumber) {
-			outputInfoMessage(reinterpret_cast<char*>(param));
-
-		}
-		else if (AsyncMessage::ShowCredentialsDialogRequest == eventNumber) {
+		if (eventId == AsyncMessage::ShowCredentialsDialogRequest->id()) {
 			showCredentialsDialog(reinterpret_cast<fw::AuthCredentials*>(param));
 
 		}
-		else if (AsyncMessage::ShowPinCodeDialogRequest == eventNumber) {
+		else if (eventId == AsyncMessage::ShowPinCodeDialogRequest->id()) {
 			showPinCodeDialog(reinterpret_cast<fw::AuthCode*>(param));
 
 		}
-		else if (AsyncMessage::ShowSamlAuthDialogRequest == eventNumber) {
+		else if (eventId == AsyncMessage::ShowSamlAuthDialogRequest->id()) {
 			showSamlDialog(reinterpret_cast<fw::AuthSamlInfo*>(param));
 
 		}
-		else if (AsyncMessage::ShowInvalidCertificateDialogRequest == eventNumber) {
+		else if (eventId == AsyncMessage::ShowInvalidCertificateDialogRequest->id()) {
 			showInvalidCertificateDialog(reinterpret_cast<char*>(param));
 
 		}
-		else if (AsyncMessage::ShowErrorMessageDialogRequest == eventNumber) {
+		else if (eventId == AsyncMessage::ShowErrorMessageDialogRequest->id()) {
 			showErrorMessageDialog(reinterpret_cast<wchar_t*>(param));
 
 		}
-		else if (AsyncMessage::DisconnectFromFirewallRequest == eventNumber) {
+		else if (eventId == AsyncMessage::DisconnectFromFirewallRequest->id()) {
 			disconnectFromFirewall(param != 0);
 
 		}
-		else if (AsyncMessage::ConnectedEvent == eventNumber) {
+		else if (eventId == AsyncMessage::ConnectedEvent->id()) {
 			onConnectedEvent(param != 0);
 		}
-		else if (AsyncMessage::DisconnectedEvent == eventNumber) {
+		else if (eventId == AsyncMessage::DisconnectedEvent->id()) {
 			onDisconnectedEvent(param != 0);
 
 		}
-		else if (AsyncMessage::TunnelListeningEvent == eventNumber) {
+		else if (eventId == AsyncMessage::TunnelListeningEvent->id()) {
 			onTunnelListeningEvent(param != 0);
+
+		}
+		else if (eventId == AsyncMessage::OutputInfoEvent->id()) {
+			onOutputInfoEvent(reinterpret_cast<tools::LogQueue*>(param));
 
 		}
 		else {

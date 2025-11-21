@@ -14,8 +14,8 @@
 #include <chrono>
 #include "fw/AuthTypes.h"
 #include "net/Endpoint.h"
-#include "tools/Mutex.h"
 #include "tools/Logger.h"
+#include "tools/Mutex.h"
 #include "tools/TaskInfo.h"
 #include "ui/CmdlineParams.h"
 #include "ui/RegistrySettings.h"
@@ -110,10 +110,9 @@ namespace ui {
 		virtual INT_PTR onCtlColorStaticMessage(WPARAM wParam, LPARAM lParam) override;
 		virtual INT_PTR onTimerMessage(WPARAM wParam, LPARAM lParam) override;
 		virtual INT_PTR onHotKey(WPARAM wParam, LPARAM lParam) override;
-		virtual INT_PTR onUserEventMessage(UINT eventNumber, void* param) override;
+		virtual INT_PTR onAsyncMessage(UINT eventId, void* param) override;
 
 		// Async message request handlers
-		void outputInfoMessage(char* pText);
 		void showAboutDialog();
 		void showOptionsDialog();
 		void showErrorMessageDialog(const wchar_t* pText);
@@ -127,6 +126,8 @@ namespace ui {
 		void onConnectedEvent(bool success);
 		void onDisconnectedEvent(bool success);
 		void onTunnelListeningEvent(bool success);
+		void onOutputInfoEvent(tools::LogQueue* pLogQueue);
+
 	};
 
 }

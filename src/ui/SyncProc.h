@@ -21,7 +21,7 @@ namespace ui {
 	class SyncProc
 	{
 	public:
-		explicit SyncProc(HWND hwnd, const AsyncMessage& message);
+		explicit SyncProc(HWND hwnd, const AsyncMessage* message);
 		virtual ~SyncProc();
 
 		/* Runs the procedure and then send the message
@@ -40,7 +40,7 @@ namespace ui {
 		static const char* __class__;
 
 		// An event message sent asynchronously when procedure execution is finished.
-		const AsyncMessage _message;
+		const AsyncMessage* const _message;
 
 		// The procedure to execute
 		virtual bool procedure() = 0;

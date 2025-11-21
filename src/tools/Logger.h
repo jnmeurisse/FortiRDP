@@ -8,9 +8,10 @@
 #pragma once
 
 #include <cstdint>
-#include <string>
-#include <list>
 #include <fstream>
+#include <list>
+#include <queue>
+#include <string>
 #include "tools/Mutex.h"
 
 
@@ -159,6 +160,24 @@ namespace tools {
 
 	private:
 		std::ofstream _ofs;
+	};
+
+
+	class LogQueue final
+	{
+	public:
+		explicit LogQueue();
+
+		inline size_t size() const { return _queue.size(); }
+		void push(const std::string& text);
+		std::string pop();
+
+		inline tools::Mutex& mutex() { return _mutex; }
+
+	private:
+		std::queue<std::string> _queue;
+		tools::Mutex _mutex;
+
 	};
 
 }

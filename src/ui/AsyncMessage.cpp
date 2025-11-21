@@ -10,13 +10,8 @@
 namespace ui {
 
 	AsyncMessage::AsyncMessage(UINT eventNumber) :
+		_logger(tools::Logger::get_logger()),
 		_id(eventNumber)
-	{
-	}
-
-
-	AsyncMessage::AsyncMessage(const AsyncMessage& message) :
-		_id(message._id)
 	{
 	}
 
@@ -26,31 +21,81 @@ namespace ui {
 	}
 
 
-	LRESULT AsyncMessage::send(HWND hWnd, void* lParam) const
+	UINT AsyncMessage::_windowsMessageId = ::RegisterWindowMessage(L"fortirdp$message");
+
+
+	class AsyncRequestMessage : public AsyncMessage
 	{
-		return ::SendMessage(hWnd, AsyncMessage::_registrationId, _id, (LPARAM)lParam);
-	}
+	public:
+		explicit AsyncRequestMessage(UINT eventNumber) :
+			AsyncMessage(eventNumber)
+		{
+		}
 
 
-	BOOL AsyncMessage::post(HWND hWnd, void* lParam) const
+		virtual ~AsyncRequestMessage() override
+		{
+		}
+
+
+		virtual LRESULT send_message(HWND hWnd, void* lParam) const override
+		{
+			if (_logger->is_trace_enabled())
+				_logger->trace("... %x send request message %x", (uintptr_t)this, (uintptr_t)lParam);
+
+			return ::SendMessage(hWnd, AsyncMessage::_windowsMessageId, _id, (LPARAM)lParam);
+		}
+
+	private:
+		// The class name.
+			static const char* __class__;
+	};
+
+	const char* AsyncRequestMessage::__class__ = "AsyncRequestMessage";
+
+
+	class AsyncEventMessage : public AsyncMessage
 	{
-		return ::PostMessage(hWnd, AsyncMessage::_registrationId, _id, (LPARAM)lParam);
-	}
+	public:
+		explicit AsyncEventMessage(UINT eventNumber) :
+			AsyncMessage(eventNumber)
+		{
+		}
 
 
-	UINT AsyncMessage::_registrationId = ::RegisterWindowMessage(L"fortirdp$message");
+		virtual ~AsyncEventMessage() override
+		{
+		}
 
 
-	AsyncMessage AsyncMessage::OutputInfoMessageRequest(1);
-	AsyncMessage AsyncMessage::ShowErrorMessageDialogRequest(2);
-	AsyncMessage AsyncMessage::ShowInvalidCertificateDialogRequest(3);
-	AsyncMessage AsyncMessage::ShowCredentialsDialogRequest(4);
-	AsyncMessage AsyncMessage::ShowPinCodeDialogRequest(5);
-	AsyncMessage AsyncMessage::ShowSamlAuthDialogRequest(6);
-	AsyncMessage AsyncMessage::DisconnectFromFirewallRequest(7);
+		virtual LRESULT send_message(HWND hWnd, void* lParam) const override
+		{
+			if (_logger->is_trace_enabled())
+				_logger->trace("... %x send event message %x", (uintptr_t)this, (uintptr_t)lParam);
 
-	AsyncMessage AsyncMessage::ConnectedEvent(100);
-	AsyncMessage AsyncMessage::DisconnectedEvent(101);
-	AsyncMessage AsyncMessage::TunnelListeningEvent(102);
+			return ::PostMessage(hWnd, AsyncMessage::_windowsMessageId, _id, (LPARAM)lParam);
+		}
+
+
+	private:
+		// The class name.
+		static const char* __class__;
+	};
+
+
+	const char* AsyncEventMessage::__class__ = "AsyncEventMessage";
+
+
+	std::unique_ptr<AsyncMessage> AsyncMessage::ShowErrorMessageDialogRequest(new AsyncRequestMessage(1));
+	std::unique_ptr<AsyncMessage> AsyncMessage::ShowInvalidCertificateDialogRequest(new AsyncRequestMessage(2));
+	std::unique_ptr<AsyncMessage> AsyncMessage::ShowCredentialsDialogRequest(new AsyncRequestMessage(3));
+	std::unique_ptr<AsyncMessage> AsyncMessage::ShowPinCodeDialogRequest(new AsyncRequestMessage(4));
+	std::unique_ptr<AsyncMessage> AsyncMessage::ShowSamlAuthDialogRequest(new AsyncRequestMessage(5));
+	std::unique_ptr<AsyncMessage> AsyncMessage::DisconnectFromFirewallRequest(new AsyncRequestMessage(6));
+
+	std::unique_ptr<AsyncMessage> AsyncMessage::ConnectedEvent(new AsyncEventMessage(10));
+	std::unique_ptr<AsyncMessage> AsyncMessage::DisconnectedEvent(new AsyncEventMessage(11));
+	std::unique_ptr<AsyncMessage> AsyncMessage::TunnelListeningEvent(new AsyncEventMessage(12));
+	std::unique_ptr<AsyncMessage> AsyncMessage::OutputInfoEvent(new AsyncEventMessage(13));
 
 }

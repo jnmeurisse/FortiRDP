@@ -13,7 +13,7 @@
 
 namespace ui {
 	SyncConnect::SyncConnect(HWND hwnd, fw::AuthMethod auth_method, fw::FirewallClient& portal_client) :
-		SyncProc(hwnd, AsyncMessage::ConnectedEvent),
+		SyncProc(hwnd, AsyncMessage::ConnectedEvent.get()),
 		_auth_method(auth_method),
 		_portal_client(portal_client)
 	{
@@ -30,7 +30,7 @@ namespace ui {
 
 	void SyncConnect::showErrorMessageDialog(const wchar_t* message) const
 	{
-		AsyncMessage::ShowErrorMessageDialogRequest.send(_hwnd, (void*)message);
+		AsyncMessage::ShowErrorMessageDialogRequest->send_message(_hwnd, (void*)message);
 	}
 
 
@@ -38,7 +38,7 @@ namespace ui {
 	{
 		char buffer[4096];
 
-		mbedtls_x509_crt_verify_info(buffer, sizeof(buffer), " ** ", status);
+		mbedtls_x509_crt_verify_info(buffer, sizeof(buffer), " * ", status);
 		_logger->info(buffer);
 
 		std::string message("The security certificate is not valid.\n");
@@ -49,25 +49,25 @@ namespace ui {
 		message.append("\n");
 		message.append("Do you want to proceed ?");
 
-		return AsyncMessage::ShowInvalidCertificateDialogRequest.send(_hwnd, (void*)message.c_str()) == TRUE;
+		return AsyncMessage::ShowInvalidCertificateDialogRequest->send_message(_hwnd, (void*)message.c_str()) == TRUE;
 	}
 
 
 	bool SyncConnect::ask_credentials(fw::AuthCredentials& credentials)
 	{
-		return AsyncMessage::ShowCredentialsDialogRequest.send(_hwnd, (void*)&credentials) == TRUE;
+		return AsyncMessage::ShowCredentialsDialogRequest->send_message(_hwnd, (void*)&credentials) == TRUE;
 	}
 
 
 	bool SyncConnect::ask_pincode(fw::AuthCode& code2fa)
 	{
-		return AsyncMessage::ShowPinCodeDialogRequest.send(_hwnd, (void*)&code2fa) == TRUE;
+		return AsyncMessage::ShowPinCodeDialogRequest->send_message(_hwnd, (void*)&code2fa) == TRUE;
 	}
 
 
 	bool SyncConnect::ask_saml_auth(fw::AuthSamlInfo& saml_info)
 	{
-		return AsyncMessage::ShowSamlAuthDialogRequest.send(_hwnd, (void*)&saml_info) == TRUE;
+		return AsyncMessage::ShowSamlAuthDialogRequest->send_message(_hwnd, (void*)&saml_info) == TRUE;
 	}
 
 

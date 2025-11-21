@@ -200,7 +200,7 @@ namespace ui {
 		virtual INT_PTR onHotKey(WPARAM wParam, LPARAM lParam);
 		virtual INT_PTR onButtonClick(int control_id, LPARAM lParam);
 		virtual INT_PTR onTextChange(int control_id, LPARAM lParam);
-		virtual INT_PTR onUserEventMessage(UINT eventNumber, void* param);
+		virtual INT_PTR onAsyncMessage(UINT eventId, void* param);
 
 	private:
 		// The application instance handle.

@@ -20,9 +20,13 @@ namespace ui {
 		virtual ~InfoLogWriter() override;
 
 		virtual void write(tools::Logger::Level level, const char* text) override;
+		virtual void flush() override;
+
 
 	private:
 		const HWND _hWnd;
+
+		tools::LogQueue _logQueue;
 	};
 
 }

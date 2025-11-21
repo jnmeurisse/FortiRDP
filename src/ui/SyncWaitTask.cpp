@@ -12,7 +12,7 @@
 namespace ui {
 
 	SyncWaitTask::SyncWaitTask(HWND hwnd, tools::Task* task) :
-		SyncProc(hwnd, AsyncMessage::DisconnectFromFirewallRequest),
+		SyncProc(hwnd, AsyncMessage::DisconnectFromFirewallRequest.get()),
 		_task(task)
 	{
 		DEBUG_CTOR(_logger);

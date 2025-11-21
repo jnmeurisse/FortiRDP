@@ -9,7 +9,7 @@
 
 namespace ui {
 	SyncDisconnect::SyncDisconnect(HWND hwnd, fw::FirewallClient& portal_client, fw::FirewallTunnel* tunnel) :
-		SyncProc(hwnd, AsyncMessage::DisconnectedEvent),
+		SyncProc(hwnd, AsyncMessage::DisconnectedEvent.get()),
 		_portal_client(portal_client),
 		_tunnel(tunnel)
 	{

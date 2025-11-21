@@ -13,6 +13,7 @@
 namespace ui {
 
 	InfoLogWriter::InfoLogWriter(HWND hWnd) :
+		_logQueue(),
 		_hWnd(hWnd)
 	{
 	}
@@ -26,8 +27,18 @@ namespace ui {
 	void InfoLogWriter::write(tools::Logger::Level level, const char* text)
 	{
 		if (level >= tools::Logger::LL_INFO) {
-			AsyncMessage::OutputInfoMessageRequest.post(_hWnd, (void*)_strdup(text));
+			tools::Mutex::Lock lock{ _logQueue.mutex() };
+			_logQueue.push(text);
+			AsyncMessage::OutputInfoEvent->send_message(_hWnd, &_logQueue);
 		}
+	}
+
+
+	void InfoLogWriter::flush()
+	{
+		tools::Mutex::Lock lock{ _logQueue.mutex() };
+		if (_logQueue.size() > 0)
+			AsyncMessage::OutputInfoEvent->send_message(_hWnd, &_logQueue);
 	}
 
 }

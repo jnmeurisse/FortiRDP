@@ -8,6 +8,8 @@
 #pragma once
 
 #include <Windows.h>
+#include <memory>
+#include "tools/Logger.h"
 
 
 namespace ui {
@@ -26,56 +28,52 @@ namespace ui {
 	* As a deadlock could occurs if SendMessage is sent while processing another message, we
 	* use PostMessage which are executed asynchronously by the main loop.
 	*/
-	class AsyncMessage final
+	class AsyncMessage
 	{
+		using AsyncMessagePtr = std::unique_ptr<AsyncMessage>;
+
 	public:
-		AsyncMessage(const AsyncMessage& message);
 		virtual ~AsyncMessage();
 
-		LRESULT send(HWND hWnd, void* lParam) const;
-		BOOL post(HWND hWnd, void* lParam) const;
+		virtual LRESULT send_message(HWND hWnd, void* lParam) const = 0;
 
 		/**
 		 * Checks if the message id correspond to the received registration id.
 		*/
-		static inline bool isAsyncMessage(UINT messageId) { return messageId == _registrationId; }
+		static inline bool isAsyncMessage(UINT messageId) { return messageId == _windowsMessageId; }
 
 		/**
-		 * Checks if the specified id corresponds to this AsyncMessage.
+		 * Returns this message id
 		*/
-		inline bool operator ==(UINT id) const { return id == _id; }
+		inline UINT id() const { return _id; }
 
 		/*******************************************/
 		/**** Requests sent to the main window  ****/
 
-		/* request to display a message string in the output text box.
-		*/
-		static AsyncMessage OutputInfoMessageRequest;
-
 		/* request to display an error message box
 		*/
-		static AsyncMessage ShowErrorMessageDialogRequest;
+		static AsyncMessagePtr ShowErrorMessageDialogRequest;
 
 		/* request to display an Invalid Certificate error message box.
 		*/
-		static AsyncMessage ShowInvalidCertificateDialogRequest;
+		static AsyncMessagePtr ShowInvalidCertificateDialogRequest;
 
 		/* request to display a dialog that ask for credentials.
 		*/
-		static AsyncMessage ShowCredentialsDialogRequest;
+		static AsyncMessagePtr ShowCredentialsDialogRequest;
 
 		/* request to display a dialog that ask for an additional code (pin code
 		 * for example).
 		*/
-		static AsyncMessage ShowPinCodeDialogRequest;
+		static AsyncMessagePtr ShowPinCodeDialogRequest;
 
 		/* request to display a dialog to authenticate using SAML.
 		*/
-		static AsyncMessage ShowSamlAuthDialogRequest;
+		static AsyncMessagePtr ShowSamlAuthDialogRequest;
 
 		/* request to execute the disconnection procedure.
 		*/
-		static AsyncMessage DisconnectFromFirewallRequest;
+		static AsyncMessagePtr DisconnectFromFirewallRequest;
 
 		/*******************************************/
 		/*** Events sent to the main window.     ***/
@@ -83,24 +81,29 @@ namespace ui {
 		/* informs that the client portal is connected (or fail to connect)
 		 * to the firewall.
 		*/
-		static AsyncMessage ConnectedEvent;
+		static AsyncMessagePtr ConnectedEvent;
 
 		/* informs that the client portal is disconnected from the firewall.
 		*/
-		static AsyncMessage DisconnectedEvent;
+		static AsyncMessagePtr DisconnectedEvent;
 
 		/* informs that the tunnel is connected to the firewall and listening for
 		 * local incoming communication.
 		*/
-		static AsyncMessage TunnelListeningEvent;
+		static AsyncMessagePtr TunnelListeningEvent;
 
+		/* request to display a message string in the output text box.
+		*/
+		static AsyncMessagePtr OutputInfoEvent;
 
-	private:
+	protected:
 		explicit AsyncMessage(UINT eventNumber);
 
-	private:
+		// The application logger.
+		tools::Logger* const _logger;
+
 		// Global message identifier assigned by windows for all AsyncMessages.
-		static UINT _registrationId;
+		static UINT _windowsMessageId;
 
 		// The AsyncMessage id.
 		const UINT _id;

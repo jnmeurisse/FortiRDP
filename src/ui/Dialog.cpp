@@ -363,9 +363,9 @@ namespace ui {
 	}
 
 
-	INT_PTR Dialog::onUserEventMessage(UINT eventNumber, void* param)
+	INT_PTR Dialog::onAsyncMessage(UINT eventId, void* param)
 	{
-		UNREFERENCED_PARAMETER(eventNumber);
+		UNREFERENCED_PARAMETER(eventId);
 		UNREFERENCED_PARAMETER(param);
 
 		return FALSE;
@@ -408,7 +408,7 @@ namespace ui {
 
 		default:
 			if (AsyncMessage::isAsyncMessage(message)) {
-				rc = onUserEventMessage(static_cast<UINT>(wParam), reinterpret_cast<void*>(lParam));
+				rc = onAsyncMessage(static_cast<UINT>(wParam), reinterpret_cast<void*>(lParam));
 			}
 			else {
 				// message was not processed

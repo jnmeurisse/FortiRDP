@@ -10,7 +10,7 @@
 
 namespace ui {
 
-	SyncProc::SyncProc(HWND hwnd, const AsyncMessage& message) :
+	SyncProc::SyncProc(HWND hwnd, const AsyncMessage* message) :
 		_message(message),
 		_hwnd(hwnd),
 		_logger(tools::Logger::get_logger())
@@ -31,7 +31,7 @@ namespace ui {
 		DEBUG_ENTER(_logger);
 
 		bool success = procedure();
-		_message.post(_hwnd, (void*)success);
+		_message->send_message(_hwnd, (void*)success);
 	}
 
 
