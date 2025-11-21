@@ -543,7 +543,7 @@ namespace ui {
 		WPARAM_UNUSED();
 		LPARAM_UNUSED();
 
-		net::Tunneler* tunneler = nullptr;
+		const net::Tunneler* tunneler = nullptr;
 		if (_controller)
 			tunneler = _controller->tunnel();
 

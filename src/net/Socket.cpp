@@ -199,12 +199,12 @@ namespace net {
 
 			if (::getsockname(get_fd(), (struct sockaddr*)&sock_addr, &len) == 0) {
 				if (sock_addr.ss_family == AF_INET) {
-					struct sockaddr_in* addr4 = (struct sockaddr_in*)&sock_addr;
+					const struct sockaddr_in* addr4 = (const struct sockaddr_in*)&sock_addr;
 					port = ntohs(addr4->sin_port);
 					rc = true;
 				}
 				else if (sock_addr.ss_family == AF_INET6) {
-					struct sockaddr_in6* addr6 = (struct sockaddr_in6*)&sock_addr;
+					const struct sockaddr_in6* addr6 = (const struct sockaddr_in6*)&sock_addr;
 					port = ntohs(addr6->sin6_port);
 					rc = true;
 				}

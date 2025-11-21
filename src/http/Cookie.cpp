@@ -184,7 +184,7 @@ namespace http {
 		for (unsigned int i = 0; i < std::size(COOKIE_DATE_FORMATS); i++) {
 			tm = { 0 };
 
-			char* const p = strptime(value.c_str(), COOKIE_DATE_FORMATS[i], &tm);
+			const char* const p = strptime(value.c_str(), COOKIE_DATE_FORMATS[i], &tm);
 			if (p && tm.tm_year > 0)
 				return mktime(&tm);
 		}

@@ -83,7 +83,7 @@ namespace ui {
 
 	bool RdpFile::get(const std::string& name, std::string& type, std::string& value)
 	{
-		RdpOption* const option = find(name);
+		const RdpOption* const option = find(name);
 
 		if (option) {
 			value = option->option_value;

@@ -271,7 +271,7 @@ namespace net {
 
 	int PPInterface::last_xmit() const
 	{
-		pppossl_pcb* const pcbssl = reinterpret_cast<pppossl_pcb *>(_pcb->link_ctx_cb);
+		const pppossl_pcb* const pcbssl = reinterpret_cast<const pppossl_pcb *>(_pcb->link_ctx_cb);
 
 		return pcbssl->last_xmit;
 	}
