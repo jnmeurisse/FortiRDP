@@ -66,7 +66,7 @@ also to validate the certificate using the Windows certificate store.
 ### RDP Display & Session Options
 The following options are available only if the `-x app` argument is omitted.
 When no custom application is specified, fortirdp launches the default RDP client using:
-`c:\windows\system32\mstsc.exe;/v:${host}:${port}`
+`c:\windows\system32\mstsc.exe;/v:${host}:${port}`.</br>
 Additional parameters can then be supplied:
 
 | Option        | Description                                                                                  |
@@ -125,6 +125,5 @@ fortirdp -x "C:\Tools\MyViewer.exe;\${host}:\${port}" firewall.example.com 192.1
 fortirdp -x "C:\Tools\MyViewer.exe;\${host}:\${port}" -M firewall.example.com 192.168.1.10
 
 ### Manual application launch & listen to a fixed port
-fortirdp -x "" -p 8443 firewall.example.com 192.168.1.10
+fortirdp -x "" -p 8443 firewall.example.com 192.168.1.10</br>
 C:\Tools\MyViewer.exe localhost:8443
-
