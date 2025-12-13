@@ -114,16 +114,13 @@ All examples below use 10.34.1.37 as the firewall IP and 192.168.1.10 as the pro
 fortirdp 10.34.1.37 192.168.1.10
 
 ### Verbose mode with certificate authentication
-fortirdp -v -A cert -c myca.pem 10.34.1.37 192.168.1.10
+fortirdp -v -A cert -c mycert.pem 10.34.1.37 192.168.1.10
 
 ### Full-screen RDP
 fortirdp -f 10.34.1.37 192.168.1.10
 
-### Launch a custom application
-fortirdp -x "C:\Tools\MyViewer.exe;\${host}:\${port}" 10.34.1.37 192.168.1.10
-
-### Launch a browser application
-fortirdp -x "C:\Tools\MyViewer.exe;\${host}:\${port}" -M 10.34.1.37 192.168.1.10
+### Launch a custom interactive application
+fortirdp -n -x "C:\Tools\MyViewer.exe;\${host}:\${port}" 10.34.1.37 192.168.1.10:5900
 
 ### Manual application launch & listen to a fixed port
 fortirdp -x "" -p 8443 10.34.1.37 192.168.1.10</br>
