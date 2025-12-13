@@ -127,3 +127,6 @@ fortirdp -x "C:\Tools\MyViewer.exe;\${host}:\${port}" -M firewall.example.com 19
 ### Manual application launch & listen to a fixed port
 fortirdp -x "" -p 8443 firewall.example.com 192.168.1.10</br>
 C:\Tools\MyViewer.exe localhost:8443
+
+### Launch a browser application
+fortirdp -M -x "c:\Program Files\Google\Chrome\Application\chrome.exe;https://\${host}:\${port}" firewall.example.com 192.168.1.10:443
