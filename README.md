@@ -111,20 +111,33 @@ This mode is especially suited for web traffic forwarding.
 All examples below use 10.34.1.37 as the firewall IP and 192.168.1.10 as the protected host.
 
 ### Basic RDP tunnel
+```
 fortirdp 10.34.1.37 192.168.1.10
-
+```
 ### Verbose mode with certificate authentication
+```
 fortirdp -v -A cert -c mycert.pem 10.34.1.37 192.168.1.10
+```
 
 ### Full-screen RDP
+```
 fortirdp -f 10.34.1.37 192.168.1.10
+```
 
 ### Launch a custom interactive application
+```
 fortirdp -n -x "C:\Tools\MyViewer.exe;\${host}:\${port}" 10.34.1.37 192.168.1.10:5900
+```
 
 ### Manual application launch & listen to a fixed port
-fortirdp -x "" -p 8443 10.34.1.37 192.168.1.10</br>
+```
+fortirdp -x "" -p 8443 10.34.1.37 192.168.1.10
 C:\Tools\MyViewer.exe localhost:8443
+```
 
 ### Launch a browser application
-fortirdp -M -x "c:\Program Files\Google\Chrome\Application\chrome.exe;https://\${host}:\${port}" 10.34.1.37 192.168.1.10:443
+```
+fortirdp -M -x \
+  "c:\Program Files\Google\Chrome\Application\chrome.exe;https://\${host}:\${port}" \
+  10.34.1.37 192.168.1.10:443
+```
