@@ -102,31 +102,32 @@ This mode is especially suited for web traffic forwarding.
 - Default port: 10443, use `:port1` to specify an alternate port.
 
 `remote-ip[:port2]`
-- IP address of the remote computer.
+- Hostname or IP address of the remote computer.
 - Default RDP port: 3389, use `:port2` to specify an alternate port
 
 ---
 
 ## Examples
+All examples below use 10.34.1.37 as the firewall IP and 192.168.1.10 as the protected host.
 
 ### Basic RDP tunnel
-fortirdp firewall.example.com 192.168.1.10
+fortirdp 10.34.1.37 192.168.1.10
 
 ### Verbose mode with certificate authentication
-fortirdp -v -A cert -c myca.pem firewall.example.com 192.168.1.10
+fortirdp -v -A cert -c myca.pem 10.34.1.37 192.168.1.10
 
 ### Full-screen RDP
-fortirdp -f firewall.example.com 192.168.1.10
+fortirdp -f 10.34.1.37 192.168.1.10
 
 ### Launch a custom application
-fortirdp -x "C:\Tools\MyViewer.exe;\${host}:\${port}" firewall.example.com 192.168.1.10
+fortirdp -x "C:\Tools\MyViewer.exe;\${host}:\${port}" 10.34.1.37 192.168.1.10
 
 ### Launch a browser application
-fortirdp -x "C:\Tools\MyViewer.exe;\${host}:\${port}" -M firewall.example.com 192.168.1.10
+fortirdp -x "C:\Tools\MyViewer.exe;\${host}:\${port}" -M 10.34.1.37 192.168.1.10
 
 ### Manual application launch & listen to a fixed port
-fortirdp -x "" -p 8443 firewall.example.com 192.168.1.10</br>
+fortirdp -x "" -p 8443 10.34.1.37 192.168.1.10</br>
 C:\Tools\MyViewer.exe localhost:8443
 
 ### Launch a browser application
-fortirdp -M -x "c:\Program Files\Google\Chrome\Application\chrome.exe;https://\${host}:\${port}" firewall.example.com 192.168.1.10:443
+fortirdp -M -x "c:\Program Files\Google\Chrome\Application\chrome.exe;https://\${host}:\${port}" 10.34.1.37 192.168.1.10:443
