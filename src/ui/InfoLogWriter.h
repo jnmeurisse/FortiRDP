@@ -8,6 +8,7 @@
 #pragma once
 
 #include <Windows.h>
+#include <string>
 #include "tools/Logger.h"
 
 
@@ -19,7 +20,7 @@ namespace ui {
 		explicit InfoLogWriter(HWND hWnd);
 		virtual ~InfoLogWriter() override;
 
-		virtual void write(tools::Logger::Level level, const char* text) override;
+		virtual void write(tools::Logger::Level level, const std::u8string& text) override;
 		virtual void flush() override;
 
 

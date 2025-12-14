@@ -7,7 +7,6 @@
 */
 #include "InfoLogWriter.h"
 
-#include <cstring>
 #include "ui/AsyncMessage.h"
 
 namespace ui {
@@ -24,7 +23,7 @@ namespace ui {
 	}
 
 
-	void InfoLogWriter::write(tools::Logger::Level level, const char* text)
+	void InfoLogWriter::write(tools::Logger::Level level, const std::u8string& text)
 	{
 		if (level >= tools::Logger::LL_INFO) {
 			tools::Mutex::Lock lock{ _logQueue.mutex() };

@@ -10,7 +10,6 @@
 #include <cstdarg>
 #include <ctime>
 #include "tools/Mutex.h"
-#include "tools/StrUtil.h"
 
 
 namespace tools {
@@ -58,7 +57,7 @@ namespace tools {
 	}
 
 
-	void Logger::write(Level level, const char* text)
+	void Logger::write(Level level, const std::u8string& text)
 	{
 		Mutex::Lock lock{ _mutex };
 
@@ -69,18 +68,10 @@ namespace tools {
 	}
 
 
-	void Logger::log(Level level, const std::string& text)
+	void Logger::log(Level level, const std::u8string& text)
 	{
 		if (is_enabled(level)) {
-			write(level, text.c_str());
-		}
-	}
-
-
-	void Logger::log(Level level, const std::wstring& text)
-	{
-		if (is_enabled(level)) {
-			write(level, tools::wstr2str(text).c_str());
+			write(level, text);
 		}
 	}
 
@@ -138,7 +129,7 @@ namespace tools {
 	}
 
 
-	char* Logger::fmt(const char* format, va_list args)
+	char8_t* Logger::fmt(const char* format, va_list args)
 	{
 		va_list args_copy;
 
@@ -151,8 +142,8 @@ namespace tools {
 			return nullptr;
 
 		// Allocate and format the text.
-		char* text = new char[size + 1];
-		if (vsnprintf(text, size + 1, format, args) < 0) {
+		char8_t* text = new char8_t[size + 1];
+		if (vsnprintf((char *)text, size + 1, format, args) < 0) {
 			delete[] text;
 			return nullptr;
 		}
@@ -164,29 +155,29 @@ namespace tools {
 
 	void Logger::log(Level level, const char* format, va_list args)
 	{
-		const char* const text = fmt(format, args);
 
+		const char8_t* const text = fmt(format, args);
 		if (text) {
-			write(level, text);
+			write(level, std::u8string(text));
 			delete[] text;
 		}
 		else {
-			write(Level::LL_ERROR, "internal error : fmt returned nullptr");
+			write(Level::LL_ERROR, u8"internal error : fmt returned nullptr");
 		}
 	}
 
 
-	static std::string datetime()
+	static std::u8string datetime()
 	{
 		// Get current system time and convert it to local time
 		tm local_time;
 		const time_t now = time(nullptr);
 		localtime_s(&local_time, &now);
 
-		char buffer[128] { 0 };
-		strftime(buffer, sizeof(buffer), "%F %T", &local_time);
+		char8_t buffer[128] { 0 };
+		strftime((char *)buffer, sizeof(buffer), "%F %T", &local_time);
 
-		return std::string{ buffer };
+		return std::u8string{ buffer };
 	}
 
 
@@ -212,11 +203,14 @@ namespace tools {
 	}
 
 
-	void FileLogWriter::write(Logger::Level level, const char* text)
+	void FileLogWriter::write(Logger::Level level, const std::u8string& text)
 	{
 		(void)level;
 		if (_ofs.is_open()) {
-			_ofs << datetime() << " > " << text << std::endl;
+			write_utf8(_ofs, datetime());
+			write_utf8(_ofs, u8" > ");
+			write_utf8(_ofs, text);
+			write_utf8(_ofs, u8"\n");
 		}
 	}
 
@@ -229,6 +223,12 @@ namespace tools {
 	}
 
 
+	void FileLogWriter::write_utf8(std::ofstream& os, const std::u8string& text)
+	{
+		os.write(reinterpret_cast<const char*>(text.data()), text.size());
+	}
+
+
 	LogQueue::LogQueue() :
 		_queue(),
 		_mutex()
@@ -236,21 +236,20 @@ namespace tools {
 	}
 
 
-	void LogQueue::push(const std::string& text)
+	void LogQueue::push(const std::u8string& text)
 	{
 		Mutex::Lock lock(_mutex);
 		_queue.push(text);
 	}
 
 	
-	std::string LogQueue::pop()
+	std::u8string LogQueue::pop()
 	{
 		tools::Mutex::Lock lock(_mutex);
 
-		std::string text = _queue.front();
+		std::u8string text = _queue.front();
 		_queue.pop();
 		return text;
 	}
-
 
 }

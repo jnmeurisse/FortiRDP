@@ -51,8 +51,7 @@ namespace tools {
 		/**
 		 * Logs a message.
 		*/
-		void log(Level level, const std::string& text);
-		void log(Level level, const std::wstring& text);
+		void log(Level level, const std::u8string& text);
 		void log(Level level, const char* format, ...);
 		void log(Level level, const char* format, va_list args);
 		void trace(const char* format, ...);
@@ -107,7 +106,7 @@ namespace tools {
 		/**
 		 * Writes a message to the log writers.
 		*/
-		void write(Logger::Level level, const char* text);
+		void write(Logger::Level level, const std::u8string& text);
 
 		/**
 		 * Formats an error message.
@@ -115,7 +114,7 @@ namespace tools {
 		 * The caller is responsible to free the temporary buffer used
 		 to store the message.
 		*/
-		char* fmt(const char* format, va_list args);
+		char8_t* fmt(const char* format, va_list args);
 
 	private:
 		// A reference to the application logger (singleton).
@@ -140,7 +139,7 @@ namespace tools {
 	public:
 		virtual ~LogWriter() {}
 
-		virtual void write(Logger::Level level, const char* text) = 0;
+		virtual void write(Logger::Level level, const std::u8string& text) = 0;
 		virtual void flush() { return; }
 	};
 
@@ -155,11 +154,12 @@ namespace tools {
 		virtual ~FileLogWriter() override;
 
 		bool open(const std::wstring& filename);
-		virtual void write(Logger::Level level, const char* text) override;
+		virtual void write(Logger::Level level, const std::u8string& text) override;
 		virtual void flush() override;
 
 	private:
 		std::ofstream _ofs;
+		static void write_utf8(std::ofstream& os, const std::u8string& text);
 	};
 
 
@@ -169,13 +169,13 @@ namespace tools {
 		explicit LogQueue();
 
 		inline size_t size() const { return _queue.size(); }
-		void push(const std::string& text);
-		std::string pop();
+		void push(const std::u8string& text);
+		std::u8string pop();
 
 		inline tools::Mutex& mutex() { return _mutex; }
 
 	private:
-		std::queue<std::string> _queue;
+		std::queue<std::u8string> _queue;
 		tools::Mutex _mutex;
 
 	};
