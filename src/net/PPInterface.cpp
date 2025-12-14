@@ -13,8 +13,11 @@
 
 
 namespace net {
-
 	using namespace tools;
+
+	// Forward declarations
+	u32_t ppp_output_cb(ppp_pcb* pcb, struct pbuf* pbuf, void* ctx);
+	void ppp_link_status_cb(ppp_pcb* pcb, int err_code, void* ctx);
 
 	PPInterface::PPInterface(TlsSocket& tunnel, Counters& counters) :
 		_logger(Logger::get_logger()),

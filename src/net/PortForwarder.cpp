@@ -13,16 +13,18 @@
 #include <lwip/tcp.h>
 #include "net/DnsClient.h"
 
-static void timeout_cb(void* arg)
-{
-	bool* timeout = reinterpret_cast<bool*>(arg);
-	*timeout = true;
-}
-
 
 namespace net {
-
 	using namespace tools;
+
+	// Forward declarations
+	void dns_found_cb(const char* name, const ip_addr_t* ipaddr, void* callback_arg);
+	err_t tcp_connected_cb(void* arg, struct tcp_pcb* tpcb, err_t err);
+	void tcp_err_cb(void* arg, err_t err);
+	err_t tcp_sent_cb(void* arg, tcp_pcb* tpcb, u16_t len);
+	err_t tcp_recv_cb(void* arg, tcp_pcb* tpcb, pbuf* p, err_t err);
+	void timeout_cb(void* arg);
+
 
 	PortForwarder::PortForwarder(const Endpoint& endpoint, bool tcp_nodelay, int keepalive) :
 		_logger(Logger::get_logger()),
@@ -536,6 +538,12 @@ namespace net {
 		return rc;
 	}
 
-	const char* PortForwarder::__class__ = "PortForwarder";
+	void timeout_cb(void* arg)
+	{
+		bool* timeout = reinterpret_cast<bool*>(arg);
+		*timeout = true;
+	}
 
+
+	const char* PortForwarder::__class__ = "PortForwarder";
 }
