@@ -111,12 +111,12 @@ namespace http {
 		
 		// split cookie-pair 
 		const tools::obfstring cookie_pair(parts[0]);
-		const std::string::size_type pos = cookie_pair.find('=');
-		if (pos == std::string::npos)
+		const std::string::size_type pos_pair = cookie_pair.find('=');
+		if (pos_pair == std::string::npos)
 			throw CookieError{ "Invalid cookie :" + cookie_string.uncrypt() };
 
-		const std::string cookie_name{ cookie_pair.substr(0, pos).uncrypt() };
-		const tools::obfstring cookie_value{ cookie_pair.substr(pos + 1, std::string::npos) };
+		const std::string cookie_name{ cookie_pair.substr(0, pos_pair).uncrypt() };
+		const tools::obfstring cookie_value{ cookie_pair.substr(pos_pair + 1, std::string::npos) };
 		std::string domain;
 		std::string path;
 		std::time_t expires = EXPIRES_UNSPECIFIED;

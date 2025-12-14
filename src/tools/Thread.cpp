@@ -73,7 +73,7 @@ namespace tools {
 	/**
 	* Thread entry point.
 	*/
-	static unsigned __stdcall thread_entry_point(void* data)
+	unsigned __stdcall thread_entry_point(void* data)
 	{
 		Thread* const thread = reinterpret_cast<Thread*>(data);
 		unsigned int rc = thread->run();
