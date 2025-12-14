@@ -511,29 +511,24 @@ namespace fw {
 		pugi::xml_document doc;
 		pugi::xml_parse_result parse_result = doc.load_string(data.c_str());
 
-		if (parse_result.status != pugi::xml_parse_status::status_ok)
-			goto xml_parse_error;
+		if (parse_result.status != pugi::xml_parse_status::status_ok) {
+			_logger->error("ERROR: portal configuration - XML parse error");
+			return false;
+		}
 
 		const pugi::xml_node& root = doc.child("sslvpn-tunnel");
-		if (root.empty())
-			goto xml_decode_error;
+		if (root.empty()) {
+			_logger->error("ERROR: portal configuration - XML decode error");
+			return false;
+		}
 
 		const pugi::xml_attribute& address = root
-												.child("ipv4")
-												.child("assigned-addr")
-												.attribute("ipv4");
+			.child("ipv4")
+			.child("assigned-addr")
+			.attribute("ipv4");
 		sslvpn_config.local_addr = address.as_string();
 
 		return true;
-
-
-	xml_parse_error:
-		_logger->error("ERROR: portal configuration - XML parse error");
-		return false;
-
-	xml_decode_error:
-		_logger->error("ERROR: portal configuration - XML decode error");
-		return false;
 	}
 
 
