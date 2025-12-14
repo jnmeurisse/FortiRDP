@@ -171,7 +171,7 @@ namespace http {
 
 	time_t Cookie::parse_http_date(const std::string& value)
 	{
-		static char* COOKIE_DATE_FORMATS[] =
+		static const char* COOKIE_DATE_FORMATS[] =
 		{
 			"%a, %d %b %Y %H:%M:%S %Z",
 			"%a, %d-%b-%Y %H:%M:%S %Z"

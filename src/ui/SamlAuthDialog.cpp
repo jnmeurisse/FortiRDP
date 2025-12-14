@@ -38,7 +38,7 @@ namespace ui {
 	};
 
 
-	static char* web_error_status_message(COREWEBVIEW2_WEB_ERROR_STATUS error_status)
+	static const char* web_error_status_message(COREWEBVIEW2_WEB_ERROR_STATUS error_status)
 	{
 		switch (error_status) {
 		case COREWEBVIEW2_WEB_ERROR_STATUS_CERTIFICATE_COMMON_NAME_IS_INCORRECT:
