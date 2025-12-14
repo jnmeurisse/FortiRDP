@@ -7,6 +7,7 @@
 */
 #include "FirewallClient.h"
 
+#include <memory>
 #include <mbedtls/x509_crt.h>
 #include "http/Request.h"
 #include "http/Cookie.h"
@@ -535,7 +536,7 @@ namespace fw {
 	bool FirewallClient::is_authenticated() const
 	{
 		if (!_cookie_jar.exists("SVPNCOOKIE"))
-			return FALSE;
+			return false;
 
 		const http::Cookie& svpn_cookie = _cookie_jar.get("SVPNCOOKIE");
 		return svpn_cookie.get_value().size() > 0 && !svpn_cookie.is_expired();
