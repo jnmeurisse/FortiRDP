@@ -40,15 +40,12 @@ namespace ui {
 
 		virtual LRESULT send_message(HWND hWnd, void* lParam) const override
 		{
-			if (_logger->is_trace_enabled())
-				_logger->trace("... %x send request message %x", (uintptr_t)this, (uintptr_t)lParam);
-
 			return ::SendMessage(hWnd, AsyncMessage::_windowsMessageId, _id, (LPARAM)lParam);
 		}
 
 	private:
 		// The class name.
-			static const char* __class__;
+		static const char* __class__;
 	};
 
 	const char* AsyncRequestMessage::__class__ = "AsyncRequestMessage";
@@ -70,9 +67,6 @@ namespace ui {
 
 		virtual LRESULT send_message(HWND hWnd, void* lParam) const override
 		{
-			if (_logger->is_trace_enabled())
-				_logger->trace("... %x send event message %x", (uintptr_t)this, (uintptr_t)lParam);
-
 			return ::PostMessage(hWnd, AsyncMessage::_windowsMessageId, _id, (LPARAM)lParam);
 		}
 
