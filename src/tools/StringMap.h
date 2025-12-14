@@ -74,7 +74,7 @@ namespace tools {
 		 * The function returns the value if the name exists in the collection
 		 * or the default value if the name does not exist.
 		*/
-		std::string get_str_value(const std::string& name, const std::string& default) const;
+		std::string get_str_value(const std::string& name, const std::string& default_value) const;
 
 		/**
 		 * Gets the value mapped to the specified name.
@@ -92,7 +92,7 @@ namespace tools {
 		 * default value if the name does not exist in the collection or if the value
 		 * can't be converted to an integer.
 		*/
-		int get_int_value(const std::string& name, int default) const;
+		int get_int_value(const std::string& name, int default_value) const;
 
 		/**
 		 * Returns all named value pairs as a string.

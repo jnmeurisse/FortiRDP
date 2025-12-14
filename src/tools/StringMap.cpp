@@ -97,10 +97,10 @@ namespace tools {
 		return found;
 	}
 
-	std::string StringMap::get_str_value(const std::string& name, const std::string& default) const
+	std::string StringMap::get_str_value(const std::string& name, const std::string& default_value) const
 	{
 		std::string value;
-		return get_str(name, value) ? value : default;
+		return get_str(name, value) ? value : default_value;
 	}
 
 
@@ -112,10 +112,10 @@ namespace tools {
 	}
 
 
-	int StringMap::get_int_value(const std::string& name, int default) const
+	int StringMap::get_int_value(const std::string& name, int default_value) const
 	{
 		int value;
-		return get_int(name, value) ? value : default;
+		return get_int(name, value) ? value : default_value;
 	}
 
 
