@@ -217,7 +217,7 @@ namespace ui {
 
 		/* The global window dialog procedure dispatches events to dialogProc.
 		*/
-		friend static INT_PTR CALLBACK MainDialogProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+		friend INT_PTR CALLBACK MainDialogProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 		/* The dialog procedure dispatches events to virtual event handlers.
 		*/
