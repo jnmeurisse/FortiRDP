@@ -357,4 +357,14 @@ namespace tools {
 		return pstr ? str2wstr(std::string(pstr)) : L"";
 	}
 
+
+	std::wstring str2wstr(const std::u8string& str)
+	{
+		std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
+		return converter.from_bytes(
+			reinterpret_cast<const char*>(str.data()),
+			reinterpret_cast<const char*>(str.data() + str.size())
+		);
+	}
+
 }

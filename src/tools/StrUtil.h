@@ -85,5 +85,6 @@ std::string wstr2str(const wchar_t* pwstr);
 // Converts string to wstring
 std::wstring str2wstr(const std::string& str);
 std::wstring str2wstr(const char* pstr);
+std::wstring str2wstr(const std::u8string& str);
 
 }
