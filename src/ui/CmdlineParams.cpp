@@ -9,6 +9,7 @@
 
 #include <iostream>
 #include <limits>
+#include <Windows.h>
 #include "tools/Path.h"
 #include "tools/SysUtil.h"
 #include "tools/StrUtil.h"
@@ -31,7 +32,7 @@ namespace ui {
 	{
 		bool rc = true;
 		int argc = 0;
-		LPWSTR* const argv = ::CommandLineToArgvW(::GetCommandLineW(), &argc);
+		wchar_t **argv = ::CommandLineToArgvW(::GetCommandLineW(), &argc);
 
 		if (argv) {
 			// Skip first argument which is the program name.
@@ -45,7 +46,7 @@ namespace ui {
 	}
 
 
-	bool CmdlineParams::initialize(int argc, LPWSTR argv[])
+	bool CmdlineParams::initialize(int argc, const wchar_t * const *argv)
 	{
 		_full_screen = false;
 		_admin_console = false;

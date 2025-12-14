@@ -1,8 +1,8 @@
-// XGetopt.h  Version 1.2
+// XGetopt.h  Version 1.3
 //
 // Author:  Hans Dietrich
 //          hdietrich2@hotmail.com
-//
+// 
 // This software is released into the public domain.
 // You are free to use it in any way you like.
 //
@@ -14,11 +14,10 @@
 
 #ifndef XGETOPT_H
 #define XGETOPT_H
-#include <tchar.h>
 
 extern int optind, opterr;
-extern wchar_t *optarg;
+extern const wchar_t *optarg;
 
-int getopt(int argc, TCHAR *argv[], TCHAR *optstring);
+int getopt(int argc, const wchar_t * const argv[], const wchar_t *optstring);
 
 #endif //XGETOPT_H

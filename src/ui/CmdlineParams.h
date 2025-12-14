@@ -7,7 +7,6 @@
 */
 #pragma once
 
-#include <Windows.h>
 #include <cstdint>
 #include <string>
 #include "fw/AuthTypes.h"
@@ -30,7 +29,7 @@ namespace ui {
 		/**
 		 * Initializes this instance from an array of arguments.
 		*/
-		bool initialize(int argc, LPWSTR argv[]);
+		bool initialize(int argc, const wchar_t * const *argv);
 
 		/**
 		 * Prints the correct usage of this program to stdout.

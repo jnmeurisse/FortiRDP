@@ -7,6 +7,9 @@
 //     XGetopt.cpp implements getopt(), a function to parse command lines.
 //
 // History
+//     Version 1.3 - 2025 December 14
+//     - Remove TCHAR and Windows dependencies
+// 
 //     Version 1.2 - 2003 May 17
 //     - Added Unicode support
 //
@@ -22,15 +25,10 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-///////////////////////////////////////////////////////////////////////////////
-// if you are not using precompiled headers then include these lines:
-#include <windows.h>
-#include <stdio.h>
-
-///////////////////////////////////////////////////////////////////////////////
-
 
 #include "XGetopt.h"
+#include <cstdio>
+#include <cstring>
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -44,7 +42,7 @@
 //  SYNOPSIS
 //       int getopt(int argc, wchar_t *argv[], wchar_t *optstring)
 //
-//       extern TCHAR *optarg;
+//       extern wchar_t *optarg;
 //       extern int optind;
 //
 //  DESCRIPTION
@@ -97,42 +95,42 @@
 //           encountered, instead of -1 as the latest standard requires.
 //
 //  EXAMPLE
-//       BOOL CMyApp::ProcessCommandLine(int argc, TCHAR *argv[])
+//       BOOL CMyApp::ProcessCommandLine(int argc, wchar_t *argv[])
 //       {
 //           int c;
 //
-//           while ((c = getopt(argc, argv, _T("aBn:"))) != EOF)
+//           while ((c = getopt(argc, argv, L"aBn:")) != EOF)
 //           {
 //               switch (c)
 //               {
-//                   case _T('a'):
-//                       TRACE(_T("option a\n"));
+//                   case L'a':
+//                       TRACE(L"option a\n");
 //                       //
 //                       // set some flag here
 //                       //
 //                       break;
 //
 //                   case _T('B'):
-//                       TRACE( _T("option B\n"));
+//                       TRACE(L"option B\n");
 //                       //
 //                       // set some other flag here
 //                       //
 //                       break;
 //
-//                   case _T('n'):
-//                       TRACE(_T("option n: value=%d\n"), atoi(optarg));
+//                   case L'n':
+//                       TRACE(L"option n: value=%d\n", atoi(optarg));
 //                       //
 //                       // do something with value here
 //                       //
 //                       break;
 //
-//                   case _T('?'):
-//                       TRACE(_T("ERROR: illegal option %s\n"), argv[optind-1]);
+//                   case L'?':
+//                       TRACE(L"ERROR: illegal option %s\n", argv[optind-1]);
 //                       return FALSE;
 //                       break;
 //
 //                   default:
-//                       TRACE(_T("WARNING: no handler for option %c\n"), c);
+//                       TRACE("WARNING: no handler for option %c\n", c);
 //                       return FALSE;
 //                       break;
 //               }
@@ -145,23 +143,23 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-TCHAR	*optarg;		// global argument pointer
-int		optind = 0; 	// global argv index
+const wchar_t *optarg;		// global argument pointer
+int	optind = 0; 			// global argv index
 
-int getopt(int argc, TCHAR *argv[], TCHAR *optstring)
+int getopt(int argc, const wchar_t * const argv[], const wchar_t *optstring)
 {
-	static TCHAR *next = NULL;
+	static const wchar_t *next = NULL;
 	if (optind == 0)
 		next = NULL;
 
 	optarg = NULL;
 
-	if (next == NULL || *next == _T('\0'))
+	if (next == NULL || *next == L'\0')
 	{
 		//if (optind == 0)
 		//	optind++;
 
-		if (optind >= argc || argv[optind][0] != _T('-') || argv[optind][1] == _T('\0'))
+		if (optind >= argc || argv[optind][0] != L'-' || argv[optind][1] == L'\0')
 		{
 			optarg = NULL;
 			if (optind < argc)
@@ -169,7 +167,7 @@ int getopt(int argc, TCHAR *argv[], TCHAR *optstring)
 			return EOF;
 		}
 
-		if (_tcscmp(argv[optind], _T("--")) == 0)
+		if (wcscmp(argv[optind], L"--") == 0)
 		{
 			optind++;
 			optarg = NULL;
@@ -183,16 +181,16 @@ int getopt(int argc, TCHAR *argv[], TCHAR *optstring)
 		optind++;
 	}
 
-	TCHAR c = *next++;
-	TCHAR *cp = _tcschr(optstring, c);
+	wchar_t c = *next++;
+	const wchar_t *cp = wcschr(optstring, c);
 
-	if (cp == NULL || c == _T(':'))
-		return _T('?');
+	if (cp == NULL || c == L':')
+		return L'?';
 
 	cp++;
-	if (*cp == _T(':'))
+	if (*cp == L':')
 	{
-		if (*next != _T('\0'))
+		if (*next != L'\0')
 		{
 			optarg = next;
 			next = NULL;
@@ -204,7 +202,7 @@ int getopt(int argc, TCHAR *argv[], TCHAR *optstring)
 		}
 		else
 		{
-			return _T('?');
+			return L'?';
 		}
 	}
 
