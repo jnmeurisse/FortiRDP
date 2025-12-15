@@ -33,18 +33,22 @@ namespace tools {
 
 	void Logger::add_writer(LogWriter* writer)
 	{
-		Mutex::Lock lock{ _mutex };
+		if (writer) {
+			Mutex::Lock lock{ _mutex };
 
-		_writers.push_back(writer);
-		_writers.unique();
+			_writers.push_back(writer);
+			_writers.unique();
+		}
 	}
 
 
 	void Logger::remove_writer(LogWriter* writer)
 	{
-		Mutex::Lock lock{ _mutex };
+		if (writer) {
+			Mutex::Lock lock{ _mutex };
 
-		_writers.remove(writer);
+			_writers.remove(writer);
+		}
 	}
 
 
