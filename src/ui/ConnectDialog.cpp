@@ -222,9 +222,9 @@ namespace ui {
 			std::string fw_addr{ tools::trim(tools::wstr2str(address_parts[0])) };
 			_firewall_endpoint = net::Endpoint(fw_addr, DEFAULT_FW_PORT);
 
-			_firewall_domain = "";
+			_realm.clear();
 			if (address_parts.size() == 2)
-				_firewall_domain = tools::trim(tools::wstr2str(address_parts[1]));
+				_realm = tools::trim(address_parts[1]);
 
 		}
 		catch (const std::invalid_argument&) {
@@ -373,7 +373,7 @@ namespace ui {
 			::EnableMenuItem(get_sys_menu(false), SYSCMD_OPTIONS, MF_BYCOMMAND | MF_DISABLED);
 
 		// Start the client
-		_controller->connect(_firewall_endpoint, _firewall_domain);
+		_controller->connect(_firewall_endpoint, tools::wstr2str(_realm));
 	}
 
 

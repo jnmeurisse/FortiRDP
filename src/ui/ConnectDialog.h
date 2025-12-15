@@ -69,8 +69,8 @@ namespace ui {
 		const uint16_t DEFAULT_FW_PORT = 10443;
 		net::Endpoint _firewall_endpoint;
 
-		// - Firewall domain
-		std::string _firewall_domain;
+		// - Firewall sslvpn realm
+		std::wstring _realm;
 
 		// - Host endpoint
 		const uint16_t DEFAULT_RDP_PORT = 3389;
