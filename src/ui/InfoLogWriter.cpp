@@ -24,7 +24,7 @@ namespace ui {
 	}
 
 
-	void InfoLogWriter::write(tools::Logger::Level level, const char* text)
+	void InfoLogWriter::write(tools::Logger::Level level, const std::string& text)
 	{
 		if (level >= tools::Logger::LL_INFO) {
 			tools::Mutex::Lock lock{ _logQueue.mutex() };

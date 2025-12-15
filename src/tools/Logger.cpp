@@ -8,9 +8,9 @@
 #include "Logger.h"
 
 #include <cstdarg>
+#include <cstdio>
 #include <ctime>
 #include "tools/Mutex.h"
-#include "tools/StrUtil.h"
 
 
 namespace tools {
@@ -58,7 +58,7 @@ namespace tools {
 	}
 
 
-	void Logger::write(Level level, const char* text)
+	void Logger::write(Level level, const std::string& text)
 	{
 		Mutex::Lock lock{ _mutex };
 
@@ -73,14 +73,6 @@ namespace tools {
 	{
 		if (is_enabled(level)) {
 			write(level, text.c_str());
-		}
-	}
-
-
-	void Logger::log(Level level, const std::wstring& text)
-	{
-		if (is_enabled(level)) {
-			write(level, tools::wstr2str(text).c_str());
 		}
 	}
 
@@ -144,7 +136,7 @@ namespace tools {
 
 		// Compute the number of characters.
 		va_copy(args_copy, args);
-		const int size = vsnprintf(nullptr, 0, format, args_copy);
+		const size_t size = vsnprintf(nullptr, 0, format, args_copy);
 		va_end(args_copy);
 
 		if (size < 0)
@@ -212,7 +204,7 @@ namespace tools {
 	}
 
 
-	void FileLogWriter::write(Logger::Level level, const char* text)
+	void FileLogWriter::write(Logger::Level level, const std::string& text)
 	{
 		(void)level;
 		if (_ofs.is_open()) {
@@ -251,6 +243,5 @@ namespace tools {
 		_queue.pop();
 		return text;
 	}
-
 
 }

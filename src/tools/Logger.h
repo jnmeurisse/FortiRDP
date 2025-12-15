@@ -52,7 +52,6 @@ namespace tools {
 		 * Logs a message.
 		*/
 		void log(Level level, const std::string& text);
-		void log(Level level, const std::wstring& text);
 		void log(Level level, const char* format, ...);
 		void log(Level level, const char* format, va_list args);
 		void trace(const char* format, ...);
@@ -107,7 +106,7 @@ namespace tools {
 		/**
 		 * Writes a message to the log writers.
 		*/
-		void write(Logger::Level level, const char* text);
+		void write(Logger::Level level, const std::string& text);
 
 		/**
 		 * Formats an error message.
@@ -140,7 +139,7 @@ namespace tools {
 	public:
 		virtual ~LogWriter() {}
 
-		virtual void write(Logger::Level level, const char* text) = 0;
+		virtual void write(Logger::Level level, const std::string& text) = 0;
 		virtual void flush() { return; }
 	};
 
@@ -155,7 +154,7 @@ namespace tools {
 		virtual ~FileLogWriter() override;
 
 		bool open(const std::wstring& filename);
-		virtual void write(Logger::Level level, const char* text) override;
+		virtual void write(Logger::Level level, const std::string& text) override;
 		virtual void flush() override;
 
 	private:
