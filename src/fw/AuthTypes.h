@@ -25,8 +25,8 @@ namespace fw {
 	// SSL VPN User Credentials
 	struct AuthCredentials
 	{
-		std::wstring username;
-		std::wstring password;
+		std::string username;
+		std::string password;
 	};
 
 	// SSL VPN MFA authentication code.

@@ -398,8 +398,8 @@ namespace ui {
 		if (modal_result && pCredentials) {
 			// Returns user name and password to caller
 			_username = credentialDialog.getUsername();
-			pCredentials->username = _username;
-			pCredentials->password = credentialDialog.getPassword();
+			pCredentials->username = tools::wstr2str(_username);
+			pCredentials->password = tools::wstr2str(credentialDialog.getPassword());
 
 			// Save user name in last usage registry but only if not specified on
 			// the command line.
