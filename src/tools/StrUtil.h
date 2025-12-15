@@ -78,12 +78,10 @@ std::wstring quote(const std::wstring& str);
 // Formats a string
 std::string string_format(const char* fmt, ...);
 
-// Converts wstring to string
+// Converts wstring to utf8-string
 std::string wstr2str(const std::wstring& wstr);
-std::string wstr2str(const wchar_t* pwstr);
 
-// Converts string to wstring
+// Converts utf8-string to wstring
 std::wstring str2wstr(const std::string& str);
-std::wstring str2wstr(const char* pstr);
 
 }

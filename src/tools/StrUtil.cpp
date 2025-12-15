@@ -7,10 +7,11 @@
 */
 #include "StrUtil.h"
 
+#include <Windows.h>
 #include <algorithm>
 #include <cctype>
-#include <codecvt>
 #include <cstdarg>
+#include <vector>
 
 
 namespace tools {
@@ -334,27 +335,41 @@ namespace tools {
 
 	std::string wstr2str(const std::wstring& wstr)
 	{
-		std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
-		return converter.to_bytes(wstr);
-	}
+		if (wstr.empty()) return {};
 
+		const int size = ::WideCharToMultiByte(
+			CP_UTF8, 0,
+			wstr.data(), (int)wstr.size(),
+			nullptr, 0,
+			nullptr, nullptr
+		);
 
-	std::string wstr2str(const wchar_t* pwstr)
-	{
-		return pwstr ? wstr2str(std::wstring(pwstr)) : "";
+		std::vector<char> result(size, 0);
+
+		::WideCharToMultiByte(
+			CP_UTF8, 0,
+			wstr.data(), (int)wstr.size(),
+			result.data(), (int)result.size(),
+			nullptr, nullptr
+		);
+
+		return std::string(result.begin(), result.end());
 	}
 
 
 	std::wstring str2wstr(const std::string& str)
 	{
-		std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
-		return converter.from_bytes(str);
-	}
+		const int size = ::MultiByteToWideChar(
+			CP_UTF8, 0, 
+			str.data(), (int)str.size(), 
+			nullptr, 0);
+		std::vector<wchar_t> result(size, 0);
 
+		::MultiByteToWideChar(CP_UTF8, 0, 
+			str.data(), (int)str.size(), 
+			result.data(), (int)result.size());
 
-	std::wstring str2wstr(const char* pstr)
-	{
-		return pstr ? str2wstr(std::string(pstr)) : L"";
+		return std::wstring(result.begin(), result.end());
 	}
 
 }
