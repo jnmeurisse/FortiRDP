@@ -72,7 +72,7 @@ void serase(std::wstring& str);
 // Performs variables substitution 
 std::wstring substvar(const std::wstring& str, const strimap& vars);
 
-// Quote a string (add quote at begin/end of the specified string)
+// Quotes a string (add quote at begin/end of the specified string)
 std::wstring quote(const std::wstring& str);
 
 // Formats a string
