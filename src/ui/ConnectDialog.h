@@ -115,11 +115,11 @@ namespace ui {
 		// Async message request handlers
 		void showAboutDialog();
 		void showOptionsDialog();
-		void showErrorMessageDialog(const wchar_t* pText);
+		void showErrorMessageDialog(const std::wstring& text);
 		void showCredentialsDialog(fw::AuthCredentials* pCredential);
 		void showSamlDialog(fw::AuthSamlInfo* pSamlInfo);
 		void showPinCodeDialog(fw::AuthCode* pCode);
-		void showInvalidCertificateDialog(const char* pText);
+		void showInvalidCertificateDialog(const std::wstring& text);
 		void disconnectFromFirewall(bool success);
 
 		// Async message event handlers

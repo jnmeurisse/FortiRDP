@@ -296,14 +296,14 @@ namespace ui {
 		// Check if the app executable exists.
 		if (!task_name.empty() && !tools::file_exists(task_name)) {
 			const std::wstring message{ L"Application not found : " + task_name };
-			showErrorMessageDialog(message.c_str());
+			showErrorMessageDialog(message);
 			return;
 		}
 
 		// Check if the RDP file exists.
 		if (!_params.rdp_filename().empty() && !tools::file_exists(_params.rdp_filename())) {
 			const std::wstring message{ L"RDP file not found : " + _task_info->path() };
-			showErrorMessageDialog(message.c_str());
+			showErrorMessageDialog(message);
 			return;
 		}
 
@@ -331,13 +331,13 @@ namespace ui {
 
 			if (!tools::file_exists(user_crt)) {
 				std::wstring message{ L"User certificate file not found : " + user_crt.to_string() };
-				showErrorMessageDialog(message.c_str());
+				showErrorMessageDialog(message);
 				return;
 			}
 
 			auto ask_password = [this](std::string& passcode) {
 				PinCodeDialog codeDialog{ instance_handle(), window_handle() };
-				const std::string message = "Enter your user certificate password";
+				codeDialog.setText(L"Enter your user certificate password");
 
 				const bool modal_result = codeDialog.show_modal() == TRUE;
 				if (modal_result) {
@@ -350,7 +350,7 @@ namespace ui {
 
 			if (!_controller->load_user_crt(user_crt, ask_password)) {
 				std::wstring message{ L"User certificate file not loaded" };
-				showErrorMessageDialog(message.c_str());
+				showErrorMessageDialog(message);
 				return;
 			}
 
@@ -675,16 +675,16 @@ namespace ui {
 	}
 
 
-	void ConnectDialog::showErrorMessageDialog(const wchar_t* pText)
+	void ConnectDialog::showErrorMessageDialog(const std::wstring& text)
 	{
-		show_message_box(pText, MB_ICONERROR | MB_OK);
+		show_message_box(text, MB_ICONERROR | MB_OK);
 		return;
 	}
 
 
-	void ConnectDialog::showInvalidCertificateDialog(const char* pText)
+	void ConnectDialog::showInvalidCertificateDialog(const std::wstring& text)
 	{
-		const int rc = show_message_box(tools::str2wstr(pText), MB_ICONWARNING | MB_YESNO | MB_DEFBUTTON2);
+		const int rc = show_message_box(text, MB_ICONWARNING | MB_YESNO | MB_DEFBUTTON2);
 		ReplyMessage(rc == IDYES);
 
 		return;
@@ -873,11 +873,13 @@ namespace ui {
 
 		}
 		else if (eventId == AsyncMessage::ShowInvalidCertificateDialogRequest->id()) {
-			showInvalidCertificateDialog(reinterpret_cast<char*>(param));
+			std::string message{ reinterpret_cast<char*>(param) };
+			showInvalidCertificateDialog(tools::str2wstr(message));
 
 		}
 		else if (eventId == AsyncMessage::ShowErrorMessageDialogRequest->id()) {
-			showErrorMessageDialog(reinterpret_cast<wchar_t*>(param));
+			std::wstring message{ reinterpret_cast<wchar_t*>(param) };
+			showErrorMessageDialog(message);
 
 		}
 		else if (eventId == AsyncMessage::DisconnectFromFirewallRequest->id()) {
