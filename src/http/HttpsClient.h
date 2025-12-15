@@ -102,12 +102,12 @@ namespace http {
 		void recv_answer(Answer& answer);
 
 		/**
-		 * Encodes a string that can be used in a query part of a URL.
+		 * Encodes an utf8 string that can be used in a query part of a URL.
 		*/
-		static std::string encode_url(const std::wstring& str);
+		static std::string encode_url(const std::string& str);
 
 		/**
-		 * Decodes a URL string.
+		 * Decodes a URL string into a utf8 string.
 		*/
 		static std::string decode_url(const std::string& str);
 

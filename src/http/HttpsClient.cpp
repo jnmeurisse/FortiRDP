@@ -223,27 +223,19 @@ namespace http {
 	}
 
 
-	std::string HttpsClient::encode_url(const std::wstring& str)
+	std::string HttpsClient::encode_url(const std::string& str)
 	{
 		static const char hexstr[] = "0123456789abcdef";
-
-		// Convert input string to utf-8
-		std::wstring_convert<std::codecvt_utf8<wchar_t>> utf8_conv;
-		const std::string utf8_str{ utf8_conv.to_bytes(str) };
 
 		// Allocate output buffer
 		std::stringstream escaped;
 
-		for (unsigned int i = 0; i < utf8_str.length(); i++) {
-			const char c = utf8_str.at(i);
-			if ((48 <= c && c <= 57) ||   // 0-9
-				(65 <= c && c <= 90) ||   // ABC...XYZ
-				(97 <= c && c <= 122) ||  // abc...xyz
-				(c == '~' || c == '-' || c == '_' || c == '.')) {
-
-				escaped << (char) c;
-
-			} else if (c <= 0xFF) {
+		for (unsigned char c : str) {
+			// RFC 3986 unreserved characters
+			if (std::isalnum(c) || c == '-' || c == '_' || c == '.' || c == '~') {
+				escaped << (char)c;
+			}
+			else {
 				escaped << "%";
 				escaped << hexstr[(c & 0xF0) >> 4];
 				escaped << hexstr[(c & 0x0F)];
@@ -253,10 +245,12 @@ namespace http {
 		return escaped.str();
 	}
 
+
 	std::string HttpsClient::decode_url(const std::string& str)
 	{
 		std::string unescaped;
-		unsigned int i = 0;
+		unescaped.reserve(str.size());
+		size_t i = 0;
 
 		while (i < str.length() - 2) {
 			const char c = str.at(i);
@@ -265,7 +259,7 @@ namespace http {
 				const int c1 = (int)str.at(i + 1);
 				const int c2 = (int)str.at(i + 2);
 
-				if (isxdigit(c1) && isxdigit(c2)) {
+				if (std::isxdigit(c1) && std::isxdigit(c2)) {
 					const char dc = ((c1 - '0') << 4) + (c2 - '0');
 					unescaped.append(&dc, 1);
 				}
