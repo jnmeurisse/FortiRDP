@@ -7,6 +7,7 @@
 */
 #include "FirewallTunnel.h"
 #include "tools/Logger.h"
+#include <stdexcept>
 
 
 namespace fw {
@@ -30,9 +31,9 @@ namespace fw {
 			_tunnel_socket->connect();
 			start_tunnel_mode();
 		}
-		catch (const mbed_error& e) {
+		catch (const std::runtime_error& e) {
 			_logger->error("ERROR: failed to open the tunnel");
-			_logger->error("ERROR: %s", e.message().c_str());
+			_logger->error("ERROR: %s", e.what());
 
 			return false;
 		}
