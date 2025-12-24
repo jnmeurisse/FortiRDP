@@ -28,6 +28,11 @@ namespace tools {
 		obfstring();
 
 		/**
+		 * Allocates obfuscated string from the given data.
+		*/
+		explicit obfstring(const char* data, size_t len);
+
+		/**
 		 * Allocates a copy of the obfuscated string.
 		*/
 		obfstring(const obfstring& other) = default;
@@ -41,6 +46,7 @@ namespace tools {
 		 * Allocates an obfuscated string initialized from the other string.
 		*/
 		explicit obfstring(obfstring&& other);
+
 
 		/**
 		* Assigns an obfuscated string.

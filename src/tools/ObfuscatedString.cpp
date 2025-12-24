@@ -19,6 +19,13 @@ namespace tools {
 	}
 
 
+	obfstring::obfstring(const char* data, size_t len) :
+		obfstring()
+	{
+		append(data, len);
+	}
+
+
 	obfstring::obfstring(uint8_t key, const char* secstr) :
 		_key(key),
 		_obfuscated_text(secstr)
