@@ -71,8 +71,8 @@ namespace http {
 		}
 
 		buffer
-			.append(_verb).append(" ")
-			.append(_url.to_string(true)).append(" ")
+			.append(_verb).append(' ')
+			.append(_url.to_string(true)).append(' ')
 			.append("HTTP/1.1")
 			.append("\r\n");
 
