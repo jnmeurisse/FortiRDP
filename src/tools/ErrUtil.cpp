@@ -98,9 +98,10 @@ namespace tools {
 	}
 
 
-	std::string mbed_error::message() const noexcept
+	mbed_error::mbed_error(mbed_err errnum) :
+		frdp_error(mbed_errmsg(errnum)),
+		_errnum(errnum >= 0 ? 0 : errnum)
 	{
-		return mbed_errmsg(_errnum);
 	}
 
 }

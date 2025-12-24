@@ -7,8 +7,7 @@
 */
 #pragma once
 
-#include <stdexcept>
-#include <string>
+#include "tools/ErrUtil.h"
 
 
 namespace http {
@@ -16,10 +15,10 @@ namespace http {
 	/**
 	 * Exception raised when the syntax of an HTTP cookie is incorrect.
 	 */
-	class CookieError final : public std::logic_error
+	class CookieError final : public tools::frdp_error
 	{
 	public:
-		explicit CookieError(const std::string& msg);
+		using tools::frdp_error::frdp_error;
 	};
 
 }

@@ -8,12 +8,12 @@
 #include "FirewallClient.h"
 
 #include <memory>
+#include <stdexcept>
 #include <mbedtls/x509_crt.h>
 #include "http/Request.h"
 #include "http/Cookie.h"
 #include "http/Cookies.h"
 #include "http/Url.h"
-#include "tools/ErrUtil.h"
 #include "tools/Json11.h"
 #include "tools/Logger.h"
 #include "tools/pugixml.hpp"
@@ -56,9 +56,9 @@ namespace fw {
 		try {
 			HttpsClient::connect();
 		}
-		catch (const mbed_error& e) {
+		catch (const std::runtime_error& e) {
 			_logger->error("ERROR: failed to connect to %s", host().to_string().c_str());
-			_logger->error("ERROR: %s", e.message().c_str());
+			_logger->error("ERROR: %s", e.what());
 
 			return portal_err::COMM_ERROR;
 		}
@@ -568,9 +568,9 @@ namespace fw {
 			try {
 				connect();
 			}
-			catch (const mbed_error &e) {
+			catch (std::runtime_error& e) {
 				_logger->error("ERROR: failed to connect to %s", host().to_string().c_str());
-				_logger->error("ERROR: %s", e.message().c_str());
+				_logger->error("ERROR: %s", e.what());
 
 				return false;
 			}
@@ -601,9 +601,9 @@ namespace fw {
 		try {
 			send_request(request);
 		}
-		catch (const mbed_error &e) {
+		catch (std::runtime_error& e) {
 			_logger->error("ERROR: failed to send HTTP request to %s", host().to_string().c_str());
-			_logger->error("ERROR: %s", e.message().c_str());
+			_logger->error("ERROR: %s", e.what());
 
 			return false;
 		}
@@ -611,9 +611,9 @@ namespace fw {
 		try {
 			recv_answer(answer);
 		}
-		catch (const frdp_error &e) {
+		catch (std::runtime_error& e) {
 			_logger->error("ERROR: failed to receive HTTP data from %s", host().to_string().c_str());
-			_logger->error("ERROR: %s", e.message().c_str());
+			_logger->error("ERROR: %s", e.what());
 
 			return false;
 		}

@@ -9,7 +9,7 @@
 
 #include <Windows.h>
 #include <string>
-#include <exception>
+#include <stdexcept>
 #include <lwip/err.h>
 
 
@@ -40,29 +40,17 @@ namespace tools {
 	std::string ppp_errmsg(const ppp_err errnum);
 
 
-	class frdp_error : public std::exception {
+	class frdp_error : public std::runtime_error {
 	public:
-		virtual std::string message() const noexcept = 0;
+		using std::runtime_error::runtime_error;
 	};
 
 	class mbed_error : public frdp_error {
 	public:
-		explicit mbed_error(mbed_err errnum) : _errnum(errnum >= 0 ? 0 : errnum) {};
+		explicit mbed_error(mbed_err errnum);
 		
-		std::string message() const noexcept override;
-
 	private:
 		const mbed_err _errnum;
-	};
-
-	class httpcli_error : public frdp_error {
-	public:
-		explicit httpcli_error(const std::string& message) : _message(message) {};
-
-		std::string message() const noexcept override { return _message; }
-
-	private:
-		const std::string _message;
 	};
 
 }

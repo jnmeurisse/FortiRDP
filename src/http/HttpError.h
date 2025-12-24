@@ -13,9 +13,9 @@
 namespace http {
 
 	/**
-	 * Exception raised when the syntax of an HTTP URL is incorrect.
+	 * Exception raised when an error is detected in an HTTP answer.
 	 */
-	class url_error final : public tools::frdp_error
+	class http_error final : public tools::frdp_error
 	{
 	public:
 		using tools::frdp_error::frdp_error;
