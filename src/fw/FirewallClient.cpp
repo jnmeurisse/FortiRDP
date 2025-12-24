@@ -113,7 +113,7 @@ namespace fw {
 			Fetch the top page, following up to two redirects if necessary.
 			Then verify that the resulting top page exists.
 		*/
-		if (!request(http::Request::GET_VERB, make_url("/" + _realm), "", http::Headers(), answer, 2))
+		if (!send_request(http::Request::GET_VERB, make_url("/" + _realm), "", http::Headers(), answer, 2))
 			return portal_err::COMM_ERROR;
 
 		if (answer.get_status_code() != HttpsClient::STATUS_OK) {
@@ -144,7 +144,7 @@ namespace fw {
 		http::Headers headers;
 		headers.set("Content-Type", "text/plain;charset=UTF-8");
 
-		if (!request(http::Request::POST_VERB, make_url("/remote/logincheck"), in_params.join("&"), headers, answer, 0))
+		if (!send_request(http::Request::POST_VERB, make_url("/remote/logincheck"), in_params.join("&"), headers, answer, 0))
 			return portal_err::COMM_ERROR;
 
 		if (!(answer.get_status_code() == HttpsClient::STATUS_OK ||
@@ -196,7 +196,7 @@ namespace fw {
 			params_query.set("realm", _realm);
 		params_query.set("lang", "en");
 		const http::Url login_url = make_url("/remote/login", params_query.join("&"));
-		if (!request(http::Request::GET_VERB, login_url, "", http::Headers(), answer, 0))
+		if (!send_request(http::Request::GET_VERB, login_url, "", http::Headers(), answer, 0))
 			return portal_err::COMM_ERROR;
 
 		if (answer.get_status_code() != HttpsClient::STATUS_OK) {
@@ -273,7 +273,7 @@ namespace fw {
 				}
 
 				redir_url = make_url(redir_url.get_path(), redir_url.get_query());
-				if (!request(http::Request::GET_VERB, redir_url, "", http::Headers(), answer, 0))
+				if (!send_request(http::Request::GET_VERB, redir_url, "", http::Headers(), answer, 0))
 					return portal_err::COMM_ERROR;
 
 				return portal_err::NONE;
@@ -353,7 +353,7 @@ namespace fw {
 				if (!ask_code(challenge))
 					return portal_err::LOGIN_CANCELLED;
 
-				// .. build the request
+				// .. build the send_request
 				params_query.set("magic", params_result.get_str_value("magic", ""));
 				params_query.set(
 					"reqid",
@@ -424,7 +424,7 @@ namespace fw {
 		http::Answer answer;
 
 		const http::Url logout_url = make_url("/remote/logout");
-		bool ok = request(http::Request::GET_VERB, logout_url, "", headers, answer, 0);
+		bool ok = send_request(http::Request::GET_VERB, logout_url, "", headers, answer, 0);
 
 		// Delete all session cookies
 		if (_logger->is_trace_enabled()) {
@@ -448,7 +448,7 @@ namespace fw {
 		http::Answer answer;
 
 		const http::Url portal_url = make_url("/remote/portal", "access");
-		if (!request(http::Request::GET_VERB, portal_url, "", headers, answer, 0))
+		if (!send_request(http::Request::GET_VERB, portal_url, "", headers, answer, 0))
 		{
 			_logger->error("ERROR: get portal info failure");
 			return false;
@@ -495,7 +495,7 @@ namespace fw {
 			This call is mandatory because the FortiGate will not provide an IP address otherwise.
 		*/
 		const http::Url vpninfo_url = make_url("/remote/fortisslvpn_xml");
-		if (!request(http::Request::GET_VERB, vpninfo_url, "", headers, answer, 0))
+		if (!send_request(http::Request::GET_VERB, vpninfo_url, "", headers, answer, 0))
 		{
 			_logger->error("ERROR: get portal configuration failure");
 			return false;
@@ -599,7 +599,7 @@ namespace fw {
 		}
 
 		try {
-			send_request(request);
+			HttpsClient::send_request(request);
 		}
 		catch (std::runtime_error& e) {
 			_logger->error("ERROR: failed to send HTTP request to %s", host().to_string().c_str());
@@ -651,7 +651,7 @@ namespace fw {
 			/*
 				Process cookies received in the HTTP response and update the local cookie jar.
 
-				For each cookie whose domain matches the request URL (or is unspecified):
+				For each cookie whose domain matches the send_request URL (or is unspecified):
 				  - Remove it if it has expired.
 				  - Add it if it is marked as Secure and HttpOnly.
 				  - Otherwise, ignore it.
@@ -710,7 +710,7 @@ namespace fw {
 	}
 
 
-	bool FirewallClient::request(const std::string& verb, const http::Url& url,
+	bool FirewallClient::send_request(const std::string& verb, const http::Url& url,
 		const std::string& body, const http::Headers& headers, http::Answer& answer, int allow_redir)
 	{
 		if (allow_redir < 0) {
@@ -729,7 +729,7 @@ namespace fw {
 			std::string location;
 			if (answer.headers().get("Location", location)) {
 				const http::Url redir_url{ location };
-				if (!request(verb, make_url(redir_url.get_path(), redir_url.get_query()), body, headers, answer, allow_redir - 1))
+				if (!send_request(verb, make_url(redir_url.get_path(), redir_url.get_query()), body, headers, answer, allow_redir - 1))
 					return false;
 			}
 		}

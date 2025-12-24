@@ -74,7 +74,7 @@ namespace fw {
 		 * Opens a connection to the FortiGate portal and performs certificate validation.
 		 *
 		 * This function attempts to connect to the web server, handles certificate validation,
-		 * and sends a request to retrieve the top page. The function logs relevant
+		 * and sends a send_request to retrieve the top page. The function logs relevant
 		 * information during each step, including the connection details and certificate
 		 * status. If the certificate is untrusted, it invokes the `confirm_crt` callback
 		 * to validate whether the connection should proceed.
@@ -94,7 +94,7 @@ namespace fw {
 		/**
 		 * Performs basic authentication with the FortiGate portal using the provided credentials.
 		 *
-		 * This function sends a login request to the server, retrieves the status, and
+		 * This function sends a login send_request to the server, retrieves the status, and
 		 * handles various authentication flows, including two-factor authentication (2FA),
 		 * password renewal, and challenges. It uses two callback functions to ask the
 		 * user for credentials and a 2FA code when needed.
@@ -119,7 +119,7 @@ namespace fw {
 		 *
 		 * This function initiates the SAML authentication process by gathering necessary
 		 * information, including the service provider certificate, and then uses the
-		 * provided callback to request the user to authenticate via SAML. If the user
+		 * provided callback to send_request the user to authenticate via SAML. If the user
 		 * completes the authentication successfully, the function proceeds; otherwise,
 		 * it returns a login canceled error.
 		 *
@@ -139,9 +139,9 @@ namespace fw {
 		/**
 		 * Retrieves information about the portal.
 		 *
-		 * This function makes an authenticated request to the portal server to fetch
+		 * This function makes an authenticated send_request to the portal server to fetch
 		 * details about the portal, including user, group, and version information. If
-		 * the client is not authenticated, the function returns false. If the request is
+		 * the client is not authenticated, the function returns false. If the send_request is
 		 * successful, the portal information is parsed and stored in the provided
 		 * `PortalInfo` object.
 		 *
@@ -150,25 +150,25 @@ namespace fw {
 		 *                    version information from the portal.
 		 *
 		 * @return true if the information is successfully retrieved and parsed;
-		 *         false if the client is not authenticated or if the request fails.
+		 *         false if the client is not authenticated or if the send_request fails.
 		 */
 		bool get_info(PortalInfo& portal_info);
 
 		/**
 		 * Retrieves the SSL VPN configuration.
 		 *
-		 * This function makes an authenticated request to the portal server to fetch the
+		 * This function makes an authenticated send_request to the portal server to fetch the
 		 * SSL VPN configuration in XML format. It is mandatory to obtain this configuration
-		 * to get the IP address from the FortiGate device. If the request is successful,
+		 * to get the IP address from the FortiGate device. If the send_request is successful,
 		 * the local address (IPv4) is extracted and stored in the provided `SslvpnConfig`
 		 * object. If the client is not authenticated or if there are issues with the
-		 * request or XML parsing, the function returns `false`.
+		 * send_request or XML parsing, the function returns `false`.
 		 *
 		 * @param sslvpn_config The object to store the SSL VPN configuration, particularly
 		 *                      the assigned local IPv4 address.
 		 *
 		 * @return true if the configuration is successfully retrieved and parsed;
-		 *         false if the client is not authenticated, the request fails, or if
+		 *         false if the client is not authenticated, the send_request fails, or if
 		 *         there are issues parsing or decoding the XML response.
 		 */
 		bool get_config(SslvpnConfig& sslvpn_config);
@@ -215,16 +215,16 @@ namespace fw {
 		// Logs an HTTP error message.
 		void log_http_error(const char* msg, const http::Answer& answer);
 
-		// Sends a request and wait for a response.
+		// Sends a send_request and wait for a response.
 		bool send_and_receive(http::Request& request, http::Answer& answer);
 
-		// Sends a request and wait for a response.
+		// Sends a send_request and wait for a response.
 		bool do_request(const std::string& verb, const http::Url& url, const std::string& body,
 			const http::Headers& headers, http::Answer& answer);
 
-		// Sends a request and wait for a response, follows redirect if allow_redir is >= 0.
+		// Sends a send_request and wait for a response, follows redirect if allow_redir is >= 0.
 		// allow_redir specifies the number of allowed redirection.
-		bool request(const std::string& verb, const http::Url& url, const std::string& body,
+		bool send_request(const std::string& verb, const http::Url& url, const std::string& body,
 			const http::Headers& headers, http::Answer& answer, int allow_redir);
 
 		// Sends a login check to the firewall portal.
