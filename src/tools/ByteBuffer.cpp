@@ -74,4 +74,16 @@ namespace tools {
 		return *this;
 	}
 
+
+	tools::obfstring ByteBuffer::to_obfstring() const
+	{
+		return tools::obfstring(reinterpret_cast<const char *>(_buffer.data()), _buffer.size());
+	}
+
+
+	std::string ByteBuffer::to_string() const
+	{
+		return std::string(reinterpret_cast<const char*>(_buffer.data()), _buffer.size());
+	}
+
 }

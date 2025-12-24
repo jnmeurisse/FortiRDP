@@ -71,7 +71,6 @@ namespace tools {
 		*/
 		ByteBuffer& append(const byte* data, size_t size);
 
-
 		/**
 		 * Appends the given byte to the end of this buffer.
 		 *
@@ -100,7 +99,7 @@ namespace tools {
 		ByteBuffer& append(const tools::obfstring& data);
 
 		/**
-		 * Returns true if the data buffer is empty.
+		 * Returns true if the buffer is empty.
 		*/
 		inline bool empty() const noexcept { return size() == 0; }
 
@@ -108,6 +107,11 @@ namespace tools {
 		 * Returns the number of used bytes in the buffer.
 		*/
 		inline size_t size() const noexcept { return _buffer.size(); }
+
+		/**
+		 * Returns the capacity of this buffer.
+		*/
+		inline size_t capactity() const noexcept { return _buffer.capacity(); }
 
 		/**
 		 * Returns the pointer to the first byte in the buffer.
@@ -118,6 +122,17 @@ namespace tools {
 		 * Returns the pointer to the next-to-the-last byte in the buffer.
 		*/
 		inline const byte* cend() const noexcept { return _buffer.data() + size(); }
+
+		/**
+		 * Returns this buffer as an obfuscated string.
+		 */
+		tools::obfstring to_obfstring() const;
+
+		/**
+		 * Returns this buffer as a string.
+		*/
+		std::string to_string() const;
+
 
 	private:
 		// the buffer.
