@@ -62,7 +62,7 @@ namespace tools {
 		void reserve(size_t capacity);
 
 		/**
-		 * Appends the given data buffer to the end of this buffer;
+		 * Appends the given data buffer to the end of this buffer.
 		 *
 		 * @param data	A pointer to the data buffer to append.
 		 * @param size	The number of bytes to copy at the end of the stream.
@@ -70,6 +70,16 @@ namespace tools {
 		 * @return this ByteBuffer.
 		*/
 		ByteBuffer& append(const byte* data, size_t size);
+
+
+		/**
+		 * Appends the given byte to the end of this buffer.
+		 *
+		 * @param data	A byte to append.
+		 *
+		 * @return this ByteBuffer.
+		*/
+		ByteBuffer& append(const byte data);
 
 		/**
 		 * Appends the string to the end of this buffer.

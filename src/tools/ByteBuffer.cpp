@@ -47,6 +47,14 @@ namespace tools {
 	}
 
 
+	ByteBuffer& ByteBuffer::append(const byte data)
+	{
+		_buffer.push_back(data);
+
+		return *this;
+	}
+
+
 	ByteBuffer& ByteBuffer::append(const std::string& data)
 	{
 		return append(reinterpret_cast<const byte*>(data.c_str()), data.size());
