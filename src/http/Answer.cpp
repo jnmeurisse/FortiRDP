@@ -12,8 +12,12 @@
 #include <zlib.h>
 #include "http/Cookie.h"
 #include "http/CookieError.h"
+#include "http/HttpError.h"
 #include "tools/StrUtil.h"
 #include "tools/ErrUtil.h"
+#include <cstring>
+#include <cctype>
+#include <locale>
 
 
 namespace http {
@@ -24,7 +28,6 @@ namespace http {
 
 	Answer::Answer() :
 		_logger(Logger::get_logger()),
-		_version(),
 		_status_code(default_code),
 		_reason_phrase(default_reason),
 		_headers(),
@@ -36,7 +39,6 @@ namespace http {
 
 	void Answer::clear()
 	{
-		_version.clear();
 		_status_code = default_code;
 		_reason_phrase = default_reason;
 		_body.clear();
@@ -45,54 +47,61 @@ namespace http {
 	}
 
 
-	int Answer::read_buffer(net::TcpSocket& socket, unsigned char* buf, const size_t len, const tools::Timer& timer)
+	bool Answer::read_buffer(net::TcpSocket& socket, unsigned char* buffer, const size_t len, const tools::Timer& timer)
 	{
-		const rcv_status status{ socket.read(buf, len, timer) };
+		const rcv_status status{ socket.read(buffer, len, timer) };
 
-		if (status.code == rcv_status_code::NETCTX_RCV_ERROR || status.code == rcv_status_code::NETCTX_RCV_RETRY) {
-			// read failed or timed out
-			throw mbed_error(status.rc);
+		switch (status.code) {
+			case rcv_status_code::NETCTX_RCV_ERROR:
+			case rcv_status_code::NETCTX_RCV_RETRY:
+				// read failed or timed out
+				throw mbed_error(status.rc);
+
+			case rcv_status_code::NETCTX_RCV_OK:
+				return true;
+
+			default:
+			case rcv_status_code::NETCTX_RCV_EOF:
+				return false;
 		}
-
-		// Returns false in case of EOF
-		return status.code == rcv_status_code::NETCTX_RCV_OK;
 	}
 
 
-	int Answer::read_char(net::TcpSocket& socket, char& c, const tools::Timer& timer)
+	bool Answer::read_byte(net::TcpSocket& socket, unsigned char& c, const tools::Timer& timer)
 	{
-		return read_buffer(socket, reinterpret_cast<unsigned char*>(&c), sizeof(char), timer);
+		return read_buffer(socket, &c, sizeof(char), timer);
 	}
 
 
-	int Answer::read_line(net::TcpSocket& socket, int max_len, tools::obfstring& line, const tools::Timer& timer)
+	Answer::answer_status Answer::read_line(net::TcpSocket& socket, tools::ByteBuffer& buffer, const tools::Timer& timer)
 	{
 		DEBUG_ENTER(_logger);
 
 		int state = 0;
-		int bytes_received = 0;
-		char c;
+		size_t bytes_received = 0;
 
-		line.clear();
+		buffer.clear();
 
 		while (state != 2) {
-			if (read_char(socket, c, timer) != sizeof(c))
-				break;
+			unsigned char c;
+
+			if (!read_byte(socket, c, timer))
+				return answer_status::ERR_EOF;
 
 			switch (state) {
 			case 0:
 				if (c == '\r')
 					state = 1;
-				else if (bytes_received < max_len)
-					line.push_back(c);
+				else if (bytes_received < buffer.capactity())
+					buffer.append(&c, 1);
 				break;
 
 			case 1:
 				if (c == '\n')
 					state = 2;
-				else if (bytes_received < max_len) {
-					line.push_back('\r');
-					line.push_back(c);
+				else if (bytes_received < buffer.capactity()) {
+					buffer.append('\r');
+					buffer.append(c);
 				}
 				break;
 
@@ -103,52 +112,119 @@ namespace http {
 			bytes_received++;
 		}
 
-		return bytes_received;
+		return answer_status::ERR_NONE;
 	}
 
 
-	int Answer::read_http_status(net::TcpSocket& socket, const tools::Timer& timer)
+	Answer::answer_status Answer::read_control_data(net::TcpSocket& socket, const tools::Timer& timer)
 	{
 		DEBUG_ENTER(_logger);
-		tools::obfstring line;
 
-		// We assume that the server did not understand our request
+		// We assume that the server did not understand our send_request
 		_status_code = default_code;
 		_reason_phrase = default_reason;
 
-		// Read the status line and return an error code if the server has closed 
+		// The answer should have the following syntax :
+		//		HTTP-Version SP Status-Code SP Reason-Phrase
+		// See https://www.rfc-editor.org/rfc/rfc9110.html
+
+		// Read the HTTP version. Return an error code if the server has closed 
 		// the connection before sending a valid response.
-		if (read_line(socket, MAX_HEADER_SIZE, line, timer) <= 0)
-			return ERR_INVALID_STATUS_LINE;
+		unsigned char http_version[8];
+		if (!read_buffer(socket, http_version, sizeof(http_version), timer))
+			return answer_status::ERR_INVALID_STATUS_LINE;
+		if (std::memcmp(http_version, "HTTP/1.1", sizeof(http_version)) != 0)
+			return answer_status::ERR_INVALID_VERSION;
 
-		// The answer should have the following syntax :  HTTP-Version SP Status-Code SP Reason-Phrase
-		// See https://www.rfc-editor.org/rfc/rfc9110.html 
-		std::vector<std::string> parts;
-		const size_t count = tools::split(line.uncrypt(), ' ', parts);
-		if (count >= 1) {
-			_version = parts[0];
-			if (_version.compare("HTTP/1.1") != 0) {
-				return ERR_INVALID_VERSION;
-			}
+		// Skip a space
+		unsigned char space;
+		if (!read_buffer(socket, &space, sizeof(space), timer) || space != ' ')
+			return answer_status::ERR_INVALID_STATUS_LINE;
+
+		// Read the status code.
+		// The status code of a response is a three-digit integer code that describes
+		// the result of the send_request.
+		unsigned char status_code[3];
+		if (!read_buffer(socket, status_code, sizeof(status_code), timer))
+			return answer_status::ERR_INVALID_STATUS_LINE;
+
+		// Convert status code text to an integer.
+		_status_code = 0;
+		for (unsigned char c : status_code) {
+			if (!std::isdigit(c))
+				return answer_status::ERR_INVALID_STATUS_CODE;
+			_status_code = (_status_code * 10) + (c - '0');
 		}
 
-		if (count >= 2) {
-			if (!tools::str2i(parts[1], _status_code) || (_status_code < 100) || (_status_code >= 600)) {
-				// Invalid HTTP code
-				return ERR_INVALID_STATUS_CODE;
-			}
+		if ((_status_code < 100) || (_status_code >= 600))
+			// Invalid HTTP code
+			return answer_status::ERR_INVALID_STATUS_CODE;
+
+		// Read the reason phrase
+		tools::ByteBuffer buffer(1024);
+		answer_status status = read_line(socket, buffer, timer);
+		if (status == answer_status::ERR_NONE  && buffer.size() > 0) {
+			_reason_phrase = tools::trim(buffer.to_string());
 		}
 
-		if (count >= 3) {
-			// Merge all others parts and rebuild the reason phrase if specified
-			_reason_phrase = parts[2];
-			for (size_t idx = 3; idx < count; idx++) {
-				_reason_phrase.append(" ");
-				_reason_phrase.append(parts[idx]);
-			}
-		}
+		return status;
+	}
 
-		return count >= 2 ? ERR_NONE : ERR_INVALID_STATUS_LINE;
+
+	static bool is_valid_field_name(const std::string& field_name)
+	{
+		auto& facet = std::use_facet<std::ctype<char>>(std::locale::classic());
+		
+		/* Field names should be restricted to just letters, digits, and 
+		 * hyphen('-') characters. */
+		return
+			field_name.size() > 0 &&
+			std::all_of(
+				field_name.begin(),
+				field_name.end(),
+				[&facet](unsigned char c) {
+					return facet.is(std::ctype_base::alnum, c) || c == '-'; 
+				}
+			);
+	}
+
+
+	Answer::answer_status Answer::read_headers(net::TcpSocket& socket, const tools::Timer& timer)
+	{
+		answer_status status;
+		tools::ByteBuffer buffer(MAX_HEADER_SIZE);
+
+		while ((status = read_line(socket, buffer, timer)) == answer_status::ERR_NONE && buffer.size() > 0) {
+			tools::obfstring line{ buffer.to_obfstring() };
+
+			// Split header into name and value at the first colon.
+			const std::string::size_type pos{ line.find(':') };
+			if (pos != std::string::npos && pos > 0) {
+				const std::string field_name{ line.substr(0, pos).uncrypt() };
+
+				// Validate the field name.
+				if (!is_valid_field_name(field_name))
+					return answer_status::ERR_INVALID_FIELD;
+
+				const tools::obfstring field_value{ tools::trim(line.substr(pos + 1, std::string::npos)) };
+
+				if (tools::iequal(field_name, "Set-Cookie")) {
+					// A cookie definition
+					try {
+						_cookies.add(Cookie::parse(field_value));
+					}
+					catch (const CookieError& e) {
+						_logger->trace("ERROR: %s", e.what());
+					}
+				}
+				else {
+					// It is a header.
+					_headers.set(field_name, field_value.uncrypt());
+				}
+			}
+		};
+
+		return status;
 	}
 
 
@@ -233,7 +309,7 @@ namespace http {
 	}
 
 
-	int Answer::recv(net::TcpSocket& socket, const tools::Timer& timer)
+	void Answer::recv(net::TcpSocket& socket, const tools::Timer& timer)
 	{
 		if (_logger->is_trace_enabled())
 			_logger->trace("... %x enter %s::%s timeout=%lu",
@@ -243,48 +319,25 @@ namespace http {
 				timer.remaining_time()
 			);
 
-		int rc;
-		tools::obfstring line;
+		answer_status status;
 
 		// The received message has the following syntax
-		//  answer         = status-line
-		//                   *(message-header CRLF)
-		//                   CRLF
-		//                   [ message-body ]
+		//  answer  = status-line CRLF
+		//            *(message-header CRLF)
+		//            CRLF
+		//            [ message-body ]
 		//  message-header = field-name ":" [ field-value ]
 		//
 		//  Note : leading or trailing LWS MAY be removed without changing 
 		//         the semantics of the field value
 
 		// Read status-line.
-		if ((rc = read_http_status(socket, timer)) != ERR_NONE)
-			return rc;
+		if ((status = read_control_data(socket, timer)) != answer_status::ERR_NONE)
+			throw http_error(answer_status_msg(status));
 
 		// Read message-headers. 
-		do {
-			if ((rc = read_line(socket, MAX_HEADER_SIZE, line, timer)) <= 0)
-				return ERR_INVALID_HEADER;
-
-			const std::string::size_type pos{ line.find(':') };
-			if (pos > 0 && pos != std::string::npos) {
-				const std::string field_name{ line.substr(0, pos).uncrypt() };
-				const tools::obfstring field_value{ tools::trim(line.substr(pos + 1, std::string::npos)) };
-
-				if (tools::iequal(field_name, "Set-Cookie")) {
-					// A cookie definition
-					try {
-						_cookies.add(Cookie::parse(field_value));
-					}
-					catch (const CookieError& e) {
-						_logger->trace("ERROR: %s", e.what());
-					}
-				}
-				else {
-					// it is a header
-					_headers.set(field_name, field_value.uncrypt());
-				}
-			}
-		} while (line.size() > 0);
+		if ((status = read_headers(socket, timer)) != answer_status::ERR_NONE)
+			throw http_error(answer_status_msg(status));
 
 		// Get the encoding scheme
 		std::string transfer_encoding;
@@ -292,47 +345,48 @@ namespace http {
 			transfer_encoding = tools::lower(tools::trim(transfer_encoding));
 		}
 
-		bool gzip = false;
+		bool gzip_content = false;
 		std::string content_encoding;
 		if (_headers.get("Content-Encoding", content_encoding)) {
 			content_encoding = tools::lower(tools::trim(content_encoding));
 			if (content_encoding.compare("") == 0) {
 			}
 			else if (content_encoding.compare("gzip") == 0) {
-				gzip = true;
+				gzip_content = true;
 			}
 			else {
-				return ERR_CONTENT_ENCODING;
+				throw http_error(answer_status_msg(answer_status::ERR_CONTENT_ENCODING));
 			}
 		}
 
 		// Read the body.
-		// Are we using the chunked-style of transfer encoding?
+		// Are we using a chunked-style transfer encoding?
 		if (transfer_encoding.compare("chunked") == 0) {
-			if (gzip)
-				return ERR_CONTENT_ENCODING;
+			if (gzip_content)
+				throw http_error(answer_status_msg(answer_status::ERR_CONTENT_ENCODING));
 
 			// chunked message
 			long chunk_size = 0;
+			tools::ByteBuffer buffer(MAX_LINE_SIZE);
 
 			do {
 				// read chunk size
-				if ((rc = read_line(socket, MAX_LINE_SIZE, line, timer)) <= 0)
-					return ERR_CHUNK_SIZE;
+				if ((status = read_line(socket, buffer, timer)) != answer_status::ERR_NONE || buffer.size() == 0)
+					throw http_error(answer_status_msg(answer_status::ERR_CHUNK_SIZE));
 
 				// decode chunk size
-				if (!tools::str2num(line.uncrypt(), 16, 0, MAX_CHUNK_SIZE, chunk_size)) {
-					return ERR_CHUNK_SIZE;
+				if (!tools::str2num(buffer.to_string(), 16, 0, MAX_CHUNK_SIZE, chunk_size)) {
+					throw http_error(answer_status_msg(answer_status::ERR_CHUNK_SIZE));
 				}
 
 				if (chunk_size > 0) {
 					if (!read_body(socket, chunk_size, MAX_BODY_SIZE, timer))
-						return ERR_BODY;
+						throw http_error(answer_status_msg(answer_status::ERR_BODY));
 				}
 
 				// skip eol
-				if ((rc = read_line(socket, MAX_LINE_SIZE, line, timer)) <= 0)
-					return ERR_BODY;
+				if ((status = read_line(socket, buffer, timer)) != answer_status::ERR_NONE || buffer.size() != 0)
+					throw http_error(answer_status_msg(answer_status::ERR_BODY));
 			} while (chunk_size > 0);
 
 		}
@@ -344,7 +398,7 @@ namespace http {
 				long size = 0;
 
 				if (!tools::str2num(length, 10, 0, MAX_BODY_SIZE, size)) {
-					return ERR_BODY_SIZE;
+					throw http_error(answer_status_msg(answer_status::ERR_BODY_SIZE));
 				}
 
 				if (size > 0) {
@@ -353,23 +407,66 @@ namespace http {
 
 					// read the whole body
 					bool body_available;
-					if (gzip)
+					if (gzip_content)
 						body_available = read_gzip_body(socket, size, MAX_BODY_SIZE, timer);
 					else
 						body_available = read_body(socket, size, MAX_BODY_SIZE, timer);
 
 					if (!body_available)
-						return ERR_BODY;
+						throw http_error(answer_status_msg(answer_status::ERR_BODY));
 				}
 			}
 		}
 		else {
 			// unsupported transfer encoding
-			return ERR_TRANSFER_ENCODING;
+			throw http_error(answer_status_msg(answer_status::ERR_TRANSFER_ENCODING));
 		}
 
-		return ERR_NONE;
+		return;
 	}
+
+
+	std::string Answer::answer_status_msg(answer_status status)
+	{
+		std::string message;
+		switch (status) {
+		case answer_status::ERR_EOF:
+			message = "HTTP answer EOF"; break;
+
+		case answer_status::ERR_INVALID_FIELD:
+			message = "HTTP answer contains non ASCII character"; break;
+
+		case answer_status::ERR_INVALID_STATUS_LINE:;
+			message = "Invalid HTTP status line"; break;
+
+		case answer_status::ERR_INVALID_VERSION:
+			message = "Invalid HTTP version"; break;
+
+		case answer_status::ERR_INVALID_STATUS_CODE:
+			message = "Invalid HTTP status code"; break;
+
+		case answer_status::ERR_INVALID_HEADER:
+			message = "Invalid HTTP header"; break;
+
+		case answer_status::ERR_CHUNK_SIZE:
+			message = "Invalid HTTP chunk size"; break;
+
+		case answer_status::ERR_BODY_SIZE:
+			message = "Invalid HTTP body size"; break;
+
+		case answer_status::ERR_CONTENT_ENCODING:
+			message = "Unsupported HTTP content encoding"; break;
+
+		case answer_status::ERR_TRANSFER_ENCODING:
+			message = "Unsupported HTTP transfer encoding"; break;
+
+		case answer_status::ERR_BODY:
+			message = "Incomplete HTTP body"; break;
+		}
+
+		return message;
+	}
+
 
 	const char* Answer::__class__ = "Answer";
 
