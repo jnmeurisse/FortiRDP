@@ -86,7 +86,7 @@ namespace net {
 					read_status.rc = poll_rcv_status.rc;
 				}
 			}
-		} while (len >= 0 && read_status.code == rcv_status_code::NETCTX_RCV_RETRY);
+		} while (len > 0 || read_status.code == rcv_status_code::NETCTX_RCV_RETRY);
 
 		if (_logger->is_trace_enabled())
 			_logger->trace(
@@ -136,7 +136,7 @@ namespace net {
 					write_status.rc = poll_snd_status.rc;
 				}
 			}
-		} while (len >= 0 && write_status.code == snd_status_code::NETCTX_SND_RETRY);
+		} while (len > 0 || write_status.code == snd_status_code::NETCTX_SND_RETRY);
 
 		if (_logger->is_trace_enabled())
 			_logger->trace(
