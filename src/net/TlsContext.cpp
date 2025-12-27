@@ -48,7 +48,7 @@ namespace net {
 		int rc;
 
 		do {
-			rc =:: mbedtls_ssl_close_notify(&_sslctx);
+			rc = ::mbedtls_ssl_close_notify(&_sslctx);
 		} while (rc == MBEDTLS_ERR_SSL_WANT_WRITE);
 
 		return rc;
