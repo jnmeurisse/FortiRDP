@@ -67,7 +67,7 @@ namespace http {
 		void disconnect();
 
 		/**
-		 * Sends a request to the server.
+		 * Sends a send_request to the server.
 		 *
 		 * This function sends an HTTP request to the server. The request is passed as
 		 * an argument and transmitted over the active connection. It may throw an
@@ -76,7 +76,7 @@ namespace http {
 		 *
 		 * @param request The HTTP request to be sent to the server.
 		 *
-		 * @throws mbed_error If an error occurs during the request transmission,
+		 * @throws mbed_error If an error occurs during the send_request transmission,
 		 *                    such as network, socket-related, timeout issues.
 		 */
 		void send_request(Request& request);
@@ -96,8 +96,8 @@ namespace http {
 		 *
 		 * @throws mbed_error If an error occurs while receiving the response
 		 *                    such as network, socket-related, timeout issues.
-		 * @throws httpcli_error If an error occurs while receiving the response,
-		 *                       such as invalid status line, version, or body.
+		 * @throws http_error If an error occurs while receiving the response,
+		 *                    such as invalid status line, version, or body.
 		 */
 		void recv_answer(Answer& answer);
 
