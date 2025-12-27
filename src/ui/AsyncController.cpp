@@ -245,7 +245,7 @@ namespace ui {
 			action_name(action)
 		);
 
-		// Only one thread can request an action.
+		// Only one thread can send_request an action.
 		tools::Mutex::Lock lock(_mutex);
 
 		// Wait that the controller thread is ready
@@ -397,10 +397,8 @@ namespace ui {
 						__func__,
 						e.what()
 					);
-					terminated = true;
 
-					
-					throw;
+					terminated = true;
 				}
 			}
 		}
