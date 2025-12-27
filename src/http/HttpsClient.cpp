@@ -9,12 +9,9 @@
 
 #include <algorithm>
 #include <cctype>
-#include <iosfwd>
 #include <iostream>
 #include <sstream>
-#include <codecvt>
 #include "tools/StringMap.h"
-#include <algorithm>
 
 
 namespace http {
@@ -56,8 +53,8 @@ namespace http {
 	}
 
 
-    bool HttpsClient::set_timeouts(uint32_t connect_timeout, uint32_t send_timeout, uint32_t receive_timeout)
-    {
+	bool HttpsClient::set_timeouts(uint32_t connect_timeout, uint32_t send_timeout, uint32_t receive_timeout)
+	{
 		bool rc = false;
 
 		if (!TlsSocket::is_connected()) {
@@ -69,7 +66,7 @@ namespace http {
 		}
 
 		return rc;
-    }
+	}
 
 
 	bool HttpsClient::is_reconnection_required() const
@@ -156,43 +153,7 @@ namespace http {
 		answer.clear();
 
 		// Receive the answer from the server.
-		const int rc = answer.recv(*this, tools::Timer{ _receive_timeout });
-
-		_logger->debug(
-			"... %x       %s::%s : rc=%d",
-			(uintptr_t)this,
-			__class__,
-			__func__,
-			rc
-		);
-		
-		if (rc != Answer::ERR_NONE) {
-			std::string message;
-			switch (rc) {
-			case Answer::ERR_INVALID_STATUS_LINE:;
-				message = "Invalid HTTP Status line"; break;
-			case Answer::ERR_INVALID_VERSION:
-				message = "Invalid HTTP version"; break;
-			case Answer::ERR_INVALID_STATUS_CODE:
-				message = "Invalid HTTP status code"; break;
-			case Answer::ERR_INVALID_HEADER:
-				message = "Invalid HTTP header"; break;
-			case Answer::ERR_CHUNK_SIZE:
-				message = "Invalid HTTP chunk size"; break;
-			case Answer::ERR_BODY_SIZE:
-				message = "Invalid HTTP body size"; break;
-			case Answer::ERR_CONTENT_ENCODING:;
-				message = "Unsupported HTTP content encoding"; break;
-			case Answer::ERR_TRANSFER_ENCODING:
-				message = "Unsupported HTTP transfer encoding"; break;
-			case Answer::ERR_BODY:
-				message = "Invalid HTTP body"; break;
-			default:
-				message = "Unknown error in HttpsClient"; break;
-			}
-
-			throw httpcli_error(message);
-		}
+		answer.recv(*this, tools::Timer{ _receive_timeout });
 
 		// Update the keep alive timeout and max requests.
 		int timeout = DEFAULT_KEEP_ALIVE_TIMEOUT;
@@ -210,11 +171,10 @@ namespace http {
 		_keepalive_timeout = std::max(0, timeout);
 
 		if (_logger->is_trace_enabled())
-			_logger->trace("... %x leave %s::%s rc=%d max=%d timeout=%d",
+			_logger->trace("... %x leave %s::%s max=%d timeout=%d",
 				(uintptr_t)this,
 				__class__,
 				__func__,
-				rc,
 				_max_requests,
 				_keepalive_timeout
 			);
@@ -233,7 +193,7 @@ namespace http {
 		for (unsigned char c : str) {
 			// RFC 3986 unreserved characters
 			if (std::isalnum(c) || c == '-' || c == '_' || c == '.' || c == '~') {
-				escaped << (char)c;
+				escaped << static_cast<char>(c);
 			}
 			else {
 				escaped << "%";
