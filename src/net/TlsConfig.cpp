@@ -106,7 +106,7 @@ namespace net {
 #ifndef _DEBUG
 			mbedtls_debug_set_threshold(0);
 #else
-			mbedtls_debug_set_threshold(1);
+			mbedtls_debug_set_threshold(2);
 #endif
 		}
 
