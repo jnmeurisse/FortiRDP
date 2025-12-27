@@ -237,6 +237,9 @@
     <ClCompile Include="..\..\src\fw\FirewallTunnel.cpp">
       <Filter>sources\fw</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\http\HttpError.cpp">
+      <Filter>sources\http</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\ui\AboutDialog.h">
@@ -467,6 +470,9 @@
     <ClInclude Include="..\..\src\fw\FirewallTunnel.h">
       <Filter>sources\fw</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\http\HttpError.h">
+      <Filter>sources\http</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\..\src\resources\avatar.png">
@@ -502,5 +508,8 @@
   <ItemGroup>
     <None Include="packages.config" />
     <None Include="..\..\src\tools\.editorconfig" />
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="$(MSBuildThisFileDirectory)..\..\natvis\wil.natvis" />
   </ItemGroup>
 </Project>

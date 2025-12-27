@@ -27,6 +27,7 @@
     <ClCompile Include="..\..\src\http\CookieError.cpp" />
     <ClCompile Include="..\..\src\http\Cookies.cpp" />
     <ClCompile Include="..\..\src\http\Headers.cpp" />
+    <ClCompile Include="..\..\src\http\HttpError.cpp" />
     <ClCompile Include="..\..\src\http\HttpsClient.cpp" />
     <ClCompile Include="..\..\src\http\Request.cpp" />
     <ClCompile Include="..\..\src\http\Url.cpp" />
@@ -101,6 +102,7 @@
     <ClInclude Include="..\..\src\http\CookieError.h" />
     <ClInclude Include="..\..\src\http\Cookies.h" />
     <ClInclude Include="..\..\src\http\Headers.h" />
+    <ClInclude Include="..\..\src\http\HttpError.h" />
     <ClInclude Include="..\..\src\http\HttpsClient.h" />
     <ClInclude Include="..\..\src\http\Request.h" />
     <ClInclude Include="..\..\src\http\Url.h" />
