@@ -50,6 +50,7 @@ namespace tools {
 		BYTE* pVerInfo = nullptr;
 		VS_FIXEDFILEINFO* pFileInfo = nullptr;
 		UINT fileInfoLen = 0;
+		std::string file_version = "?";
 		
 		size = ::GetFileVersionInfoSize(path.c_str(), nullptr);
 		if (size == 0)
@@ -59,10 +60,10 @@ namespace tools {
 		if (!::GetFileVersionInfo(path.c_str(), 0, size, pVerInfo))
 			goto terminate;
 
-		if (!::VerQueryValue(pVerInfo, L"\\", (LPVOID *)&pFileInfo, &fileInfoLen))
+		if (!::VerQueryValue(pVerInfo, L"\\", reinterpret_cast<LPVOID*>(&pFileInfo), &fileInfoLen))
 			goto terminate;
 
-		return string_format("%d.%d.%d",
+		file_version = string_format("%d.%d.%d",
 			HIWORD(pFileInfo->dwFileVersionMS),
 			LOWORD(pFileInfo->dwFileVersionMS),
 			HIWORD(pFileInfo->dwFileVersionLS));
@@ -71,7 +72,7 @@ namespace tools {
 		if (pVerInfo)
 			delete [] pVerInfo;
 
-		return "?";
+		return file_version;
 	}
 
 	
