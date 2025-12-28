@@ -39,14 +39,14 @@ namespace ui {
 		std::string version{ get_file_ver(app_path.to_string()) };
 
 		// Prepare the about text.
-		std::string about_version{ tools::string_format(
+		std::string about_version{ string_format(
 			"FortiRDP %s (%s)\n",
 			version.c_str(),
 			get_plaform().c_str()) };
 		about_version.append("Developed by Jean-Noel Meurisse");
 
 		set_control_font(IDC_ABOUT_VERSION, _hFont);
-		set_control_text(IDC_ABOUT_VERSION, tools::str2wstr(about_version));
+		set_control_text(IDC_ABOUT_VERSION, str2wstr(about_version));
 
 		char mbedtls_ver[sizeof(MBEDTLS_VERSION_STRING_FULL)]{ 0 };
 		mbedtls_version_get_string_full(mbedtls_ver);
@@ -60,7 +60,7 @@ namespace ui {
 		about_info.append(" libraries.");
 
 		set_control_font(IDC_ABOUT_INFO, _hFont);
-		set_control_text(IDC_ABOUT_INFO, tools::str2wstr(about_info));
+		set_control_text(IDC_ABOUT_INFO, str2wstr(about_info));
 
 		center_window();
 
