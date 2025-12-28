@@ -76,7 +76,7 @@ namespace tools {
 	void Logger::log(Level level, const std::string& text)
 	{
 		if (is_enabled(level)) {
-			write(level, text.c_str());
+			write(level, text);
 		}
 	}
 
