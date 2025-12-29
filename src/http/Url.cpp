@@ -27,121 +27,172 @@ namespace http {
 		while (*p && std::isspace(*p))
 			p++;
 
+		// This code is a URL Parser implemented as a Finite State Machine(FSM).
+		// It iterates through a string character by character and breaks it down
+		// into its components.
+		//
+		// State		URL Component	Description
+        //	0, 1		Scheme,			Identifies the protocol (e.g., http, https).
+        //	2, 3, 4		Transition		Handles the // that usually follows a scheme (e.g., http://).
+        //	5			Authority		Captures the domain or host (e.g., www.example.com).
+        //	7			Path			Captures the resource path (e.g., /index.html).
+        //	8, 9		Query			Captures parameters after the ? (e.g., search=cpp)
+        //	10, 11		Fragment		Captures the "anchor" or fragment after the #.
+
 		int state = 0;
 		while (state >= 0) {
 			switch (state) {
 			case 0:
-				if (*p == '\0')
+				if (*p == '\0') {
 					state = -1;
-				else if (*p == ':')
-					buffer = *p, state = 7;
-				else if (*p == '/')
-					buffer = *p, state = 3;
-				else if (*p == '?')
+				}
+				else if (*p == ':') {
+					buffer = *p; state = 7;
+				}
+				else if (*p == '/') {
+					buffer = *p; state = 3;
+				}
+				else if (*p == '?') {
 					state = 8;
-				else if (*p == '#')
+				}
+				else if (*p == '#') {
 					state = 10;
-				else
-					buffer = *p, state = 1;
+				}
+				else {
+					buffer = *p; state = 1;
+				}
 				break;
 
 			case 1:
-				if (*p == '\0')
-					_path = buffer, state = -1;
-				else if (*p == ':')
-					_scheme = buffer, buffer.clear(), state = 2;
-				else if (*p == '?')
-					_path = buffer, state = 8;
-				else if (*p == '#')
-					_path = buffer, state = 10;
-				else
-					buffer.push_back(*p), state = 1;
+				if (*p == '\0') {
+					_path = buffer; state = -1;
+				}
+				else if (*p == ':') {
+					_scheme = buffer; buffer.clear(); state = 2;
+				}
+				else if (*p == '?') {
+					_path = buffer; state = 8;
+				}
+				else if (*p == '#') {
+					_path = buffer; state = 10;
+				}
+				else {
+					buffer.push_back(*p); state = 1;
+				}
 				break;
 
 			case 2:
-				if (*p == '\0')
+				if (*p == '\0') {
 					state = -1;
-				else if (*p == '/')
+				}
+				else if (*p == '/') {
 					state = 3;
-				else
-					buffer = *p, state = 7;
+				}
+				else {
+					buffer = *p; state = 7;
+				}
 				break;
 
 			case 3:
-				if (*p == '\0')
-					_path = buffer, state = -1;
-				else if (*p == '/')
+				if (*p == '\0') {
+					_path = buffer; state = -1;
+				}
+				else if (*p == '/') {
 					state = 4;
-				else
-					buffer.push_back(*p), state = 7;
+				}
+				else {
+					buffer.push_back(*p); state = 7;
+				}
 				break;
 
 			case 4:
-				if (*p == '\0')
+				if (*p == '\0') {
 					state = -1;
-				else
-					buffer = *p, state = 5;
+				}
+				else {
+					buffer = *p; state = 5;
+				}
 				break;
 
 			case 5:
-				if (*p == '\0')
-					_authority = buffer, state = -1;
-				else if (*p == '/')
-					_authority = buffer, buffer = "/", state = 7;
-				else if (*p == '?')
-					_authority = buffer, state = 8;
-				else if (*p == '#')
-					_authority = buffer, state = 10;
-				else
-					buffer.push_back(*p), state = 5;
+				if (*p == '\0') {
+					_authority = buffer; state = -1;
+				}
+				else if (*p == '/') {
+					_authority = buffer; buffer = "/"; state = 7;
+				}
+				else if (*p == '?') {
+					_authority = buffer; state = 8;
+				}
+				else if (*p == '#') {
+					_authority = buffer; state = 10;
+				}
+				else {
+					buffer.push_back(*p); state = 5;
+				}
 				break;
 
 			case 6:
-				if (*p == '\0')
+				if (*p == '\0') {
 					state = -1;
-				else
-					buffer.push_back(*p), state = 7;
+				}
+				else {
+					buffer.push_back(*p); state = 7;
+				}
 				break;
 
 			case 7:
-				if (*p == '\0')
-					_path = buffer, state = -1;
-				else if (*p == '?')
-					_path = buffer, buffer.clear(), state = 8;
-				else if (*p == '#')
-					_path = buffer, buffer.clear(), state = 10;
-				else
-					buffer.push_back(*p), state = 7;
+				if (*p == '\0') {
+					_path = buffer; state = -1;
+				}
+				else if (*p == '?') {
+					_path = buffer; buffer.clear(); state = 8;
+				}
+				else if (*p == '#') {
+					_path = buffer; buffer.clear(); state = 10;
+				}
+				else {
+					buffer.push_back(*p); state = 7;
+				}
 				break;
 
 			case 8:
-				if (*p == '\0')
+				if (*p == '\0') {
 					state = -1;
-				else
-					buffer = *p, state = 9;
+				}
+				else {
+					buffer = *p; state = 9;
+				}
 				break;
 
 			case 9:
-				if (*p == '\0')
-					_query = buffer, state = -1;
-				else if (*p == '#')
-					_query = buffer, buffer.clear(), state = 10;
-				else
-					buffer.push_back(*p), state = 9;
+				if (*p == '\0') {
+					_query = buffer; state = -1;
+				}
+				else if (*p == '#') {
+					_query = buffer; buffer.clear(); state = 10;
+				}
+				else {
+					buffer.push_back(*p); state = 9;
+				}
 				break;
 
 			case 10:
-				if (*p == '\0')
+				if (*p == '\0') {
 					state = -1;
-				else
-					buffer = *p, state = 11;
+				}
+				else {
+					buffer = *p; state = 11;
+				}
 				break;
 
 			case 11:
-				if (*p == '\0')
-					_fragment = buffer, state = -1;
-				else
-					buffer.push_back(*p), state = 11;
+				if (*p == '\0') {
+					_fragment = buffer; state = -1;
+				}
+				else {
+					buffer.push_back(*p); state = 11;
+				}
 				break;
 
 			default:
