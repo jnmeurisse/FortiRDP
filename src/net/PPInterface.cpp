@@ -21,10 +21,10 @@ namespace net {
 
 	PPInterface::PPInterface(TlsSocket& tunnel, Counters& counters) :
 		_logger(Logger::get_logger()),
-		_pcb(nullptr),
 		_tunnel(tunnel),
 		_counters(counters),
 		_nif(),
+		_pcb(nullptr),
 		_output_queue(32 * 1024)
 	{
 		DEBUG_CTOR(_logger);
