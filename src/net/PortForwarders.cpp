@@ -25,7 +25,7 @@ namespace net {
 	}
 
 
-	size_t PortForwarders::delete_having_state(state_check_cb check_cb)
+	size_t PortForwarders::delete_having_state(const state_check_cb& check_cb)
 	{
 		size_t count = 0;
 
