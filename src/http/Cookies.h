@@ -9,6 +9,7 @@
 
 #include <string>
 #include <map>
+#include <functional>
 #include "http/Url.h"
 #include "http/Cookie.h"
 #include "tools/ObfuscatedString.h"
@@ -22,7 +23,7 @@ namespace http {
 	class Cookies final
 	{
 	public:
-		using cookiemap = std::map<const std::string, Cookie> ;
+		using cookiemap = std::map<std::string, Cookie, std::less<>> ;
 		using const_iterator = cookiemap::const_iterator ;
 
 		/**

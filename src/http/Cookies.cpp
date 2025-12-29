@@ -40,7 +40,7 @@ namespace http {
 		}
 		else {
 			// If no, insert the name-value pair
-			_cookies.insert(std::pair<const std::string, Cookie>(cookie.get_name(), cookie));
+			_cookies.insert(std::pair<std::string, Cookie>(cookie.get_name(), cookie));
 		}
 
 		return *this;
