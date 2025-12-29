@@ -89,7 +89,7 @@ namespace fw {
 		 *         - `portal_err::CERT_UNTRUSTED` if the certificate could not be trusted.
 		 *         - `portal_err::HTTP_ERROR` if the portal page retrieval failed.
 		 */
-		portal_err open(confirm_crt_fn confirm_crt);
+		portal_err open(const confirm_crt_fn& confirm_crt);
 
 		/**
 		 * Performs basic authentication with the FortiGate portal using the provided credentials.
@@ -112,7 +112,7 @@ namespace fw {
 		 *         - portal_err::CERT_UNTRUSTED if certificate verification fails.
 		 *         - portal_err::LOGIN_CANCELLED if the login is canceled by the user.
 		 */
-		portal_err login_basic(ask_credentials_fn ask_credential, ask_pincode_fn ask_code);
+		portal_err login_basic(const ask_credentials_fn& ask_credential, const ask_pincode_fn& ask_code);
 
 		/**
 		 * Performs SAML-based authentication with the portal server.
@@ -130,7 +130,7 @@ namespace fw {
 		 *         - portal_err::CERT_INVALID if the certificate is invalid.
 		 *         - portal_err::LOGIN_CANCELLED if the login is canceled by the user.
 		 */
-		portal_err login_saml(ask_samlauth_fn ask_samlauth);
+		portal_err login_saml(const ask_samlauth_fn& ask_samlauth);
 
 		/* Log out from the portal.
 		*/

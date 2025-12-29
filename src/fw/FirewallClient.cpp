@@ -45,7 +45,7 @@ namespace fw {
 	}
 
 
-	portal_err FirewallClient::open(confirm_crt_fn confirm_crt)
+	portal_err FirewallClient::open(const confirm_crt_fn& confirm_crt)
 	{
 		DEBUG_ENTER(_logger);
 		Mutex::Lock lock{ _mutex };
@@ -178,7 +178,7 @@ namespace fw {
 	}
 
 
-	portal_err FirewallClient::login_basic(ask_credentials_fn ask_credential, ask_pincode_fn ask_code)
+	portal_err FirewallClient::login_basic(const ask_credentials_fn& ask_credential, const ask_pincode_fn& ask_code)
 	{
 		DEBUG_ENTER(_logger);
 		tools::Mutex::Lock lock{ _mutex };
@@ -388,7 +388,7 @@ namespace fw {
 	}
 
 
-	portal_err FirewallClient::login_saml(ask_samlauth_fn ask_samlauth)
+	portal_err FirewallClient::login_saml(const ask_samlauth_fn& ask_samlauth)
 	{
 		DEBUG_ENTER(_logger);
 		tools::Mutex::Lock lock{ _mutex };
