@@ -168,20 +168,18 @@ namespace http {
 
 	time_t Cookie::parse_http_date(const std::string& value)
 	{
-		static const char* COOKIE_DATE_FORMATS[] =
+		static std::vector<std::string> COOKIE_DATE_FORMATS
 		{
 			"%a, %d %b %Y %H:%M:%S %Z",
-			"%a, %d-%b-%Y %H:%M:%S %Z"
+			"%a, %d-%b-%Y %H:%M:%S %Z",
 			"%a, %d %b %y %H:%M:%S %Z",
 			"%a, %d-%b-%y %H:%M:%S %Z"
 		};
+		
+		for (const auto &date_format : COOKIE_DATE_FORMATS) {
+			struct tm tm { 0 };
 
-		struct tm tm;
-
-		for (unsigned int i = 0; i < std::size(COOKIE_DATE_FORMATS); i++) {
-			tm = { 0 };
-
-			const char* const p = strptime(value.c_str(), COOKIE_DATE_FORMATS[i], &tm);
+			const char* const p = strptime(value.c_str(), date_format.c_str(), &tm);
 			if (p && tm.tm_year > 0)
 				return mktime(&tm);
 		}
