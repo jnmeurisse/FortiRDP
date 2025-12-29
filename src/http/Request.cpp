@@ -27,9 +27,9 @@ namespace http {
 
 	Request::Request(const std::string& verb, const Url& url, const Cookies& cookie_jar) :
 		_logger(Logger::get_logger()),
+		_cookies(cookie_jar),
 		_verb(verb),
 		_url(url),
-		_cookies(cookie_jar),
 		_headers(),
 		_body(2048)
 	{
