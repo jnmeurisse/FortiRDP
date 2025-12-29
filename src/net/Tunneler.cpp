@@ -304,7 +304,7 @@ namespace net {
 				break;
 
 			case State::CLOSING:
-				if (active_port_forwarders.size() == 0 || abort_timeout) {
+				if (active_port_forwarders.empty() || abort_timeout) {
 					// All connections are closed, shutdown the ppp interface
 					_state = State::DISCONNECTING;
 					_pp_interface.close(!_tunnel.is_connected());
