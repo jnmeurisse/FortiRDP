@@ -19,8 +19,6 @@
 
 namespace net {
 
-	using namespace tools;
-
 	struct tunneler_config {
 		bool tcp_nodelay;
 		int  max_clients;
@@ -47,7 +45,7 @@ namespace net {
 		/**
 		* Tunneler destructor
 		*/
-		virtual ~Tunneler() override;
+		~Tunneler() override;
 
 		/**
 		* Deleted copy constructor and copy assignment operator
@@ -57,7 +55,7 @@ namespace net {
 		Tunneler& operator=(const Tunneler&) = delete;
 
 		// Valid states of the tunneler
-		enum State { 
+		enum class State { 
 			READY,				// initial state
 			CONNECTING,			// Establishing the PPP connection 
 			RUNNING,			// Forwarding traffic and accepting new connection
@@ -68,7 +66,7 @@ namespace net {
 		/**
 		 * Starts the tunnel listener
 		*/
-		virtual bool start() override;
+		bool start() override;
 
 		/**
 		 * Terminates the tunnel listener.
@@ -96,7 +94,7 @@ namespace net {
 		inline const Endpoint& local_endpoint() const { return _listener.endpoint(); }
 
 	protected:
-		virtual unsigned int run() override;
+		unsigned int run() override;
 
 	private:
 		void compute_sleep_time(timeval &timeout) const;
