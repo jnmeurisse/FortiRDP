@@ -11,8 +11,6 @@
 #include "fortirdp.h"
 
 #include <iostream>
-#include <io.h>
-#include <fcntl.h>
 #include <lwip/init.h>
 #include <lwip/dns.h>
 #include "ui/ConnectDialog.h"
