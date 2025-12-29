@@ -80,7 +80,7 @@ namespace net {
 	}
 
 
-	bool Tunneler::wait_listening(DWORD timeout)
+	bool Tunneler::wait_listening(DWORD timeout) const
 	{
 		return _listening_status.wait(timeout) && _listener.is_ready();
 	}

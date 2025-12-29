@@ -78,7 +78,7 @@ namespace net {
 		/**
 		 * Waits until the tunneler is in listening mode.
 		*/
-		bool wait_listening(DWORD timeout);
+		bool wait_listening(DWORD timeout) const;
 
 		/**
 		 * Returns the state of the listener.
