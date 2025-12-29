@@ -25,7 +25,7 @@ namespace net {
 
 	mbed_err TlsContext::configure(const mbedtls_ssl_config& config, mbedtls_net_context& netctx)
 	{
-		::mbedtls_ssl_set_bio(&_sslctx, &netctx, mbedtls_net_send, mbedtls_net_recv, NULL);
+		::mbedtls_ssl_set_bio(&_sslctx, &netctx, mbedtls_net_send, mbedtls_net_recv, nullptr);
 
 		return ::mbedtls_ssl_setup(&_sslctx, &config);
 	}
@@ -99,11 +99,7 @@ namespace net {
 			status.rc = 0;
 			status.rbytes = rc;
 		}
-		else if (rc == MBEDTLS_ERR_SSL_PEER_CLOSE_NOTIFY) {
-			status.code = rcv_status_code::NETCTX_RCV_EOF;
-			status.rc = 0;
-		}
-		else if (rc == 0) {
+		else if (rc == MBEDTLS_ERR_SSL_PEER_CLOSE_NOTIFY || rc == 0) {
 			status.code = rcv_status_code::NETCTX_RCV_EOF;
 			status.rc = 0;
 		}
