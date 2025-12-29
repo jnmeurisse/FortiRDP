@@ -18,6 +18,7 @@
 #include <cstring>
 #include <cctype>
 #include <locale>
+#include <array>
 
 
 namespace http {
@@ -60,8 +61,8 @@ namespace http {
 			case rcv_status_code::NETCTX_RCV_OK:
 				return true;
 
-			default:
 			case rcv_status_code::NETCTX_RCV_EOF:
+			default:
 				return false;
 		}
 	}
@@ -130,10 +131,10 @@ namespace http {
 
 		// Read the HTTP version. Return an error code if the server has closed 
 		// the connection before sending a valid response.
-		unsigned char http_version[8];
-		if (!read_buffer(socket, http_version, sizeof(http_version), timer))
+		std::array<unsigned char, 8> http_version = {};
+		if (!read_buffer(socket, http_version.data(), http_version.size(), timer))
 			return answer_status::ERR_INVALID_STATUS_LINE;
-		if (std::memcmp(http_version, "HTTP/1.1", sizeof(http_version)) != 0)
+		if (std::memcmp(http_version.data(), "HTTP/1.1", sizeof(http_version)) != 0)
 			return answer_status::ERR_INVALID_VERSION;
 
 		// Skip a space
@@ -144,8 +145,8 @@ namespace http {
 		// Read the status code.
 		// The status code of a response is a three-digit integer code that describes
 		// the result of the send_request.
-		unsigned char status_code[3];
-		if (!read_buffer(socket, status_code, sizeof(status_code), timer))
+		std::array<unsigned char, 3> status_code = {};
+		if (!read_buffer(socket, status_code.data(), status_code.size(), timer))
 			return answer_status::ERR_INVALID_STATUS_LINE;
 
 		// Convert status code text to an integer.
@@ -163,7 +164,7 @@ namespace http {
 		// Read the reason phrase
 		tools::ByteBuffer buffer(1024);
 		answer_status status = read_line(socket, buffer, timer);
-		if (status == answer_status::ERR_NONE  && buffer.size() > 0) {
+		if (status == answer_status::ERR_NONE  && !buffer.empty()) {
 			_reason_phrase = tools::trim(buffer.to_string());
 		}
 
@@ -194,7 +195,7 @@ namespace http {
 		answer_status status;
 		tools::ByteBuffer buffer(MAX_HEADER_SIZE);
 
-		while ((status = read_line(socket, buffer, timer)) == answer_status::ERR_NONE && buffer.size() > 0) {
+		while ((status = read_line(socket, buffer, timer)) == answer_status::ERR_NONE && !buffer.empty()) {
 			tools::obfstring line{ buffer.to_obfstring() };
 
 			// Split header into name and value at the first colon.
@@ -222,7 +223,7 @@ namespace http {
 					_headers.set(field_name, field_value.uncrypt());
 				}
 			}
-		};
+		}
 
 		return status;
 	}
@@ -287,18 +288,18 @@ namespace http {
 		DEBUG_ENTER(_logger);
 
 		// read by chunk of 4096 bytes
-		unsigned char buffer[4096];
+		std::array<unsigned char, 4096> buffer;
 
 		do {
 			// read a chunk of bytes
-			const size_t len = std::min(size, sizeof(buffer));
-			if (!read_buffer(socket, buffer, len, timer))
+			const size_t len = std::min(size, buffer.size());
+			if (!read_buffer(socket, buffer.data(), len, timer))
 				break;
 
 			// append what we can in the buffer
 			const size_t available_space = max_size - _body.size();
 			if (available_space > 0) {
-				_body.append(buffer, std::min(len, available_space));
+				_body.append(buffer.data(), std::min(len, available_space));
 			}
 
 			size = size - len;
@@ -350,6 +351,7 @@ namespace http {
 		if (_headers.get("Content-Encoding", content_encoding)) {
 			content_encoding = tools::lower(tools::trim(content_encoding));
 			if (content_encoding.compare("") == 0) {
+				// encoding not specified.
 			}
 			else if (content_encoding.compare("gzip") == 0) {
 				gzip_content = true;
@@ -371,7 +373,7 @@ namespace http {
 
 			do {
 				// read chunk size
-				if ((status = read_line(socket, buffer, timer)) != answer_status::ERR_NONE || buffer.size() == 0)
+				if (read_line(socket, buffer, timer) != answer_status::ERR_NONE || buffer.empty())
 					throw http_error(answer_status_msg(answer_status::ERR_CHUNK_SIZE));
 
 				// decode chunk size
@@ -385,7 +387,7 @@ namespace http {
 				}
 
 				// skip eol
-				if ((status = read_line(socket, buffer, timer)) != answer_status::ERR_NONE || buffer.size() != 0)
+				if (read_line(socket, buffer, timer) != answer_status::ERR_NONE || !buffer.empty())
 					throw http_error(answer_status_msg(answer_status::ERR_BODY));
 			} while (chunk_size > 0);
 
@@ -462,6 +464,9 @@ namespace http {
 
 		case answer_status::ERR_BODY:
 			message = "Incomplete HTTP body"; break;
+
+		default:
+			message = ""; break;
 		}
 
 		return message;

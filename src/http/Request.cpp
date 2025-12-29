@@ -66,7 +66,7 @@ namespace http {
 
 		tools::ByteBuffer buffer(1024);
 
-		if (_body.size() > 0) {
+		if (!_body.empty()) {
 			_headers.set("Content-Length", _body.size());
 		}
 
@@ -103,7 +103,7 @@ namespace http {
 		// Erase sensitive data.
 		buffer.clear();
 
-		if (_body.size() > 0) {
+		if (!_body.empty()) {
 			// Send the body to the web server.
 			if (_logger->is_trace_enabled())
 				_logger->trace(
