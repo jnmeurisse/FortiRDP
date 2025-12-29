@@ -46,46 +46,37 @@ namespace net {
 	}
 
 
-	size_t PortForwarders::abort_all()
+	size_t PortForwarders::abort_all() const
 	{
-		size_t count = 0;
-
-		for (auto it = begin(); it != end(); it++) {
-			PortForwarder* const pf = (*it);
-
-			if (pf->connected()) {
+		size_t counter = 0;
+		for (auto* pf : *this) {
+			if (pf && pf->connected()) {
 				pf->abort();
-
-				count++;
+				counter++;
 			}
 		}
 
-		return count;
+		return counter;
 	}
 
 
 	bool PortForwarders::has_connecting_forwarders() const
 	{
-		bool found = false;
-
-		for (auto it = cbegin(); !found && it != end(); it++) {
-			const PortForwarder* const pf = (*it);
-
-			found = pf->connecting();
+		for (const auto* pf : *this) {
+			if (pf && pf->connecting()) {
+				return true;
+			}
 		}
 
-		return found;
+		return false;
 	}
 
 
 	size_t PortForwarders::connected_count() const noexcept
 	{
 		size_t counter = 0;
-
-		for (auto it = cbegin();  it != end(); it++) {
-			const PortForwarder* const pf = (*it);
-
-			if (pf->connected()) {
+		for (const auto* pf : *this) {
+			if (pf && pf->connected()) {
 				counter++;
 			}
 		}
