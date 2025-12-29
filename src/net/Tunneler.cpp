@@ -33,9 +33,9 @@ namespace net {
 		_tunnel(tunnel),
 		_counters(),
 		_pp_interface(tunnel, _counters),
-		_listener(),
 		_listening_status(),
 		_local_endpoint(local_ep),
+		_listener(),
 		_remote_endpoint(remote_ep)
 	{
 		DEBUG_CTOR(_logger);
