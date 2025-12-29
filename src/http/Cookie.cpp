@@ -123,38 +123,35 @@ namespace http {
 		bool secure = false;
 		bool http_only = false;
 
-		if (parts.size() > 1) {
-			for (size_t idx = 1; idx < parts.size(); idx++) {
-				// get next attribute-value
-				const std::string cookie_av{ tools::trimleft(parts[idx].uncrypt()) };
-				if (cookie_av.size() > 0) {
-					// extract attribute name and value
-					const std::string::size_type pos = cookie_av.find('=');
+		for (size_t idx = 1; idx < parts.size(); idx++) {
+			// get next attribute-value
+			const std::string cookie_av{ tools::trimleft(parts[idx].uncrypt()) };
 
-					if (pos != std::string::npos) {
-						const std::string attribute_name{ cookie_av.substr(0, pos) };
-						const std::string attribute_value{ cookie_av.substr(pos + 1, std::string::npos) };
+			// extract attribute name and value
+			const std::string::size_type pos = cookie_av.find('=');
 
-						if (tools::iequal(attribute_name, "domain")) {
-							domain = attribute_value;
-						}
-						else if (tools::iequal(attribute_name, "path")) {
-							path = attribute_value;
-						}
-						else if (tools::iequal(attribute_name, "expires")) {
-							expires = parse_http_date(attribute_value);
-						}
-						else if (tools::iequal(attribute_name, "max-age")) {
-							// not supported, attribute is ignored
-						}
-					}
-					else if (tools::iequal(cookie_av, "secure")) {
-						secure = true;
-					}
-					else if (tools::iequal(cookie_av, "httponly")) {
-						http_only = true;
-					}
+			if (pos != std::string::npos) {
+				const std::string attribute_name{ cookie_av.substr(0, pos) };
+				const std::string attribute_value{ cookie_av.substr(pos + 1, std::string::npos) };
+
+				if (tools::iequal(attribute_name, "domain")) {
+					domain = attribute_value;
 				}
+				else if (tools::iequal(attribute_name, "path")) {
+					path = attribute_value;
+				}
+				else if (tools::iequal(attribute_name, "expires")) {
+					expires = parse_http_date(attribute_value);
+				}
+				else if (tools::iequal(attribute_name, "max-age")) {
+					// not supported, attribute is ignored
+				}
+			}
+			else if (tools::iequal(cookie_av, "secure")) {
+				secure = true;
+			}
+			else if (tools::iequal(cookie_av, "httponly")) {
+				http_only = true;
 			}
 		}
 
