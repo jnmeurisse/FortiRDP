@@ -414,7 +414,7 @@ namespace net {
 	err_t tcp_connected_cb(void *arg, struct tcp_pcb *tpcb, err_t err)
 	{
 		LWIP_UNUSED_ARG(tpcb);
-		PortForwarder* const pf = reinterpret_cast<PortForwarder*>(arg);
+		PortForwarder* const pf = static_cast<PortForwarder*>(arg);
 
 		Logger* logger = pf->_logger;
 		if (logger->is_debug_enabled()) {
@@ -434,7 +434,7 @@ namespace net {
 
 	void tcp_err_cb(void* arg, err_t err)
 	{
-		PortForwarder* const pf = reinterpret_cast<PortForwarder*>(arg);
+		PortForwarder* const pf = static_cast<PortForwarder*>(arg);
 
 		Logger* logger = pf->_logger;
 		if (logger->is_debug_enabled()) {
@@ -464,7 +464,7 @@ namespace net {
 	err_t tcp_sent_cb(void* arg, tcp_pcb* tpcb, u16_t len)
 	{
 		LWIP_UNUSED_ARG(tpcb);
-		PortForwarder* const pf = reinterpret_cast<PortForwarder*>(arg);
+		PortForwarder* const pf = static_cast<PortForwarder*>(arg);
 		pf->_forwarded_bytes -= len;
 
 		return ERR_OK;
@@ -473,7 +473,7 @@ namespace net {
 
 	err_t tcp_recv_cb(void* arg, tcp_pcb* tpcb, pbuf* p, err_t err)
 	{
-		PortForwarder* const pf = reinterpret_cast<PortForwarder*>(arg);
+		PortForwarder* const pf = static_cast<PortForwarder*>(arg);
 		err_t rc = ERR_OK;
 		uint16_t len = 0;
 		Logger* const logger = pf->_logger;
@@ -540,7 +540,7 @@ namespace net {
 
 	void timeout_cb(void* arg)
 	{
-		bool* timeout = reinterpret_cast<bool*>(arg);
+		bool* timeout = static_cast<bool*>(arg);
 		*timeout = true;
 	}
 

@@ -15,7 +15,7 @@ namespace net {
 		const char* file, int line, const char* str)
 	{
 		((void)level);
-		tools::Logger* const logger = reinterpret_cast<tools::Logger*>(ctx);
+		tools::Logger* const logger = static_cast<tools::Logger*>(ctx);
 
 		if (logger && strlen(str) > 1) {
 			// remove \n from str
