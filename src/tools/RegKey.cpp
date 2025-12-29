@@ -23,10 +23,10 @@ namespace tools {
 			_root_key,
 			_key_name.c_str(),
 			0,
-			NULL,
+			nullptr,
 			REG_OPTION_NON_VOLATILE,
 			KEY_ALL_ACCESS,
-			NULL,
+			nullptr,
 			&_key,
 			NULL);
 

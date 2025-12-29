@@ -93,7 +93,7 @@ namespace ui {
 	{
 		DEBUG_CTOR(_logger);
 
-		HRESULT hr = ::CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
+		HRESULT hr = ::CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
 		if (FAILED(hr)) {
 			_logger->error("ERROR: CoInitializeEx error %x", hr);
 			throw tools::win_err(hr);

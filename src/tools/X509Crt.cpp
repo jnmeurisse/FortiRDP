@@ -95,8 +95,8 @@ namespace tools {
 		// Try offline revocation check
 		DWORD flags = CERT_CHAIN_REVOCATION_CHECK_CACHE_ONLY;
 
-		PCCERT_CHAIN_CONTEXT chainContext = NULL;
-		if (::CertGetCertificateChain(NULL, certContext, NULL, NULL, &chainParameter, flags, NULL, &chainContext) &&
+		PCCERT_CHAIN_CONTEXT chainContext = nullptr;
+		if (::CertGetCertificateChain(NULL, certContext, nullptr, nullptr, &chainParameter, flags, nullptr, &chainContext) &&
 			chainContext) {
 			errorStatus = chainContext->TrustStatus.dwErrorStatus;
 			::CertFreeCertificateChain(chainContext);

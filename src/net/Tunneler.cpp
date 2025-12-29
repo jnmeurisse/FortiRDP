@@ -156,7 +156,7 @@ namespace net {
 				compute_sleep_time(timeout);
 
 				// Wait for a network event or timeout.
-				rc = select(0, &read_set, &write_set, NULL, &timeout);
+				rc = select(0, &read_set, &write_set, nullptr, &timeout);
 				if (rc > 0) {
 					if (FD_ISSET(_tunnel.get_fd(), &write_set)) {
 						// Send PPP through the tunnel 

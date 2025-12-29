@@ -148,7 +148,7 @@ int	optind = 0; 			// global argv index
 
 int getopt(int argc, const wchar_t * const argv[], const wchar_t *optstring)
 {
-	static const wchar_t *next = NULL;
+	static const wchar_t *next = nullptr;
 	if (optind == 0)
 		next = NULL;
 
@@ -161,7 +161,7 @@ int getopt(int argc, const wchar_t * const argv[], const wchar_t *optstring)
 
 		if (optind >= argc || argv[optind][0] != L'-' || argv[optind][1] == L'\0')
 		{
-			optarg = NULL;
+			optarg = nullptr;
 			if (optind < argc)
 				optarg = argv[optind];
 			return EOF;
@@ -170,7 +170,7 @@ int getopt(int argc, const wchar_t * const argv[], const wchar_t *optstring)
 		if (wcscmp(argv[optind], L"--") == 0)
 		{
 			optind++;
-			optarg = NULL;
+			optarg = nullptr;
 			if (optind < argc)
 				optarg = argv[optind];
 			return EOF;
@@ -184,7 +184,7 @@ int getopt(int argc, const wchar_t * const argv[], const wchar_t *optstring)
 	wchar_t c = *next++;
 	const wchar_t *cp = wcschr(optstring, c);
 
-	if (cp == NULL || c == L':')
+	if (cp == nullptr || c == L':')
 		return L'?';
 
 	cp++;
@@ -193,7 +193,7 @@ int getopt(int argc, const wchar_t * const argv[], const wchar_t *optstring)
 		if (*next != L'\0')
 		{
 			optarg = next;
-			next = NULL;
+			next = nullptr;
 		}
 		else if (optind < argc)
 		{

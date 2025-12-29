@@ -21,12 +21,12 @@ namespace tools {
 
 		if (::FormatMessage(
 			FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-			NULL,
+			nullptr,
 			errnum,
 			MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
 			reinterpret_cast<LPWSTR>(&buffer),
 			0,
-			NULL) != 0)
+			nullptr) != 0)
 		{
 			message = buffer;
 			LocalFree(buffer);
