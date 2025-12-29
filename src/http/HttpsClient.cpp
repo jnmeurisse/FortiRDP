@@ -220,7 +220,7 @@ namespace http {
 				const int c2 = (int)str.at(i + 2);
 
 				if (std::isxdigit(c1) && std::isxdigit(c2)) {
-					const char dc = ((c1 - '0') << 4) + (c2 - '0');
+					const char dc = ((c1 - '0') << 4) + (c2 - '0') & 0x7F;
 					unescaped.append(&dc, 1);
 				}
 
