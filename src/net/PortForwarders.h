@@ -35,13 +35,13 @@ namespace net {
 		 * 
 		 * @return the number of deleted forwarders.
 		*/
-		size_t delete_having_state(state_check_cb check_cb);
+		size_t delete_having_state(const state_check_cb& check_cb);
 
 		/**
 		 * Disconnects all port forwarders.
 		 * @return the number of disconnected forwarders.
 		*/
-		size_t abort_all();
+		size_t abort_all() const;
 
 		/*
 		 * Returns true if at least one port forwarder is trying to connect.

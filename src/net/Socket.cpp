@@ -251,7 +251,7 @@ namespace net {
 
 		int rc;
 		do {
-			rc = ::mbedtls_net_accept(&_netctx, client_socket.netctx(), 0, 0, 0);
+			rc = ::mbedtls_net_accept(&_netctx, client_socket.netctx(), nullptr, 0, nullptr);
 		} while (rc == MBEDTLS_ERR_SSL_WANT_READ);
 
 		return rc;
