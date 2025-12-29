@@ -106,7 +106,7 @@ namespace net {
 		/**
 		 * Returns true if this forwarder has data in the reply queue.
 		*/
-		inline bool must_reply() const noexcept { return _reply_queue.size() > 0; }
+		inline bool must_reply() const noexcept { return !_reply_queue.is_empty(); }
 
 		/**
 		 * Returns true if this forwarder can still flush the reply queue.
