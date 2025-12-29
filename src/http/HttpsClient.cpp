@@ -198,7 +198,7 @@ namespace http {
 			else {
 				escaped << "%";
 				escaped << hexstr[(c & 0xF0) >> 4];
-				escaped << hexstr[(c & 0x0F)];
+				escaped << hexstr[c & 0x0F];
 			}
 		}
 
