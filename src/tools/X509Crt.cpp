@@ -80,7 +80,7 @@ namespace tools {
 	static DWORD WinVerifySslCert(PCCERT_CONTEXT certContext) {
 		DWORD errorStatus = (DWORD) - 1;
 
-		static const LPCSTR usage[] = {
+		static char* usage[3] = {
 			szOID_PKIX_KP_SERVER_AUTH,
 			szOID_SERVER_GATED_CRYPTO,
 			szOID_SGC_NETSCAPE
@@ -90,7 +90,7 @@ namespace tools {
 		chainParameter.cbSize = sizeof(CERT_CHAIN_PARA);
 		chainParameter.RequestedUsage.dwType = USAGE_MATCH_TYPE_OR;
 		chainParameter.RequestedUsage.Usage.cUsageIdentifier = ARRAYSIZE(usage);
-		chainParameter.RequestedUsage.Usage.rgpszUsageIdentifier = const_cast<LPSTR*>(usage);
+		chainParameter.RequestedUsage.Usage.rgpszUsageIdentifier = usage;
 
 		// Try offline revocation check
 		DWORD flags = CERT_CHAIN_REVOCATION_CHECK_CACHE_ONLY;
