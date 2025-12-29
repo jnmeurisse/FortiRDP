@@ -27,19 +27,19 @@ namespace net {
 
 
 	PortForwarder::PortForwarder(const Endpoint& endpoint, bool tcp_nodelay, int keepalive) :
-		_logger(Logger::get_logger()),
+		_logger(Logger::get_logger()),	
+		_state(State::READY),
 		_endpoint(endpoint),
-		_local_server(),
-		_local_client(nullptr),
 		_tcp_nodelay(tcp_nodelay),
 		_keepalive(keepalive),
-		_state(State::READY),
-		_reply_queue(16 * 1024),
-		_forward_queue(16 * 1024),
-		_forwarded_bytes(0),
+		_local_server(),
+		_local_client(nullptr),
+		_connect_timeout(false),
 		_fflush_timeout(false),
 		_rflush_timeout(false),
-		_connect_timeout(false)
+		_reply_queue(16 * 1024),
+		_forward_queue(16 * 1024),
+		_forwarded_bytes(0)
 	{
 		DEBUG_CTOR(_logger);
 	}
