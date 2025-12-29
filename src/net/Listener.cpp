@@ -5,8 +5,7 @@
 * SPDX-License-Identifier: Apache-2.0
 *
 */
-#include <winsock2.h>
-#include <new>
+#include <WinSock2.h>
 #include "Listener.h"
 
 
