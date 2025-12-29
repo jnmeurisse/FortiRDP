@@ -24,14 +24,11 @@
     <ClCompile Include="..\..\src\fw\FirewallClient.cpp" />
     <ClCompile Include="..\..\src\http\Answer.cpp" />
     <ClCompile Include="..\..\src\http\Cookie.cpp" />
-    <ClCompile Include="..\..\src\http\CookieError.cpp" />
     <ClCompile Include="..\..\src\http\Cookies.cpp" />
     <ClCompile Include="..\..\src\http\Headers.cpp" />
-    <ClCompile Include="..\..\src\http\HttpError.cpp" />
     <ClCompile Include="..\..\src\http\HttpsClient.cpp" />
     <ClCompile Include="..\..\src\http\Request.cpp" />
     <ClCompile Include="..\..\src\http\Url.cpp" />
-    <ClCompile Include="..\..\src\http\UrlError.cpp" />
     <ClCompile Include="..\..\src\net\DnsClient.cpp" />
     <ClCompile Include="..\..\src\net\Endpoint.cpp" />
     <ClCompile Include="..\..\src\net\Listener.cpp" />

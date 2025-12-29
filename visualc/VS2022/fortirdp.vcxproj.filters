@@ -93,9 +93,6 @@
     <ClCompile Include="..\..\src\http\Cookie.cpp">
       <Filter>sources\http</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\http\CookieError.cpp">
-      <Filter>sources\http</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\http\Cookies.cpp">
       <Filter>sources\http</Filter>
     </ClCompile>
@@ -198,9 +195,6 @@
     <ClCompile Include="..\..\src\net\DnsClient.cpp">
       <Filter>sources\net</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\http\UrlError.cpp">
-      <Filter>sources\http</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\fw\CrtDigest.cpp">
       <Filter>sources\fw</Filter>
     </ClCompile>
@@ -236,9 +230,6 @@
     </ClCompile>
     <ClCompile Include="..\..\src\fw\FirewallTunnel.cpp">
       <Filter>sources\fw</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\http\HttpError.cpp">
-      <Filter>sources\http</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
