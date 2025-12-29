@@ -21,6 +21,12 @@ namespace ui {
 	}
 
 
+	LRESULT AsyncMessage::send_message(HWND hWnd, const void* lParam) const
+	{
+		return send_message(hWnd, const_cast<void*>(lParam));
+	}
+
+
 	UINT AsyncMessage::_windowsMessageId = ::RegisterWindowMessage(L"fortirdp$message");
 
 

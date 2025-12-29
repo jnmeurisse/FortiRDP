@@ -24,7 +24,7 @@ namespace tools {
 			NULL,
 			errnum,
 			MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-			(LPTSTR)&buffer,
+			reinterpret_cast<LPWSTR>(&buffer),
 			0,
 			NULL) != 0)
 		{

@@ -30,7 +30,7 @@ namespace ui {
 
 	void SyncConnect::showErrorMessageDialog(const wchar_t* message) const
 	{
-		AsyncMessage::ShowErrorMessageDialogRequest->send_message(_hwnd, (void*)message);
+		AsyncMessage::ShowErrorMessageDialogRequest->send_message(_hwnd, message);
 	}
 
 
@@ -45,29 +45,30 @@ namespace ui {
 		message.append(buffer);
 		message.append("\n");
 
-		message.append("Security certificate problems may indicate an attempt to intercept any data including passwords you send to the firewall.\n");
+		message.append("Security certificate problems may indicate an attempt to "
+			"intercept any data including passwords you send to the firewall.\n");
 		message.append("\n");
 		message.append("Do you want to proceed ?");
 
-		return AsyncMessage::ShowInvalidCertificateDialogRequest->send_message(_hwnd, (void*)message.c_str()) == TRUE;
+		return AsyncMessage::ShowInvalidCertificateDialogRequest->send_message(_hwnd, message.c_str()) == TRUE;
 	}
 
 
 	bool SyncConnect::ask_credentials(fw::AuthCredentials& credentials)
 	{
-		return AsyncMessage::ShowCredentialsDialogRequest->send_message(_hwnd, (void*)&credentials) == TRUE;
+		return AsyncMessage::ShowCredentialsDialogRequest->send_message(_hwnd, &credentials) == TRUE;
 	}
 
 
 	bool SyncConnect::ask_pincode(fw::AuthCode& code2fa)
 	{
-		return AsyncMessage::ShowPinCodeDialogRequest->send_message(_hwnd, (void*)&code2fa) == TRUE;
+		return AsyncMessage::ShowPinCodeDialogRequest->send_message(_hwnd, &code2fa) == TRUE;
 	}
 
 
 	bool SyncConnect::ask_saml_auth(fw::AuthSamlInfo& saml_info)
 	{
-		return AsyncMessage::ShowSamlAuthDialogRequest->send_message(_hwnd, (void*)&saml_info) == TRUE;
+		return AsyncMessage::ShowSamlAuthDialogRequest->send_message(_hwnd, &saml_info) == TRUE;
 	}
 
 

@@ -37,10 +37,10 @@ namespace ui {
 	{
 		// Assign application icons. Icons are automatically deleted when the 
 		// application stops thanks to the LR_SHARED parameter.
-		HICON hIcon = (HICON)LoadImage(hInstance, MAKEINTRESOURCE(IDI_FORTIRDP), IMAGE_ICON, 16, 16, LR_SHARED);
+		HICON hIcon = static_cast<HICON>(LoadImage(hInstance, MAKEINTRESOURCE(IDI_FORTIRDP), IMAGE_ICON, 16, 16, LR_SHARED));
 		::SendMessage(window_handle(), WM_SETICON, ICON_SMALL, (LPARAM)hIcon);
 
-		hIcon = (HICON)LoadImage(hInstance, MAKEINTRESOURCE(IDI_FORTIRDP), IMAGE_ICON, 128, 128, LR_SHARED);
+		hIcon = static_cast<HICON>(LoadImage(hInstance, MAKEINTRESOURCE(IDI_FORTIRDP), IMAGE_ICON, 128, 128, LR_SHARED));
 		::SendMessage(window_handle(), WM_SETICON, ICON_BIG, (LPARAM)hIcon);
 
 		// Configure the status text font. The color is assigned later when responding
@@ -525,7 +525,7 @@ namespace ui {
 	INT_PTR ConnectDialog::onCtlColorStaticMessage(WPARAM wParam, LPARAM lParam)
 	{
 		if (lParam == (LPARAM)control_handle(IDC_STATUSTEXT)) {
-			HDC static_text = (HDC)wParam;
+			const HDC static_text = reinterpret_cast<HDC>(wParam);
 			::SetTextColor(static_text, RGB(0, 255, 255));
 			::SetBkColor(static_text, RGB(0, 0, 0));
 

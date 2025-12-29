@@ -124,7 +124,7 @@ namespace net {
 				get_fd(),
 				IPPROTO_TCP,
 				TCP_NODELAY,
-				(const char*)&tcp_nodelay,
+				reinterpret_cast<const char*>(& tcp_nodelay),
 				sizeof(tcp_nodelay));
 
 			if (rc)
@@ -194,17 +194,17 @@ namespace net {
 		bool rc = false;
 
 		if (get_fd() != -1) {
-			struct sockaddr_storage sock_addr;
+			sockaddr_storage sock_addr;
 			int len = sizeof(sock_addr);
 
-			if (::getsockname(get_fd(), (struct sockaddr*)&sock_addr, &len) == 0) {
+			if (::getsockname(get_fd(), reinterpret_cast<sockaddr*>(&sock_addr), &len) == 0) {
 				if (sock_addr.ss_family == AF_INET) {
-					const struct sockaddr_in* addr4 = (const struct sockaddr_in*)&sock_addr;
+					const struct sockaddr_in* addr4 = reinterpret_cast<const struct sockaddr_in*>(&sock_addr);
 					port = ntohs(addr4->sin_port);
 					rc = true;
 				}
 				else if (sock_addr.ss_family == AF_INET6) {
-					const struct sockaddr_in6* addr6 = (const struct sockaddr_in6*)&sock_addr;
+					const struct sockaddr_in6* addr6 = reinterpret_cast<const struct sockaddr_in6*>(&sock_addr);
 					port = ntohs(addr6->sin6_port);
 					rc = true;
 				}

@@ -44,8 +44,8 @@ namespace ui {
 
 		center_window();
 		
-
-		if (::GetDlgCtrlID((HWND)wParam) != IDC_CODE) {
+		const HWND control = reinterpret_cast<HWND>(wParam);
+		if (::GetDlgCtrlID(control) != IDC_CODE) {
 			set_focus(IDC_CODE);
 			return FALSE;
 		}

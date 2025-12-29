@@ -31,7 +31,7 @@ namespace ui {
 		DEBUG_ENTER(_logger);
 
 		bool success = procedure();
-		_message->send_message(_hwnd, (void*)success);
+		_message->send_message(_hwnd, reinterpret_cast<void *>(success));
 	}
 
 

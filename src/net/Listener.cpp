@@ -117,7 +117,7 @@ terminate:
 		if (::getsockopt(get_fd(),
 			SOL_SOCKET,
 			SO_ACCEPTCONN,
-			(char*)&opt_val,
+			reinterpret_cast<char*>(&opt_val),
 			&opt_len) == SOCKET_ERROR)
 			return false;
 

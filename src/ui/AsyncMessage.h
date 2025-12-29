@@ -36,6 +36,7 @@ namespace ui {
 		virtual ~AsyncMessage();
 
 		virtual LRESULT send_message(HWND hWnd, void* lParam) const = 0;
+		virtual LRESULT send_message(HWND hWnd, const void* lParam) const;
 
 		/**
 		 * Checks if the message id correspond to the received registration id.

@@ -7,7 +7,7 @@
 */
 #include "Task.h"
 
-#include <iostream>
+#include <vector>
 #include "tools/StrUtil.h"
 
 
@@ -51,9 +51,12 @@ namespace tools {
 
 			_logger->debug(">> start task cmd=%s", tools::wstr2str(_cmdline).c_str());
 
+			std::vector<wchar_t> cmdline_buffer(_cmdline.begin(), _cmdline.end());
+			cmdline_buffer.push_back(L'\0');
+
 			if (!::CreateProcess(
 				nullptr,
-				(LPWSTR)_cmdline.c_str(),
+				cmdline_buffer.data(),
 				nullptr,
 				nullptr,
 				FALSE,
