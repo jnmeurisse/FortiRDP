@@ -35,9 +35,9 @@ namespace http {
 	HttpsClient::HttpsClient(const net::Endpoint& ep, const net::TlsConfig& config) :
 		TlsSocket(config),
 		_host_ep(ep),
-		_keepalive_timeout(DEFAULT_KEEP_ALIVE_TIMEOUT),
 		_keepalive_timer(),
 		_max_requests(100),
+		_keepalive_timeout(DEFAULT_KEEP_ALIVE_TIMEOUT),
 		_connect_timeout(DEFAULT_CONNECT_TIMEOUT * 1000),
 		_send_timeout(DEFAULT_SND_TIMEOUT * 1000),
 		_receive_timeout(DEFAULT_RCV_TIMEOUT * 1000),
@@ -216,8 +216,8 @@ namespace http {
 			const char c = str.at(i);
 
 			if (c == '%') {
-				const int c1 = (int)str.at(i + 1);
-				const int c2 = (int)str.at(i + 2);
+				const char c1 = str.at(i + 1);
+				const char c2 = str.at(i + 2);
 
 				if (std::isxdigit(c1) && std::isxdigit(c2)) {
 					const char dc = ((c1 - '0') << 4) + (c2 - '0') & 0x7F;
