@@ -273,7 +273,7 @@ namespace net {
 						_pp_interface.gateway().c_str(),
 						_pp_interface.mtu());
 
-					if (DnsClient::configured()) {
+					if (DnsClient::is_configured()) {
 						_logger->info("     DNS=%s", DnsClient::dns().c_str());
 					}
 				}

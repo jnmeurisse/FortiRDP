@@ -28,7 +28,7 @@ namespace net {
 		/**
 		 * Returns true if a DNS server address is configured.
 		*/
-		static bool configured();
+		static bool is_configured();
 
 		/**
 		 * Returns the DNS server address as a string.

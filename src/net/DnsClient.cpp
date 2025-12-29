@@ -10,7 +10,7 @@
 
 namespace net {
 
-	bool DnsClient::configured()
+	bool DnsClient::is_configured()
 	{
 		return !ip4_addr_isany_val(*dns_getserver(0)) || !ip4_addr_isany_val(*dns_getserver(1));
 	}
