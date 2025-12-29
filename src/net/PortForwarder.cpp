@@ -364,7 +364,7 @@ namespace net {
 
 	void dns_found_cb(const char *name, const ip_addr_t *ipaddr, void *callback_arg)
 	{
-		PortForwarder* const pf = reinterpret_cast<PortForwarder*>(callback_arg);
+		PortForwarder* const pf = static_cast<PortForwarder*>(callback_arg);
 
 		if (pf->_endpoint.hostname().compare(name) != 0) {
 			pf->_state = PortForwarder::State::FAILED;
