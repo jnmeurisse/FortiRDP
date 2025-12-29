@@ -15,9 +15,9 @@
 namespace tools {
 
 	RegKey::RegKey(HKEY root_key, const std::wstring& key_name) :
-		_key(),
 		_root_key(root_key),
-		_key_name(key_name)
+		_key_name(key_name),
+		_key()
 	{
 		LSTATUS rc = ::RegCreateKeyEx(
 			_root_key,
