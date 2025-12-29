@@ -29,9 +29,9 @@ namespace fw {
 	FirewallClient::FirewallClient(const net::Endpoint& ep, const std::string& realm, const net::TlsConfig& config):
 		HttpsClient(ep, config),
 		_peer_crt_digest(),
+		_cookie_jar(),
 		_mutex(),
-		_realm(realm),
-		_cookie_jar()
+		_realm(realm)
 	{
 		DEBUG_CTOR(_logger);
 
