@@ -26,7 +26,7 @@ namespace ui {
 		_hInstance(hInstance),
 		_hParent(hParent),
 		_dialog_id(dialog_id),
-		_hWindow(NULL)
+		_hWindow(NULL_HWND)
 	{
 	}
 
@@ -42,20 +42,20 @@ namespace ui {
 	}
 
 
-	bool Dialog::center_window(HWND hRelWindow)
+	bool Dialog::center_window(HWND hRelWindow) const
 	{
 		RECT rRelWindow;
 		RECT rThisWindow;
 		RECT r;
 
-		if (hRelWindow == NULL) {
+		if (hRelWindow == NULL_HWND) {
 			hRelWindow = ::GetDesktopWindow();
 		}
 
 		if (!::GetWindowRect(hRelWindow, &rRelWindow))
-			goto error;
+			return false;
 		if (!::GetWindowRect(window_handle(), &rThisWindow))
-			goto error;
+			return false;
 
 		::CopyRect(&r, &rRelWindow);
 
@@ -63,29 +63,24 @@ namespace ui {
 		::OffsetRect(&r, -r.left, -r.top);
 		::OffsetRect(&r, -rThisWindow.right, -rThisWindow.bottom);
 
-		if (!::SetWindowPos(window_handle(),
+		return ::SetWindowPos(
+			window_handle(),
 			HWND_TOP,
 			rRelWindow.left + (r.right / 2), rRelWindow.top + (r.bottom / 2),
 			0, 0,
-			SWP_NOSIZE))
-			goto error;
-
-		return true;
-
-	error:
-		return false;
+			SWP_NOSIZE) != 0;
 	}
 
 
-	bool Dialog::show_window(int cmd_show)
+	bool Dialog::show_window(int cmd_show) const
 	{
-		return ::ShowWindow(window_handle(), cmd_show) == TRUE;
+		return ::ShowWindow(window_handle(), cmd_show) != 0;
 	}
 
 
-	bool Dialog::is_minimized()
+	bool Dialog::is_minimized() const
 	{
-		return ::IsIconic(window_handle()) == TRUE;
+		return ::IsIconic(window_handle()) != 0;
 	}
 
 
@@ -95,13 +90,13 @@ namespace ui {
 	}
 
 
-	bool Dialog::set_title(const std::wstring& title)
+	bool Dialog::set_title(const std::wstring& title) const
 	{
 		return Dialog::set_window_text(window_handle(), title);
 	}
 
 
-	bool Dialog::set_control_text(int control_id, const std::wstring& text)
+	bool Dialog::set_control_text(int control_id, const std::wstring& text) const
 	{
 		return Dialog::set_window_text(control_handle(control_id), text);
 	}
@@ -113,13 +108,13 @@ namespace ui {
 	}
 
 
-	void Dialog::set_control_textlen(int control_id, int length)
+	void Dialog::set_control_textlen(int control_id, int length) const
 	{
 		::SendMessage(control_handle(control_id), EM_SETLIMITTEXT, length, 0);
 	}
 
 
-	void Dialog::set_control_enable(int control_id, bool enable)
+	void Dialog::set_control_enable(int control_id, bool enable) const
 	{
 		::EnableWindow(control_handle(control_id), enable);
 	}
@@ -131,13 +126,13 @@ namespace ui {
 	}
 
 
-	void Dialog::set_control_visible(int control_id, bool visible)
+	void Dialog::set_control_visible(int control_id, bool visible) const
 	{
 		::ShowWindow(control_handle(control_id), visible ? SW_SHOW : SW_HIDE);
 	}
 
 
-	void Dialog::set_control_font(int control_id, HFONT font)
+	void Dialog::set_control_font(int control_id, HFONT font) const
 	{
 		::SendMessage(control_handle(control_id), WM_SETFONT, (WPARAM)font, TRUE);
 	}
@@ -146,14 +141,14 @@ namespace ui {
 	std::wstring Dialog::get_window_text(HWND hWnd)
 	{
 		// Allocate a temporary buffer
-		int len = ::GetWindowTextLength(hWnd);
+		const int len = ::GetWindowTextLength(hWnd);
 		std::vector<wchar_t> buffer(len + 1);
 
 		// Get the window text
-		::GetWindowText(hWnd, &buffer[0], len + 1);
+		::GetWindowText(hWnd, buffer.data(), len + 1);
 
-		// Convert the buffer as a wstring
-		return std::wstring(&buffer[0], len);
+		// Convert the buffer to a wstring
+		return std::wstring(buffer.data(), len);
 	}
 
 
@@ -163,13 +158,13 @@ namespace ui {
 	}
 
 
-	bool Dialog::set_focus(int control_id)
+	bool Dialog::set_focus(int control_id) const
 	{
-		return ::SetFocus(control_handle(control_id)) != NULL;
+		return ::SetFocus(control_handle(control_id)) != NULL_HWND;
 	}
 
 
-	void Dialog::set_checkbox_state(int control_id, int state)
+	void Dialog::set_checkbox_state(int control_id, int state) const
 	{
 		::SendMessage(control_handle(control_id), BM_SETCHECK, state, 0);
 	}
@@ -181,13 +176,13 @@ namespace ui {
 	}
 
 
-	bool Dialog::add_combo_text(int control_id, const std::wstring& text)
+	bool Dialog::add_combo_text(int control_id, const std::wstring& text) const
 	{
 		return ::SendMessage(control_handle(control_id), CB_ADDSTRING, 0, (LPARAM)text.c_str()) >= 0;
 	}
 
 
-	bool Dialog::set_combo_index(int control_id, int index)
+	bool Dialog::set_combo_index(int control_id, int index) const
 	{
 		return ::SendMessage(control_handle(control_id), CB_SETCURSEL, index, 0) == index;
 	}
@@ -217,13 +212,13 @@ namespace ui {
 	}
 
 
-	HMENU Dialog::get_sys_menu(bool reset)
+	HMENU Dialog::get_sys_menu(bool reset) const
 	{
 		return ::GetSystemMenu(window_handle(), reset);
 	}
 
 
-	int Dialog::show_message_box(const std::wstring& message, UINT type)
+	int Dialog::show_message_box(const std::wstring& message, UINT type) const
 	{
 		return ::MessageBox(window_handle(), message.c_str(), get_title().c_str(), type);
 	}

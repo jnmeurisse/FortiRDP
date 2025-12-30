@@ -16,7 +16,7 @@
 
 
 namespace ui {
-
+	static const HWND NULL_HWND = nullptr;
 
 	/**
 	* A Dialog abstract base class.
@@ -51,17 +51,17 @@ namespace ui {
 		 * If not specified the function centers the dialog window relative to the
 		 * screen.
 		*/
-		bool center_window(HWND hRelWindow = NULL);
+		bool center_window(HWND hRelWindow = NULL_HWND) const;
 
 		/**
 		 * Shows the window.
 		*/
-		bool show_window(int cmd_show);
+		bool show_window(int cmd_show) const;
 
 		/**
 		 * Returns true if this dialog window is minimized.
 		*/
-		bool is_minimized();
+		bool is_minimized() const;
 
 		/**
 		 * Returns the dialog window title.
@@ -73,14 +73,14 @@ namespace ui {
 		 * 
 		 * @return true if the function succeeds.
 		*/
-		bool set_title(const std::wstring& title);
+		bool set_title(const std::wstring& title) const;
 
 		/**
 		 * Sets the text of a the given dialog control.
 		 * 
  		 * @return true if the function succeeds.
 		*/
-		bool set_control_text(int control_id, const std::wstring& text);
+		bool set_control_text(int control_id, const std::wstring& text) const;
 
 		/**
 		 * Returns the text from a specified dialog control.
@@ -90,12 +90,12 @@ namespace ui {
 		/**
 		 * Sets the text length limit for the specified dialog control.
 		*/
-		void set_control_textlen(int control_id, int length);
+		void set_control_textlen(int control_id, int length) const;
 
 		/**
 		 * Enables or disables a dialog control.
 		*/
-		void set_control_enable(int control_id, bool enable);
+		void set_control_enable(int control_id, bool enable) const;
 
 		/**
 		 * Checks if a dialog control is enabled.
@@ -105,22 +105,22 @@ namespace ui {
 		/**
 		 * Shows or hides a dialog control.
 		*/
-		void set_control_visible(int control_id, bool visible);
+		void set_control_visible(int control_id, bool visible) const;
 
 		/**
 		 * Assigns a font to a dialog control.
 		*/
-		void set_control_font(int control_id, HFONT font);
+		void set_control_font(int control_id, HFONT font) const;
 
 		/**
 		 * Sets the mouse focus to the specified control.
 		*/
-		bool set_focus(int control_id);
+		bool set_focus(int control_id) const;
 
 		/**
 		 * Sets a check box state.
 		*/
-		void set_checkbox_state(int control_id, int state);
+		void set_checkbox_state(int control_id, int state) const;
 
 		/**
 		 * Gets a check box state.
@@ -134,14 +134,14 @@ namespace ui {
 		 * 
 		 * @return true if the function succeeds.
 		*/
-		bool add_combo_text(int control_id, const std::wstring& text);
+		bool add_combo_text(int control_id, const std::wstring& text) const;
 
 		/**
 		 * Selects a string at position 'index' in the combo box.
 		 * 
 		 * @return true if the function succeeds.
 		*/
-		bool set_combo_index(int control_id, int index);
+		bool set_combo_index(int control_id, int index) const;
 
 		/**
 		 * Returns the selected string in the combo box.
@@ -161,12 +161,12 @@ namespace ui {
 		/**
 		 * Returns the system menu handle.
 		*/
-		HMENU get_sys_menu(bool reset);
+		HMENU get_sys_menu(bool reset) const;
 
 		/**
 		 * Shows a message box.
 		*/
-		int show_message_box(const std::wstring& message, UINT type);
+		int show_message_box(const std::wstring& message, UINT type) const;
 
 	protected:
 		/**
