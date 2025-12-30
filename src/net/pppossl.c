@@ -205,9 +205,9 @@ pppossl_connect(ppp_pcb *ppp, void *ctx)
 {
 	pppossl_pcb* const pppossl = ctx;
 
-	//TODO: review potential overflow
 	/* reset PPPossl control block to its initial state */
-	memset(&pppossl->last_xmit, 0, sizeof(pppossl_pcb) - offsetof(pppossl_pcb, last_xmit));
+	pppossl->last_xmit = 0;
+	memset(&pppossl->in, 0, sizeof pppossl->in);
 
 	/* ask DNS  */
 	ppp_set_usepeerdns(ppp, 1);
