@@ -289,15 +289,12 @@ namespace tools {
 			quoted_str.push_back('"');
 
 			for (const wchar_t &c : str) {
-				switch (c) {
-				case '"':
+				if (c == '"') {
 					quoted_str.push_back('\\');
 					quoted_str.push_back(c);
-					break;
-
-				default:
+				}
+				else {
 					quoted_str.push_back(c);
-					break;
 				}
 			}
 
