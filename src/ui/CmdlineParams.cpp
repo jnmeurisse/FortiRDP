@@ -18,16 +18,6 @@
 namespace ui {
 
 
-	CmdlineParams::CmdlineParams()
-	{
-	}
-
-
-	CmdlineParams::~CmdlineParams()
-	{
-	}
-
-
 	bool CmdlineParams::initialize()
 	{
 		bool rc = true;
@@ -60,7 +50,7 @@ namespace ui {
 		_trace = false;
 
 		_auth_method = fw::AuthMethod::DEFAULT;
-		_username.clear();;
+		_username.clear();
 		_fw_address.clear();
 		_host_addres.clear();
 		_us_cert_filename = L"";
@@ -157,6 +147,7 @@ namespace ui {
 					_auth_method = fw::AuthMethod::SAML;
 				else
 					return false;
+				break;
 
 			default:
 				break;
@@ -230,7 +221,7 @@ namespace ui {
 	}
 
 
-	void CmdlineParams::print_usage()
+	void CmdlineParams::print_usage() const
 	{
 		// Retrieve major/minor version from .exe
 		const tools::Path app_path{ tools::Path::get_module_path() };
