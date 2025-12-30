@@ -9,6 +9,7 @@
 
 #include <lmcons.h>
 #include <string>
+#include <vector>
 #include <system_error>
 #include "tools/StrUtil.h"
 
@@ -46,32 +47,27 @@ namespace tools {
 	
 	std::string get_file_ver(const std::wstring& path)
 	{
-		DWORD size = 0;
-		BYTE* pVerInfo = nullptr;
-		VS_FIXEDFILEINFO* pFileInfo = nullptr;
-		UINT fileInfoLen = 0;
 		std::string file_version = "?";
 		
-		size = ::GetFileVersionInfoSize(path.c_str(), nullptr);
-		if (size == 0)
-			goto terminate;
+		const DWORD size = ::GetFileVersionInfoSize(path.c_str(), nullptr);
+		if (size > 0) {
+			std::vector<BYTE> version_info(size);
+			if (!::GetFileVersionInfo(path.c_str(), 0, size, version_info.data()))
+				goto terminate;
 
-		pVerInfo = new BYTE[size];
-		if (!::GetFileVersionInfo(path.c_str(), 0, size, pVerInfo))
-			goto terminate;
+			UINT file_info_len = 0;
+			LPVOID file_info_ptr;
+			if (!::VerQueryValue(version_info.data(), L"\\", &file_info_ptr, &file_info_len))
+				goto terminate;
 
-		if (!::VerQueryValue(pVerInfo, L"\\", reinterpret_cast<LPVOID*>(&pFileInfo), &fileInfoLen))
-			goto terminate;
-
-		file_version = string_format("%d.%d.%d",
-			HIWORD(pFileInfo->dwFileVersionMS),
-			LOWORD(pFileInfo->dwFileVersionMS),
-			HIWORD(pFileInfo->dwFileVersionLS));
+			const VS_FIXEDFILEINFO* pFileInfo = static_cast<VS_FIXEDFILEINFO*>(file_info_ptr);
+			file_version = string_format("%d.%d.%d",
+				HIWORD(pFileInfo->dwFileVersionMS),
+				LOWORD(pFileInfo->dwFileVersionMS),
+				HIWORD(pFileInfo->dwFileVersionLS));
+		}
 
 	terminate:
-		if (pVerInfo)
-			delete [] pVerInfo;
-
 		return file_version;
 	}
 
