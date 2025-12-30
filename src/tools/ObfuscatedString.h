@@ -47,7 +47,6 @@ namespace tools {
 		*/
 		explicit obfstring(obfstring&& other);
 
-
 		/**
 		* Assigns an obfuscated string.
 		*/
@@ -114,7 +113,7 @@ namespace tools {
 		/**
 		 * Returns the character at position 'pos'.
 		*/
-		inline char operator[](int pos) const { return decode(_obfuscated_text[pos], _key); }
+		inline char operator[](size_t pos) const { return decode(_obfuscated_text[pos], _key); }
 
 		/**
 		 * Returns the string as a clear text.
