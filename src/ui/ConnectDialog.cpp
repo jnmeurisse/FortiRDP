@@ -861,15 +861,15 @@ namespace ui {
 		INT_PTR rc = TRUE;
 
 		if (eventId == AsyncMessage::ShowCredentialsDialogRequest->id()) {
-			showCredentialsDialog(reinterpret_cast<fw::AuthCredentials*>(param));
+			showCredentialsDialog(static_cast<fw::AuthCredentials*>(param));
 
 		}
 		else if (eventId == AsyncMessage::ShowPinCodeDialogRequest->id()) {
-			showPinCodeDialog(reinterpret_cast<fw::AuthCode*>(param));
+			showPinCodeDialog(static_cast<fw::AuthCode*>(param));
 
 		}
 		else if (eventId == AsyncMessage::ShowSamlAuthDialogRequest->id()) {
-			showSamlDialog(reinterpret_cast<fw::AuthSamlInfo*>(param));
+			showSamlDialog(static_cast<fw::AuthSamlInfo*>(param));
 
 		}
 		else if (eventId == AsyncMessage::ShowInvalidCertificateDialogRequest->id()) {
@@ -878,7 +878,7 @@ namespace ui {
 
 		}
 		else if (eventId == AsyncMessage::ShowErrorMessageDialogRequest->id()) {
-			std::wstring message{ reinterpret_cast<wchar_t*>(param) };
+			std::wstring message{ static_cast<wchar_t*>(param) };
 			showErrorMessageDialog(message);
 
 		}
@@ -898,7 +898,7 @@ namespace ui {
 
 		}
 		else if (eventId == AsyncMessage::OutputInfoEvent->id()) {
-			onOutputInfoEvent(reinterpret_cast<tools::LogQueue*>(param));
+			onOutputInfoEvent(static_cast<tools::LogQueue*>(param));
 
 		}
 		else {
