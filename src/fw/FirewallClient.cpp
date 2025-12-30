@@ -7,6 +7,7 @@
 */
 #include "FirewallClient.h"
 
+#include <array>
 #include <memory>
 #include <stdexcept>
 #include <mbedtls/x509_crt.h>
@@ -92,9 +93,9 @@ namespace fw {
 			_logger->info(">> peer X.509 certificate error");
 
 			if (_logger->is_debug_enabled()) {
-				char buffer[4096] = { 0 };
-				mbedtls_x509_crt_info(buffer, sizeof(buffer) - 1, "   ", get_peer_crt());
-				_logger->debug(buffer);
+				std::array<char, 4096> buffer = { 0 };
+				mbedtls_x509_crt_info(buffer.data(), buffer.size() - 1, "   ", get_peer_crt());
+				_logger->debug(buffer.data());
 			}
 
 			if (!confirm_crt(get_peer_crt(), crt_status)) {
@@ -288,7 +289,7 @@ namespace fw {
 				// 3 = Email based two-factor authentication
 				// 4 = SMS based two-factor authentication
 				// ********************************
-				static const char* messages[] = {
+				static const std::array<std::string, 3> messages = {
 					/*2: */ "Enter fortitoken code ",
 					/*3: */ "Enter authentication code sent to email ",
 					/*4: */ "Enter authentication code sent to SMS "
