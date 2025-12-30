@@ -18,8 +18,8 @@ namespace ui {
 	class CmdlineParams final
 	{
 	public:
-		explicit CmdlineParams();
-		~CmdlineParams();
+		explicit CmdlineParams() = default;
+		~CmdlineParams() = default;
 
 		/**
 		* Initializes this instance from the command line string.
@@ -34,7 +34,7 @@ namespace ui {
 		/**
 		 * Prints the correct usage of this program to stdout.
 		*/
-		void print_usage();
+		void print_usage() const;
 
 		/**
 		 * Returns the firewall address option.

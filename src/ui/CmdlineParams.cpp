@@ -179,11 +179,11 @@ namespace ui {
 		bool auth_method_valid = false;
 		switch (_auth_method) {
 			case fw::AuthMethod::DEFAULT:
-				auth_method_valid = _username.size() > 0 && _us_cert_filename.size() == 0;
+				auth_method_valid = _us_cert_filename.size() == 0;
 				break;
 
 			case fw::AuthMethod::BASIC:
-				auth_method_valid = _username.size() > 0 && _us_cert_filename.size() == 0;
+				auth_method_valid = _us_cert_filename.size() == 0;
 				break;
 
 			case fw::AuthMethod::SAML:
