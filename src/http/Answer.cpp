@@ -314,7 +314,7 @@ namespace http {
 	{
 		if (_logger->is_trace_enabled())
 			_logger->trace("... %x enter %s::%s timeout=%lu",
-				(uintptr_t)this,
+				THISADDR(),
 				__class__,
 				__func__,
 				timer.remaining_time()
