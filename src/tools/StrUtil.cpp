@@ -10,7 +10,9 @@
 #include <Windows.h>
 #include <algorithm>
 #include <cctype>
+#include <climits>
 #include <cstdarg>
+#include <cstdio>
 #include <vector>
 
 
@@ -307,26 +309,27 @@ namespace tools {
 
 	std::string string_format(const char *fmt, ...) 
 	{
-		int n;
-		size_t size = 100;
-		bool b = false;
-		va_list marker;
-		std::vector<char> s;
+		size_t buffer_size = 132;
 
-		while (!b)
+		while (true)
 		{
-			s.resize(size);
+			va_list marker;
+			std::vector<char> buffer(buffer_size);
+
 			va_start(marker, fmt);
-			n = vsnprintf_s(s.data(), size, _TRUNCATE, fmt, marker);
+			const int n = std::vsnprintf(buffer.data(), buffer_size, fmt, marker);
 			va_end(marker);
 
-			if ((n > 0) && ((b = (n < size)))) 
-				s.resize(n);
-			else 
-				size *= 2;
-		}
+			if (n < 0)
+				return "format error";
 
-		return std::string(s.data(), s.size());
+			// The string has been completely written only when n is non negative 
+			// and less than size.  The buffer contains a null terminated string.
+			if (n > 0 && n < buffer_size)
+				return buffer.data();
+			else
+				buffer_size *= 2;
+		}
 	}
 
 
@@ -350,7 +353,7 @@ namespace tools {
 			nullptr, nullptr
 		);
 
-		return std::string(result.begin(), result.end());
+		return std::string(result.data(), result.size());
 	}
 
 
@@ -366,7 +369,7 @@ namespace tools {
 			str.data(), (int)str.size(), 
 			result.data(), (int)result.size());
 
-		return std::wstring(result.begin(), result.end());
+		return std::wstring(result.data(), result.size());
 	}
 
 }
