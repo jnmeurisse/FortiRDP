@@ -34,7 +34,7 @@ namespace ui {
 	{
 	public:
 		explicit ConnectDialog(HINSTANCE hInstance, const CmdlineParams& cmdlineParams);
-		virtual ~ConnectDialog() override;
+		~ConnectDialog() override;
 
 		std::wstring getFirewallAddress() const;
 		void setFirewallAddress(const std::wstring& addr);
@@ -103,14 +103,14 @@ namespace ui {
 		void clearRdpHistory();
 
 		// Windows Event message handlers
-		virtual INT_PTR onDestroyDialogMessage(WPARAM wParam, LPARAM lParam) override;
-		virtual INT_PTR onCloseDialogMessage(WPARAM wParam, LPARAM lParam) override;
-		virtual INT_PTR onButtonClick(int control_id, LPARAM lParam) override;
-		virtual INT_PTR onSysCommandMessage(WPARAM wParam, LPARAM lParam) override;
-		virtual INT_PTR onCtlColorStaticMessage(WPARAM wParam, LPARAM lParam) override;
-		virtual INT_PTR onTimerMessage(WPARAM wParam, LPARAM lParam) override;
-		virtual INT_PTR onHotKey(WPARAM wParam, LPARAM lParam) override;
-		virtual INT_PTR onAsyncMessage(UINT eventId, void* param) override;
+		INT_PTR onDestroyDialogMessage(WPARAM wParam, LPARAM lParam) override;
+		INT_PTR onCloseDialogMessage(WPARAM wParam, LPARAM lParam) override;
+		INT_PTR onButtonClick(int control_id, LPARAM lParam) override;
+		INT_PTR onSysCommandMessage(WPARAM wParam, LPARAM lParam) override;
+		INT_PTR onCtlColorStaticMessage(WPARAM wParam, LPARAM lParam) override;
+		INT_PTR onTimerMessage(WPARAM wParam, LPARAM lParam) override;
+		INT_PTR onHotKey(WPARAM wParam, LPARAM lParam) override;
+		INT_PTR onAsyncMessage(UINT eventId, void* param) override;
 
 		// Async message request handlers
 		void showAboutDialog();
