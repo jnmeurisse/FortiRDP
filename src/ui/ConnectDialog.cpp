@@ -30,10 +30,10 @@ namespace ui {
 	static const int SYSCMD_OPTIONS = 3;
 
 	ConnectDialog::ConnectDialog(HINSTANCE hInstance, const CmdlineParams& params) :
-		ModelessDialog(hInstance, NULL, IDD_CONNECT_DIALOG),
+		ModelessDialog(hInstance, NULL_HWND, IDD_CONNECT_DIALOG),
+		_logger(tools::Logger::get_logger()),
 		_params(params),
-		_writer(),
-		_logger(tools::Logger::get_logger())
+		_writer()
 	{
 		// Assign application icons. Icons are automatically deleted when the 
 		// application stops thanks to the LR_SHARED parameter.

@@ -52,14 +52,14 @@ namespace ui {
 			TIMER_ACTIVITY = 3
 		};
 
+		// The application logger.
+		tools::Logger* const _logger;
+
 		// Command line parameters.
 		const CmdlineParams _params;
 
 		// Registry parameters.
 		RegistrySettings _settings;
-
-		// The application logger.
-		tools::Logger* const _logger;
 
 		// A writer that appends data in the InfoLog text box
 		InfoLogWriter* _writer;
