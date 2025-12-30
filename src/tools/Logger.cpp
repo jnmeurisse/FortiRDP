@@ -19,8 +19,8 @@ namespace tools {
 
 	Logger::Logger() :
 		_writers(),
-		_level(LL_INFO),
-		_mutex()
+		_mutex(),
+		_level(LL_INFO)
 	{
 	}
 
