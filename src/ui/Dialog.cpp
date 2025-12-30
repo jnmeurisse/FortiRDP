@@ -23,10 +23,10 @@ namespace ui {
 
 
 	Dialog::Dialog(HINSTANCE hInstance, HWND hParent, int dialog_id) :
-		_hWindow(0),
 		_hInstance(hInstance),
 		_hParent(hParent),
-		_dialog_id(dialog_id)
+		_dialog_id(dialog_id),
+		_hWindow(NULL)
 	{
 	}
 
