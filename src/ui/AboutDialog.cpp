@@ -7,12 +7,13 @@
 */
 #include "AboutDialog.h"
 
-#include <mbedtls/version.h>
+#include <mbedtls/build_info.h>
 #include <lwip/init.h>
 #include "tools/SysUtil.h"
 #include "tools/StrUtil.h"
 #include "tools/Path.h"
 #include "resources/resource.h"
+
 
 namespace ui {
 
@@ -48,13 +49,10 @@ namespace ui {
 		set_control_font(IDC_ABOUT_VERSION, _hFont);
 		set_control_text(IDC_ABOUT_VERSION, str2wstr(about_version));
 
-		char mbedtls_ver[sizeof(MBEDTLS_VERSION_STRING_FULL)]{ 0 };
-		mbedtls_version_get_string_full(mbedtls_ver);
-
 		std::string about_info;
 		about_info.append("A Fortigate SSLVPN client.\n");
 		about_info.append("This program uses ");
-		about_info.append(mbedtls_ver);
+		about_info.append(MBEDTLS_VERSION_STRING_FULL);
 		about_info.append(" and lwIP ");
 		about_info.append(LWIP_VERSION_STRING);
 		about_info.append(" libraries.");
