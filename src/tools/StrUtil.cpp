@@ -223,15 +223,15 @@ namespace tools {
 
 	void serase(std::string& str)
 	{
-		for (unsigned int idx = 0; idx < str.length(); idx++)
-			str[idx] = ' ';
+		for (char& c : str)
+			c = ' ';
 	}
 
 
-	void serase(std::wstring & str)
+	void serase(std::wstring& str)
 	{
-		for (unsigned int idx = 0; idx < str.length(); idx++)
-			str[idx] = ' ';
+		for (wchar_t& c : str)
+			c = ' ';
 	}
 
 
