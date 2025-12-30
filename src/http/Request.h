@@ -118,7 +118,7 @@ namespace http {
 		Headers _headers;
 		tools::ByteBuffer _body;
 
-		void write_buffer(net::TcpSocket& socket, const byte* buffer, size_t len, const Timer& timer);
+		void write_buffer(net::TcpSocket& socket, const unsigned char* buffer, size_t len, const Timer& timer);
 	};
 
 }

@@ -119,7 +119,7 @@ namespace http {
 	}
 
 
-	void Request::write_buffer(net::TcpSocket& socket, const byte* buffer, size_t len, const Timer& timer)
+	void Request::write_buffer(net::TcpSocket& socket, const unsigned char* buffer, size_t len, const Timer& timer)
 	{
 		const snd_status status{ socket.write(buffer, len, timer) };
 

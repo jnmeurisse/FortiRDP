@@ -7,6 +7,7 @@
 */
 #include "PPInterface.h"
 
+#include <array>
 #include <lwip/timeouts.h>
 #include <lwip/stats.h>
 #include "tools/ErrUtil.h"
@@ -211,11 +212,11 @@ namespace net {
 	{
 		TRACE_ENTER(_logger);
 
-		byte buffer[4096];
+		std::array<unsigned char, 4096> buffer = {};
 		bool rc;
 
 		// Read data available in the tunnel.
-		const rcv_status status{ _tunnel.recv_data(buffer, sizeof(buffer)) };
+		const rcv_status status{ _tunnel.recv_data(buffer.data(), buffer.size())};
 
 		switch (status.code) {
 		case rcv_status_code::NETCTX_RCV_OK: {
@@ -223,7 +224,7 @@ namespace net {
 			_counters.received += status.rbytes;
 
 			// PPP data available, pass it to the lwIP stack.
-			const ppp_err ppp_rc = pppossl_input(_pcb, buffer, status.rbytes);
+			const ppp_err ppp_rc = pppossl_input(_pcb, buffer.data(), status.rbytes);
 			if (ppp_rc) {
 				_logger->error("ERROR: %s - input failure (%s)",
 					__class__,

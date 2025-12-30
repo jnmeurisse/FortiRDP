@@ -23,8 +23,6 @@ namespace tools {
 	class ByteBuffer final
 	{
 	public:
-		using byte = uint8_t;
-
 		/**
 		 * Allocates a new byte buffer having the specified initial capacity.
 		 *
@@ -69,7 +67,7 @@ namespace tools {
 		 *
 		 * @return this ByteBuffer.
 		*/
-		ByteBuffer& append(const byte* data, size_t size);
+		ByteBuffer& append(const uint8_t* data, size_t size);
 
 		/**
 		 * Appends the given byte to the end of this buffer.
@@ -78,7 +76,7 @@ namespace tools {
 		 *
 		 * @return this ByteBuffer.
 		*/
-		ByteBuffer& append(const byte data);
+		ByteBuffer& append(const uint8_t data);
 
 		/**
 		 * Appends the string to the end of this buffer.
@@ -116,12 +114,12 @@ namespace tools {
 		/**
 		 * Returns the pointer to the first byte in the buffer.
 		*/
-		inline const byte* cbegin() const noexcept { return _buffer.data(); }
+		inline const uint8_t* cbegin() const noexcept { return _buffer.data(); }
 
 		/**
 		 * Returns the pointer to the next-to-the-last byte in the buffer.
 		*/
-		inline const byte* cend() const noexcept { return _buffer.data() + size(); }
+		inline const uint8_t* cend() const noexcept { return _buffer.data() + size(); }
 
 		/**
 		 * Returns this buffer as an obfuscated string.
@@ -136,7 +134,7 @@ namespace tools {
 
 	private:
 		// the buffer.
-		std::vector<byte> _buffer;
+		std::vector<uint8_t> _buffer;
 	};
 
 }

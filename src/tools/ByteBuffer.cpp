@@ -39,7 +39,7 @@ namespace tools {
 	}
 
 
-	ByteBuffer& ByteBuffer::append(const byte* data, size_t size)
+	ByteBuffer& ByteBuffer::append(const uint8_t* data, size_t size)
 	{
 		_buffer.insert(_buffer.end(), data, data + size);
 
@@ -47,7 +47,7 @@ namespace tools {
 	}
 
 
-	ByteBuffer& ByteBuffer::append(const byte data)
+	ByteBuffer& ByteBuffer::append(const uint8_t data)
 	{
 		_buffer.push_back(data);
 
@@ -57,7 +57,7 @@ namespace tools {
 
 	ByteBuffer& ByteBuffer::append(const std::string& data)
 	{
-		return append(reinterpret_cast<const byte*>(data.c_str()), data.size());
+		return append(reinterpret_cast<const uint8_t*>(data.c_str()), data.size());
 	}
 
 

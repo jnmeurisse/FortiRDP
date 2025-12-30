@@ -51,8 +51,6 @@ namespace tools {
 	 */
 	class PBufQueue
 	{
-		using byte = uint8_t;
-
 	public:
 		/**
 		 * Constructs a PBufQueue with a specified capacity.
@@ -132,9 +130,9 @@ namespace tools {
 		/* A contiguous block of data in the queue.
 		*/
 		struct cblock {
-			const byte* pdata;  // pointer to the first byte in the pbuf payload
-			const uint16_t len; // length of the block
-			const bool more;	// is there more data
+			const uint8_t* pdata;  // pointer to the first byte in the pbuf payload
+			const uint16_t len;    // length of the block
+			const bool more;	   // is there more data
 		};
 
 		/**
@@ -174,7 +172,7 @@ namespace tools {
 		size_t _offset;
 
 		// A convenient function that returns a pointer to the payload.
-		inline const byte* payload() const noexcept { return static_cast<byte*>(_chain->payload); }
+		inline const uint8_t* payload() const noexcept { return static_cast<uint8_t*>(_chain->payload); }
 
 		// A convenient function that returns the pbuf len as a size_t
 		static inline size_t pbuf_len(const struct pbuf* buffer);
