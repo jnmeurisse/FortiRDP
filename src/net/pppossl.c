@@ -112,7 +112,7 @@ pppossl_write(ppp_pcb *ppp, void *ctx, struct pbuf *pbuf)
 			// Append the payload.
 			int offset = sizeof(ppp_header);
 			for (struct pbuf* p = pbuf; p; p = p->next) {
-				memcpy((uint8_t*)frame->payload + offset, p->payload, p->len);
+				memcpy((u8_t*)frame->payload + offset, p->payload, p->len);
 				offset += p->len;
 			}
 
