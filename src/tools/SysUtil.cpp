@@ -33,15 +33,21 @@ namespace tools {
 
 	std::wstring get_windows_username()
 	{
-		wchar_t username[UNLEN + 1]{ 0 };
-		DWORD username_len = UNLEN + 1;
+		DWORD buffer_size = UNLEN + 1;
 
-		if (::GetUserName(username, &username_len)) {
-			return username;
-		}
-		else {
-			return L"";
-		}
+		do {
+			std::vector<wchar_t> buffer(buffer_size);
+
+			if (!::GetUserName(buffer.data(), &buffer_size)) {
+				if (::GetLastError() == ERROR_INSUFFICIENT_BUFFER)
+					buffer_size += 64;
+				else
+					return L"";
+			}
+			else {
+				return std::wstring(buffer.data(), buffer_size);
+			}
+		} while (true);
 	}
 
 	
