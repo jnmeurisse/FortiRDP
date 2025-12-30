@@ -26,7 +26,7 @@ namespace tools {
 			while(*str != delim && *str)
 				str++;
 
-			parts.push_back(std::string(begin, str));
+			parts.emplace_back(begin, str);
 		} while (0 != *str++);
 
 		return parts.size() - count;
@@ -49,7 +49,7 @@ namespace tools {
 			while (*str != delim && *str)
 				str++;
 
-			parts.push_back(std::wstring(begin, str));
+			parts.emplace_back(begin, str);
 		} while (0 != *str++);
 
 		return parts.size() - count;
