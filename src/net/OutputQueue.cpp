@@ -113,8 +113,6 @@ namespace net {
 
 		if (written > 0) {
 			rc = tcp_output(socket);
-			if (rc)
-				goto write_error;
 		}
 
 	write_error:
