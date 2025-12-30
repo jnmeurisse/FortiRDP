@@ -8,6 +8,8 @@
 #include "StringMap.h"
 
 #include <vector>
+#include <utility>
+#include "StrUtil.h"
 
 
 namespace tools {
@@ -27,12 +29,8 @@ namespace tools {
 
 	void StringMap::serase()
 	{
-		if (_strmap.size() > 0) {
-			strimap::iterator iter;
-
-			for (iter = _strmap.begin(); iter != _strmap.end(); iter++) {
-				tools::serase(iter->second);
-			}
+		for (auto iter = _strmap.begin(); iter != _strmap.end(); ++iter) {
+			tools::serase(iter->second);
 		}
 
 		_strmap.clear();
@@ -43,23 +41,20 @@ namespace tools {
 	{
 		std::vector<std::string> tokens;
 
-		if (tools::split(line.c_str(), delim, tokens)) {
-			for (size_t idx = 0; idx < tokens.size(); idx++) {
-				const std::string item{ tokens.at(idx) };
-
+		if (tools::split(line.c_str(), delim, tokens) > 0) {
+			for (const auto& item : tokens) {
 				// Skip empty item.
-				if (item.size() == 0)
+				if (item.empty())
 					continue;
 
 				// Allow item without value.
-				size_t pos = item.find('=');
+				const size_t pos = item.find('=');
 				if (pos != std::string::npos) {
-					// The spaces before the value are not significant
-					set(trim(item.substr(0, pos)), trimleft(item.substr(pos + 1, std::string::npos)));
-
+					// The spaces after the equal sign are not significant
+					set(tools::trim(item.substr(0, pos)), tools::trimleft(item.substr(pos + 1, std::string::npos)));
 				}
 				else {
-					set(trim(item), "");
+					set(tools::trim(item), "");
 				}
 			}
 		}
@@ -107,7 +102,6 @@ namespace tools {
 	bool StringMap::get_int(const std::string& name, int& value) const
 	{
 		std::string tmp;
-
 		return get_str(name, tmp) && tools::str2i(tmp, value);
 	}
 
@@ -121,19 +115,16 @@ namespace tools {
 
 	std::string StringMap::join(const std::string& delim) const
 	{
-		std::string buffer;
+		if (_strmap.empty())
+			return "";
 
-		if (_strmap.size() > 0) {
-			StringMap::const_iterator iter;
 
-			for (iter = cbegin(); iter != cend(); iter++) {
-				buffer.append(iter->first).append("=").append(iter->second).append(delim);
-			}
-
-			buffer = buffer.substr(0, buffer.size() - delim.size());
+		std::string buffer(256, '\0');
+		for (auto iter = cbegin(); iter != cend(); ++iter) {
+			buffer.append(iter->first).append("=").append(iter->second).append(delim);
 		}
 
-		return buffer;
+		return buffer.substr(0, buffer.size() - delim.size());
 	}
 
 }
