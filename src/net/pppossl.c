@@ -18,10 +18,9 @@
 #include <lwip/mem.h>
 #include <lwip/netif.h>
 #include <lwip/snmp.h>
-#include <lwip/priv/tcpip_priv.h>
-#include <lwip/api.h>
 #include <lwip/def.h>
 #include <netif/ppp/ppp_impl.h>
+#include <string.h>
 
 
 
@@ -62,7 +61,7 @@ pppossl_create(struct netif *pppif, pppossl_output_cb_fn output_cb,
 	pppossl_pcb *pppossl;
 	ppp_pcb *ppp;
 
-	pppossl = (pppossl_pcb *)mem_malloc(sizeof(pppossl_pcb));
+	pppossl = mem_malloc(sizeof(pppossl_pcb));
 	if (pppossl == NULL) {
 		return NULL;
 	}
@@ -84,7 +83,7 @@ pppossl_create(struct netif *pppif, pppossl_output_cb_fn output_cb,
 static err_t
 pppossl_write(ppp_pcb *ppp, void *ctx, struct pbuf *pbuf)
 {
-	pppossl_pcb* const pppos = (pppossl_pcb *)ctx;
+	pppossl_pcb* const pppos = ctx;
 	err_t err = ERR_OK;
 
 	if (!pbuf) {
@@ -204,7 +203,7 @@ void ppossl_send_ka(ppp_pcb *pcb)
 static void
 pppossl_connect(ppp_pcb *ppp, void *ctx)
 {
-	pppossl_pcb* const pppossl = (pppossl_pcb *)ctx;
+	pppossl_pcb* const pppossl = ctx;
 
 	//TODO: review potential overflow
 	/* reset PPPossl control block to its initial state */
@@ -237,7 +236,7 @@ pppossl_disconnect(ppp_pcb *ppp, void *ctx)
 static err_t
 pppossl_destroy(ppp_pcb *ppp, void *ctx)
 {
-	pppossl_pcb* const pppossl = (pppossl_pcb *)ctx;
+	pppossl_pcb* const pppossl = ctx;
 	LWIP_UNUSED_ARG(ppp);
 
 	pppossl_input_free_current_packet(pppossl);
@@ -256,7 +255,7 @@ int
 pppossl_input(ppp_pcb *ppp, u8_t* s, size_t l)
 {
 	err_t err = PPPERR_NONE;
-	pppossl_pcb*const pppossl = (pppossl_pcb *)ppp->link_ctx_cb;
+	pppossl_pcb* const pppossl = ppp->link_ctx_cb;
 
 	PPPDEBUG(LOG_DEBUG, ("pppossl_input[%d]: got %d bytes\n", ppp->netif->num, l));
 	
@@ -330,7 +329,6 @@ drop:
 exit:
 	return err;
 }
-
 
 
 static void
