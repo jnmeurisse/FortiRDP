@@ -14,6 +14,7 @@
 #include "tools/Logger.h"
 #include "tools/Mutex.h"
 #include "tools/SysUtil.h"
+#include "tools/StrUtil.h"
 #include <mbedtls/pk.h>
 
 
