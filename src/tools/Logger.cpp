@@ -66,7 +66,7 @@ namespace tools {
 	{
 		Mutex::Lock lock{ _mutex };
 
-		for (auto writer : _writers) {
+		for (auto& writer : _writers) {
 			writer->write(level, text);
 			writer->flush();
 		}
