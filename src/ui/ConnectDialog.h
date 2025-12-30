@@ -27,8 +27,8 @@
 namespace ui {
 	namespace chrono = std::chrono;
 
-	#define MAX_ADDR_LENGTH 128
-	#define MAX_TITLE_LENGTH 128
+	const int MAX_ADDR_LENGTH = 128;
+	const int MAX_TITLE_LENGTH = 128;
 
 	class ConnectDialog final : public ModelessDialog
 	{
