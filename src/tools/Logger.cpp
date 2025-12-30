@@ -7,9 +7,11 @@
 */
 #include "Logger.h"
 
+#include <array>
 #include <cstdarg>
 #include <cstdio>
 #include <ctime>
+#include <vector>
 #include "tools/Mutex.h"
 
 
@@ -134,40 +136,41 @@ namespace tools {
 	}
 
 
-	char* Logger::fmt(const char* format, va_list args)
+	std::string Logger::fmt(const char* format, va_list args)
 	{
-		va_list args_copy;
+		size_t buffer_size = 132;
 
-		// Compute the number of characters.
-		va_copy(args_copy, args);
-		const size_t size = vsnprintf(nullptr, 0, format, args_copy);
-		va_end(args_copy);
+		while (true)
+		{
+			va_list args_copy;
+			std::vector<char> buffer(buffer_size);
 
-		if (size < 0)
-			return nullptr;
+			va_copy(args_copy, args);
+			const int n = std::vsnprintf(buffer.data(), buffer_size, format, args_copy);
+			va_end(args_copy);
 
-		// Allocate and format the text.
-		char* text = new char[size + 1];
-		if (vsnprintf(text, size + 1, format, args) < 0) {
-			delete[] text;
-			return nullptr;
+			if (n < 0)
+				return "";
+
+			// The string has been completely written only when n is non negative 
+			// and less than size.  The buffer contains a null terminated string.
+			if (n > 0 && n < buffer_size)
+				return buffer.data();
+			else
+				buffer_size *= 2;
 		}
-
-		// Return the formatted text
-		return text;
 	}
 
 
 	void Logger::log(Level level, const char* format, va_list args)
 	{
-		const char* const text = fmt(format, args);
+		std::string formatted_text = fmt(format, args);
 
-		if (text) {
-			write(level, text);
-			delete[] text;
+		if (!formatted_text.empty()) {
+			write(level, formatted_text);
 		}
 		else {
-			write(Level::LL_ERROR, "internal error : fmt returned nullptr");
+			write(Level::LL_ERROR, "internal error : fmt returned empty string");
 		}
 	}
 
@@ -179,10 +182,10 @@ namespace tools {
 		const time_t now = time(nullptr);
 		localtime_s(&local_time, &now);
 
-		char buffer[128] { 0 };
-		strftime(buffer, sizeof(buffer), "%F %T", &local_time);
+		std::array<char, 128> buffer = { 0 };
+		const size_t output_size = std::strftime(buffer.data(), buffer.size(), "%F %T", &local_time);
 
-		return std::string{ buffer };
+		return output_size == 0 ? "" : buffer.data();
 	}
 
 

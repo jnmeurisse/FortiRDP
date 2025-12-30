@@ -36,6 +36,9 @@
 								(logger)->trace(".... %x enter %s::%s", (uintptr_t)this, __class__, __func__); \
 								}
 
+
+#define THISADDR() (static_cast<void *>(this))
+
 namespace tools {
 
 	class LogWriter;
@@ -46,7 +49,7 @@ namespace tools {
 	class Logger final
 	{
 	public:
-		typedef enum Level { LL_TRACE = 1, LL_DEBUG = 2, LL_INFO = 3, LL_ERROR = 4 } Level;
+		using Level = enum { LL_TRACE = 1, LL_DEBUG = 2, LL_INFO = 3, LL_ERROR = 4 } ;
 
 		/**
 		 * Logs a message.
@@ -111,10 +114,8 @@ namespace tools {
 		/**
 		 * Formats an error message.
 		 * 
-		 * The caller is responsible to free the temporary buffer used
-		 to store the message.
 		*/
-		char* fmt(const char* format, va_list args);
+		std::string fmt(const char* format, va_list args);
 
 	private:
 		// A reference to the application logger (singleton).
@@ -137,7 +138,7 @@ namespace tools {
 	class LogWriter
 	{
 	public:
-		virtual ~LogWriter() {}
+		virtual ~LogWriter() = default;
 
 		virtual void write(Logger::Level level, const std::string& text) = 0;
 		virtual void flush() { return; }
@@ -151,11 +152,11 @@ namespace tools {
 	{
 	public:
 		explicit FileLogWriter();
-		virtual ~FileLogWriter() override;
+		~FileLogWriter() override;
 
 		bool open(const std::wstring& filename);
-		virtual void write(Logger::Level level, const std::string& text) override;
-		virtual void flush() override;
+		void write(Logger::Level level, const std::string& text) override;
+		void flush() override;
 
 	private:
 		std::ofstream _ofs;
