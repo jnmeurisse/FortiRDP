@@ -7,6 +7,7 @@
 */
 #include "ErrUtil.h"
 
+#include <array>
 #include <sstream>
 #include <mbedtls/error.h>
 #include <lwip/def.h>
@@ -39,13 +40,13 @@ namespace tools {
 	std::string mbed_errmsg(const mbed_err errnum)
 	{
 		std::ostringstream os;
-		char buffer[2048] = { 0 };
+		std::array<char, 2048> buffer = { 0 };
 
 		// get mbedtls error
-		mbedtls_strerror(errnum, buffer, sizeof(buffer) - 1);
+		mbedtls_strerror(errnum, buffer.data(), buffer.size() - 1);
 
 		// format the error message
-		os << buffer << " (-0x" << std::hex << -errnum << ")";
+		os << buffer.data() << " (-0x" << std::hex << -errnum << ")";
 
 		return os.str();
 	}
@@ -60,7 +61,7 @@ namespace tools {
 		errmsg = lwip_strerr(errnum);
 
 		// format the error message
-		os << errmsg << " (-0x" << std::hex << (int)-errnum << ")";
+		os << errmsg << " (-0x" << std::hex << -errnum << ")";
 
 		return os.str();
 	}
@@ -68,7 +69,7 @@ namespace tools {
 
 	std::string ppp_errmsg(const ppp_err errnum)
 	{
-		const char*errmsg[13] = {
+		static const std::array<std::string, 13> errmsg = {
 			/* PERR_NONE    */			"",
 			/* PPPERR_PARAM */			"Invalid parameter",
 			/* PPPERR_OPEN  */			"Unable to open PPP session",
@@ -86,7 +87,7 @@ namespace tools {
 
 		std::ostringstream os;
 
-		if ((errnum < 0) || (errnum >= LWIP_ARRAYSIZE(errmsg))) {
+		if ((errnum < 0) || (errnum >= errmsg.size())) {
 			os << "Unknown error.";
 		}
 		else {
