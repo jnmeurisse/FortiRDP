@@ -101,7 +101,7 @@ namespace tools {
 		/**
 		* Returns the total number of bytes occupied in the queue.
 		*/
-		inline size_t size() const noexcept;
+		size_t size() const noexcept;
 
 		/**
 		* Returns the remaining space available in the queue.
@@ -110,7 +110,7 @@ namespace tools {
 		* > 0, it is still possible to push another pbuf in the queue having a tot_len
 		* less than the remaining space.
 		*/
-		inline size_t remaining_space() const noexcept;
+		size_t remaining_space() const noexcept;
 
 		/**
 		* Returns the number of pbuf chained in the queue.
