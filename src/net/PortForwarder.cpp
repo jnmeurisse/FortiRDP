@@ -9,6 +9,7 @@
 #include "PortForwarder.h"
 
 #include <algorithm>
+#include <array>
 #include <lwip/timeouts.h>
 #include <lwip/tcp.h>
 #include "net/DnsClient.h"
@@ -136,7 +137,7 @@ namespace net {
 			// Turn on TCP keep alive
 			ip_set_option(_local_client, SOF_KEEPALIVE);
 
-			// Set the time between keepalive messages in milli-seconds
+			// Set the time between keep alive messages in milli-seconds
 			_local_client->keep_idle = _keepalive;
 			_local_client->keep_intvl = _keepalive;
 		}
@@ -208,16 +209,16 @@ namespace net {
 		if (_state != State::CONNECTED)
 			return false;
 
-		byte data[2048];
+		std::array<unsigned char, 2048> incoming_data = {};
 
-		const size_t available_space = std::min(sizeof(data), _forward_queue.remaining_space());
+		const size_t available_space = std::min(incoming_data.size(), _forward_queue.remaining_space());
 		if (available_space == 0) {
 			// There is no space in the queue to store data that could be
 			// available in the socket.
 			return true;
 		}
 
-		const rcv_status status{ _local_server.recv_data(data, available_space) };
+		const rcv_status status{ _local_server.recv_data(incoming_data.data(), available_space)};
 		if (status.code != rcv_status_code::NETCTX_RCV_OK) {
 			return false;
 		}
@@ -234,7 +235,7 @@ namespace net {
 		}
 
 		// Copy received data into the buffer.
-		pbuf_take(buffer, data, length);
+		pbuf_take(buffer, incoming_data.data(), length);
 
 		// If the local sender provides fewer bytes than the buffer capacity,
 		// it is assumed no more data will arrive immediately, so the data
