@@ -207,7 +207,7 @@ namespace tools {
 	{
 		_ofs.open(filename, std::ostream::out);
 
-		return _ofs.failbit == std::ofstream::goodbit;
+		return _ofs.is_open();
 	}
 
 
