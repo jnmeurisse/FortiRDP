@@ -7,9 +7,9 @@
 */
 #include "Cookie.h"
 
+#include <array>
 #include <chrono>
-#include <vector>
-
+#include <ctime>
 #include "http/CookieError.h"
 #include "tools/StrUtil.h"
 #include "tools/strptime.h"
@@ -168,7 +168,7 @@ namespace http {
 
 	time_t Cookie::parse_http_date(const std::string& value)
 	{
-		static std::vector<std::string> COOKIE_DATE_FORMATS
+		static std::array<std::string, 4> COOKIE_DATE_FORMATS
 		{
 			"%a, %d %b %Y %H:%M:%S %Z",
 			"%a, %d-%b-%Y %H:%M:%S %Z",
