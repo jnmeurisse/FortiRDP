@@ -44,9 +44,7 @@ namespace net {
 			ep.to_string().c_str()
 		);
 
-		mbed_err rc = 0;
-
-		rc = TcpSocket::connect(ep, timer);
+		mbed_err rc = TcpSocket::connect(ep, timer);
 		if (rc)
 			goto abort;
 
