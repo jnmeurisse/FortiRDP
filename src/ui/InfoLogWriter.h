@@ -16,16 +16,14 @@ namespace ui {
 	class InfoLogWriter final : public tools::LogWriter
 	{
 	public:
-		explicit InfoLogWriter(HWND hWnd);
-		virtual ~InfoLogWriter() override;
+		explicit InfoLogWriter(HWND hWnd, tools::LogLevel level);
 
-		virtual void write(tools::Logger::Level level, const std::string& text) override;
-		virtual void flush() override;
+		void write(tools::LogLevel level, const std::string& text) override;
+		void flush() override;
 
 
 	private:
 		const HWND _hWnd;
-
 		tools::LogQueue _logQueue;
 	};
 

@@ -429,7 +429,7 @@ namespace fw {
 
 		// Delete all session cookies
 		if (_logger->is_trace_enabled()) {
-			_logger->trace("... %x clear cookie jar", (uintptr_t)this);
+			_logger->trace("... 0x%012Ix clear cookie jar", PTR_VAL(this));
 		}
 		_cookie_jar.clear();
 
@@ -666,16 +666,16 @@ namespace fw {
 
 				if (cookie.get_domain().empty() || cookie.same_domain(url_domain)) {
 					if (cookie.is_expired()) {
-						_logger->debug("... %x       remove expired cookie name=%s expires=%d from cookiejar", 
-								(uintptr_t)this,
+						_logger->debug("... 0x%012Ix       remove expired cookie name=%s expires=%d from cookiejar", 
+								PTR_VAL(this),
 								cookie.get_name().c_str(),
 								cookie.get_expires());
 
 						_cookie_jar.remove(cookie.get_name());
 					}
 					else if (cookie.is_secure() && cookie.is_http_only()) {
-							_logger->debug("... %x       add cookie name=%s expires=%d to cookiejar",
-								(uintptr_t)this,
+							_logger->debug("... 0x%012Ix       add cookie name=%s expires=%d to cookiejar",
+								PTR_VAL(this),
 								cookie.get_name().c_str(),
 								cookie.get_expires());
 
@@ -690,16 +690,16 @@ namespace fw {
 						));
 					}
 					else {
-						_logger->debug("... %x       skip cookie %s",
-							(uintptr_t)this,
+						_logger->debug("... 0x%012Ix       skip cookie %s",
+							PTR_VAL(this),
 							cookie.get_name().c_str());
 					}
 				}
 			}
 		}
 
-		_logger->debug("... %x       %s::%s : %s %s (status=%s (%d))",
-			(uintptr_t)this,
+		_logger->debug("... 0x%012Ix       %s::%s : %s %s (status=%s (%d))",
+			PTR_VAL(this),
 			__class__,
 			__func__,
 			verb.c_str(),

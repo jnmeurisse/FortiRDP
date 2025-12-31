@@ -313,8 +313,8 @@ namespace http {
 	void Answer::recv(net::TcpSocket& socket, const tools::Timer& timer)
 	{
 		if (_logger->is_trace_enabled())
-			_logger->trace("... %x enter %s::%s timeout=%lu",
-				THISADDR(),
+			_logger->trace("... 0x%012Ix enter %s::%s timeout=%lu",
+				PTR_VAL(this),
 				__class__,
 				__func__,
 				timer.remaining_time()

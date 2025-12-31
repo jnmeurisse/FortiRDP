@@ -36,14 +36,13 @@ namespace net {
 
 	mbed_err TlsSocket::connect(const Endpoint& ep, const Timer& timer)
 	{
-		if (_logger->is_debug_enabled())
-			_logger->debug(
-				"... %x enter %s::%s ep=%s",
-				(uintptr_t)this,
-				__class__,
-				__func__,
-				ep.to_string().c_str()
-			);
+		_logger->debug(
+			"... 0x%012Ix enter %s::%s ep=%s",
+			PTR_VAL(this),
+			__class__,
+			__func__,
+			ep.to_string().c_str()
+		);
 
 		mbed_err rc = 0;
 
@@ -60,15 +59,14 @@ namespace net {
 			goto abort;
 
 	abort:
-		if (_logger->is_debug_enabled())
-			_logger->debug(
-				"... %x leave %s::%s fd=%d rc=%d",
-				(uintptr_t)this,
-				__class__,
-				__func__,
-				get_fd(),
-				rc
-			);
+		_logger->debug(
+			"... 0x%012Ix leave %s::%s fd=%d rc=%d",
+			PTR_VAL(this),
+			__class__,
+			__func__,
+			get_fd(),
+			rc
+		);
 
 		return rc;
 	}
@@ -83,16 +81,16 @@ namespace net {
 		do {
 			if (_logger->is_trace_enabled())
 				_logger->trace(
-					".... %x calling tlsctx.handshake",
-					(uintptr_t)this
+					".... 0x%012Ix calling tlsctx.handshake",
+					PTR_VAL(this)
 				);
 
 			handshake_status = _tlsctx.handshake();
 
 			if (_logger->is_trace_enabled())
 				_logger->trace(
-					".... %x return from tlsctx.handshake, status_code=%d rc=%d",
-					(uintptr_t)this,
+					".... 0x%012Ix return from tlsctx.handshake, status_code=%d rc=%d",
+					PTR_VAL(this),
 					handshake_status.status_code,
 					handshake_status.rc
 				);
@@ -120,15 +118,14 @@ namespace net {
 		} while (handshake_status.status_code == hdk_status_code::SSLCTX_HDK_WAIT_IO ||
 			handshake_status.status_code == hdk_status_code::SSLCTX_HDK_WAIT_ASYNC);
 
-		if (_logger->is_debug_enabled())
-			_logger->debug(
-				"... %x leave %s::%s status=%d error=%d",
-				(uintptr_t)this,
-				__class__,
-				__func__,
-				handshake_status.status_code,
-				handshake_status.rc
-			);
+		_logger->debug(
+			"... 0x%012Ix leave %s::%s status=%d error=%d",
+			PTR_VAL(this),
+			__class__,
+			__func__,
+			handshake_status.status_code,
+			handshake_status.rc
+		);
 
 		return handshake_status;
 	}
@@ -136,14 +133,13 @@ namespace net {
 
     void TlsSocket::shutdown()
     {
-		if (_logger->is_debug_enabled())
-			_logger->debug(
-				"... %x enter %s::%s fd=%d",
-				(uintptr_t)this,
-				__class__,
-				__func__,
-				get_fd()
-			);
+		_logger->debug(
+			"... 0x%012Ix enter %s::%s fd=%d",
+			PTR_VAL(this),
+			__class__,
+			__func__,
+			get_fd()
+		);
 
 		if (is_connected()) {
 			// Notify the peer that the connection is being closed.
@@ -194,11 +190,11 @@ namespace net {
 	net::rcv_status TlsSocket::recv_data(unsigned char* buf, const size_t len)
 	{
 		if (_logger->is_trace_enabled())
-			_logger->trace(".... %x enter %s::%s buffer=%x size=%zu",
-				(uintptr_t)this,
+			_logger->trace(".... 0x%012Ix enter %s::%s buffer=0x%012Ix size=%zu",
+				PTR_VAL(this),
 				__class__,
 				__func__,
-				buf,
+				PTR_VAL(buf),
 				len
 			);
 
@@ -209,11 +205,11 @@ namespace net {
 	net::snd_status TlsSocket::send_data(const unsigned char* buf, const size_t len)
 	{
 		if (_logger->is_trace_enabled())
-			_logger->trace(".... %x enter %s::%s buffer=%x size=%zu",
-				(uintptr_t)this,
+			_logger->trace(".... 0x%012Ix enter %s::%s buffer=0x%012Ix size=%zu",
+				PTR_VAL(this),
 				__class__,
 				__func__,
-				buf,
+				PTR_VAL(buf),
 				len
 			);
 

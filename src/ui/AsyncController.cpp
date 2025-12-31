@@ -133,15 +133,13 @@ namespace ui {
 
 	bool AsyncController::connect(const net::Endpoint& firewall_endpoint, const std::string& realm)
 	{
-		if (_logger->is_debug_enabled()) {
-			_logger->debug("... %x enter %s::%s ep=%s realm=%s",
-				(uintptr_t)this,
-				__class__,
-				__func__,
-				firewall_endpoint.to_string().c_str(),
-				realm.c_str()
-			);
-		}
+		_logger->debug("... 0x%012Ix enter %s::%s ep=%s realm=%s",
+			PTR_VAL(this),
+			__class__,
+			__func__,
+			firewall_endpoint.to_string().c_str(),
+			realm.c_str()
+		);
 
 		// Start the async connect procedure.
 		_tls_config.set_ca_crt(_ca_crt->get_crt());
@@ -158,14 +156,13 @@ namespace ui {
 	bool AsyncController::create_tunnel(const net::Endpoint& remote_endpoint, uint16_t local_port,
 		bool multi_clients, bool tcp_nodelay)
 	{
-		if (_logger->is_debug_enabled()) {
-			_logger->debug("... %x enter %s::%s ep=%s",
-				(uintptr_t)this,
-				__class__,
-				__func__,
-				remote_endpoint.to_string().c_str()
-			);
-		}
+		_logger->debug("... 0x%012Ix enter %s::%s ep=%s",
+			PTR_VAL(this),
+			__class__,
+			__func__,
+			remote_endpoint.to_string().c_str()
+		);
+
 		_tunnel.reset();
 
 		if (_portal_client != nullptr) {
@@ -239,8 +236,8 @@ namespace ui {
 
 	void AsyncController::request_action(ControllerAction action)
 	{
-		_logger->debug("... %x enter %s::%s action=%s",
-			(uintptr_t)this,
+		_logger->debug("... 0x%012Ix enter %s::%s action=%s",
+			PTR_VAL(this),
 			__class__,
 			__func__,
 			action_name(action)
@@ -250,8 +247,8 @@ namespace ui {
 		tools::Mutex::Lock lock(_mutex);
 
 		// Wait that the controller thread is ready
-		_logger->debug(".... %x %s::%s wait for action=%s",
-			(uintptr_t)this,
+		_logger->debug(".... 0x%012Ix %s::%s wait for action=%s",
+			PTR_VAL(this),
 			__class__,
 			__func__,
 			action_name(action)
@@ -259,16 +256,16 @@ namespace ui {
 		_readyEvent.wait();
 
 		// Define the action and wake-up the thread.
-		_logger->debug(".... %x %s::%s set event for action=%s",
-			(uintptr_t)this,
+		_logger->debug(".... 0x%012Ix %s::%s set event for action=%s",
+			PTR_VAL(this),
 			__class__,
 			__func__,
 			action_name(action)
 		);
 		_action = action;
 		if (!_requestEvent.set()) {
-			_logger->error("ERROR: %x %s::%s set event error=%x",
-				(uintptr_t)this,
+			_logger->error("ERROR: 0x%012Ix %s::%s set event error=%x",
+				PTR_VAL(this),
 				__class__,
 				__func__,
 				::GetLastError()
@@ -303,8 +300,8 @@ namespace ui {
 
 			// We are ready to accept a new event.
 			if (!_readyEvent.set()) {
-				_logger->error("ERROR: %x %s::%s set event error=%x",
-					(uintptr_t)this,
+				_logger->error("ERROR: 0x%012Ix %s::%s set event error=%x",
+					PTR_VAL(this),
 					__class__,
 					__func__,
 					::GetLastError()
@@ -318,8 +315,8 @@ namespace ui {
 			const int eventCount = wait_eot ? 2 : 1;
 			DWORD event = ::WaitForMultipleObjects(eventCount, hEvents, false, INFINITE);
 
-			_logger->debug("... %x enter %s::%s event=%x",
-				(uintptr_t)this,
+			_logger->debug("... 0x%012Ix enter %s::%s event=%x",
+				PTR_VAL(this),
 				__class__,
 				__func__,
 				event
@@ -328,8 +325,8 @@ namespace ui {
 			// Wait that a new action is requested or that a task ended.
 			switch (event) {
 			case (WAIT_OBJECT_0 + 0):
-				_logger->debug("... %x %s::%s action=%s",
-					(uintptr_t)this,
+				_logger->debug("... 0x%012Ix %s::%s action=%s",
+					PTR_VAL(this),
 					__class__,
 					__func__,
 					action_name(_action)
@@ -373,8 +370,8 @@ namespace ui {
 				break;
 
 			case WAIT_FAILED:
-				_logger->error("ERROR: %x %s::%s wait failed error=%x",
-					(uintptr_t)this,
+				_logger->error("ERROR: 0x%012Ix %s::%s wait failed error=%x",
+					PTR_VAL(this),
 					__class__,
 					__func__,
 					::GetLastError()
@@ -392,8 +389,8 @@ namespace ui {
 					procedure->run();
 				}
 				catch (const std::exception& e) {
-					_logger->error("ERROR: %x %s::%s failure exception=%s",
-						(uintptr_t)this,
+					_logger->error("ERROR: 0x%012Ix %s::%s failure exception=%s",
+						PTR_VAL(this),
 						__class__,
 						__func__,
 						e.what()
@@ -404,8 +401,8 @@ namespace ui {
 			}
 		}
 
-		_logger->debug("... %x leave %s::%s",
-			(uintptr_t)this,
+		_logger->debug("... 0x%012Ix leave %s::%s",
+			PTR_VAL(this),
 			__class__,
 			__func__
 		);

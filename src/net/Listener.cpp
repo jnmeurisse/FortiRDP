@@ -67,15 +67,13 @@ namespace net {
 		}
 
 terminate:
-		if (_logger->is_debug_enabled()) {
-			_logger->debug(
-				"... %x %s::%s endpoint=%s rc=%d",
-				(uintptr_t)this,
-				__class__,
-				__func__,
-				endpoint.to_string().c_str(),
-				rc);
-		}
+		_logger->debug(
+			"... 0x%012Ix %s::%s endpoint=%s rc=%d",
+			PTR_VAL(this),
+			__class__,
+			__func__,
+			endpoint.to_string().c_str(),
+			rc);
 
 		return rc;
 	}
@@ -87,15 +85,13 @@ terminate:
 
 		const int rc = Socket::accept(client_socket);
 
-		if (_logger->is_debug_enabled()) {
-			_logger->debug(
-				"... %x %s::%s endpoint=%s rc=%d",
-				(uintptr_t)this,
-				__class__,
-				__func__,
-				_endpoint.to_string().c_str(),
-				rc);
-		}
+		_logger->debug(
+			"... 0x%012Ix %s::%s endpoint=%s rc=%d",
+			PTR_VAL(this),
+			__class__,
+			__func__,
+			_endpoint.to_string().c_str(),
+			rc);
 
 		return rc;
 	}

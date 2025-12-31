@@ -7,26 +7,22 @@
 */
 #include "InfoLogWriter.h"
 
-#include <cstring>
 #include "ui/AsyncMessage.h"
+#include "tools/Mutex.h"
 
 namespace ui {
 
-	InfoLogWriter::InfoLogWriter(HWND hWnd) :
-		_logQueue(),
-		_hWnd(hWnd)
+	InfoLogWriter::InfoLogWriter(HWND hWnd, tools::LogLevel level) :
+		LogWriter(level),
+		_hWnd(hWnd),
+		_logQueue()
 	{
 	}
 
 
-	InfoLogWriter::~InfoLogWriter()
+	void InfoLogWriter::write(tools::LogLevel level, const std::string& text)
 	{
-	}
-
-
-	void InfoLogWriter::write(tools::Logger::Level level, const std::string& text)
-	{
-		if (level >= tools::Logger::LL_INFO) {
+		if (is_enabled(level)) {
 			tools::Mutex::Lock lock{ _logQueue.mutex() };
 			_logQueue.push(text);
 			AsyncMessage::OutputInfoEvent->send_message(_hWnd, &_logQueue);

@@ -33,7 +33,8 @@ namespace ui {
 		ModelessDialog(hInstance, NULL_HWND, IDD_CONNECT_DIALOG),
 		_logger(tools::Logger::get_logger()),
 		_params(params),
-		_writer()
+		_settings(),
+		_writer(window_handle(), tools::LogLevel::LL_INFO)
 	{
 		// Assign application icons. Icons are automatically deleted when the 
 		// application stops thanks to the LR_SHARED parameter.
@@ -69,12 +70,9 @@ namespace ui {
 
 		::AppendMenu(hMenu, MF_STRING, SYSCMD_ABOUT, L"&About...");
 
-
 		// Link a new log writer to the logger. This log writer sends OutputInfoMessage
 		// to this dialog window.
-		_writer = new InfoLogWriter(window_handle());
-		_logger->add_writer(_writer);
-
+		_logger->add_writer(&_writer);
 
 		// Configure the maximum length for address text fields.
 		set_control_textlen(IDC_ADDR_FW, MAX_ADDR_LENGTH);
@@ -143,10 +141,7 @@ namespace ui {
 		_controller->terminate();
 		_controller->wait(1000);
 
-		if (_writer) {
-			_logger->remove_writer(_writer);
-			delete _writer;
-		}
+		_logger->remove_writer(&_writer);
 	}
 
 

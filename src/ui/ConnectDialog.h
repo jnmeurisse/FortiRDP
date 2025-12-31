@@ -62,7 +62,7 @@ namespace ui {
 		RegistrySettings _settings;
 
 		// A writer that appends data in the InfoLog text box
-		InfoLogWriter* _writer;
+		InfoLogWriter _writer;
 
 		// Connection parameters :
 		// - Firewall endpoint

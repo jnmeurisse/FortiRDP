@@ -11,6 +11,7 @@
 #include "fortirdp.h"
 
 #include <iostream>
+#include <lwip/arch.h>
 #include <lwip/init.h>
 #include <lwip/dns.h>
 #include "ui/ConnectDialog.h"
@@ -44,7 +45,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	tools::Logger* const logger = tools::Logger::get_logger();
 	MSG msg;
 	ui::CmdlineParams cmdline_params;
-	tools::FileLogWriter writer;
+	tools::FileLogWriter writer(tools::LogLevel::LL_TRACE);
 
 	// Stop running if a 32 Bits application is running in the wow64. The 
 	// Task launcher can not wait for the child application which could be
@@ -83,9 +84,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 		writer.open(tools::Path(desktop_path.folder(), L"fortirpd.log").to_string());
 		logger->add_writer(&writer);
 
-		logger->set_level(tools::Logger::LL_DEBUG);
+		logger->set_level(tools::LogLevel::LL_DEBUG);
 		if (cmdline_params.trace()) 
-			logger->set_level(tools::Logger::LL_TRACE);
+			logger->set_level(tools::LogLevel::LL_TRACE);
 	}
 
 	// Initialize lwIP stack
@@ -170,20 +171,12 @@ static void lwip_log_cb(void *ctx, int level, const char* fmt, va_list args)
 {
 	tools::Logger* const logger = static_cast<tools::Logger*>(ctx);
 	
-	switch (level)
-	{
-	case tools::Logger::Level::LL_ERROR:
-		logger->log(tools::Logger::Level::LL_ERROR, fmt, args);
-		break;
-
-	case tools::Logger::Level::LL_DEBUG:
-		logger->log(tools::Logger::Level::LL_TRACE, fmt, args);
-		break;
-
-	default:
-		logger->log(tools::Logger::Level::LL_TRACE, fmt, args);
-		break;
-	}
+	if (level == LWIP_ERROR_MESSAGE)
+		logger->log(tools::LogLevel::LL_ERROR, fmt, args);
+	else if (level == LWIP_DIAG_MESSAGE)
+		logger->log(tools::LogLevel::LL_DEBUG, fmt, args);
+	else
+		logger->log(tools::LogLevel::LL_TRACE, fmt, args);
 }
 
 #ifndef _WIN64

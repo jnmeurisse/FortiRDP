@@ -95,7 +95,7 @@ namespace ui {
 
 		HRESULT hr = ::CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
 		if (FAILED(hr)) {
-			_logger->error("ERROR: CoInitializeEx error %x", hr);
+			_logger->error("ERROR: CoInitializeEx error=%x", hr);
 			throw tools::win_err(hr);
 		}
 	}

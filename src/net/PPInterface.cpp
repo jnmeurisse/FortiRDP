@@ -196,8 +196,8 @@ namespace net {
 
 		if (_logger->is_trace_enabled())
 			_logger->trace(
-				".... %x       %s::%s socket fd=%d rc=%d",
-				(uintptr_t)this,
+				".... 0x%012Ix       %s::%s socket fd=%d rc=%d",
+				PTR_VAL(this),
 				__class__,
 				__func__,
 				_tunnel.get_fd(),
@@ -254,8 +254,8 @@ namespace net {
 
 		if (_logger->is_trace_enabled())
 			_logger->trace(
-				".... %x       %s::%s socket fd=%d rc=%d",
-				(uintptr_t)this,
+				".... 0x%012Ix       %s::%s socket fd=%d rc=%d",
+				PTR_VAL(this),
 				__class__,
 				__func__,
 				_tunnel.get_fd(),
@@ -300,7 +300,7 @@ namespace net {
 
 			if (err_code == PPPERR_USER) {
 				// The PPP interface is now down.
-				logger->trace(".... %x ppp_link_status_cb interface is down", (uintptr_t)pp_interface);
+				logger->trace(".... 0x%012Ix ppp_link_status_cb interface is down", PTR_VAL(pp_interface));
 			} 
 			else
 			{

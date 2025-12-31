@@ -9,26 +9,94 @@
 
 #include <array>
 #include <cstdarg>
-#include <cstdio>
 #include <ctime>
-#include <vector>
+#include <memory>
 #include "tools/Mutex.h"
 #include "tools/StrUtil.h"
 
 
 namespace tools {
 
-	Logger* Logger::_logger = nullptr;
+	static const std::unique_ptr<Logger> LOGGER = std::make_unique<Logger>();
+
 
 	Logger::Logger() :
 		_writers(),
 		_mutex(),
-		_level(LL_INFO)
+		_level(LogLevel::LL_INFO)
 	{
 	}
 
 
-	void Logger::set_level(Level level)
+	void Logger::log(LogLevel level, const std::string& text)
+	{
+		if (is_enabled(level)) {
+			write(level, text);
+		}
+	}
+
+
+	void Logger::log(LogLevel level, const char* format, ...)
+	{
+		if (is_enabled(level)) {
+			va_list args;
+			va_start(args, format);
+			write(level, format, args);
+			va_end(args);
+		}
+	}
+
+
+	void Logger::log(LogLevel level, const char* format, va_list args)
+	{
+		if (is_enabled(level))
+			write(level, format, args);
+	}
+
+
+	void Logger::trace(const char* format, ...)
+	{
+		if (is_trace_enabled()) {
+			va_list args;
+			va_start(args, format);
+			write(LogLevel::LL_TRACE, format, args);
+			va_end(args);
+		}
+	}
+
+
+	void Logger::debug(const char* format, ...)
+	{
+		if (is_debug_enabled()) {
+			va_list args;
+			va_start(args, format);
+			write(LogLevel::LL_DEBUG, format, args);
+			va_end(args);
+		}
+	}
+
+
+	void Logger::info(const char* format, ...)
+	{
+		if (is_info_enabled()) {
+			va_list args;
+			va_start(args, format);
+			write(LogLevel::LL_INFO, format, args);
+			va_end(args);
+		}
+	}
+
+
+	void Logger::error(const char* format, ...)
+	{
+		va_list args;
+		va_start(args, format);
+		write(LogLevel::LL_ERROR, format, args);
+		va_end(args);
+	}
+
+
+	void Logger::set_level(LogLevel level)
 	{
 		_level = level;
 	}
@@ -57,15 +125,11 @@ namespace tools {
 
 	Logger* Logger::get_logger()
 	{
-		if (_logger == nullptr) {
-			_logger = new Logger();
-		}
-
-		return _logger;
+		return LOGGER.get();
 	}
 
 
-	void Logger::write(Level level, const std::string& text)
+	void Logger::write(LogLevel level, const std::string& text)
 	{
 		Mutex::Lock lock{ _mutex };
 
@@ -76,74 +140,18 @@ namespace tools {
 	}
 
 
-	void Logger::log(Level level, const std::string& text)
+	void Logger::write(LogLevel level, const char* format, va_list args)
 	{
-		if (is_enabled(level)) {
-			write(level, text);
-		}
+		write(level, tools::string_format(format, args));
+	}
+
+
+	LogWriter::LogWriter(LogLevel level) :
+		_level(level)
+	{
 	}
 
 	
-	void Logger::log(Level level, const char* format, ...)
-	{
-		if (is_enabled(level)) {
-			va_list args;
-			va_start(args, format);
-			log(level, format, args);
-			va_end(args);
-		}
-	}
-	
-
-	void Logger::trace(const char* format, ...)
-	{
-		if (is_trace_enabled()) {
-			va_list args;
-			va_start(args, format);
-			log(LL_TRACE, format, args);
-			va_end(args);
-		}
-	}
-
-
-	void Logger::debug(const char* format, ...)
-	{
-		if (is_debug_enabled()) {
-			va_list args;
-			va_start(args, format);
-			log(LL_DEBUG, format, args);
-			va_end(args);
-		}
-	}
-
-
-	void Logger::info(const char* format, ...)
-	{
-		if (is_info_enabled()) {
-			va_list args;
-			va_start(args, format);
-			log(LL_INFO, format, args);
-			va_end(args);
-		}
-	}
-
-
-	void Logger::error(const char* format, ...)
-	{
-		va_list args;
-		va_start(args, format);
-		log(LL_ERROR, format, args);
-		va_end(args);
-	}
-
-
-	void Logger::log(Level level, const char* format, va_list args)
-	{
-		if (is_enabled(level))
-			write(level, string_format(format, args));
-	}
-
-
 	static std::string datetime()
 	{
 		// Get current system time and convert it to local time
@@ -158,7 +166,8 @@ namespace tools {
 	}
 
 
-	FileLogWriter::FileLogWriter() :
+	FileLogWriter::FileLogWriter(LogLevel level) :
+		LogWriter(level),
 		_ofs()
 	{
 	}
@@ -180,10 +189,9 @@ namespace tools {
 	}
 
 
-	void FileLogWriter::write(Logger::Level level, const std::string& text)
+	void FileLogWriter::write(LogLevel level, const std::string& text)
 	{
-		(void)level;
-		if (_ofs.is_open()) {
+		if (_ofs.is_open() && is_enabled(level)) {
 			_ofs << datetime() << " > " << text << std::endl;
 		}
 	}

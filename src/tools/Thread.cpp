@@ -23,7 +23,7 @@ namespace tools {
 		DEBUG_CTOR(_logger);
 
 		_handle = (HANDLE)::_beginthreadex(nullptr, 0, thread_entry_point, this, CREATE_SUSPENDED, &_id);
-		_logger->debug("... %x created Thread handle=%x", (uintptr_t)this, _handle);
+		_logger->debug("... 0x%012Ix created Thread handle=%x", PTR_VAL(this), _handle);
 
 		if (_handle == NULL)
 			throw_winapi_error(::GetLastError(), "_beginthreadex error");
@@ -35,7 +35,7 @@ namespace tools {
 		DEBUG_DTOR(_logger);
 		if (_handle != NULL)
 		{
-			_logger->debug("... %x destroyed Thread handle=%x", (uintptr_t)this, _handle);
+			_logger->debug("... 0x%012Ix destroyed Thread handle=%x", PTR_VAL(this), _handle);
 			CloseHandle(_handle);
 		}
 	}

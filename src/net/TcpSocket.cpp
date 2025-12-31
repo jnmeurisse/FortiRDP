@@ -24,13 +24,12 @@ namespace net {
 
 	mbed_err TcpSocket::connect(const Endpoint& ep, const Timer& timer)
 	{
-		if (_logger->is_debug_enabled())
-			_logger->debug("... %x enter %s::%s ep=%s",
-				(uintptr_t)this, 
-				__class__,
-				__func__,
-				ep.to_string().c_str()
-			);
+		_logger->debug("... 0x%012Ix enter %s::%s ep=%s",
+			PTR_VAL(this),
+			__class__,
+			__func__,
+			ep.to_string().c_str()
+		);
 
 		mbed_err rc = Socket::connect(ep, net_protocol::NETCTX_PROTO_TCP, timer);
 		if (rc)
@@ -41,14 +40,13 @@ namespace net {
 			goto terminate;
 
 	terminate:
-		if (_logger->is_debug_enabled())
-			_logger->debug("... %x leave %s::%s fd=%d rc=%d",
-				(uintptr_t)this,
-				__class__,
-				__func__,
-				get_fd(),
-				rc
-			);
+		_logger->debug("... 0x%012Ix leave %s::%s fd=%d rc=%d",
+			PTR_VAL(this),
+			__class__,
+			__func__,
+			get_fd(),
+			rc
+		);
 
 		return rc;
 	}
@@ -58,11 +56,11 @@ namespace net {
 	{
 		if (_logger->is_trace_enabled())
 			_logger->trace(
-				".... %x enter %s::%s buffer=%x size=%zu",
-				(uintptr_t)this,
+				".... 0x%012Ix enter %s::%s buffer=0x%012Ix size=%zu",
+				PTR_VAL(this),
 				__class__,
 				__func__,
-				(uintptr_t)buf,
+				PTR_VAL(buf),
 				len
 			);
 
@@ -90,11 +88,11 @@ namespace net {
 
 		if (_logger->is_trace_enabled())
 			_logger->trace(
-				".... %x leave %s::%s buffer=%x status=%d rc=%d len=%zu",
-				(uintptr_t)this,
+				".... 0x%012Ix leave %s::%s buffer=0x%012Ix status=%d rc=%d len=%zu",
+				PTR_VAL(this),
 				__class__,
 				__func__,
-				(uintptr_t)buf,
+				PTR_VAL(buf),
 				read_status.code,
 				read_status.rc,
 				read_status.rbytes
@@ -108,11 +106,11 @@ namespace net {
 	{
 		if (_logger->is_trace_enabled())
 			_logger->trace(
-				".... %x enter %s::%s buffer=%x size=%zu",
-				(uintptr_t)this,
+				".... 0x%012Ix enter %s::%s buffer=0x%012Ix size=%zu",
+				PTR_VAL(this),
 				__class__,
 				__func__,
-				(uintptr_t)buf,
+				PTR_VAL(buf),
 				len
 			);
 
@@ -140,11 +138,11 @@ namespace net {
 
 		if (_logger->is_trace_enabled())
 			_logger->trace(
-				".... %x leave %s::%s buffer=%x status=%d rc=%d len=%zu",
-				(uintptr_t)this,
+				".... 0x%012Ix leave %s::%s buffer=0x%012Ix status=%d rc=%d len=%zu",
+				PTR_VAL(this),
 				__class__,
 				__func__,
-				(uintptr_t)buf,
+				PTR_VAL(buf),
 				write_status.code,
 				write_status.rc,
 				write_status.sbytes
@@ -158,8 +156,8 @@ namespace net {
 	{
 		if (_logger->is_trace_enabled())
 			_logger->trace(
-				".... %x enter %s::%s read=%x write=%d timeout=%lu",
-				(uintptr_t)this,
+				".... 0x%012Ix enter %s::%s read=%x write=%d timeout=%lu",
+				PTR_VAL(this),
 				__class__,
 				__func__,
 				(rw & 1) != 0 ? 1 : 0,
@@ -171,8 +169,8 @@ namespace net {
 
 		if (_logger->is_trace_enabled())
 			_logger->trace(
-				".... %x leave %s::%s status=%d read=%x write=%d",
-				(uintptr_t)this,
+				".... 0x%012Ix leave %s::%s status=%d read=%x write=%d",
+				PTR_VAL(this),
 				__class__,
 				__func__,
 				status.code,

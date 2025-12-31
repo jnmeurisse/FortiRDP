@@ -6,6 +6,7 @@
 *
 */
 #include "OutputQueue.h"
+#include <memory>
 
 namespace net {
 
@@ -29,11 +30,11 @@ namespace net {
 
 		if (_logger->is_trace_enabled())
 			_logger->trace(
-				".... %x enter %s::%s mbedtls_socket=%x",
-				(uintptr_t)this,
+				".... 0x%012Ix enter %s::%s mbedtls_socket=%Ix",
+				PTR_VAL(this),
 				__class__,
 				__func__,
-				(uintptr_t)std::addressof(socket)
+				PTR_VAL(std::addressof(socket))
 			);
 
 		if (!is_empty()) {
@@ -52,11 +53,11 @@ namespace net {
 
 		if (_logger->is_trace_enabled())
 			_logger->trace(
-				".... %x leave %s::%s mbedtls_socket=%x status=%d rc=%d written=%zu",
-				(uintptr_t)this,
+				".... 0x%012Ix leave %s::%s mbedtls_socket=0x%012Ix status=%d rc=%d written=%zu",
+				PTR_VAL(this),
 				__class__,
 				__func__,
-				(uintptr_t)std::addressof(socket),
+				PTR_VAL(std::addressof(socket)),
 				snd_status.code,
 				snd_status.rc,
 				snd_status.sbytes);
@@ -69,11 +70,11 @@ namespace net {
 	{
 		if (_logger->is_trace_enabled())
 			_logger->trace(
-				".... %x enter %s::%s lwip_socket=%x",
-				(uintptr_t)this,
+				".... 0x%012Ix enter %s::%s lwip_socket=0x%012Ix",
+				PTR_VAL(this),
 				__class__,
 				__func__,
-				(uintptr_t)socket);
+				PTR_VAL(std::addressof(socket)));
 
 		written = 0;
 
@@ -118,11 +119,11 @@ namespace net {
 	write_error:
 		if (_logger->is_trace_enabled())
 			_logger->trace(
-				".... %x leave %s::%s lwip_socket=%x rc=%d written=%d",
-				(uintptr_t)this,
+				".... 0x%012Ix leave %s::%s lwip_socket=0x%012Ix rc=%d written=%d",
+				PTR_VAL(this),
 				__class__,
 				__func__,
-				(uintptr_t)socket,
+				PTR_VAL(std::addressof(socket)),
 				rc,
 				written
 			);

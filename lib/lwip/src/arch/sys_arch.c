@@ -127,7 +127,7 @@ void sys_log_diag(const char* format, ...)
 	if (logger.cb) {
 		va_list args;
 		va_start(args, format);
-		logger.cb(logger.ctx, 2, format, args);
+		logger.cb(logger.ctx, LWIP_DIAG_MESSAGE, format, args);
 		va_end(args);
 	}
 }
@@ -138,7 +138,7 @@ void sys_log_error(const char* format, ...)
 	if (logger.cb) {
 		va_list args;
 		va_start(args, format);
-		logger.cb(logger.ctx, 4, format, args);
+		logger.cb(logger.ctx, LWIP_ERROR_MESSAGE, format, args);
 		va_end(args);
 	}
 

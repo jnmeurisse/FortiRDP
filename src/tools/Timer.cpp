@@ -33,12 +33,10 @@ namespace tools {
 	void Timer::start(uint32_t duration) noexcept
 	{
 		DEBUG_ENTER(_logger);
-
-		if (_logger->is_debug_enabled())
-			_logger->debug(
-				"... %x Timer::start duration=%lu",
-				(uintptr_t)this,
-				duration);
+		_logger->debug(
+			"... 0x%012Ix Timer::start duration=%lu",
+			PTR_VAL(this),
+			duration);
 
 		_due_time = ::GetTickCount64() + (uint64_t) duration;
 	}

@@ -62,9 +62,9 @@ namespace net {
 		DEBUG_ENTER(_logger);
 
 		if (_state != State::READY) {
-			_logger->error("ERROR: %s %x not in READY state",
+			_logger->error("ERROR: %s 0x%012Ix not in READY state",
 				__class__,
-				(uintptr_t)this
+				PTR_VAL(this)
 			);
 
 			return false;
@@ -73,9 +73,9 @@ namespace net {
 		// Accept the connection from a local client.
 		const mbed_err rc_accept = listener.accept(_local_server);
 		if (rc_accept != 0) {
-			_logger->error("ERROR: %s %x - accept error (%s)",
+			_logger->error("ERROR: %s 0x%012Ix - accept error (%s)",
 				__class__,
-				(uintptr_t)this,
+				PTR_VAL(this),
 				mbed_errmsg(rc_accept).c_str()
 			);
 
@@ -98,18 +98,18 @@ namespace net {
 		else if (rc_query == ERR_VAL) {
 			// DNS server is not configured, abort the connection.
 			_state = State::FAILED;
-			_logger->error("ERROR: %s %x - can not resolve %s",
+			_logger->error("ERROR: %s 0x%012Ix - can not resolve %s",
 				__class__,
-				(uintptr_t)this,
+				PTR_VAL(this),
 				_endpoint.hostname().c_str()
 			);
 		}
 		else {
 			// There was an error during name resolution, abort the connection.
 			_state = State::FAILED;
-			_logger->error("ERROR: %s %x - DNS error (%s)",
+			_logger->error("ERROR: %s 0x%012Ix - DNS error (%s)",
 				__class__,
-				(uintptr_t)this,
+				PTR_VAL(this),
 				lwip_errmsg(rc_query).c_str()
 			);
 		}
@@ -120,9 +120,9 @@ namespace net {
 		// Allocate the TCP client.
 		_local_client = tcp_new();
 		if (!_local_client) {
-			_logger->error("ERROR: %s %x - memory allocation failure",
+			_logger->error("ERROR: %s 0x%012Ix - memory allocation failure",
 				__class__,
-				(uintptr_t)this
+				PTR_VAL(this)
 			);
 
 			_state = State::FAILED;
@@ -181,9 +181,9 @@ namespace net {
 		DEBUG_ENTER(_logger);
 
 		if (!(_state == State::CONNECTED || _state == State::CONNECTING)) {
-			_logger->error("ERROR: %s %x - not in connected or connecting state",
+			_logger->error("ERROR: %s 0x%012Ix - not in connected or connecting state",
 				__class__,
-				(uintptr_t)this
+				PTR_VAL(this)
 			);
 
 			return;
@@ -227,9 +227,9 @@ namespace net {
 		const u16_t length = static_cast<u16_t>(status.rbytes);
 		pbuf* const buffer = pbuf_alloc(PBUF_RAW, length, PBUF_RAM);
 		if (!buffer) {
-			_logger->error("ERROR: %s %x - memory allocation error",
+			_logger->error("ERROR: %s 0x%012Ix - memory allocation error",
 				__class__,
-				(uintptr_t)this
+				PTR_VAL(this)
 			);
 			return false;
 		}
@@ -245,9 +245,9 @@ namespace net {
 
 		// Append the buffer to the queue.
 		if (!_forward_queue.push(buffer)) {
-			_logger->error("INTERNAL ERROR: %s %x - forward queue data full",
+			_logger->error("INTERNAL ERROR: %s 0x%012Ix - forward queue data full",
 				__class__,
-				(uintptr_t)this
+				PTR_VAL(this)
 			);
 
 			return false;
@@ -270,9 +270,9 @@ namespace net {
 		size_t written = 0;
 		lwip_err rc = _forward_queue.write(_local_client, written);
 		if (rc) {
-			_logger->error("ERROR: %s %x - %s",
+			_logger->error("ERROR: %s 0x%012Ix - %s",
 				__class__,
-				(uintptr_t)this,
+				PTR_VAL(this),
 				lwip_errmsg(rc).c_str()
 			);
 		}
@@ -298,9 +298,9 @@ namespace net {
 	void PortForwarder::fflush()
 	{
 		if (_state != State::DISCONNECTING) {
-			_logger->error("ERROR: %s %x - not in disconnecting state",
+			_logger->error("ERROR: %s 0x%012Ix - not in disconnecting state",
 				__class__,
-				(uintptr_t)this
+				PTR_VAL(this)
 			);
 
 			return;
@@ -339,9 +339,9 @@ namespace net {
 	void PortForwarder::rflush()
 	{
 		if (_state != State::DISCONNECTING) {
-			_logger->error("ERROR: %s %x - not in disconnecting state",
+			_logger->error("ERROR: %s 0x%012Ix - not in disconnecting state",
 				__class__,
-				(uintptr_t)this
+				PTR_VAL(this)
 			);
 
 			return;
@@ -418,9 +418,7 @@ namespace net {
 		PortForwarder* const pf = static_cast<PortForwarder*>(arg);
 
 		Logger* logger = pf->_logger;
-		if (logger->is_debug_enabled()) {
-			logger->debug(".... %x PortForwarder TCP connected err=%d", (uintptr_t)pf, err);
-		}
+		logger->debug(".... 0x%012Ix PortForwarder TCP connected err=%d", PTR_VAL(pf), err);
 
 		// We are now connected.
 		pf->_state = PortForwarder::State::CONNECTED;
@@ -438,9 +436,7 @@ namespace net {
 		PortForwarder* const pf = static_cast<PortForwarder*>(arg);
 
 		Logger* logger = pf->_logger;
-		if (logger->is_debug_enabled()) {
-			logger->debug("... %x PortForwarder TCP error err=%d", (uintptr_t)pf, err);
-		}
+		logger->debug("... 0x%012Ix PortForwarder TCP error err=%d", PTR_VAL(pf), err);
 
 		if (err != ERR_OK) {
 			if (pf->_state == PortForwarder::State::DISCONNECTING && pf->_connect_timeout) {
@@ -448,8 +444,7 @@ namespace net {
 					pf->_endpoint.to_string().c_str());
 			}
 			else if (pf->_state != PortForwarder::State::DISCONNECTING) {
-				logger->error("ERROR: %s", 
-					lwip_errmsg(err).c_str());
+				logger->error("ERROR: %s", lwip_errmsg(err).c_str());
 			}
 		}
 
@@ -481,7 +476,7 @@ namespace net {
 
 		if (logger->is_trace_enabled()) {
 			logger->trace(
-				".... %x PortForwarder tcp_rcv_cb", (uintptr_t)pf, pf->_state);
+				".... 0x%012Ix PortForwarder tcp_rcv_cb", PTR_VAL(pf), pf->_state);
 		}
 
 		if (p) {
@@ -529,8 +524,8 @@ namespace net {
 
 		if (logger->is_trace_enabled()) {
 			logger->trace(
-				".... %x PortForwarder tcp_rcv_cb len=%d err=%d state=%d", 
-				(uintptr_t)pf,
+				".... 0x%012Ix PortForwarder tcp_rcv_cb len=%d err=%d state=%d", 
+				PTR_VAL(pf),
 				len,
 				err,
 				pf->_state);

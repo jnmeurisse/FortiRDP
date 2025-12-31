@@ -73,7 +73,9 @@ typedef int sys_prot_t;
 #endif /* _MSC_VER */
 
 /* */
-typedef void (*sys_logger_cb )(void *ctx, int level, const char* fmt, char* args);
+#define LWIP_ERROR_MESSAGE 1
+#define LWIP_DIAG_MESSAGE 2
+typedef void (*sys_logger_cb)(void *ctx, int level, const char* fmt, char* args);
 
 #ifdef __cplusplus
 extern "C" {

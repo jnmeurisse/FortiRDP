@@ -66,7 +66,7 @@ namespace tools {
 				&si,
 				&_pi)) {
 
-				_logger->error("ERROR: unable to create process (error=%x)", GetLastError());
+				_logger->error("ERROR: unable to create process, error=%x", ::GetLastError());
 				rc = false;
 			}
 			else {
@@ -90,7 +90,7 @@ namespace tools {
 			return false;
 
 		default:
-			_logger->error("ERROR: error waiting for end of task pid=%d (code:%x)", _pi.dwProcessId, GetLastError());
+			_logger->error("ERROR: error waiting for end of task pid=%d, error=%x", _pi.dwProcessId, GetLastError());
 			return false;
 		}
 	}

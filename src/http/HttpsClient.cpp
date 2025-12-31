@@ -88,8 +88,8 @@ namespace http {
 
 		const mbed_err rc = TlsSocket::connect(_host_ep, connect_timer);
 		_logger->debug(
-			"... %x       %s::%s - TlsSocket::call returns rc=%d",
-			(uintptr_t)this,
+			"... 0x%012Ix       %s::%s - TlsSocket::call returns rc=%d",
+			PTR_VAL(this),
 			__class__,
 			__func__,
 			rc);
@@ -116,8 +116,8 @@ namespace http {
 		DEBUG_ENTER(_logger);
 
 		if (_logger->is_trace_enabled())
-			_logger->trace("... %x       %s::%s send url=%s count=%d max=%d timeout=%d",
-				(uintptr_t)this,
+			_logger->trace("... 0x%012Ix       %s::%s send url=%s count=%d max=%d timeout=%d",
+				PTR_VAL(this),
 				__class__,
 				__func__,
 				request.url().to_string(false).c_str(),
@@ -132,8 +132,8 @@ namespace http {
 		_keepalive_timer.start(_keepalive_timeout * 1000);
 
 		if (_logger->is_trace_enabled())
-			_logger->trace("... %x leave %s::%s count=%d max=%d timeout=%d",
-				(uintptr_t)this,
+			_logger->trace("... 0x%012Ix leave %s::%s count=%d max=%d timeout=%d",
+				PTR_VAL(this),
 				__class__,
 				__func__,
 				_request_count,
@@ -171,8 +171,8 @@ namespace http {
 		_keepalive_timeout = std::max(0, timeout);
 
 		if (_logger->is_trace_enabled())
-			_logger->trace("... %x leave %s::%s max=%d timeout=%d",
-				(uintptr_t)this,
+			_logger->trace("... 0x%012Ix leave %s::%s max=%d timeout=%d",
+				PTR_VAL(this),
 				__class__,
 				__func__,
 				_max_requests,

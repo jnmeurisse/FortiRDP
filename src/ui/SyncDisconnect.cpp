@@ -6,6 +6,7 @@
 *
 */
 #include "SyncDisconnect.h"
+#include <memory>
 
 namespace ui {
 	SyncDisconnect::SyncDisconnect(HWND hwnd, fw::FirewallClient& portal_client, fw::FirewallTunnel* tunnel) :
@@ -29,11 +30,11 @@ namespace ui {
 		bool stopped = false;
 
 		if (_portal_client.is_authenticated()) {
-			_logger->debug("... logout from portal %x", (uintptr_t)&_portal_client);
+			_logger->debug("... logout from portal 0x%012Ix", PTR_VAL(std::addressof(_portal_client)));
 
 			// Logs out from the firewall portal and waits for the firewall to close the tunnel.
 			if (_portal_client.logout()) {
-				_logger->debug("... wait end of tunnel %x", (uintptr_t)_tunnel);
+				_logger->debug("... wait end of tunnel 0x%012Ix", (uintptr_t)_tunnel);
 				if (_tunnel)
 					stopped = _tunnel->wait(5 * 1000);
 				else
@@ -42,7 +43,7 @@ namespace ui {
 
 			if (!stopped && _tunnel) {
 				// Logout failed, forcefully shut down the tunnel.
-				_logger->debug("... terminate tunnel %x", (uintptr_t)&_tunnel);
+				_logger->debug("... terminate tunnel 0x%012Ix", PTR_VAL(std::addressof(_portal_client)));
 				_tunnel->terminate();
 
 				// Wait the end of the tunnel.  15 seconds should be enough to

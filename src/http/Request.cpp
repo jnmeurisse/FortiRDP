@@ -57,8 +57,8 @@ namespace http {
 		DEBUG_ENTER(_logger);
 
 		if (_logger->is_trace_enabled())
-			_logger->trace("... %x enter %s::%s timeout=%lu",
-				(uintptr_t)this,
+			_logger->trace("... 0x%012Ix enter %s::%s timeout=%lu",
+				PTR_VAL(this),
 				__class__,
 				__func__,
 				timer.remaining_time()
@@ -93,8 +93,8 @@ namespace http {
 		// Send headers to the web server.
 		if (_logger->is_trace_enabled())
 			_logger->trace(
-				"... %x       %s::%s : write headers",
-				(uintptr_t)this,
+				"... 0x%012Ix       %s::%s : write headers",
+				PTR_VAL(this),
 				__class__,
 				__func__
 			);
@@ -107,8 +107,8 @@ namespace http {
 			// Send the body to the web server.
 			if (_logger->is_trace_enabled())
 				_logger->trace(
-					"... %x       %s::%s : write body",
-					(uintptr_t)this,
+					"... 0x%012Ix       %s::%s : write body",
+					PTR_VAL(this),
 					__class__,
 					__func__
 				);
@@ -125,8 +125,8 @@ namespace http {
 
 		if (_logger->is_trace_enabled())
 			_logger->trace(
-				"... %x       %s::%s : write buffer rc = %d",
-				(uintptr_t)this,
+				"... 0x%012Ix       %s::%s : write buffer rc = %d",
+				PTR_VAL(this),
 				__class__,
 				__func__,
 				status.rc
