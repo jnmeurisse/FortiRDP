@@ -185,14 +185,6 @@ namespace tools {
 	}
 
 
-	FileLogWriter::~FileLogWriter()
-	{
-		if (_ofs.is_open()) {
-			_ofs.close();
-		}
-	}
-
-
 	bool FileLogWriter::open(const std::wstring& filename)
 	{
 		_ofs.open(filename, std::ostream::out);
@@ -214,13 +206,6 @@ namespace tools {
 		if (_ofs.is_open()) {
 			_ofs.flush();
 		}
-	}
-
-
-	LogQueue::LogQueue() :
-		_queue(),
-		_mutex()
-	{
 	}
 
 

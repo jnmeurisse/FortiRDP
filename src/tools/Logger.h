@@ -151,7 +151,6 @@ namespace tools {
 	private:
 		// The current writer log level.
 		const LogLevel _level;
-
 	};
 
 
@@ -162,7 +161,7 @@ namespace tools {
 	{
 	public:
 		explicit FileLogWriter(LogLevel level);
-		~FileLogWriter() override;
+		~FileLogWriter() override = default;
 
 		bool open(const std::wstring& filename);
 		void write(LogLevel level, const std::string& text) override;
@@ -176,8 +175,6 @@ namespace tools {
 	class LogQueue final
 	{
 	public:
-		explicit LogQueue();
-
 		inline size_t size() const { return _queue.size(); }
 		void push(const std::string& text);
 		std::string pop();
