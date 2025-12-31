@@ -7,6 +7,7 @@
 */
 #include "AsyncController.h"
 
+#include <array>
 #include "ui/SyncConnect.h"
 #include "ui/SyncWaitTunnel.h"
 #include "ui/SyncDisconnect.h"
@@ -275,7 +276,7 @@ namespace ui {
 
 	const char* AsyncController::action_name(ControllerAction action) const
 	{
-		static const char* const actions_names[] = {
+		static std::array<const char *, 6> actions_names = {
 			"Connect",
 			"Tunnel",
 			"Disconnect",
@@ -293,7 +294,7 @@ namespace ui {
 		bool terminated = false;	// a flag set to true to terminate this thread
 		bool wait_eot = false;		// a flag set to true to monitor the end of a task
 
-		HANDLE hEvents[2] = { _requestEvent.get_handle(), NULL };
+		std::array<HANDLE, 2> hEvents = { _requestEvent.get_handle(), NULL };
 
 		while (!terminated) {
 			std::unique_ptr<SyncProc> procedure;
@@ -313,7 +314,7 @@ namespace ui {
 			 * to 2 if the AsyncProcedure monitors the end of a task.
 			*/
 			const int eventCount = wait_eot ? 2 : 1;
-			DWORD event = ::WaitForMultipleObjects(eventCount, hEvents, false, INFINITE);
+			const DWORD event = ::WaitForMultipleObjects(eventCount, hEvents.data(), false, INFINITE);
 
 			_logger->debug("... 0x%012Ix enter %s::%s event=%x",
 				PTR_VAL(this),
