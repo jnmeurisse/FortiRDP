@@ -309,19 +309,32 @@ namespace tools {
 
 	std::string string_format(const char *fmt, ...) 
 	{
-		size_t buffer_size = 132;
+		std::string result;
+
+		va_list args;
+		va_start(args, fmt);
+		result = string_format(fmt, args);
+		va_end(args);
+
+		return result;
+	}
+
+
+	std::string string_format(const char* fmt, va_list args)
+	{
+		size_t buffer_size = 256;
 
 		while (true)
 		{
-			va_list marker;
+			va_list args_copy;
 			std::vector<char> buffer(buffer_size);
 
-			va_start(marker, fmt);
-			const int n = std::vsnprintf(buffer.data(), buffer_size, fmt, marker);
-			va_end(marker);
+			va_copy(args_copy, args);
+			const int n = std::vsnprintf(buffer.data(), buffer_size, fmt, args_copy);
+			va_end(args_copy);
 
 			if (n < 0)
-				return "format error";
+				return "vsnprintf format error";
 
 			// The string has been completely written only when n is non negative 
 			// and less than size.  The buffer contains a null terminated string.

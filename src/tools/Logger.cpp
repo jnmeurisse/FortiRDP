@@ -13,6 +13,7 @@
 #include <ctime>
 #include <vector>
 #include "tools/Mutex.h"
+#include "tools/StrUtil.h"
 
 
 namespace tools {
@@ -136,42 +137,10 @@ namespace tools {
 	}
 
 
-	std::string Logger::fmt(const char* format, va_list args)
-	{
-		size_t buffer_size = 132;
-
-		while (true)
-		{
-			va_list args_copy;
-			std::vector<char> buffer(buffer_size);
-
-			va_copy(args_copy, args);
-			const int n = std::vsnprintf(buffer.data(), buffer_size, format, args_copy);
-			va_end(args_copy);
-
-			if (n < 0)
-				return "";
-
-			// The string has been completely written only when n is non negative 
-			// and less than size.  The buffer contains a null terminated string.
-			if (n > 0 && n < buffer_size)
-				return buffer.data();
-			else
-				buffer_size *= 2;
-		}
-	}
-
-
 	void Logger::log(Level level, const char* format, va_list args)
 	{
-		std::string formatted_text = fmt(format, args);
-
-		if (!formatted_text.empty()) {
-			write(level, formatted_text);
-		}
-		else {
-			write(Level::LL_ERROR, "internal error : fmt returned empty string");
-		}
+		if (is_enabled(level))
+			write(level, string_format(format, args));
 	}
 
 

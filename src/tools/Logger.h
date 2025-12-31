@@ -111,12 +111,6 @@ namespace tools {
 		*/
 		void write(Logger::Level level, const std::string& text);
 
-		/**
-		 * Formats an error message.
-		 * 
-		*/
-		std::string fmt(const char* format, va_list args);
-
 	private:
 		// A reference to the application logger (singleton).
 		static Logger* _logger;

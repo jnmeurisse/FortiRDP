@@ -7,6 +7,7 @@
 */
 #pragma once
 
+#include <cstdarg>
 #include <cstring>
 #include <string>
 #include <vector>
@@ -77,6 +78,7 @@ std::wstring quote(const std::wstring& str);
 
 // Formats a string
 std::string string_format(const char* fmt, ...);
+std::string string_format(const char* fmt, va_list args);
 
 // Converts wstring to utf8-string
 std::string wstr2str(const std::wstring& wstr);
