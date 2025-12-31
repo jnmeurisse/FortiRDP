@@ -151,7 +151,19 @@ namespace tools {
 	{
 	}
 
-	
+
+	char LogWriter::get_level_char(LogLevel level) const
+	{
+		switch (level) {
+		case LogLevel::LL_DEBUG: return 'D';
+		case LogLevel::LL_ERROR: return 'E'; 
+		case LogLevel::LL_INFO:  return 'I';
+		case LogLevel::LL_TRACE: return 'T';
+		default: return 'U'; // Unknown
+		}
+	}
+
+
 	static std::string datetime()
 	{
 		// Get current system time and convert it to local time
@@ -192,7 +204,7 @@ namespace tools {
 	void FileLogWriter::write(LogLevel level, const std::string& text)
 	{
 		if (_ofs.is_open() && is_enabled(level)) {
-			_ofs << datetime() << " > " << text << std::endl;
+			_ofs << '[' << get_level_char(level) << "] " << datetime() << " > " << text << std::endl;
 		}
 	}
 

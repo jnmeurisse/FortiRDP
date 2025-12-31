@@ -145,6 +145,9 @@ namespace tools {
 		*/
 		inline bool is_enabled(LogLevel level) const { return level >= _level; }
 
+	protected:
+		char get_level_char(LogLevel level) const;
+
 	private:
 		// The current writer log level.
 		const LogLevel _level;
