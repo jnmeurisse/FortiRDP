@@ -115,11 +115,12 @@ namespace tools {
 
 	std::string StringMap::join(const std::string& delim) const
 	{
+		std::string buffer;
+
 		if (_strmap.empty())
-			return "";
+			return buffer;
 
-
-		std::string buffer(256, '\0');
+		buffer.reserve(256);
 		for (auto iter = cbegin(); iter != cend(); ++iter) {
 			buffer.append(iter->first).append("=").append(iter->second).append(delim);
 		}
