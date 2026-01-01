@@ -134,7 +134,7 @@ namespace http {
 		std::array<unsigned char, 8> http_version = {};
 		if (!read_buffer(socket, http_version.data(), http_version.size(), timer))
 			return answer_status::ERR_INVALID_STATUS_LINE;
-		if (std::memcmp(http_version.data(), "HTTP/1.1", sizeof(http_version)) != 0)
+		if (std::memcmp(http_version.data(), "HTTP/1.1", http_version.size()) != 0)
 			return answer_status::ERR_INVALID_VERSION;
 
 		// Skip a space
