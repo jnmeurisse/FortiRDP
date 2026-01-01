@@ -31,13 +31,13 @@ namespace http {
 		// It iterates through a string character by character and breaks it down
 		// into its components.
 		//
-		// State		URL Component	Description
-        //	0, 1		Scheme,			Identifies the protocol (e.g., http, https).
-        //	2, 3, 4		Transition		Handles the // that usually follows a scheme (e.g., http://).
-        //	5			Authority		Captures the domain or host (e.g., www.example.com).
-        //	7			Path			Captures the resource path (e.g., /index.html).
-        //	8, 9		Query			Captures parameters after the ? (e.g., search=cpp)
-        //	10, 11		Fragment		Captures the "anchor" or fragment after the #.
+		// State        URL Component   Description
+		//	0, 1        Scheme          Identifies the protocol (e.g., http, https).
+		//	2, 3, 4     Transition      Handles the // that usually follows a scheme (e.g., http://).
+		//	5           Authority       Captures the domain or host (e.g., www.example.com).
+		//	7           Path            Captures the resource path (e.g., /index.html).
+		//	8, 9        Query           Captures parameters after the ? (e.g., search=cpp)
+		//	10, 11      Fragment        Captures the "anchor" or fragment after the #.
 
 		int state = 0;
 		while (state >= 0) {
