@@ -640,7 +640,6 @@ namespace fw {
 			.set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")
 			.add(headers);
 
-		_logger->debug("url=%s", url.to_string(true).c_str());
 		request.set_body(reinterpret_cast<const unsigned char*>(body.c_str()), body.length());
 
 		// Send and wait for a response
