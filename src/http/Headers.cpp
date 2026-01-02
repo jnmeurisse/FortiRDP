@@ -12,7 +12,7 @@
 
 namespace http {
 
-	using namespace tools;
+	using namespace aux;
 
 	Headers& Headers::add(const Headers& headers)
 	{
@@ -50,7 +50,7 @@ namespace http {
 	}
 
 
-	void Headers::write(tools::ByteBuffer& buffer) const
+	void Headers::write(aux::ByteBuffer& buffer) const
 	{
 		for (auto iter = cbegin(); iter != cend(); iter++) {
 			buffer.append(iter->first).append(": ").append(iter->second).append("\r\n");

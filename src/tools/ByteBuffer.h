@@ -13,7 +13,7 @@
 #include "tools/ObfuscatedString.h"
 
 
-namespace tools {
+namespace aux {
 
 	/**
 	* A byte buffer holds a sequence of bytes. This class provides
@@ -94,7 +94,7 @@ namespace tools {
 		 *
 		 * @return this ByteBuffer.
 		*/
-		ByteBuffer& append(const tools::obfstring& data);
+		ByteBuffer& append(const aux::obfstring& data);
 
 		/**
 		 * Returns true if the buffer is empty.
@@ -124,7 +124,7 @@ namespace tools {
 		/**
 		 * Returns this buffer as an obfuscated string.
 		 */
-		tools::obfstring to_obfstring() const;
+		aux::obfstring to_obfstring() const;
 
 		/**
 		 * Returns this buffer as a string.

@@ -13,7 +13,7 @@
 
 
 
-namespace tools {
+namespace aux {
 
 	/**
 	 * A Path object represents a location of a file or a folder on a disk.

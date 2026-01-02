@@ -80,12 +80,12 @@ namespace ui {
 
 			case L'p':
 				int port;
-				if (tools::str2i(optarg, port) && port > 0 && (port <= std::numeric_limits<uint16_t>::max()))
+				if (aux::str2i(optarg, port) && port > 0 && (port <= std::numeric_limits<uint16_t>::max()))
 					_local_port = static_cast<uint16_t>(port);
 				break;
 
 			case L'c':
-				_ca_cert_filename = tools::trim(optarg);
+				_ca_cert_filename = aux::trim(optarg);
 				break;
 
 			case L'v':
@@ -97,7 +97,7 @@ namespace ui {
 				break;
 
 			case L'x':
-				_app_name = tools::trim(optarg);
+				_app_name = aux::trim(optarg);
 				break;
 
 			case L's':
@@ -109,7 +109,7 @@ namespace ui {
 				break;
 
 			case L'r':
-				_rdp_filename = tools::trim(optarg);
+				_rdp_filename = aux::trim(optarg);
 				break;
 
 			case L'C':
@@ -125,17 +125,17 @@ namespace ui {
 				break;
 
 			case L'w':
-				if (!tools::str2i(optarg, _screen_size.width))
+				if (!aux::str2i(optarg, _screen_size.width))
 					_screen_size.width = -1;
 				break;
 
 			case L'h':
-				if (!tools::str2i(optarg, _screen_size.height))
+				if (!aux::str2i(optarg, _screen_size.height))
 					_screen_size.height = -1;
 				break;
 
 			case L'U':
-				_us_cert_filename = tools::trim(optarg);
+				_us_cert_filename = aux::trim(optarg);
 				break;
 
 			case L'A':
@@ -202,10 +202,10 @@ namespace ui {
 		int i = 0;
 		for (; optind < argc; optind++) {
 			if (i == 0) {
-				_fw_address = tools::trim(argv[optind]);
+				_fw_address = aux::trim(argv[optind]);
 			}
 			else if (i == 1) {
-				_host_addres = tools::trim(argv[optind]);
+				_host_addres = aux::trim(argv[optind]);
 			}
 			else
 				return false;
@@ -224,11 +224,11 @@ namespace ui {
 	void CmdlineParams::print_usage() const
 	{
 		// Retrieve major/minor version from .exe
-		const tools::Path app_path{ tools::Path::get_module_path() };
-		const std::string version{ tools::get_file_ver(app_path.to_string()) };
+		const aux::Path app_path{ aux::Path::get_module_path() };
+		const std::string version{ aux::get_file_ver(app_path.to_string()) };
 
 		// Show program parameters.
-		std::cout << tools::string_format("fortirdp %s (jn.meurisse@gmail.com)\n\n", version.c_str());
+		std::cout << aux::string_format("fortirdp %s (jn.meurisse@gmail.com)\n\n", version.c_str());
 		std::cout << "fortirdp [-v [-t]] [-A auth] [-u username] [-c cacert_file] [-x app] [-f] [-a] [-s] [-p port]\n";
 		std::cout << "         [-r rdp_file] [-m] [-l] [-C] [-M] [-n] firewall-ip[:port1] remote-ip[:port2]\n";
 		std::cout << "\n";

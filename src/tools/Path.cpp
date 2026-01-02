@@ -13,7 +13,7 @@
 #include "tools/ErrUtil.h"
 
 
-namespace tools {
+namespace aux {
 
 	Path::Path(const std::wstring& path)
 	{
@@ -63,7 +63,7 @@ namespace tools {
 			if (rc == buffer.size() && ::GetLastError() == ERROR_INSUFFICIENT_BUFFER)
 				buffer_size += 1024;
 			else if (rc == 0)
-				throw tools::win_errmsg(::GetLastError());
+				throw aux::win_errmsg(::GetLastError());
 			else
 				return Path(buffer.data());
 		} while (true);
@@ -89,7 +89,7 @@ namespace tools {
 		// Get the path to the folder for the current user.
 		const HRESULT hr = ::SHGetKnownFolderPath(rfid, KF_FLAG_DEFAULT, NULL, &buffer);
 		if (FAILED(hr))
-			throw tools::win_errmsg(::GetLastError());
+			throw aux::win_errmsg(::GetLastError());
 
 		// The returned path does not include a trailing backslash, add one.
 		std::wstring path{ buffer.get() };

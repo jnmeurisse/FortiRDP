@@ -61,7 +61,7 @@ namespace http {
 		 * @throws http_error If the response is malformed, uses unsupported transfer
 		 *                    or content encoding, exceeds configured size limits.
 		 */
-		void recv(net::TcpSocket& socket, const tools::Timer& timer);
+		void recv(net::TcpSocket& socket, const aux::Timer& timer);
 
 		/**
 		 * Returns the HTTP status code.
@@ -87,14 +87,14 @@ namespace http {
 		/**
 		 * Returns the body of the answer.
 		*/
-		inline const tools::ByteBuffer& body() const { return _body; }
+		inline const aux::ByteBuffer& body() const { return _body; }
 
 	private:
 		// The class name
 		static const char* __class__;
 
 		// A reference to the application logger
-		tools::Logger* const _logger;
+		aux::Logger* const _logger;
 
 		// The HTTP status code
 		int _status_code;
@@ -109,7 +109,7 @@ namespace http {
 		Cookies _cookies;
 
 		// The body of the answer.
-		tools::ByteBuffer _body;
+		aux::ByteBuffer _body;
 
 		static const int MAX_LINE_SIZE = (8 * 1024);
 		static const int MAX_HEADER_SIZE = (4 * 1024);
@@ -152,7 +152,7 @@ namespace http {
 		 * @throws mbed_error If an error occurs while reading from the socket, such as network
 		 *                    failures or read timeout.
 		 */
-		bool read_buffer(net::TcpSocket& socket, unsigned char* buffer, const size_t len, const tools::Timer& timer);
+		bool read_buffer(net::TcpSocket& socket, unsigned char* buffer, const size_t len, const aux::Timer& timer);
 
 		/**
 		 * Reads a single byte from the socket.
@@ -170,7 +170,7 @@ namespace http {
 		 * @throws mbed_error If an error occurs while reading from the socket, such as network
 		 *                    failures or read timeout.
 		 */
-		bool read_byte(net::TcpSocket& socket, unsigned char& c, const tools::Timer& timer);
+		bool read_byte(net::TcpSocket& socket, unsigned char& c, const aux::Timer& timer);
 
 		/**
 		 * Reads a string from the socket until a newline sequence (\r\\n) is encountered.
@@ -190,7 +190,7 @@ namespace http {
 		 * @throws mbed_error If an error occurs while reading from the socket, such as network
 		 *                    failures or read timeout.
 		 */
-		answer_status read_line(net::TcpSocket& socket, tools::ByteBuffer& buffer, const tools::Timer& timer);
+		answer_status read_line(net::TcpSocket& socket, aux::ByteBuffer& buffer, const aux::Timer& timer);
 
 		/**
 		 * Reads the HTTP status response from the server.
@@ -212,7 +212,7 @@ namespace http {
 		 * @throws mbed_error If an error occurs while reading from the socket, such as network
 		 *                    failures or read timeout.
 		 */
-		answer_status read_control_data(net::TcpSocket& socket, const tools::Timer& timer);
+		answer_status read_control_data(net::TcpSocket& socket, const aux::Timer& timer);
 
 		/**
 		 * Reads and parses HTTP  headers from a TCP socket.
@@ -238,7 +238,7 @@ namespace http {
 		 * @throws mbed_error If an error occurs while reading from the socket, such as network
 		 *                    failures or read timeout.
 		 */
-		answer_status read_headers(net::TcpSocket& socket, const tools::Timer& timer);
+		answer_status read_headers(net::TcpSocket& socket, const aux::Timer& timer);
 
 		/**
 		 * Reads and decompresses a gzip body from the server.
@@ -262,7 +262,7 @@ namespace http {
 		 * @throws mbed_error If an error occurs while reading from the socket, such as network
 		 *                    failures or read timeout.
 		 */
-		bool read_gzip_body(net::TcpSocket& socket, size_t size, size_t max_size, const tools::Timer& timer);
+		bool read_gzip_body(net::TcpSocket& socket, size_t size, size_t max_size, const aux::Timer& timer);
 
 		/**
 		 * Reads the body of the HTTP response from the server in chunks and appends it to the body.
@@ -286,7 +286,7 @@ namespace http {
 		 * @throws mbed_error If an error occurs while reading from the socket, such as network
 		 *                    failures or read timeout.
 		 */
-		bool read_body(net::TcpSocket& socket, size_t size, size_t max_size, const tools::Timer& timer);
+		bool read_body(net::TcpSocket& socket, size_t size, size_t max_size, const aux::Timer& timer);
 
 
 		static std::string answer_status_msg(answer_status);

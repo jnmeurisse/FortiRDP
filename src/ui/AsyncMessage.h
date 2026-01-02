@@ -101,7 +101,7 @@ namespace ui {
 		explicit AsyncMessage(UINT eventNumber);
 
 		// The application logger.
-		tools::Logger* const _logger;
+		aux::Logger* const _logger;
 
 		// Global message identifier assigned by windows for all AsyncMessages.
 		static UINT _windowsMessageId;

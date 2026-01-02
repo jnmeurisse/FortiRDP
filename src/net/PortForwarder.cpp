@@ -16,7 +16,7 @@
 
 
 namespace net {
-	using namespace tools;
+	using namespace aux;
 
 	// Forward declarations
 	void dns_found_cb(const char* name, const ip_addr_t* ipaddr, void* callback_arg);

@@ -78,7 +78,7 @@ namespace http {
 		/**
 		 * Returns the query part as a string map.
 		*/
-		tools::StringMap get_query_map() const;
+		aux::StringMap get_query_map() const;
 		
 		/**
 		 * Returns a string representation of this URL.

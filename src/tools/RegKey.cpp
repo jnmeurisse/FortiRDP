@@ -12,7 +12,7 @@
 #include "tools/SysUtil.h"
 
 
-namespace tools {
+namespace aux {
 
 	RegKey::RegKey(HKEY root_key, const std::wstring& key_name) :
 		_root_key(root_key),

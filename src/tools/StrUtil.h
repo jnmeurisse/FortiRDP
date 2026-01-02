@@ -24,7 +24,7 @@ struct comp {
 };
 }
 
-namespace tools {
+namespace aux {
 
 typedef std::map<const std::string, std::string, priv::comp> strimap;
 

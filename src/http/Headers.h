@@ -17,10 +17,10 @@ namespace http {
 	/** 
 	* A collection of HTTP headers
 	*/
-	class Headers final : tools::StringMap
+	class Headers final : aux::StringMap
 	{
 	public:
-		using tools::StringMap::serase;
+		using aux::StringMap::serase;
 
 		/**
 		 * Copies all headers from the specified collection to this collection.
@@ -68,7 +68,7 @@ namespace http {
 		 * 
 		 * @param buffer The destination buffer.
 		*/
-		void write(tools::ByteBuffer& buffer) const;
+		void write(aux::ByteBuffer& buffer) const;
 	};
 
 }

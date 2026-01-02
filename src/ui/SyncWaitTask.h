@@ -22,7 +22,7 @@ namespace ui {
 	class SyncWaitTask final : public SyncProc
 	{
 	public:
-		explicit SyncWaitTask(HWND hwnd, tools::Task* task);
+		explicit SyncWaitTask(HWND hwnd, aux::Task* task);
 		virtual ~SyncWaitTask() override;
 
 	private:
@@ -30,7 +30,7 @@ namespace ui {
 		static const char* __class__;
 
 		// A task that we wait for to finish.
-		tools::Task* const _task;
+		aux::Task* const _task;
 
 		// The wait procedure.
 		virtual bool procedure() override;

@@ -11,7 +11,7 @@
 #include <string>
 
 
-namespace tools {
+namespace aux {
 
 	/**
 	 * A RegKey object represents a registry key in the windows registry.

@@ -10,7 +10,7 @@
 #include <Windows.h>
 
 
-namespace tools {
+namespace aux {
 
 	ByteBuffer::ByteBuffer(size_t capacity) :
 		_buffer()
@@ -61,7 +61,7 @@ namespace tools {
 	}
 
 
-	ByteBuffer& ByteBuffer::append(const tools::obfstring &data)
+	ByteBuffer& ByteBuffer::append(const aux::obfstring &data)
 	{
 		const size_t current_size = _buffer.size();
 
@@ -75,9 +75,9 @@ namespace tools {
 	}
 
 
-	tools::obfstring ByteBuffer::to_obfstring() const
+	aux::obfstring ByteBuffer::to_obfstring() const
 	{
-		return tools::obfstring(reinterpret_cast<const char *>(_buffer.data()), _buffer.size());
+		return aux::obfstring(reinterpret_cast<const char *>(_buffer.data()), _buffer.size());
 	}
 
 

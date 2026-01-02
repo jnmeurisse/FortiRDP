@@ -25,7 +25,7 @@
 
 namespace fw {
 
-	using namespace tools;
+	using namespace aux;
 
 	FirewallClient::FirewallClient(const net::Endpoint& ep, const std::string& realm, const net::TlsConfig& config):
 		HttpsClient(ep, config),
@@ -137,7 +137,7 @@ namespace fw {
 	}
 
 
-	portal_err FirewallClient::try_login_check(const tools::StringMap& in_params, tools::StringMap& out_params)
+	portal_err FirewallClient::try_login_check(const aux::StringMap& in_params, aux::StringMap& out_params)
 	{
 		DEBUG_ENTER(_logger);
 
@@ -182,11 +182,11 @@ namespace fw {
 	portal_err FirewallClient::login_basic(const ask_credentials_fn& ask_credential, const ask_pincode_fn& ask_code)
 	{
 		DEBUG_ENTER(_logger);
-		tools::Mutex::Lock lock{ _mutex };
+		aux::Mutex::Lock lock{ _mutex };
 
 		// Misc initializations.
 		http::Answer answer;
-		tools::StringMap params_query;
+		aux::StringMap params_query;
 		AuthCredentials credentials;
 
 		/*
@@ -229,12 +229,12 @@ namespace fw {
 		params_query.set("credential", HttpsClient::encode_url(credentials.password));
 
 		// Safe erase password stored in memory.
-		tools::serase(credentials.password);
+		aux::serase(credentials.password);
 
 		// Loop until code returns with access denied, login canceled or an error
 		// is detected.
 		while (true) {
-			tools::StringMap params_result;
+			aux::StringMap params_result;
 			portal_err err = try_login_check(params_query, params_result);
 			if (err != portal_err::NONE)
 				return err;
@@ -358,14 +358,14 @@ namespace fw {
 				params_query.set("magic", params_result.get_str_value("magic", ""));
 				params_query.set(
 					"reqid",
-					tools::string_format(
+					aux::string_format(
 						"%s,%s",
 						params_result.get_str_value("reqid", "").c_str(),
 						params_result.get_str_value("polid", "").c_str()
 					));
 				params_query.set(
 					"grpid",
-					tools::string_format(
+					aux::string_format(
 						"%s,%s,%s",
 						params_result.get_str_value("grpid", "").c_str(),
 						params_result.get_str_value("pid", "").c_str(),
@@ -392,7 +392,7 @@ namespace fw {
 	portal_err FirewallClient::login_saml(const ask_samlauth_fn& ask_samlauth)
 	{
 		DEBUG_ENTER(_logger);
-		tools::Mutex::Lock lock{ _mutex };
+		aux::Mutex::Lock lock{ _mutex };
 
 		std::string service_provider_crt;
 		if (!X509crt_to_pem(get_peer_crt(), service_provider_crt))
@@ -419,7 +419,7 @@ namespace fw {
 	bool FirewallClient::logout()
 	{
 		DEBUG_ENTER(_logger);
-		tools::Mutex::Lock lock{ _mutex };
+		aux::Mutex::Lock lock{ _mutex };
 
 		http::Headers headers;
 		http::Answer answer;
@@ -438,7 +438,7 @@ namespace fw {
 	bool FirewallClient::get_info(PortalInfo& portal_info)
 	{
 		DEBUG_ENTER(_logger);
-		tools::Mutex::Lock lock{ _mutex };
+		aux::Mutex::Lock lock{ _mutex };
 
 		if (!is_authenticated())
 			return false;
@@ -458,16 +458,16 @@ namespace fw {
 			return false;
 		}
 	
-		const tools::ByteBuffer& body = answer.body();
+		const aux::ByteBuffer& body = answer.body();
 		const std::string data{ body.cbegin(), body.cend() };
 		LOG_DEBUG(_logger, "portal_info : %s...", data.substr(0, 80).c_str());
 
 		std::string parser_error;
-		tools::Json info = tools::Json::parse(data, parser_error);
+		aux::Json info = aux::Json::parse(data, parser_error);
 		if (info.is_object()) {
-			tools::Json user = info["user"];
-			tools::Json group = info["group"];
-			tools::Json version = info["version"];
+			aux::Json user = info["user"];
+			aux::Json group = info["group"];
+			aux::Json version = info["version"];
 
 			portal_info.user = user.is_string() ? user.string_value() : "";
 			portal_info.group = group.is_string() ? group.string_value() : "";
@@ -481,7 +481,7 @@ namespace fw {
 	bool FirewallClient::get_config(SslvpnConfig& sslvpn_config)
 	{
 		DEBUG_ENTER(_logger);
-		tools::Mutex::Lock lock{ _mutex };
+		aux::Mutex::Lock lock{ _mutex };
 
 		if (!is_authenticated())
 			return false;
@@ -505,7 +505,7 @@ namespace fw {
 			return false;
 		}
 
-		const tools::ByteBuffer& body = answer.body();
+		const aux::ByteBuffer& body = answer.body();
 		const std::string data(body.cbegin(), body.cend());
 
 		pugi::xml_document doc;
@@ -736,7 +736,7 @@ namespace fw {
 	}
 
 
-	bool FirewallClient::get_redir_url(const tools::StringMap& params, http::Url& url) const
+	bool FirewallClient::get_redir_url(const aux::StringMap& params, http::Url& url) const
 	{
 		std::string redir;
 		if (!params.get_str("redir", redir))

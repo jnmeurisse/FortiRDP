@@ -10,7 +10,7 @@
 #include <Windows.h>
 
 
-namespace tools {
+namespace aux {
 
 	/**
 	* A mutex provides a synchronization mechanism.

@@ -12,13 +12,13 @@
 #include "tools/Path.h"
 
 
-namespace tools {
+namespace aux {
 
 // Returns true if a file exists
 bool file_exists(const std::wstring& path);
 
 // Returns true if a file exists
-bool file_exists(const tools::Path& path);
+bool file_exists(const aux::Path& path);
 
 // Returns the name of the user associated with this application 
 std::wstring get_windows_username();

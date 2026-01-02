@@ -57,7 +57,7 @@ namespace http {
 	}
 
 
-	bool Answer::read_buffer(net::TcpSocket& socket, unsigned char* buffer, const size_t len, const tools::Timer& timer)
+	bool Answer::read_buffer(net::TcpSocket& socket, unsigned char* buffer, const size_t len, const aux::Timer& timer)
 	{
 		TRACE_ENTER_FMT(_logger, "buffer=0x%012Ix size=%zu timeout=%lu",
 			PTR_VAL(buffer),
@@ -82,13 +82,13 @@ namespace http {
 	}
 
 
-	bool Answer::read_byte(net::TcpSocket& socket, unsigned char& c, const tools::Timer& timer)
+	bool Answer::read_byte(net::TcpSocket& socket, unsigned char& c, const aux::Timer& timer)
 	{
 		return read_buffer(socket, &c, sizeof(char), timer);
 	}
 
 
-	Answer::answer_status Answer::read_line(net::TcpSocket& socket, tools::ByteBuffer& buffer, const tools::Timer& timer)
+	Answer::answer_status Answer::read_line(net::TcpSocket& socket, aux::ByteBuffer& buffer, const aux::Timer& timer)
 	{
 		TRACE_ENTER_FMT(_logger, "buffer=0x%012Ix size=%zu timeout=%lu",
 			PTR_VAL(std::addressof(buffer)),
@@ -135,7 +135,7 @@ namespace http {
 	}
 
 
-	Answer::answer_status Answer::read_control_data(net::TcpSocket& socket, const tools::Timer& timer)
+	Answer::answer_status Answer::read_control_data(net::TcpSocket& socket, const aux::Timer& timer)
 	{
 		DEBUG_ENTER(_logger);
 
@@ -180,10 +180,10 @@ namespace http {
 			return answer_status::ERR_INVALID_STATUS_CODE;
 
 		// Read the reason phrase
-		tools::ByteBuffer buffer(1024);
+		aux::ByteBuffer buffer(1024);
 		answer_status status = read_line(socket, buffer, timer);
 		if (status == answer_status::ERR_NONE  && !buffer.empty()) {
-			_reason_phrase = tools::trim(buffer.to_string());
+			_reason_phrase = aux::trim(buffer.to_string());
 		}
 
 		return status;
@@ -208,15 +208,15 @@ namespace http {
 	}
 
 
-	Answer::answer_status Answer::read_headers(net::TcpSocket& socket, const tools::Timer& timer)
+	Answer::answer_status Answer::read_headers(net::TcpSocket& socket, const aux::Timer& timer)
 	{
 		DEBUG_ENTER(_logger);
 
 ;		answer_status status;
-		tools::ByteBuffer buffer(MAX_HEADER_SIZE);
+		aux::ByteBuffer buffer(MAX_HEADER_SIZE);
 
 		while ((status = read_line(socket, buffer, timer)) == answer_status::ERR_NONE && !buffer.empty()) {
-			tools::obfstring line{ buffer.to_obfstring() };
+			aux::obfstring line{ buffer.to_obfstring() };
 
 			// Split header into name and value at the first colon.
 			const std::string::size_type pos{ line.find(':') };
@@ -227,9 +227,9 @@ namespace http {
 				if (!is_valid_field_name(field_name))
 					return answer_status::ERR_INVALID_FIELD;
 
-				const tools::obfstring field_value{ tools::trim(line.substr(pos + 1, std::string::npos)) };
+				const aux::obfstring field_value{ aux::trim(line.substr(pos + 1, std::string::npos)) };
 
-				if (tools::iequal(field_name, "Set-Cookie")) {
+				if (aux::iequal(field_name, "Set-Cookie")) {
 					// A cookie definition
 					try {
 						_cookies.add(Cookie::parse(field_value));
@@ -249,7 +249,7 @@ namespace http {
 	}
 
 
-	bool Answer::read_gzip_body(net::TcpSocket& socket, size_t size, size_t max_size, const tools::Timer& timer)
+	bool Answer::read_gzip_body(net::TcpSocket& socket, size_t size, size_t max_size, const aux::Timer& timer)
 	{
 		DEBUG_ENTER(_logger);
 
@@ -303,7 +303,7 @@ namespace http {
 	}
 
 
-	bool Answer::read_body(net::TcpSocket& socket, size_t size, size_t max_size, const tools::Timer& timer)
+	bool Answer::read_body(net::TcpSocket& socket, size_t size, size_t max_size, const aux::Timer& timer)
 	{
 		DEBUG_ENTER(_logger);
 
@@ -330,7 +330,7 @@ namespace http {
 	}
 
 
-	void Answer::recv(net::TcpSocket& socket, const tools::Timer& timer)
+	void Answer::recv(net::TcpSocket& socket, const aux::Timer& timer)
 	{
 		DEBUG_ENTER(_logger);
 		LOG_DEBUG(_logger, "timeout=%lu", timer.remaining_time());
@@ -358,13 +358,13 @@ namespace http {
 		// Get the encoding scheme
 		std::string transfer_encoding;
 		if (_headers.get("Transfer-Encoding", transfer_encoding)) {
-			transfer_encoding = tools::lower(tools::trim(transfer_encoding));
+			transfer_encoding = aux::lower(aux::trim(transfer_encoding));
 		}
 
 		bool gzip_content = false;
 		std::string content_encoding;
 		if (_headers.get("Content-Encoding", content_encoding)) {
-			content_encoding = tools::lower(tools::trim(content_encoding));
+			content_encoding = aux::lower(aux::trim(content_encoding));
 			if (content_encoding.compare("") == 0) {
 				// encoding not specified.
 			}
@@ -384,7 +384,7 @@ namespace http {
 
 			// chunked message
 			long chunk_size = 0;
-			tools::ByteBuffer buffer(MAX_LINE_SIZE);
+			aux::ByteBuffer buffer(MAX_LINE_SIZE);
 
 			do {
 				// read chunk size
@@ -392,7 +392,7 @@ namespace http {
 					throw http_error(answer_status_msg(answer_status::ERR_CHUNK_SIZE));
 
 				// decode chunk size
-				if (!tools::str2num(buffer.to_string(), 16, 0, MAX_CHUNK_SIZE, chunk_size)) {
+				if (!aux::str2num(buffer.to_string(), 16, 0, MAX_CHUNK_SIZE, chunk_size)) {
 					throw http_error(answer_status_msg(answer_status::ERR_CHUNK_SIZE));
 				}
 
@@ -414,7 +414,7 @@ namespace http {
 			if (_headers.get("Content-Length", length)) {
 				long size = 0;
 
-				if (!tools::str2num(length, 10, 0, MAX_BODY_SIZE, size)) {
+				if (!aux::str2num(length, 10, 0, MAX_BODY_SIZE, size)) {
 					throw http_error(answer_status_msg(answer_status::ERR_BODY_SIZE));
 				}
 

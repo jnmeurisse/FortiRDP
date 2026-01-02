@@ -16,7 +16,7 @@
 #include <vector>
 
 
-namespace tools {
+namespace aux {
 
 	size_t split(const char* str, const char delim, std::vector<std::string>& parts)
 	{

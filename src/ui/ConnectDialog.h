@@ -56,7 +56,7 @@ namespace ui {
 		static const char* __class__;
 
 		// The application logger.
-		tools::Logger* const _logger;
+		aux::Logger* const _logger;
 
 		// Command line parameters.
 		const CmdlineParams _params;
@@ -83,7 +83,7 @@ namespace ui {
 		std::wstring _username;
 
 		// - Task to launch and parameters
-		std::unique_ptr<tools::TaskInfo> _task_info;
+		std::unique_ptr<aux::TaskInfo> _task_info;
 
 		// - Running controller
 		std::unique_ptr<AsyncController> _controller;
@@ -98,7 +98,7 @@ namespace ui {
 		HBRUSH _bg_brush;
 		HFONT _msg_font;
 		std::list<std::wstring> _msg_buffer;
-		tools::Mutex _msg_mutex;
+		aux::Mutex _msg_mutex;
 
 		void connect(bool clear_log);
 		void disconnect();
@@ -129,7 +129,7 @@ namespace ui {
 		void onConnectedEvent(bool success);
 		void onDisconnectedEvent(bool success);
 		void onTunnelListeningEvent(bool success);
-		void onOutputInfoEvent(tools::LogQueue* pLogQueue);
+		void onOutputInfoEvent(aux::LogQueue* pLogQueue);
 
 	};
 

@@ -10,7 +10,7 @@
 #include "tools/SysUtil.h"
 
 
-namespace tools {
+namespace aux {
 
 	Event::Event() :
 		Event(true)

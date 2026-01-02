@@ -12,7 +12,7 @@
 #include "tools/Logger.h"
 
 
-namespace tools {
+namespace aux {
 
 	class Task final
 	{

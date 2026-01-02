@@ -31,10 +31,10 @@ namespace ui {
 
 	ConnectDialog::ConnectDialog(HINSTANCE hInstance, const CmdlineParams& params) :
 		ModelessDialog(hInstance, NULL_HWND, IDD_CONNECT_DIALOG),
-		_logger(tools::Logger::get_logger()),
+		_logger(aux::Logger::get_logger()),
 		_params(params),
 		_settings(),
-		_writer(window_handle(), tools::LogLevel::LL_INFO)
+		_writer(window_handle(), aux::LogLevel::LL_INFO)
 	{
 		DEBUG_CTOR(_logger);
 
@@ -96,28 +96,28 @@ namespace ui {
 		else {
 			// Get user name from last usage and if not available, we use the Windows
 			// user name.
-			_username = _settings.get_username(tools::get_windows_username());
+			_username = _settings.get_username(aux::get_windows_username());
 		}
 
 		//  Load root Certificate Authority.
-		tools::Path crt_ca_file;
+		aux::Path crt_ca_file;
 		if (_params.ca_cert_filename().length() == 0) {
 			// When no CA file is specified, we use the default file located in the
 			// application folder.
-			crt_ca_file = tools::Path(
-				tools::Path::get_module_path().folder(),
+			crt_ca_file = aux::Path(
+				aux::Path::get_module_path().folder(),
 				L"fortirdp.crt"
 			);
 		}
 		else {
 			// Use the CA file specified on the command line.
-			crt_ca_file = tools::Path(_params.ca_cert_filename());
+			crt_ca_file = aux::Path(_params.ca_cert_filename());
 
 			// If no path is specified, assume the .crt file is located in the same
 			// directory as the executable.
 			if (crt_ca_file.folder().empty()) {
-				crt_ca_file = tools::Path(
-					tools::Path::get_module_path().folder(),
+				crt_ca_file = aux::Path(
+					aux::Path::get_module_path().folder(),
 					crt_ca_file.filename()
 				);
 			}
@@ -175,7 +175,7 @@ namespace ui {
 
 	void ConnectDialog::clearInfo()
 	{
-		tools::Mutex::Lock lock{ _msg_mutex };
+		aux::Mutex::Lock lock{ _msg_mutex };
 
 		_msg_buffer.clear();
 		set_control_text(IDC_STATUSTEXT, L"");
@@ -184,7 +184,7 @@ namespace ui {
 
 	void ConnectDialog::writeInfo(const std::wstring& message)
 	{
-		tools::Mutex::Lock lock{ _msg_mutex };
+		aux::Mutex::Lock lock{ _msg_mutex };
 
 		// Add the new message and remove old one, we keep only the last 10 messages
 		_msg_buffer.push_back(message);
@@ -217,15 +217,15 @@ namespace ui {
 		try {
 			// Split the address and the domain if specified
 			std::vector<std::wstring> address_parts;
-			if (!in_range(tools::split(tools::trim(getFirewallAddress()), '/', address_parts), 1, 2))
+			if (!in_range(aux::split(aux::trim(getFirewallAddress()), '/', address_parts), 1, 2))
 				throw std::invalid_argument("invalid syntax");
 
-			std::string fw_addr{ tools::trim(tools::wstr2str(address_parts[0])) };
+			std::string fw_addr{ aux::trim(aux::wstr2str(address_parts[0])) };
 			_firewall_endpoint = net::Endpoint(fw_addr, DEFAULT_FW_PORT);
 
 			_realm.clear();
 			if (address_parts.size() == 2)
-				_realm = tools::trim(address_parts[1]);
+				_realm = aux::trim(address_parts[1]);
 
 		}
 		catch (const std::invalid_argument&) {
@@ -235,7 +235,7 @@ namespace ui {
 		}
 
 		try {
-			std::string host_addr{ tools::trim(tools::wstr2str(getHostAddress())) };
+			std::string host_addr{ aux::trim(aux::wstr2str(getHostAddress())) };
 			_host_endpoint = net::Endpoint(host_addr, DEFAULT_RDP_PORT);
 
 		}
@@ -285,24 +285,24 @@ namespace ui {
 		}
 		else {
 			std::vector<std::wstring> task_info;
-			tools::split(_params.appname(), L';', task_info);
+			aux::split(_params.appname(), L';', task_info);
 
 			if (task_info.size() > 0)
-				task_name = tools::trim(task_info[0]);
+				task_name = aux::trim(task_info[0]);
 			for (int i = 1; i < task_info.size(); i++)
 				task_params.push_back(task_info[i]);
 		}
-		_task_info = std::make_unique<tools::TaskInfo>(task_name, task_params);
+		_task_info = std::make_unique<aux::TaskInfo>(task_name, task_params);
 
 		// Check if the app executable exists.
-		if (!task_name.empty() && !tools::file_exists(task_name)) {
+		if (!task_name.empty() && !aux::file_exists(task_name)) {
 			const std::wstring message{ L"Application not found : " + task_name };
 			showErrorMessageDialog(message);
 			return;
 		}
 
 		// Check if the RDP file exists.
-		if (!_params.rdp_filename().empty() && !tools::file_exists(_params.rdp_filename())) {
+		if (!_params.rdp_filename().empty() && !aux::file_exists(_params.rdp_filename())) {
 			const std::wstring message{ L"RDP file not found : " + _task_info->path() };
 			showErrorMessageDialog(message);
 			return;
@@ -317,20 +317,20 @@ namespace ui {
 
 		//  Load user certificate file.
 		if (_params.us_cert_filename().length() > 0) {
-			tools::Path user_crt;
+			aux::Path user_crt;
 
 			// Use the user certificate file specified in the command line.
-			user_crt = tools::Path(_params.us_cert_filename());
+			user_crt = aux::Path(_params.us_cert_filename());
 
 			// If no path specified, we assume that the .crt file is located next to the .exe
 			if (user_crt.folder().empty()) {
-				user_crt = tools::Path(
-					tools::Path::get_module_path().folder(),
+				user_crt = aux::Path(
+					aux::Path::get_module_path().folder(),
 					user_crt.filename()
 				);
 			}
 
-			if (!tools::file_exists(user_crt)) {
+			if (!aux::file_exists(user_crt)) {
 				std::wstring message{ L"User certificate file not found : " + user_crt.to_string() };
 				showErrorMessageDialog(message);
 				return;
@@ -343,7 +343,7 @@ namespace ui {
 				const bool modal_result = codeDialog.show_modal() == TRUE;
 				if (modal_result) {
 					// Returns code to caller
-					passcode = tools::wstr2str(codeDialog.getCode());
+					passcode = aux::wstr2str(codeDialog.getCode());
 				}
 
 				return modal_result;
@@ -374,7 +374,7 @@ namespace ui {
 			::EnableMenuItem(get_sys_menu(false), SYSCMD_OPTIONS, MF_BYCOMMAND | MF_DISABLED);
 
 		// Start the client
-		_controller->connect(_firewall_endpoint, tools::wstr2str(_realm));
+		_controller->connect(_firewall_endpoint, aux::wstr2str(_realm));
 	}
 
 
@@ -396,15 +396,15 @@ namespace ui {
 			"Enter user name and password to access firewall " +
 			_controller->portal_client()->host().hostname()
 		};
-		credentialDialog.setText(tools::str2wstr(message));
+		credentialDialog.setText(aux::str2wstr(message));
 		credentialDialog.setUsername(_username);
 
 		const bool modal_result = credentialDialog.show_modal() == TRUE;
 		if (modal_result && pCredentials) {
 			// Returns user name and password to caller
 			_username = credentialDialog.getUsername();
-			pCredentials->username = tools::wstr2str(_username);
-			pCredentials->password = tools::wstr2str(credentialDialog.getPassword());
+			pCredentials->username = aux::wstr2str(_username);
+			pCredentials->password = aux::wstr2str(credentialDialog.getPassword());
 
 			// Save user name in last usage registry but only if not specified on
 			// the command line.
@@ -436,12 +436,12 @@ namespace ui {
 		const std::string message = (!pCode)
 			? "Enter code to access firewall " + _controller->portal_client()->host().hostname()
 			: pCode->prompt;
-		codeDialog.setText(tools::str2wstr(message));
+		codeDialog.setText(aux::str2wstr(message));
 
 		const bool modal_result = codeDialog.show_modal() == TRUE;
 		if (modal_result && pCode) {
 			// Returns code to caller.
-			pCode->code = tools::wstr2str(codeDialog.getCode());
+			pCode->code = aux::wstr2str(codeDialog.getCode());
 		}
 
 		::ReplyMessage(modal_result);
@@ -565,18 +565,18 @@ namespace ui {
 		switch (wParam) {
 		case TIMER_COUNTERS:
 			if (tunneler) {
-				const tools::Counters& counters = tunneler->counters();
-				const std::string message = tools::string_format(
+				const aux::Counters& counters = tunneler->counters();
+				const std::string message = aux::string_format(
 					"KBytes sent/received : %.1f/%.1f",
 					counters.sent / 1024.0,
 					counters.received / 1024.0);
-				set_control_text(IDC_BYTES_SENT, tools::str2wstr(message));
+				set_control_text(IDC_BYTES_SENT, aux::str2wstr(message));
 			}
 			break;
 
 		case TIMER_ACTIVITY:
 			if (tunneler) {
-				const tools::Counters& counters = tunneler->counters();
+				const aux::Counters& counters = tunneler->counters();
 				const chrono::steady_clock::time_point now = chrono::steady_clock::now();
 				if (counters.total() > _previous_counters) {
 					// Show network activity
@@ -752,7 +752,7 @@ namespace ui {
 
 			// Clear saved user name.
 			std::string key = "Software\\Microsoft\\Terminal Server Client\\Servers\\" + endpoint.hostname();
-			tools::RegKey rdp_server{ HKEY_CURRENT_USER, tools::str2wstr(key) };
+			aux::RegKey rdp_server{ HKEY_CURRENT_USER, aux::str2wstr(key) };
 
 			try {
 				rdp_server.del_value(L"UsernameHint");
@@ -761,13 +761,13 @@ namespace ui {
 				_logger->debug("ERROR: ClearRdpHistory %s", err.what());
 			}
 
-			tools::RegKey rdp_default{
+			aux::RegKey rdp_default{
 				HKEY_CURRENT_USER,
 				L"Software\\Microsoft\\Terminal Server Client\\Default"
 			};
 
 			// Remove entry in the MRU list.
-			const std::wstring mru_entry = tools::str2wstr(endpoint.to_string());
+			const std::wstring mru_entry = aux::str2wstr(endpoint.to_string());
 
 			for (int i = 0; i < 10; i++) {
 				try {
@@ -879,12 +879,12 @@ namespace ui {
 	}
 
 
-	void ConnectDialog::onOutputInfoEvent(tools::LogQueue* pLogQueue)
+	void ConnectDialog::onOutputInfoEvent(aux::LogQueue* pLogQueue)
 	{
 		if (pLogQueue) {
-			tools::Mutex::Lock lock{ pLogQueue->mutex() };
+			aux::Mutex::Lock lock{ pLogQueue->mutex() };
 			while (pLogQueue->size() > 0)
-				writeInfo(tools::str2wstr(pLogQueue->pop()));
+				writeInfo(aux::str2wstr(pLogQueue->pop()));
 		}
 	}
 
@@ -907,7 +907,7 @@ namespace ui {
 		}
 		else if (eventId == AsyncMessage::ShowInvalidCertificateDialogRequest->id()) {
 			std::string message{ reinterpret_cast<char*>(param) };
-			showInvalidCertificateDialog(tools::str2wstr(message));
+			showInvalidCertificateDialog(aux::str2wstr(message));
 
 		}
 		else if (eventId == AsyncMessage::ShowErrorMessageDialogRequest->id()) {
@@ -931,7 +931,7 @@ namespace ui {
 
 		}
 		else if (eventId == AsyncMessage::OutputInfoEvent->id()) {
-			onOutputInfoEvent(static_cast<tools::LogQueue*>(param));
+			onOutputInfoEvent(static_cast<aux::LogQueue*>(param));
 
 		}
 		else {

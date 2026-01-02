@@ -47,7 +47,7 @@ namespace fw {
 		static const char* __class__;
 
 		// A reference to the application logger.
-		tools::Logger* const _logger;
+		aux::Logger* const _logger;
 
 		// The encrypted socket.
 		const http::HttpsClientPtr _tunnel_socket;

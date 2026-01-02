@@ -14,7 +14,7 @@
 
 
 namespace net {
-	using namespace tools;
+	using namespace aux;
 
 	Socket::Socket() :
 		_logger(Logger::get_logger()),

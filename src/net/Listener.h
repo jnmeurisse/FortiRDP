@@ -14,7 +14,7 @@
 
 namespace net {
 
-	using namespace tools;
+	using namespace aux;
 
 	/**
 	* A socket listener

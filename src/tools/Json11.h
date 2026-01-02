@@ -67,7 +67,7 @@
 #endif
 #endif
 
-namespace tools {
+namespace aux {
 
 	enum JsonParse {
 		STANDARD, COMMENTS

@@ -208,11 +208,11 @@ namespace http {
 
 	Url::Url(const std::string& scheme, const std::string& authority,
 		const std::string& path, const std::string& query, const std::string& fragment) :
-		_scheme(tools::trim(scheme)),
-		_authority(tools::trim(authority)),
-		_path(tools::trim(path)),
-		_query(tools::trim(query)),
-		_fragment(tools::trim(fragment))
+		_scheme(aux::trim(scheme)),
+		_authority(aux::trim(authority)),
+		_path(aux::trim(path)),
+		_query(aux::trim(query)),
+		_fragment(aux::trim(fragment))
 	{
 	}
 
@@ -230,9 +230,9 @@ namespace http {
 	}
 
 
-	tools::StringMap Url::get_query_map() const
+	aux::StringMap Url::get_query_map() const
 	{
-		return tools::StringMap(_query, '&');
+		return aux::StringMap(_query, '&');
 	}
 
 

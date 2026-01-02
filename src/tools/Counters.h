@@ -8,7 +8,7 @@
 #pragma once
 
 
-namespace tools {
+namespace aux {
 
 	/**
 	* Holds transmitted bytes counters.

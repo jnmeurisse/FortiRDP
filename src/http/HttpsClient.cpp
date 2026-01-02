@@ -17,7 +17,7 @@
 
 namespace http {
 
-	using namespace tools;
+	using namespace aux;
 
 	// HTTP status code
 	const int HttpsClient::STATUS_OK = 200;
@@ -86,7 +86,7 @@ namespace http {
 		_keepalive_timer.start(10000);
 		_request_count = 0;
 
-		tools::Timer connect_timer{ _connect_timeout };
+		aux::Timer connect_timer{ _connect_timeout };
 
 		const mbed_err rc = TlsSocket::connect(_host_ep, connect_timer);
 		if (rc < 0)
@@ -115,7 +115,7 @@ namespace http {
 			_keepalive_timeout
 		);
 
-		request.send(*this, tools::Timer{ _send_timeout });
+		request.send(*this, aux::Timer{ _send_timeout });
 
 		// Update the number of requests and restart the keep alive timer
 		_request_count++;
@@ -139,7 +139,7 @@ namespace http {
 		answer.clear();
 
 		// Receive the answer from the server.
-		answer.recv(*this, tools::Timer{ _receive_timeout });
+		answer.recv(*this, aux::Timer{ _receive_timeout });
 
 		// Update the keep alive timeout and max requests.
 		int timeout = DEFAULT_KEEP_ALIVE_TIMEOUT;

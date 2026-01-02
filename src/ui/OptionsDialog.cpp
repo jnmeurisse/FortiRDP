@@ -86,7 +86,7 @@ namespace ui {
 		case IDOK:
 			full_screen = get_checkbox_state(IDC_CHECK_FULLSCREEN);
 			if (!full_screen && screen_size_updatable) {
-				if (!tools::str2i(get_control_text(IDC_SCREEN_WIDTH), screen_size.width)
+				if (!aux::str2i(get_control_text(IDC_SCREEN_WIDTH), screen_size.width)
 					|| screen_size.width < 0 || screen_size.width > ScreenSize::max_width) {
 					set_focus(IDC_SCREEN_WIDTH);
 					show_message_box(L"Invalid screen width", MB_OK | MB_ICONERROR);
@@ -94,7 +94,7 @@ namespace ui {
 					break;
 				}
 
-				if (!tools::str2i(get_control_text(IDC_SCREEN_HEIGHT), screen_size.height)
+				if (!aux::str2i(get_control_text(IDC_SCREEN_HEIGHT), screen_size.height)
 					|| screen_size.height < 0 || screen_size.height > ScreenSize::max_height) {
 					set_focus(IDC_SCREEN_HEIGHT);
 					show_message_box(L"Invalid screen height", MB_OK | MB_ICONERROR);

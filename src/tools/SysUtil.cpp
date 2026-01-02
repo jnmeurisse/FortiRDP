@@ -14,7 +14,7 @@
 #include "tools/StrUtil.h"
 
 
-namespace tools {
+namespace aux {
 
 	bool file_exists(const std::wstring& path)
 	{
@@ -25,7 +25,7 @@ namespace tools {
 	}
 
 
-	bool file_exists(const tools::Path& path)
+	bool file_exists(const aux::Path& path)
 	{
 		return file_exists(path.to_string());
 	}

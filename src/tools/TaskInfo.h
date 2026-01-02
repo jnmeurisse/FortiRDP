@@ -11,7 +11,7 @@
 #include <vector>
 
 
-namespace tools {
+namespace aux {
 
 	class TaskInfo final
 	{

@@ -15,7 +15,7 @@
 
 
 
-namespace tools {
+namespace aux {
 	
 	X509Crt::X509Crt()
 	{

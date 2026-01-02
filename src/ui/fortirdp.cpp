@@ -42,10 +42,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	UNREFERENCED_PARAMETER(hPrevInstance);
 	UNREFERENCED_PARAMETER(lpCmdLine);
 
-	tools::Logger* const logger = tools::Logger::get_logger();
+	aux::Logger* const logger = aux::Logger::get_logger();
 	MSG msg;
 	ui::CmdlineParams cmdline_params;
-	tools::FileLogWriter writer(tools::LogLevel::LL_TRACE);
+	aux::FileLogWriter writer(aux::LogLevel::LL_TRACE);
 
 	// Stop running if a 32 Bits application is running in the wow64. The 
 	// Task launcher can not wait for the child application which could be
@@ -76,17 +76,17 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	}
 
 	// Get the application path.
-	tools::Path desktop_path{ tools::Path::get_desktop_path() };
+	aux::Path desktop_path{ aux::Path::get_desktop_path() };
 
 	// Should we write to a log file ?
 	if (cmdline_params.verbose()) {
 		// The log file is created on the desktop of the current user.
-		writer.open(tools::Path(desktop_path.folder(), L"fortirpd.log").to_string());
+		writer.open(aux::Path(desktop_path.folder(), L"fortirpd.log").to_string());
 		logger->add_writer(&writer);
 
-		logger->set_level(tools::LogLevel::LL_DEBUG);
+		logger->set_level(aux::LogLevel::LL_DEBUG);
 		if (cmdline_params.trace()) 
-			logger->set_level(tools::LogLevel::LL_TRACE);
+			logger->set_level(aux::LogLevel::LL_TRACE);
 	}
 
 	// Initialize lwIP stack
@@ -169,14 +169,14 @@ static void RedirectStdioToConsole()
 
 static void lwip_log_cb(void *ctx, int level, const char* fmt, va_list args)
 {
-	tools::Logger* const logger = static_cast<tools::Logger*>(ctx);
+	aux::Logger* const logger = static_cast<aux::Logger*>(ctx);
 	
 	if (level == LWIP_ERROR_MESSAGE)
-		logger->log(tools::LogLevel::LL_ERROR, fmt, args);
+		logger->log(aux::LogLevel::LL_ERROR, fmt, args);
 	else if (level == LWIP_DIAG_MESSAGE)
-		logger->log(tools::LogLevel::LL_DEBUG, fmt, args);
+		logger->log(aux::LogLevel::LL_DEBUG, fmt, args);
 	else
-		logger->log(tools::LogLevel::LL_TRACE, fmt, args);
+		logger->log(aux::LogLevel::LL_TRACE, fmt, args);
 }
 
 #ifndef _WIN64

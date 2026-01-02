@@ -11,7 +11,7 @@
 #include "tools/SysUtil.h"
 
 
-namespace tools {
+namespace aux {
 
 	/* Internal functions */
 	unsigned __stdcall thread_entry_point(void *);

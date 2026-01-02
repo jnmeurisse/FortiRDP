@@ -8,7 +8,7 @@
 #include <Windows.h>
 #include "Timer.h"
 
-namespace tools {
+namespace aux {
 	Timer::Timer() :
 		Timer(0)
     {

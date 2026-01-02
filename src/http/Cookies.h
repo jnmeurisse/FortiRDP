@@ -96,7 +96,7 @@ namespace http {
 		 *
 		 * @param url The url used to select the cookies added to the returned string.
 		*/
-		tools::obfstring to_header(const Url &url) const;
+		aux::obfstring to_header(const Url &url) const;
 
 		/**
 		 * Returns an iterator referring to the first element in the collection.

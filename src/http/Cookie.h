@@ -32,7 +32,7 @@ namespace http {
 		*/
 		Cookie(
 			const std::string& name,
-			const tools::obfstring& value,
+			const aux::obfstring& value,
 			const std::string& domain,
 			const std::string& path,
 			const std::time_t& expires,
@@ -46,7 +46,7 @@ namespace http {
 		 * 
 		 * Note: The returned string format is compatible with Netscape specification.
 		*/
-		tools::obfstring to_header() const;
+		aux::obfstring to_header() const;
 
 		/**
 		 * Returns the cookie name.
@@ -56,7 +56,7 @@ namespace http {
 		/**
 		 * Returns the cookie value as an obfuscated string.
 		*/
-		inline const tools::obfstring& get_value() const noexcept { return _value; }
+		inline const aux::obfstring& get_value() const noexcept { return _value; }
 
 		/**
 		 * Returns the cookie domain attribute.
@@ -115,12 +115,12 @@ namespace http {
 		 *
 		 * Note: The method throws a CookieError if the cookie is not valid.
 		*/
-		static Cookie parse(const tools::obfstring& cookie_string);
+		static Cookie parse(const aux::obfstring& cookie_string);
 
 	private:
 		// cookie attributes
 		std::string _name;
-		tools::obfstring _value;
+		aux::obfstring _value;
 		std::string _domain;
 		std::string _path;
 		std::time_t _expires;

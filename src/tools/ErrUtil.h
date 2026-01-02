@@ -13,7 +13,7 @@
 #include <lwip/err.h>
 
 
-namespace tools {
+namespace aux {
 
 	// Windows error codes
 	using win_err = DWORD;

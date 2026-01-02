@@ -8,7 +8,7 @@
 #include "Mutex.h"
 
 
-namespace tools {
+namespace aux {
 
 	Mutex::Mutex()
 	{

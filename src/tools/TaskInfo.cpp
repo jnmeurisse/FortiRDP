@@ -8,7 +8,7 @@
 #include "TaskInfo.h"
 
 
-namespace tools {
+namespace aux {
 
 	TaskInfo::TaskInfo(const std::wstring& path, const std::vector<std::wstring>& params) :
 		_task_path(path),

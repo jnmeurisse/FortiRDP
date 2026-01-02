@@ -12,7 +12,7 @@
 
 
 
-namespace tools {
+namespace aux {
 
 	PBufQueue::PBufQueue(uint16_t capacity) :
 		_capacity{ capacity },

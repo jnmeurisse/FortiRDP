@@ -18,7 +18,7 @@
 #include "tools/StrUtil.h"
 
 
-namespace tools {
+namespace aux {
 
 	static const std::unique_ptr<Logger> LOGGER = std::make_unique<Logger>();
 	thread_local int Logger::_indent_level = 0;
@@ -149,7 +149,7 @@ namespace tools {
 
 	void Logger::write(LogLevel level, const char* format, va_list args)
 	{
-		write(level, tools::string_format(format, args));
+		write(level, aux::string_format(format, args));
 	}
 
 
@@ -165,7 +165,7 @@ namespace tools {
 			if (format) {
 				va_list args;
 				va_start(args, format);
-				const std::string message = tools::string_format(format, args);
+				const std::string message = aux::string_format(format, args);
 				va_end(args);
 				_logger->log(_level, "> %s::%s - %s", _class_name, _func_name, message.c_str());
 			}
@@ -276,7 +276,7 @@ namespace tools {
 	
 	std::string LogQueue::pop()
 	{
-		tools::Mutex::Lock lock(_mutex);
+		aux::Mutex::Lock lock(_mutex);
 
 		std::string text = _queue.front();
 		_queue.pop();

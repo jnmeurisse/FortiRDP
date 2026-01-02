@@ -117,13 +117,13 @@ namespace net {
 		static const char* __class__;
 
 		// A reference to the application logger.
-		tools::Logger* const _logger;
+		aux::Logger* const _logger;
 
 		// socket connected to the firewall.
 		TlsSocket&  _tunnel;
 
 		// Counters of bytes sent to / received from the tunnel.
-		tools::Counters& _counters;
+		aux::Counters& _counters;
 
 		// The lwIP network interface and the control block.  Received 
 		// data are passed to that interface.

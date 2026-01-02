@@ -11,7 +11,7 @@
 #include "tools/PrivateKey.h"
 
 
-namespace tools {
+namespace aux {
 
 	class UserCrt {
 	public:

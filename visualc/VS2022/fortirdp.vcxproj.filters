@@ -19,7 +19,7 @@
     <Filter Include="resources">
       <UniqueIdentifier>{6cb09527-312f-4fe8-b653-a45a73de7fbf}</UniqueIdentifier>
     </Filter>
-    <Filter Include="sources\tools">
+    <Filter Include="sources\aux">
       <UniqueIdentifier>{83133963-3525-430b-90be-0ad5ad076025}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -136,61 +136,61 @@
       <Filter>sources\net</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\tools\ByteBuffer.cpp">
-      <Filter>sources\tools</Filter>
+      <Filter>sources\aux</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\tools\Counters.cpp">
-      <Filter>sources\tools</Filter>
+      <Filter>sources\aux</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\tools\ErrUtil.cpp">
-      <Filter>sources\tools</Filter>
+      <Filter>sources\aux</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\tools\Event.cpp">
-      <Filter>sources\tools</Filter>
+      <Filter>sources\aux</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\tools\Json11.cpp">
-      <Filter>sources\tools</Filter>
+      <Filter>sources\aux</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\tools\Logger.cpp">
-      <Filter>sources\tools</Filter>
+      <Filter>sources\aux</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\tools\Mutex.cpp">
-      <Filter>sources\tools</Filter>
+      <Filter>sources\aux</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\tools\ObfuscatedString.cpp">
-      <Filter>sources\tools</Filter>
+      <Filter>sources\aux</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\tools\Path.cpp">
-      <Filter>sources\tools</Filter>
+      <Filter>sources\aux</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\tools\pugixml.cpp">
-      <Filter>sources\tools</Filter>
+      <Filter>sources\aux</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\tools\RegKey.cpp">
-      <Filter>sources\tools</Filter>
+      <Filter>sources\aux</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\tools\StringMap.cpp">
-      <Filter>sources\tools</Filter>
+      <Filter>sources\aux</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\tools\StrUtil.cpp">
-      <Filter>sources\tools</Filter>
+      <Filter>sources\aux</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\tools\SysUtil.cpp">
-      <Filter>sources\tools</Filter>
+      <Filter>sources\aux</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\tools\Task.cpp">
-      <Filter>sources\tools</Filter>
+      <Filter>sources\aux</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\tools\TaskInfo.cpp">
-      <Filter>sources\tools</Filter>
+      <Filter>sources\aux</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\tools\Thread.cpp">
-      <Filter>sources\tools</Filter>
+      <Filter>sources\aux</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\tools\Timer.cpp">
-      <Filter>sources\tools</Filter>
+      <Filter>sources\aux</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\tools\XGetopt.cpp">
-      <Filter>sources\tools</Filter>
+      <Filter>sources\aux</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\net\DnsClient.cpp">
       <Filter>sources\net</Filter>
@@ -199,19 +199,19 @@
       <Filter>sources\fw</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\tools\X509Crt.cpp">
-      <Filter>sources\tools</Filter>
+      <Filter>sources\aux</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\tools\PrivateKey.cpp">
-      <Filter>sources\tools</Filter>
+      <Filter>sources\aux</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\tools\UserCrt.cpp">
-      <Filter>sources\tools</Filter>
+      <Filter>sources\aux</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\ui\SamlAuthDialog.cpp">
       <Filter>sources\ui</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\tools\strptime.c">
-      <Filter>sources\tools</Filter>
+      <Filter>sources\aux</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\net\TcpSocket.cpp">
       <Filter>sources\net</Filter>
@@ -223,7 +223,7 @@
       <Filter>sources\net</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\tools\PBufQueue.cpp">
-      <Filter>sources\tools</Filter>
+      <Filter>sources\aux</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\net\OutputQueue.cpp">
       <Filter>sources\net</Filter>
@@ -345,64 +345,64 @@
       <Filter>sources\net</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\tools\ByteBuffer.h">
-      <Filter>sources\tools</Filter>
+      <Filter>sources\aux</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\tools\Counters.h">
-      <Filter>sources\tools</Filter>
+      <Filter>sources\aux</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\tools\ErrUtil.h">
-      <Filter>sources\tools</Filter>
+      <Filter>sources\aux</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\tools\Event.h">
-      <Filter>sources\tools</Filter>
+      <Filter>sources\aux</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\tools\Json11.h">
-      <Filter>sources\tools</Filter>
+      <Filter>sources\aux</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\tools\Logger.h">
-      <Filter>sources\tools</Filter>
+      <Filter>sources\aux</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\tools\Mutex.h">
-      <Filter>sources\tools</Filter>
+      <Filter>sources\aux</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\tools\ObfuscatedString.h">
-      <Filter>sources\tools</Filter>
+      <Filter>sources\aux</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\tools\Path.h">
-      <Filter>sources\tools</Filter>
+      <Filter>sources\aux</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\tools\pugiconfig.hpp">
-      <Filter>sources\tools</Filter>
+      <Filter>sources\aux</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\tools\pugixml.hpp">
-      <Filter>sources\tools</Filter>
+      <Filter>sources\aux</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\tools\RegKey.h">
-      <Filter>sources\tools</Filter>
+      <Filter>sources\aux</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\tools\StringMap.h">
-      <Filter>sources\tools</Filter>
+      <Filter>sources\aux</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\tools\StrUtil.h">
-      <Filter>sources\tools</Filter>
+      <Filter>sources\aux</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\tools\SysUtil.h">
-      <Filter>sources\tools</Filter>
+      <Filter>sources\aux</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\tools\Task.h">
-      <Filter>sources\tools</Filter>
+      <Filter>sources\aux</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\tools\TaskInfo.h">
-      <Filter>sources\tools</Filter>
+      <Filter>sources\aux</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\tools\Thread.h">
-      <Filter>sources\tools</Filter>
+      <Filter>sources\aux</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\tools\Timer.h">
-      <Filter>sources\tools</Filter>
+      <Filter>sources\aux</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\tools\XGetopt.h">
-      <Filter>sources\tools</Filter>
+      <Filter>sources\aux</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\resources\resource.h">
       <Filter>resources</Filter>
@@ -426,13 +426,13 @@
       <Filter>sources\fw</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\tools\X509Crt.h">
-      <Filter>sources\tools</Filter>
+      <Filter>sources\aux</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\tools\PrivateKey.h">
-      <Filter>sources\tools</Filter>
+      <Filter>sources\aux</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\tools\UserCrt.h">
-      <Filter>sources\tools</Filter>
+      <Filter>sources\aux</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\ui\SamlAuthDialog.h">
       <Filter>sources\ui</Filter>
@@ -441,7 +441,7 @@
       <Filter>sources\fw</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\tools\strptime.h">
-      <Filter>sources\tools</Filter>
+      <Filter>sources\aux</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\net\TcpSocket.h">
       <Filter>sources\net</Filter>
@@ -453,7 +453,7 @@
       <Filter>sources\net</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\tools\PBufQueue.h">
-      <Filter>sources\tools</Filter>
+      <Filter>sources\aux</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\net\OutputQueue.h">
       <Filter>sources\net</Filter>

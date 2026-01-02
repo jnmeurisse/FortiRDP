@@ -91,7 +91,7 @@ namespace http {
 		 * @throws mbed_error If an error occurs while sending the request, such as network
 		 *                    issues or socket failure.
 		 */
-		void send(net::TcpSocket& socket, const tools::Timer& timer);
+		void send(net::TcpSocket& socket, const aux::Timer& timer);
 
 		/* Most common HTTP verbs */
 		static const std::string GET_VERB;
@@ -107,7 +107,7 @@ namespace http {
 		static const char* __class__;
 
 		// A reference to the application logger.
-		tools::Logger* const _logger;
+		aux::Logger* const _logger;
 
 		// All cookies (a reference to the cookie jar).
 		const Cookies& _cookies;
@@ -118,9 +118,9 @@ namespace http {
 
 		// Dynamic components of the HTTP request.
 		Headers _headers;
-		tools::ByteBuffer _body;
+		aux::ByteBuffer _body;
 
-		void write_buffer(net::TcpSocket& socket, const unsigned char* buffer, size_t len, const tools::Timer& timer);
+		void write_buffer(net::TcpSocket& socket, const unsigned char* buffer, size_t len, const aux::Timer& timer);
 	};
 
 }

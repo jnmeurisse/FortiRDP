@@ -25,7 +25,7 @@ namespace net {
 		int  connect_timeout;
 	};
 
-	class Tunneler : public tools::Thread
+	class Tunneler : public aux::Thread
 	{
 	public:
 		/**
@@ -103,7 +103,7 @@ namespace net {
 		static const char* __class__;
 
 		// a reference to the application logger.
-		tools::Logger* const _logger;
+		aux::Logger* const _logger;
 
 		// Tunneler configuration.
 		const tunneler_config _config;

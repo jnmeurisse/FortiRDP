@@ -9,7 +9,7 @@
 #include <cstdint>
 #include "tools/Logger.h"
 
-namespace tools {
+namespace aux {
 
 	class Timer final
 	{

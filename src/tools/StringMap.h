@@ -12,7 +12,7 @@
 #include "tools/StrUtil.h"
 
 
-namespace tools {
+namespace aux {
 
 	/**
 	* A case insensitive string to string map

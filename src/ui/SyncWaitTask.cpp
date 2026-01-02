@@ -11,7 +11,7 @@
 
 namespace ui {
 
-	SyncWaitTask::SyncWaitTask(HWND hwnd, tools::Task* task) :
+	SyncWaitTask::SyncWaitTask(HWND hwnd, aux::Task* task) :
 		SyncProc(hwnd, AsyncMessage::DisconnectFromFirewallRequest.get()),
 		_task(task)
 	{

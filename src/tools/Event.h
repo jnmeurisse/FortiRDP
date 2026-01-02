@@ -11,7 +11,7 @@
 #include "tools/Logger.h"
 
 
-namespace tools {
+namespace aux {
 
 	/**
 	* An event is a synchronization object that enables one thread to notify another
