@@ -12,6 +12,7 @@
 #include <iostream>
 #include <sstream>
 #include "tools/StringMap.h"
+#include <net/TlsContext.h>
 
 
 namespace http {
@@ -91,8 +92,8 @@ namespace http {
 		if (rc < 0)
 			throw mbed_error(rc);
 
-		const tls_handshake_status status = handshake(connect_timer);
-		if (status.status_code != hdk_status_code::SSLCTX_HDK_OK)
+		const net::tls_handshake_status status = handshake(connect_timer);
+		if (status.status_code != net::hdk_status_code::SSLCTX_HDK_OK)
 			throw mbed_error(status.rc);
 	}
 

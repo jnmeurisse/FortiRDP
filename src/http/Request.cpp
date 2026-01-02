@@ -114,7 +114,7 @@ namespace http {
 	}
 
 
-	void Request::write_buffer(net::TcpSocket& socket, const unsigned char* buffer, size_t len, const Timer& timer)
+	void Request::write_buffer(net::TcpSocket& socket, const unsigned char* buffer, size_t len, const tools::Timer& timer)
 	{
 		TRACE_ENTER_FMT(_logger, "buffer=0x%012Ix size=%zu timeout=%lu",
 			PTR_VAL(buffer),
