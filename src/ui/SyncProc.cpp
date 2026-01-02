@@ -11,9 +11,9 @@
 namespace ui {
 
 	SyncProc::SyncProc(HWND hwnd, const AsyncMessage* message) :
-		_message(message),
+		_logger(tools::Logger::get_logger()),
 		_hwnd(hwnd),
-		_logger(tools::Logger::get_logger())
+		_message(message)
 	{
 		DEBUG_CTOR(_logger);
 
@@ -36,5 +36,4 @@ namespace ui {
 
 
 	const char* SyncProc::__class__ = "SyncProc";
-
 }
