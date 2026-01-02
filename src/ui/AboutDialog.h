@@ -18,13 +18,13 @@ namespace ui {
 	{
 	public:
 		explicit AboutDialog(HINSTANCE hInstance, HWND hParent);
-		virtual ~AboutDialog() override;
+		~AboutDialog() override;
 
 	private:
 		HFONT _hFont;
 
-		virtual INT_PTR onCreateDialogMessage(WPARAM wParam, LPARAM lParam) override;
-		virtual INT_PTR onButtonClick(int control_id, LPARAM lParam) override;
+		INT_PTR onCreateDialogMessage(WPARAM wParam, LPARAM lParam) override;
+		INT_PTR onButtonClick(int control_id, LPARAM lParam) override;
 	};
 
 }
