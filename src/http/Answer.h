@@ -18,19 +18,22 @@
 
 namespace http {
 
-	using namespace tools;
-
-
 	/**
 	* Defines the HTTP answer. 
 	* The message body and all headers are made available from this object.
 	*/
-	class Answer
+	class Answer final
 	{
 	public:
-		/* Allocates an HTTP answer
+		/**
+		* Allocates an HTTP answer
 		*/
 		Answer();
+
+		/**
+		* Destroys this HTTP answer
+		*/
+		~Answer();
 
 		/* Clears this HTTP Answer
 		*/
@@ -63,7 +66,7 @@ namespace http {
 		/**
 		 * Returns the HTTP status code.
 		*/
-		inline const int get_status_code() const noexcept { return _status_code; }
+		inline int get_status_code() const noexcept { return _status_code; }
 
 		/**
 		 * Returns the HTTP reason phrase.

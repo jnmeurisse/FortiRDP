@@ -343,9 +343,7 @@ namespace net {
 		// Shutdown the tunnel socket.
 		_tunnel.shutdown();
 
-		_logger->debug("... closing tunneler stop=%d terminate=%d", 
-				stop,
-				_terminate);
+		LOG_DEBUG(_logger, "closing tunneler stop=%d terminate=%d", stop, _terminate);
 
 		_state = State::STOPPED;
 
@@ -355,7 +353,7 @@ namespace net {
 
 	void Tunneler::compute_sleep_time(timeval &timeout) const
 	{
-		u32_t sleep_time = sys_timeouts_sleeptime();
+		const u32_t sleep_time = sys_timeouts_sleeptime();
 
 		timeout.tv_sec = 0;
 		if (sleep_time == SYS_TIMEOUTS_SLEEPTIME_INFINITE || sleep_time > 500) {
@@ -369,7 +367,6 @@ namespace net {
 	}
 
 	const char* Tunneler::__class__ = "Tunneler";
-
 }
 
 

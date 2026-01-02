@@ -12,31 +12,33 @@
 #include <list>
 #include <queue>
 #include <string>
+#include <stack>
 #include "tools/Mutex.h"
 
 #define PTR_VAL(ptr) (reinterpret_cast<std::uintptr_t>(ptr))
 
 
-#ifdef _DEBUG
-#define DEBUG_CTOR(logger) if ((logger)->is_debug_enabled()) { \
-								(logger)->debug("... 0x%012Ix ctor::%s", PTR_VAL(this), __class__); \
-								}
-#define DEBUG_DTOR(logger) if ((logger)->is_debug_enabled()) { \
-								(logger)->debug("... 0x%012Ix dtor::%s", PTR_VAL(this), __class__); \
-								}
-#else
-#define DEBUG_CTOR(logger)
-#define DEBUG_DTOR(logger)
-#endif
+#define DEBUG_CTOR(logger)	(logger)->debug("* ctor::%s", __class__)
+#define DEBUG_DTOR(logger)	(logger)->debug("* dtor::%s", __class__)
 
 
-#define DEBUG_ENTER(logger) if ((logger)->is_debug_enabled()) { \
-								(logger)->debug("... 0x%012Ix enter %s::%s", PTR_VAL(this), __class__, __func__); \
-								}
+#define DEBUG_ENTER_FMT(logger, fmt, ...) \
+			tools::LogScope __scope(logger, tools::LogLevel::LL_DEBUG, this, __class__, __func__, fmt, __VA_ARGS__)
+#define TRACE_ENTER_FMT(logger, fmt, ...) \
+			tools::LogScope __scope(logger, tools::LogLevel::LL_TRACE, this, __class__, __func__, fmt, __VA_ARGS__)
 
-#define TRACE_ENTER(logger) if ((logger)->is_trace_enabled()) { \
-								(logger)->trace(".... 0x%012Ix enter %s::%s", PTR_VAL(this), __class__, __func__); \
-								}
+#define DEBUG_ENTER(logger) \
+			 tools::LogScope __scope(logger, tools::LogLevel::LL_DEBUG, this, __class__, __func__)
+#define TRACE_ENTER(logger) \
+			tools::LogScope __scope(logger, tools::LogLevel::LL_TRACE, this, __class__, __func__)
+
+#define LOG_DEBUG(_logger, fmt, ...) \
+			if ((_logger)->is_debug_enabled()) \
+				(_logger)->log(tools::LogLevel::LL_DEBUG, "= %s::%s - "##fmt, __class__, __func__, __VA_ARGS__)
+
+#define LOG_TRACE(_logger, fmt, ...) \
+			if ((_logger)->is_trace_enabled()) \
+				(_logger)->log(tools::LogLevel::LL_TRACE, "= %s::%s - "##fmt, __class__, __func__, __VA_ARGS__)
 
 
 
@@ -75,19 +77,19 @@ namespace tools {
 		/**
 		 * Returns the current level.
 		*/
-		inline LogLevel get_level() const { return _level; }
+		inline LogLevel get_level() const noexcept { return _level; }
 
 		/** 
 		 * Checks if the specified level is more severe than the current level
 		*/
-		inline bool is_enabled(LogLevel level) const { return level >= _level; }
+		inline bool is_enabled(LogLevel level) const noexcept { return level >= _level; }
 
 		/**
 		 * Checks if the corresponding level is enabled.
 		*/
-		inline bool is_info_enabled() const { return is_enabled(LogLevel::LL_INFO); }
-		inline bool is_debug_enabled() const { return is_enabled(LogLevel::LL_DEBUG); }
-		inline bool is_trace_enabled() const { return is_enabled(LogLevel::LL_TRACE); }
+		inline bool is_info_enabled() const noexcept { return is_enabled(LogLevel::LL_INFO); }
+		inline bool is_debug_enabled() const noexcept { return is_enabled(LogLevel::LL_DEBUG); }
+		inline bool is_trace_enabled() const noexcept { return is_enabled(LogLevel::LL_TRACE); }
 
 		/**
 		 * Adds a writer to this logger.
@@ -100,12 +102,9 @@ namespace tools {
 		void remove_writer(LogWriter* writer);
 
 		/**
-		 * Creates or returns the instance of the logger.
-		 * 
-		 * Warning: this function is not thread safe.
+		 * Returns the instance of the logger.
 		*/
 		static Logger* get_logger();
-
 
 	private:
 		// A reference to the application logger (singleton).
@@ -120,11 +119,35 @@ namespace tools {
 		// The current logger level.
 		LogLevel _level;
 
+		friend class LogScope;
+		// Current log message indentation
+		static thread_local int _indent_level;
+
+		// Stack of this pointers
+		static thread_local std::stack<const void*> _this_stack;
+
 		/**
 		 * Writes a message to the log writers.
 		*/
 		void write(LogLevel level, const std::string& text);
 		void write(LogLevel level, const char* format, va_list args);
+	};
+
+
+	class LogScope final
+	{
+	public:
+		explicit LogScope(Logger *logger, LogLevel level,
+			const void *this_address, const char* class_name, const char* func_name, const char* fmt, ...);
+		explicit LogScope(Logger* logger, LogLevel level,
+			const void* this_address, const char* class_name, const char* func_name);
+		~LogScope();
+
+	private:
+		Logger* _logger;
+		const LogLevel _level;
+		const char* _class_name;
+		const char* _func_name;
 	};
 
 
@@ -137,16 +160,16 @@ namespace tools {
 		explicit LogWriter(LogLevel level);
 		virtual ~LogWriter() = default;
 
-		virtual void write(LogLevel level, const std::string& text) = 0;
+		virtual void write(LogLevel level, int indent, const void* object, const std::string& text) = 0;
 		virtual void flush() { return; }
 
 		/**
 		 * Checks if the specified level is more severe than the current level
 		*/
-		inline bool is_enabled(LogLevel level) const { return level >= _level; }
+		inline bool is_enabled(LogLevel level) const noexcept { return level >= _level; }
 
 	protected:
-		char get_level_char(LogLevel level) const;
+		char get_level_char(LogLevel level) const noexcept;
 
 	private:
 		// The current writer log level.
@@ -164,7 +187,7 @@ namespace tools {
 		~FileLogWriter() override = default;
 
 		bool open(const std::wstring& filename);
-		void write(LogLevel level, const std::string& text) override;
+		void write(LogLevel level, int indent, const void* object,  const std::string& text) override;
 		void flush() override;
 
 	private:
@@ -184,7 +207,6 @@ namespace tools {
 	private:
 		std::queue<std::string> _queue;
 		tools::Mutex _mutex;
-
 	};
 
 }

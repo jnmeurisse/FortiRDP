@@ -36,6 +36,8 @@ namespace ui {
 		_settings(),
 		_writer(window_handle(), tools::LogLevel::LL_INFO)
 	{
+		DEBUG_CTOR(_logger);
+
 		// Assign application icons. Icons are automatically deleted when the 
 		// application stops thanks to the LR_SHARED parameter.
 		HICON hIcon = static_cast<HICON>(LoadImage(hInstance, MAKEINTRESOURCE(IDI_FORTIRDP), IMAGE_ICON, 16, 16, LR_SHARED));
@@ -134,6 +136,8 @@ namespace ui {
 
 	ConnectDialog::~ConnectDialog()
 	{
+		DEBUG_DTOR(_logger);
+
 		::DeleteObject(_bg_brush);
 		::DeleteObject(_msg_font);
 		::DeleteObject(_anim_font);
@@ -207,6 +211,8 @@ namespace ui {
 
 	void ConnectDialog::connect(bool clear_log)
 	{
+		DEBUG_ENTER(_logger);
+
 		// Check if fw and host addresses are valid.
 		try {
 			// Split the address and the domain if specified
@@ -374,6 +380,8 @@ namespace ui {
 
 	void ConnectDialog::disconnect()
 	{
+		DEBUG_ENTER(_logger);
+
 		set_control_enable(IDC_DISCONNECT, false);
 		_controller->disconnect();
 	}
@@ -381,6 +389,8 @@ namespace ui {
 
 	void ConnectDialog::showCredentialsDialog(fw::AuthCredentials* pCredentials)
 	{
+		DEBUG_ENTER(_logger);
+
 		CredentialDialog credentialDialog(instance_handle(), window_handle());
 		const std::string message{
 			"Enter user name and password to access firewall " +
@@ -408,6 +418,8 @@ namespace ui {
 
 	void ConnectDialog::showSamlDialog(fw::AuthSamlInfo* pSamlInfo)
 	{
+		DEBUG_ENTER(_logger);
+
 		SamlAuthDialog samlDialog{ instance_handle(), window_handle(), pSamlInfo };
 
 		const bool modal_result = samlDialog.show_modal() == TRUE;
@@ -418,6 +430,8 @@ namespace ui {
 
 	void ConnectDialog::showPinCodeDialog(fw::AuthCode* pCode)
 	{
+		DEBUG_ENTER(_logger);
+
 		PinCodeDialog codeDialog{ instance_handle(), window_handle() };
 		const std::string message = (!pCode)
 			? "Enter code to access firewall " + _controller->portal_client()->host().hostname()
@@ -436,6 +450,8 @@ namespace ui {
 
 	INT_PTR ConnectDialog::onDestroyDialogMessage(WPARAM wParam, LPARAM lParam)
 	{
+		DEBUG_ENTER(_logger);
+
 		WPARAM_UNUSED();
 		LPARAM_UNUSED();
 
@@ -451,6 +467,8 @@ namespace ui {
 
 	INT_PTR ConnectDialog::onCloseDialogMessage(WPARAM wParam, LPARAM lParam)
 	{
+		DEBUG_ENTER(_logger);
+
 		WPARAM_UNUSED();
 		LPARAM_UNUSED();
 
@@ -460,6 +478,8 @@ namespace ui {
 
 	INT_PTR ConnectDialog::onButtonClick(int control_id, LPARAM lParam)
 	{
+		DEBUG_ENTER(_logger);
+
 		INT_PTR rc = FALSE;
 
 		switch (control_id) {
@@ -605,6 +625,8 @@ namespace ui {
 
 	void ConnectDialog::showAboutDialog()
 	{
+		DEBUG_ENTER(_logger);
+
 		AboutDialog aboutDialog(instance_handle(), window_handle());
 		aboutDialog.show_modal();
 	}
@@ -612,6 +634,8 @@ namespace ui {
 
 	void ConnectDialog::showOptionsDialog()
 	{
+		DEBUG_ENTER(_logger);
+
 		OptionsDialog optionsDialog{ instance_handle(), window_handle() };
 
 		// Options are not modifiable in the GUI when specified on the command line.
@@ -672,6 +696,8 @@ namespace ui {
 
 	void ConnectDialog::showErrorMessageDialog(const std::wstring& text)
 	{
+		DEBUG_ENTER(_logger);
+
 		show_message_box(text, MB_ICONERROR | MB_OK);
 		return;
 	}
@@ -679,6 +705,8 @@ namespace ui {
 
 	void ConnectDialog::showInvalidCertificateDialog(const std::wstring& text)
 	{
+		DEBUG_ENTER(_logger);
+
 		const int rc = show_message_box(text, MB_ICONWARNING | MB_YESNO | MB_DEFBUTTON2);
 		ReplyMessage(rc == IDYES);
 
@@ -688,14 +716,17 @@ namespace ui {
 
 	void ConnectDialog::disconnectFromFirewall(bool success)
 	{
-		UNREFERENCED_PARAMETER(success);
+		DEBUG_ENTER(_logger);
 
+		UNREFERENCED_PARAMETER(success);
 		disconnect();
 	}
 
 
 	void ConnectDialog::startTask()
 	{
+		DEBUG_ENTER(_logger);
+
 		// Starts the local task if a path has been specified. If a single client
 		// is allowed to go through the tunnel, the application closes the tunnel
 		// as soon as the local application is stopped. The AsyncController is
@@ -709,6 +740,8 @@ namespace ui {
 
 	void ConnectDialog::clearRdpHistory()
 	{
+		DEBUG_ENTER(_logger);
+
 		if (_params.is_mstsc() && (_params.clear_rdp_username() || _settings.get_clear_rdp_username())) {
 			// see http://woshub.com/how-to-clear-rdp-connections-history/
 
@@ -756,6 +789,8 @@ namespace ui {
 
 	void ConnectDialog::onConnectedEvent(bool success)
 	{
+		DEBUG_ENTER_FMT(_logger, "success=%d", success);
+
 		if (!success) {
 			disconnect();
 		}
@@ -794,6 +829,8 @@ namespace ui {
 
 	void ConnectDialog::onDisconnectedEvent(bool success)
 	{
+		DEBUG_ENTER_FMT(_logger, "success=%d", success);
+
 		if (!_task_info->path().empty()) {
 			clearRdpHistory();
 		}
@@ -829,11 +866,12 @@ namespace ui {
 
 	void ConnectDialog::onTunnelListeningEvent(bool success)
 	{
+		DEBUG_ENTER_FMT(_logger, "success=%d", success);
+
 		set_control_enable(IDC_DISCONNECT, true);
 
 		if (!success) {
 			disconnect();
-
 		}
 		else {
 			startTask();
@@ -903,4 +941,5 @@ namespace ui {
 		return rc;
 	}
 
+	const char* ConnectDialog::__class__ = "ConnectDialog";
 }

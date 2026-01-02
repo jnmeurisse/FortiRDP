@@ -22,11 +22,20 @@ namespace fw {
 		_tunnel_socket{ std::move(tunnel_socket) },
 		_cookie_jar{ cookie_jar }
 	{
+		DEBUG_CTOR(_logger);
+	}
+
+
+	FirewallTunnel::~FirewallTunnel()
+	{
+		DEBUG_DTOR(_logger);
 	}
 
 
 	bool FirewallTunnel::start()
 	{
+		DEBUG_ENTER(_logger);
+
 		try {
 			_tunnel_socket->connect();
 			start_tunnel_mode();
@@ -45,6 +54,8 @@ namespace fw {
 
 	void FirewallTunnel::start_tunnel_mode()
 	{
+		DEBUG_ENTER(_logger);
+
 		const http::Url tunnel_url{ _tunnel_socket->make_url("/remote/sslvpn-tunnel") };
 		http::Request request{ http::Request::GET_VERB, tunnel_url, _cookie_jar };
 		request.headers().set("Host", "sslvpn");
@@ -52,4 +63,6 @@ namespace fw {
 		_tunnel_socket->send_request(request);
 	}
 
+
+	const char* FirewallTunnel::__class__ = "FirewallTunnel";
 }

@@ -9,14 +9,17 @@
 
 #include <vector>
 #include "tools/StrUtil.h"
+#include "tools/Logger.h"
 
 
 namespace tools {
 
 	Task::Task(const std::wstring& path) :
-		_cmdline(tools::quote(path)),
-		_logger(Logger::get_logger())
+		_logger(Logger::get_logger()),
+		_cmdline(tools::quote(path))
 	{
+		DEBUG_CTOR(_logger);
+
 		memset(&_pi, 0, sizeof(_pi));
 		_pi.hProcess = INVALID_HANDLE_VALUE;
 		_pi.hThread = INVALID_HANDLE_VALUE;
@@ -25,6 +28,8 @@ namespace tools {
 
 	Task::~Task()
 	{
+		DEBUG_DTOR(_logger);
+
 		if (_pi.hThread != INVALID_HANDLE_VALUE)
 			CloseHandle(_pi.hThread);
 
@@ -43,6 +48,8 @@ namespace tools {
 
 	bool Task::start()
 	{
+		DEBUG_ENTER(_logger);
+
 		bool rc = false;
 
 		if (_pi.hProcess == INVALID_HANDLE_VALUE) {
@@ -73,6 +80,8 @@ namespace tools {
 				_logger->debug("... task pid=%d started", _pi.dwProcessId);
 				rc = true;
 			}
+
+			LOG_DEBUG(_logger, "task handle=%x pid=%d", _pi.hProcess, _pi.dwProcessId);
 		}
 
 		return rc;
@@ -81,6 +90,8 @@ namespace tools {
 
 	bool Task::wait(unsigned long millis)
 	{
+		LOG_DEBUG(_logger, "task pid=%d", _pi.dwProcessId);
+
 		switch (::WaitForSingleObject(_pi.hProcess, millis)) {
 		case WAIT_OBJECT_0:
 			_logger->debug("... task pid=%d is stopped", _pi.dwProcessId);
@@ -95,4 +106,5 @@ namespace tools {
 		}
 	}
 
+	const char* Task::__class__ = "Task";
 }

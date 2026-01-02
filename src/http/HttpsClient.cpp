@@ -55,6 +55,7 @@ namespace http {
 
 	bool HttpsClient::set_timeouts(uint32_t connect_timeout, uint32_t send_timeout, uint32_t receive_timeout)
 	{
+		DEBUG_DTOR(_logger);
 		bool rc = false;
 
 		if (!TlsSocket::is_connected()) {
@@ -87,13 +88,6 @@ namespace http {
 		tools::Timer connect_timer{ _connect_timeout };
 
 		const mbed_err rc = TlsSocket::connect(_host_ep, connect_timer);
-		_logger->debug(
-			"... 0x%012Ix       %s::%s - TlsSocket::call returns rc=%d",
-			PTR_VAL(this),
-			__class__,
-			__func__,
-			rc);
-
 		if (rc < 0)
 			throw mbed_error(rc);
 
@@ -113,17 +107,12 @@ namespace http {
 
 	void HttpsClient::send_request(Request& request)
 	{
-		DEBUG_ENTER(_logger);
-
-		if (_logger->is_trace_enabled())
-			_logger->trace("... 0x%012Ix       %s::%s send url=%s count=%d max=%d timeout=%d",
-				PTR_VAL(this),
-				__class__,
-				__func__,
-				request.url().to_string(false).c_str(),
-				_request_count,
-				_max_requests,
-				_keepalive_timeout);
+		DEBUG_ENTER_FMT(_logger, "url=%s count=%d max=%d timeout=%d",
+			request.url().to_string(false).c_str(),
+			_request_count,
+			_max_requests,
+			_keepalive_timeout
+		);
 
 		request.send(*this, tools::Timer{ _send_timeout });
 
@@ -131,15 +120,11 @@ namespace http {
 		_request_count++;
 		_keepalive_timer.start(_keepalive_timeout * 1000);
 
-		if (_logger->is_trace_enabled())
-			_logger->trace("... 0x%012Ix leave %s::%s count=%d max=%d timeout=%d",
-				PTR_VAL(this),
-				__class__,
-				__func__,
-				_request_count,
-				_max_requests,
-				_keepalive_timeout
-			);
+		LOG_TRACE(_logger, "request count=%d keepalive max=%d timeout=%d",
+			_request_count,
+			_max_requests,
+			_keepalive_timeout
+		);
 
 		return;
 	}
@@ -170,14 +155,7 @@ namespace http {
 		_max_requests = std::max(0, max_requests);
 		_keepalive_timeout = std::max(0, timeout);
 
-		if (_logger->is_trace_enabled())
-			_logger->trace("... 0x%012Ix leave %s::%s max=%d timeout=%d",
-				PTR_VAL(this),
-				__class__,
-				__func__,
-				_max_requests,
-				_keepalive_timeout
-			);
+		LOG_TRACE(_logger, "keep-alive max=%d timeout=%d", _max_requests, _keepalive_timeout);
 
 		return;
 	}
@@ -261,5 +239,4 @@ namespace http {
 	}
 
 	const char* HttpsClient::__class__ = "HttpsClient";
-
 }

@@ -26,7 +26,7 @@ namespace net {
 		/**
 		 * Destroys a TcpSocket object.
 		*/
-		virtual ~TcpSocket() override;
+		~TcpSocket() override;
 
 		/**
 		 * Connects this socket to the specified end point.
@@ -69,12 +69,24 @@ namespace net {
 		 */
 		virtual net::snd_status write(const unsigned char* buf, size_t len, const Timer& timer);
 
+		/**
+		* Receives data from the socket.
+		* See Socket::recv_data
+		*/
+		net::rcv_status recv_data(unsigned char* buf, size_t len) override;
+
+		/**
+		 * Sends data to the socket.
+		 * See Socket::send_data
+		*/
+		net::snd_status send_data(const unsigned char* buf, size_t len) override;
+
 	protected:
 		/**
 		 * Checks and waits for the socket to be ready for reading and/or writing data.
 		 * See base class.
 		*/
-		virtual net::Socket::poll_status poll(int rw, uint32_t timeout) override;
+		net::Socket::poll_status poll(int rw, uint32_t timeout) override;
 
 	private:
 		// The class name.

@@ -18,7 +18,7 @@ namespace ui {
 	public:
 		explicit InfoLogWriter(HWND hWnd, tools::LogLevel level);
 
-		void write(tools::LogLevel level, const std::string& text) override;
+		void write(tools::LogLevel level, int indend, const void* object, const std::string& text) override;
 		void flush() override;
 
 

@@ -29,7 +29,7 @@ namespace net {
 
 	mbed_err Listener::bind(const Endpoint& endpoint)
 	{
-		DEBUG_ENTER(_logger);
+		DEBUG_ENTER_FMT(_logger, "ep=%s", endpoint.to_string().c_str());
 
 		mbed_err rc = 0;
 
@@ -43,11 +43,7 @@ namespace net {
 		// Get the port that has been assigned during the bind.
 		uint16_t bind_port;
 		if (!Socket::get_port(bind_port)) {
-			_logger->error("ERROR: %s::%s get_port error %d",
-				__class__,
-				__func__,
-				WSAGetLastError()
-			);
+			_logger->error("ERROR: get_port error %d", ::WSAGetLastError());
 
 			rc = MBEDTLS_ERR_NET_BIND_FAILED;
 			goto terminate;
@@ -56,24 +52,14 @@ namespace net {
 
 		// Set the socket in non blocking mode.
 		if (Socket::set_blocking_mode(false) != 0) {
-			_logger->error("ERROR: %s::%s set_blocking error %d",
-				__class__,
-				__func__,
-				WSAGetLastError()
-			);
+			_logger->error("ERROR: set_blocking error %d", ::WSAGetLastError());
 
 			rc = MBEDTLS_ERR_NET_BIND_FAILED;
 			goto terminate;
 		}
 
 terminate:
-		_logger->debug(
-			"... 0x%012Ix %s::%s endpoint=%s rc=%d",
-			PTR_VAL(this),
-			__class__,
-			__func__,
-			endpoint.to_string().c_str(),
-			rc);
+		LOG_DEBUG(_logger, "ep=%s fd=%d rc=%d", endpoint.to_string().c_str(), get_fd(), rc);
 
 		return rc;
 	}
@@ -81,17 +67,11 @@ terminate:
 
 	mbed_err Listener::accept(Socket& client_socket)
 	{
-		DEBUG_ENTER(_logger);
+		DEBUG_ENTER_FMT(_logger, "fd=%d", get_fd());
 
 		const int rc = Socket::accept(client_socket);
 
-		_logger->debug(
-			"... 0x%012Ix %s::%s endpoint=%s rc=%d",
-			PTR_VAL(this),
-			__class__,
-			__func__,
-			_endpoint.to_string().c_str(),
-			rc);
+		LOG_DEBUG(_logger, "fd=%d rc=%d", get_fd(), rc);
 
 		return rc;
 	}
@@ -99,7 +79,7 @@ terminate:
 
 	void Listener::close()
 	{
-		DEBUG_ENTER(_logger);
+		DEBUG_ENTER_FMT(_logger, "fd=%d", get_fd());
 		Socket::close();
 	}
 

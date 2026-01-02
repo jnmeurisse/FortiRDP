@@ -28,7 +28,7 @@ namespace net {
 
 
 	PortForwarder::PortForwarder(const Endpoint& endpoint, bool tcp_nodelay, int keepalive) :
-		_logger(Logger::get_logger()),	
+		_logger(Logger::get_logger()),
 		_state(State::READY),
 		_endpoint(endpoint),
 		_tcp_nodelay(tcp_nodelay),
@@ -62,11 +62,7 @@ namespace net {
 		DEBUG_ENTER(_logger);
 
 		if (_state != State::READY) {
-			_logger->error("ERROR: %s 0x%012Ix not in READY state",
-				__class__,
-				PTR_VAL(this)
-			);
-
+			_logger->error("ERROR: forwarder %d not in READY state", get_fd());
 			return false;
 		}
 

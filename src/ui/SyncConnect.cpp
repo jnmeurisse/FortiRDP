@@ -164,5 +164,4 @@ namespace ui {
 	}
 
 	const char* SyncConnect::__class__ = "SyncConnect";
-
 }

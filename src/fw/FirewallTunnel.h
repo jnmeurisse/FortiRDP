@@ -32,6 +32,8 @@ namespace fw {
 		*/
 		FirewallTunnel(http::HttpsClientPtr tunnel_socket, const net::Endpoint& local_ep,
 			const net::Endpoint& remote_ep, const net::tunneler_config& config, const http::Cookies& cookie_jar);
+		~FirewallTunnel() override;
+
 
 		/**
 		 * Starts the tunneler.
@@ -41,6 +43,9 @@ namespace fw {
 		virtual bool start() override;
 
 	private:
+		// The class name
+		static const char* __class__;
+
 		// A reference to the application logger.
 		tools::Logger* const _logger;
 

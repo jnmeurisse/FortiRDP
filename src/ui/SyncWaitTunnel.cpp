@@ -39,5 +39,4 @@ namespace ui {
 	}
 
 	const char* SyncWaitTunnel::__class__ = "SyncWaitTunnel";
-
 }

@@ -10,7 +10,10 @@
 #include <array>
 #include <cstdarg>
 #include <ctime>
+#include <iomanip>
 #include <memory>
+#include <ostream>
+#include <thread>
 #include "tools/Mutex.h"
 #include "tools/StrUtil.h"
 
@@ -18,6 +21,8 @@
 namespace tools {
 
 	static const std::unique_ptr<Logger> LOGGER = std::make_unique<Logger>();
+	thread_local int Logger::_indent_level = 0;
+	thread_local std::stack<const void*> Logger::_this_stack({ nullptr });
 
 
 	Logger::Logger() :
@@ -133,8 +138,10 @@ namespace tools {
 	{
 		Mutex::Lock lock{ _mutex };
 
+		const int indent = _indent_level;
+		const void* object = _this_stack.top();
 		for (auto& writer : _writers) {
-			writer->write(level, text);
+			writer->write(level, indent, object, text);
 			writer->flush();
 		}
 	}
@@ -146,13 +153,56 @@ namespace tools {
 	}
 
 
+	LogScope::LogScope(Logger* logger, LogLevel level,
+		const void* this_address, const char* class_name,
+		const char* func_name, const char* format, ...) :
+		_logger(logger),
+		_level(level),
+		_class_name(class_name),
+		_func_name(func_name)
+	{
+		if (_logger->is_enabled(_level)) {
+			if (format) {
+				va_list args;
+				va_start(args, format);
+				const std::string message = tools::string_format(format, args);
+				va_end(args);
+				_logger->log(_level, "> %s::%s - %s", _class_name, _func_name, message.c_str());
+			}
+			else {
+				_logger->log(_level, "> %s::%s", _class_name, _func_name);
+			}
+		}
+
+		Logger::_indent_level++;
+		Logger::_this_stack.push(this_address);
+	}
+
+
+	LogScope::LogScope(Logger* logger, LogLevel level,
+		const void* this_address, const char* class_name, const char* func_name) :
+		LogScope(logger, level, this_address, class_name, func_name, nullptr)
+	{
+	}
+
+	LogScope::~LogScope()
+	{
+		Logger::_indent_level--;
+		Logger::_this_stack.pop();
+
+		if (_logger->is_enabled(_level))
+			_logger->log(_level, "< %s::%s", _class_name, _func_name);
+	}
+
+
+
 	LogWriter::LogWriter(LogLevel level) :
 		_level(level)
 	{
 	}
 
 
-	char LogWriter::get_level_char(LogLevel level) const
+	char LogWriter::get_level_char(LogLevel level) const noexcept
 	{
 		switch (level) {
 		case LogLevel::LL_DEBUG: return 'D';
@@ -193,10 +243,18 @@ namespace tools {
 	}
 
 
-	void FileLogWriter::write(LogLevel level, const std::string& text)
+	void FileLogWriter::write(LogLevel level, int indent, const void* object, const std::string& text)
 	{
 		if (_ofs.is_open() && is_enabled(level)) {
-			_ofs << '[' << get_level_char(level) << "] " << datetime() << " > " << text << std::endl;
+			_ofs 
+				<< '[' << datetime() << "] "
+				<< '[' << get_level_char(level) << "] "
+				<< '[' << std::setw(5) << std::setfill('0') << std::this_thread::get_id() << "] "
+				<< "0x" << std::setw(12) << std::setfill('0') << std::hex << PTR_VAL(object)
+				<< " "
+				<< std::string(indent, '.')
+				<< text
+				<< std::endl;
 		}
 	}
 

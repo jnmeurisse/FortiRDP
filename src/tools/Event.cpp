@@ -24,10 +24,10 @@ namespace tools {
 		DEBUG_CTOR(_logger);
 
 		_handle = ::CreateEvent(nullptr, manual_reset, false, nullptr);
+		LOG_DEBUG(_logger, "handle=%x", _handle);
+
 		if (_handle == NULL)
 			throw_winapi_error(::GetLastError(), "CreateEvent error");
-
-		_logger->debug("... 0x%012Ix create Event handle=%x", PTR_VAL(this), _handle);
 	}
 
 
@@ -43,11 +43,11 @@ namespace tools {
 			0,
 			FALSE,
 			DUPLICATE_SAME_ACCESS);
+		LOG_DEBUG(_logger, "rc=%d, handle=%x", rc, _handle);
 
 		if (!rc)
 			throw_winapi_error(::GetLastError(), "DuplicateHandle error");
 
-		_logger->debug("... 0x%012Ix create Event handle=%x", PTR_VAL(this), _handle);
 	}
 
 
@@ -55,19 +55,23 @@ namespace tools {
 	{
 		DEBUG_DTOR(_logger);
 
-		if (_handle != NULL)
+		if (_handle != NULL) {
+			LOG_DEBUG(_logger, "handle=%x", _handle);
 			::CloseHandle(_handle);
+		}
 	}
 
 
 	bool Event::set() noexcept
 	{
+		DEBUG_ENTER_FMT(_logger, "handle=%x", _handle);
 		return ::SetEvent(_handle) != 0;
 	}
 
 
 	bool Event::reset() noexcept
 	{
+		DEBUG_ENTER_FMT(_logger, "handle=%x", _handle);
 		return ::ResetEvent(_handle) != 0;
 	}
 
@@ -80,6 +84,8 @@ namespace tools {
 
 	bool Event::wait(DWORD timeout) const
 	{
+		DEBUG_ENTER_FMT(_logger, "handle=%x", _handle);
+
 		switch (::WaitForSingleObject(_handle, timeout)) {
 		case WAIT_OBJECT_0: // The event is set.
 			return true;

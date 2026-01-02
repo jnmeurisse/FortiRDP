@@ -52,6 +52,9 @@ namespace ui {
 			TIMER_ACTIVITY = 3
 		};
 
+		// The class name.
+		static const char* __class__;
+
 		// The application logger.
 		tools::Logger* const _logger;
 

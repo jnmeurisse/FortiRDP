@@ -23,7 +23,7 @@ namespace tools {
 		DEBUG_CTOR(_logger);
 
 		_handle = (HANDLE)::_beginthreadex(nullptr, 0, thread_entry_point, this, CREATE_SUSPENDED, &_id);
-		_logger->debug("... 0x%012Ix created Thread handle=%x", PTR_VAL(this), _handle);
+		LOG_DEBUG(_logger, "handle=%x id=%d", _handle, _id);
 
 		if (_handle == NULL)
 			throw_winapi_error(::GetLastError(), "_beginthreadex error");
@@ -33,9 +33,10 @@ namespace tools {
 	Thread::~Thread()
 	{
 		DEBUG_DTOR(_logger);
+
 		if (_handle != NULL)
 		{
-			_logger->debug("... 0x%012Ix destroyed Thread handle=%x", PTR_VAL(this), _handle);
+			LOG_DEBUG(_logger, "handle=%x id=%d", _handle, _id);
 			CloseHandle(_handle);
 		}
 	}
@@ -43,7 +44,7 @@ namespace tools {
 
 	bool Thread::start()
 	{
-		DEBUG_ENTER(_logger);
+		DEBUG_ENTER_FMT(_logger, "handle=%x id=%d", _handle, _id);
 		DWORD status = ::ResumeThread(_handle);
 		
 		return status != (DWORD)-1;
@@ -52,7 +53,7 @@ namespace tools {
 
 	bool Thread::wait(DWORD timeout)
 	{
-		DEBUG_ENTER(_logger);
+		DEBUG_ENTER_FMT(_logger, "handle=%x id=%d", _handle, _id);
 
 		switch (::WaitForSingleObject(_handle, timeout)) {
 		case WAIT_OBJECT_0: // the thread has ended.

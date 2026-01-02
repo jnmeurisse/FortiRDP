@@ -53,6 +53,9 @@ namespace tools {
 		HANDLE get_handle() const { return _pi.hProcess; }
 
 	private:
+		// The class name.
+		static const char* __class__;
+
 		// A reference to the application logger.
 		Logger* const _logger;
 

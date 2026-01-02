@@ -134,13 +134,7 @@ namespace ui {
 
 	bool AsyncController::connect(const net::Endpoint& firewall_endpoint, const std::string& realm)
 	{
-		_logger->debug("... 0x%012Ix enter %s::%s ep=%s realm=%s",
-			PTR_VAL(this),
-			__class__,
-			__func__,
-			firewall_endpoint.to_string().c_str(),
-			realm.c_str()
-		);
+		DEBUG_ENTER_FMT(_logger, "ep=%s realm=%s", firewall_endpoint.to_string().c_str(), realm.c_str());
 
 		// Start the async connect procedure.
 		_tls_config.set_ca_crt(_ca_crt->get_crt());
@@ -157,12 +151,7 @@ namespace ui {
 	bool AsyncController::create_tunnel(const net::Endpoint& remote_endpoint, uint16_t local_port,
 		bool multi_clients, bool tcp_nodelay)
 	{
-		_logger->debug("... 0x%012Ix enter %s::%s ep=%s",
-			PTR_VAL(this),
-			__class__,
-			__func__,
-			remote_endpoint.to_string().c_str()
-		);
+		DEBUG_ENTER_FMT(_logger, "ep=%s", remote_endpoint.to_string().c_str());
 
 		_tunnel.reset();
 
@@ -237,36 +226,20 @@ namespace ui {
 
 	void AsyncController::request_action(ControllerAction action)
 	{
-		_logger->debug("... 0x%012Ix enter %s::%s action=%s",
-			PTR_VAL(this),
-			__class__,
-			__func__,
-			action_name(action)
-		);
+		DEBUG_ENTER_FMT(_logger, "action=%s", action_name(action));
 
 		// Only one thread can send_request an action.
 		tools::Mutex::Lock lock(_mutex);
 
 		// Wait that the controller thread is ready
-		_logger->debug(".... 0x%012Ix %s::%s wait for action=%s",
-			PTR_VAL(this),
-			__class__,
-			__func__,
-			action_name(action)
-		);
+		LOG_DEBUG(_logger, "wait for action=%s", action_name(action));
 		_readyEvent.wait();
 
 		// Define the action and wake-up the thread.
-		_logger->debug(".... 0x%012Ix %s::%s set event for action=%s",
-			PTR_VAL(this),
-			__class__,
-			__func__,
-			action_name(action)
-		);
+		LOG_DEBUG(_logger, "set event for action=%s", action_name(action));
 		_action = action;
 		if (!_requestEvent.set()) {
-			_logger->error("ERROR: 0x%012Ix %s::%s set event error=%x",
-				PTR_VAL(this),
+			_logger->error("ERROR: %s::%s set event error=%x",
 				__class__,
 				__func__,
 				::GetLastError()
@@ -291,6 +264,7 @@ namespace ui {
 
 	unsigned int AsyncController::run()
 	{
+		DEBUG_ENTER(_logger);
 		bool terminated = false;	// a flag set to true to terminate this thread
 		bool wait_eot = false;		// a flag set to true to monitor the end of a task
 
@@ -301,8 +275,7 @@ namespace ui {
 
 			// We are ready to accept a new event.
 			if (!_readyEvent.set()) {
-				_logger->error("ERROR: 0x%012Ix %s::%s set event error=%x",
-					PTR_VAL(this),
+				_logger->error("ERROR: %s::%s set event error=%x",
 					__class__,
 					__func__,
 					::GetLastError()
@@ -316,18 +289,15 @@ namespace ui {
 			const int eventCount = wait_eot ? 2 : 1;
 			const DWORD event = ::WaitForMultipleObjects(eventCount, hEvents.data(), false, INFINITE);
 
-			_logger->debug("... 0x%012Ix enter %s::%s event=%x",
-				PTR_VAL(this),
+			// Wait that a new action is requested or that a task ended.
+			_logger->debug("%s::%s waiting event=%x",
 				__class__,
 				__func__,
 				event
 			);
-
-			// Wait that a new action is requested or that a task ended.
 			switch (event) {
 			case (WAIT_OBJECT_0 + 0):
-				_logger->debug("... 0x%012Ix %s::%s action=%s",
-					PTR_VAL(this),
+				_logger->debug("%s::%s start action=%s",
 					__class__,
 					__func__,
 					action_name(_action)
@@ -371,8 +341,7 @@ namespace ui {
 				break;
 
 			case WAIT_FAILED:
-				_logger->error("ERROR: 0x%012Ix %s::%s wait failed error=%x",
-					PTR_VAL(this),
+				_logger->error("ERROR: %s::%s wait failed error=%x",
 					__class__,
 					__func__,
 					::GetLastError()
@@ -390,8 +359,7 @@ namespace ui {
 					procedure->run();
 				}
 				catch (const std::exception& e) {
-					_logger->error("ERROR: 0x%012Ix %s::%s failure exception=%s",
-						PTR_VAL(this),
+					_logger->error("ERROR: %s::%s action run failed exception=%s",
 						__class__,
 						__func__,
 						e.what()
@@ -402,15 +370,8 @@ namespace ui {
 			}
 		}
 
-		_logger->debug("... 0x%012Ix leave %s::%s",
-			PTR_VAL(this),
-			__class__,
-			__func__
-		);
-
 		return 0;
 	}
 
 	const char* AsyncController::__class__ = "AsyncController";
-
 }

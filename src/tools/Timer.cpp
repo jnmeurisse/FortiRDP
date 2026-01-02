@@ -32,11 +32,7 @@ namespace tools {
 
 	void Timer::start(uint32_t duration) noexcept
 	{
-		DEBUG_ENTER(_logger);
-		_logger->debug(
-			"... 0x%012Ix Timer::start duration=%lu",
-			PTR_VAL(this),
-			duration);
+		DEBUG_ENTER_FMT(_logger, "duration=%lu", duration);
 
 		_due_time = ::GetTickCount64() + (uint64_t) duration;
 	}
@@ -54,6 +50,6 @@ namespace tools {
 		return now >= _due_time ? 0 : static_cast<uint32_t>(_due_time - now);
 	}
 
-	const char* Timer::__class__ = "Timer";
 
+	const char* Timer::__class__ = "Timer";
 }

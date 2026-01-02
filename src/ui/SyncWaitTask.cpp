@@ -36,5 +36,4 @@ namespace ui {
 	}
 
 	const char* SyncWaitTask::__class__ = "SyncWaitTask";
-
 }

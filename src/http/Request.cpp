@@ -8,6 +8,7 @@
 #include "Request.h"
 
 #include "tools/ErrUtil.h"
+#include "tools/Logger.h"
 
 
 namespace http {
@@ -33,11 +34,20 @@ namespace http {
 		_headers(),
 		_body(2048)
 	{
+		DEBUG_CTOR(_logger);
+	}
+
+
+	Request::~Request()
+	{
+		DEBUG_DTOR(_logger);
 	}
 
 
 	void Request::clear()
 	{
+		DEBUG_ENTER(_logger);
+
 		_headers.serase();
 		_body.clear();
 	}
@@ -45,6 +55,11 @@ namespace http {
 
 	Request& Request::set_body(const unsigned char* data, size_t size)
 	{
+		DEBUG_ENTER_FMT(_logger, "buffer=0x%012Ix size=%zu",
+			PTR_VAL(data),
+			size
+		);
+
 		_body.clear();
 		_body.append(data, size);
 
@@ -54,15 +69,7 @@ namespace http {
 
 	void Request::send(net::TcpSocket& socket, const tools::Timer& timer)
 	{
-		DEBUG_ENTER(_logger);
-
-		if (_logger->is_trace_enabled())
-			_logger->trace("... 0x%012Ix enter %s::%s timeout=%lu",
-				PTR_VAL(this),
-				__class__,
-				__func__,
-				timer.remaining_time()
-			);
+		DEBUG_ENTER_FMT(_logger, "timeout=%lu", timer.remaining_time());
 
 		tools::ByteBuffer buffer(1024);
 
@@ -91,13 +98,7 @@ namespace http {
 		buffer.append("\r\n");
 
 		// Send headers to the web server.
-		if (_logger->is_trace_enabled())
-			_logger->trace(
-				"... 0x%012Ix       %s::%s : write headers",
-				PTR_VAL(this),
-				__class__,
-				__func__
-			);
+		LOG_DEBUG(_logger, "write headers");
 		write_buffer(socket, buffer.cbegin(), buffer.size(), timer);
 
 		// Erase sensitive data.
@@ -105,13 +106,7 @@ namespace http {
 
 		if (!_body.empty()) {
 			// Send the body to the web server.
-			if (_logger->is_trace_enabled())
-				_logger->trace(
-					"... 0x%012Ix       %s::%s : write body",
-					PTR_VAL(this),
-					__class__,
-					__func__
-				);
+			LOG_DEBUG(_logger, "write body");
 			write_buffer(socket, _body.cbegin(), _body.size(), timer);
 		}
 
@@ -121,16 +116,13 @@ namespace http {
 
 	void Request::write_buffer(net::TcpSocket& socket, const unsigned char* buffer, size_t len, const Timer& timer)
 	{
-		const snd_status status{ socket.write(buffer, len, timer) };
+		TRACE_ENTER_FMT(_logger, "buffer=0x%012Ix size=%zu timeout=%lu",
+			PTR_VAL(buffer),
+			len,
+			timer.remaining_time()
+		);
 
-		if (_logger->is_trace_enabled())
-			_logger->trace(
-				"... 0x%012Ix       %s::%s : write buffer rc = %d",
-				PTR_VAL(this),
-				__class__,
-				__func__,
-				status.rc
-			);
+		const snd_status status{ socket.write(buffer, len, timer) };
 
 		if (status.code == snd_status_code::NETCTX_SND_ERROR || status.code == snd_status_code::NETCTX_SND_RETRY) {
 			// Send failed or timed out.
@@ -139,5 +131,4 @@ namespace http {
 	}
 
 	const char* Request::__class__ = "Request";
-
 }

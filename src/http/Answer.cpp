@@ -35,11 +35,20 @@ namespace http {
 		_cookies(),
 		_body(4096)
 	{
+		DEBUG_CTOR(_logger);
+	}
+
+
+	Answer::~Answer()
+	{
+		DEBUG_DTOR(_logger);
 	}
 
 
 	void Answer::clear()
 	{
+		DEBUG_ENTER(_logger);
+
 		_status_code = default_code;
 		_reason_phrase = default_reason;
 		_body.clear();
@@ -50,8 +59,13 @@ namespace http {
 
 	bool Answer::read_buffer(net::TcpSocket& socket, unsigned char* buffer, const size_t len, const tools::Timer& timer)
 	{
-		const rcv_status status{ socket.read(buffer, len, timer) };
+		TRACE_ENTER_FMT(_logger, "buffer=0x%012Ix size=%zu timeout=%lu",
+			PTR_VAL(buffer),
+			len,
+			timer.remaining_time()
+		);
 
+		const rcv_status status{ socket.read(buffer, len, timer) };
 		switch (status.code) {
 			case rcv_status_code::NETCTX_RCV_ERROR:
 			case rcv_status_code::NETCTX_RCV_RETRY:
@@ -76,7 +90,11 @@ namespace http {
 
 	Answer::answer_status Answer::read_line(net::TcpSocket& socket, tools::ByteBuffer& buffer, const tools::Timer& timer)
 	{
-		DEBUG_ENTER(_logger);
+		TRACE_ENTER_FMT(_logger, "buffer=0x%012Ix size=%zu timeout=%lu",
+			PTR_VAL(std::addressof(buffer)),
+			buffer.size(),
+			timer.remaining_time()
+		);
 
 		int state = 0;
 		size_t bytes_received = 0;
@@ -192,7 +210,9 @@ namespace http {
 
 	Answer::answer_status Answer::read_headers(net::TcpSocket& socket, const tools::Timer& timer)
 	{
-		answer_status status;
+		DEBUG_ENTER(_logger);
+
+;		answer_status status;
 		tools::ByteBuffer buffer(MAX_HEADER_SIZE);
 
 		while ((status = read_line(socket, buffer, timer)) == answer_status::ERR_NONE && !buffer.empty()) {
@@ -215,7 +235,7 @@ namespace http {
 						_cookies.add(Cookie::parse(field_value));
 					}
 					catch (const CookieError& e) {
-						_logger->trace("ERROR: %s", e.what());
+						_logger->debug("ERROR: %s", e.what());
 					}
 				}
 				else {
@@ -312,13 +332,8 @@ namespace http {
 
 	void Answer::recv(net::TcpSocket& socket, const tools::Timer& timer)
 	{
-		if (_logger->is_trace_enabled())
-			_logger->trace("... 0x%012Ix enter %s::%s timeout=%lu",
-				PTR_VAL(this),
-				__class__,
-				__func__,
-				timer.remaining_time()
-			);
+		DEBUG_ENTER(_logger);
+		LOG_DEBUG(_logger, "timeout=%lu", timer.remaining_time());
 
 		answer_status status;
 

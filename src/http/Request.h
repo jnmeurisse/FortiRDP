@@ -19,9 +19,6 @@
 
 namespace http {
 
-	using namespace tools;
-	using namespace net;
-
 	class Request final
 	{
 	public:
@@ -38,6 +35,11 @@ namespace http {
 		 * @param cookies The cookie jar containing cookies to be included in the request header.
 		 */
 		explicit Request(const std::string& verb, const Url& url, const Cookies& cookie_jar);
+
+		/**
+		* Destroys this HTTP request.
+		*/
+		~Request();
 
 		/**
 		 * Clears the request.

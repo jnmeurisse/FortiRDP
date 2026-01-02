@@ -24,12 +24,7 @@ namespace net {
 
 	mbed_err TcpSocket::connect(const Endpoint& ep, const Timer& timer)
 	{
-		_logger->debug("... 0x%012Ix enter %s::%s ep=%s",
-			PTR_VAL(this),
-			__class__,
-			__func__,
-			ep.to_string().c_str()
-		);
+		DEBUG_ENTER_FMT(_logger, "ep=%s", ep.to_string().c_str());
 
 		mbed_err rc = Socket::connect(ep, net_protocol::NETCTX_PROTO_TCP, timer);
 		if (rc)
@@ -40,13 +35,7 @@ namespace net {
 			goto terminate;
 
 	terminate:
-		_logger->debug("... 0x%012Ix leave %s::%s fd=%d rc=%d",
-			PTR_VAL(this),
-			__class__,
-			__func__,
-			get_fd(),
-			rc
-		);
+		LOG_DEBUG(_logger, "fd=%d rc=%d", get_fd(), rc);
 
 		return rc;
 	}
@@ -54,15 +43,7 @@ namespace net {
 
 	net::rcv_status TcpSocket::read(unsigned char* buf, size_t len, const Timer& timer)
 	{
-		if (_logger->is_trace_enabled())
-			_logger->trace(
-				".... 0x%012Ix enter %s::%s buffer=0x%012Ix size=%zu",
-				PTR_VAL(this),
-				__class__,
-				__func__,
-				PTR_VAL(buf),
-				len
-			);
+		TRACE_ENTER_FMT(_logger, "buffer=0x%012Ix size=%zu", PTR_VAL(buf), len);
 
 		rcv_status read_status { rcv_status_code::NETCTX_RCV_OK, 0, 0 };
 
@@ -95,17 +76,12 @@ namespace net {
 				keep_reading = false;
 		}
 
-		if (_logger->is_trace_enabled())
-			_logger->trace(
-				".... 0x%012Ix leave %s::%s buffer=0x%012Ix status=%d rc=%d len=%zu",
-				PTR_VAL(this),
-				__class__,
-				__func__,
-				PTR_VAL(buf),
-				read_status.code,
-				read_status.rc,
-				read_status.rbytes
-			);
+		LOG_TRACE(_logger, "buffer=0x%012Ix status=%d rc=%d len=%zu",
+			PTR_VAL(buf),
+			read_status.code,
+			read_status.rc,
+			read_status.rbytes
+		);
 
 		return read_status;
 	}
@@ -113,15 +89,7 @@ namespace net {
 
 	net::snd_status TcpSocket::write(const unsigned char* buf, size_t len, const Timer& timer)
 	{
-		if (_logger->is_trace_enabled())
-			_logger->trace(
-				".... 0x%012Ix enter %s::%s buffer=0x%012Ix size=%zu",
-				PTR_VAL(this),
-				__class__,
-				__func__,
-				PTR_VAL(buf),
-				len
-			);
+		TRACE_ENTER_FMT(_logger, "buffer=0x%012Ix size=%zu", PTR_VAL(buf), len);
 
 		snd_status write_status { NETCTX_SND_OK, 0, 0 };
 
@@ -154,47 +122,46 @@ namespace net {
 				keep_writing = false;
 		}
 
-		if (_logger->is_trace_enabled())
-			_logger->trace(
-				".... 0x%012Ix leave %s::%s buffer=0x%012Ix status=%d rc=%d len=%zu",
-				PTR_VAL(this),
-				__class__,
-				__func__,
-				PTR_VAL(buf),
-				write_status.code,
-				write_status.rc,
-				write_status.sbytes
-			);
+		LOG_TRACE(_logger, "buffer=0x%012Ix status=%d rc=%d len=%zu",
+			PTR_VAL(buf),
+			write_status.code,
+			write_status.rc,
+			write_status.sbytes
+		);
 
 		return write_status;
 	}
 
 
+	net::rcv_status TcpSocket::recv_data(unsigned char* buf, size_t len)
+	{
+		TRACE_ENTER_FMT(_logger, "buffer=0x%012Ix size=%zu", PTR_VAL(buf), len);
+		return Socket::recv_data(buf, len);
+	}
+
+
+	net::snd_status TcpSocket::send_data(const unsigned char* buf, const size_t len)
+	{
+		TRACE_ENTER_FMT(_logger, "buffer=0x%012Ix size=%zu", PTR_VAL(buf), len);
+		return Socket::send_data(buf, len);
+	}
+
+
 	net::Socket::poll_status TcpSocket::poll(int rw, uint32_t timeout)
 	{
-		if (_logger->is_trace_enabled())
-			_logger->trace(
-				".... 0x%012Ix enter %s::%s read=%x write=%d timeout=%lu",
-				PTR_VAL(this),
-				__class__,
-				__func__,
-				(rw & 1) != 0 ? 1 : 0,
-				(rw & 2) != 0 ? 1 : 0,
-				timeout
-			);
+		TRACE_ENTER_FMT(_logger, "read=%x write=%d timeout=%lu",
+			(rw & 1) != 0 ? 1 : 0,
+			(rw & 2) != 0 ? 1 : 0,
+			timeout
+		);
 
 		const poll_status status{ Socket::poll(rw, timeout) };
 
-		if (_logger->is_trace_enabled())
-			_logger->trace(
-				".... 0x%012Ix leave %s::%s status=%d read=%x write=%d",
-				PTR_VAL(this),
-				__class__,
-				__func__,
-				status.code,
-				(status.rc & 1) != 0 ? 1 : 0,
-				(status.rc & 2) != 0 ? 1 : 0
-			);
+		LOG_TRACE(_logger, "status= %d read=%x write=%d",
+			status.code,
+			(status.rc & 1) != 0 ? 1 : 0,
+			(status.rc & 2) != 0 ? 1 : 0
+		);
 
 		return status;
 	}

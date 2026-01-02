@@ -428,9 +428,7 @@ namespace fw {
 		bool ok = send_request(http::Request::GET_VERB, logout_url, "", headers, answer, 0);
 
 		// Delete all session cookies
-		if (_logger->is_trace_enabled()) {
-			_logger->trace("... 0x%012Ix clear cookie jar", PTR_VAL(this));
-		}
+		LOG_DEBUG(_logger, "clear cookie jar 0x%012Ix", PTR_VAL(std::addressof(_cookie_jar)));
 		_cookie_jar.clear();
 
 		return ok;
@@ -462,7 +460,7 @@ namespace fw {
 	
 		const tools::ByteBuffer& body = answer.body();
 		const std::string data{ body.cbegin(), body.cend() };
-		_logger->debug("... portal_info : %s...", data.substr(0, 80).c_str());
+		LOG_DEBUG(_logger, "portal_info : %s...", data.substr(0, 80).c_str());
 
 		std::string parser_error;
 		tools::Json info = tools::Json::parse(data, parser_error);
@@ -665,18 +663,20 @@ namespace fw {
 
 				if (cookie.get_domain().empty() || cookie.same_domain(url_domain)) {
 					if (cookie.is_expired()) {
-						_logger->debug("... 0x%012Ix       remove expired cookie name=%s expires=%d from cookiejar", 
-								PTR_VAL(this),
-								cookie.get_name().c_str(),
-								cookie.get_expires());
+						LOG_DEBUG(_logger, "remove expired cookie name=%s expires=%d from cookiejar 0x%012Ix",
+							cookie.get_name().c_str(),
+							cookie.get_expires(),
+							PTR_VAL(std::addressof(_cookie_jar))
+						);
 
 						_cookie_jar.remove(cookie.get_name());
 					}
 					else if (cookie.is_secure() && cookie.is_http_only()) {
-							_logger->debug("... 0x%012Ix       add cookie name=%s expires=%d to cookiejar",
-								PTR_VAL(this),
-								cookie.get_name().c_str(),
-								cookie.get_expires());
+						LOG_DEBUG(_logger, "add cookie name=%s expires=%d to cookiejar 0x%012Ix",
+							cookie.get_name().c_str(),
+							cookie.get_expires(),
+							PTR_VAL(std::addressof(_cookie_jar))
+						);
 
 						_cookie_jar.add(http::Cookie(
 							cookie.get_name(),
@@ -689,22 +689,18 @@ namespace fw {
 						));
 					}
 					else {
-						_logger->debug("... 0x%012Ix       skip cookie %s",
-							PTR_VAL(this),
-							cookie.get_name().c_str());
+						LOG_DEBUG(_logger, "skip cookie name=%s", cookie.get_name().c_str());
 					}
 				}
 			}
 		}
 
-		_logger->debug("... 0x%012Ix       %s::%s : %s %s (status=%s (%d))",
-			PTR_VAL(this),
-			__class__,
-			__func__,
+		LOG_DEBUG(_logger, "%s %s (status=%s (%d))",
 			verb.c_str(),
 			url.to_string(false).c_str(),
 			answer.get_reason_phrase().c_str(),
-			answer.get_status_code());
+			answer.get_status_code()
+		);
 
 		return success;
 	}
@@ -713,6 +709,8 @@ namespace fw {
 	bool FirewallClient::send_request(const std::string& verb, const http::Url& url,
 		const std::string& body, const http::Headers& headers, http::Answer& answer, int allow_redir)
 	{
+		DEBUG_ENTER(_logger);
+
 		if (allow_redir < 0) {
 			_logger->error("ERROR: Redirect failed");
 			return false;

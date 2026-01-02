@@ -34,8 +34,7 @@ namespace net {
 				filename = path.substr(last_delim + 1);
 			}
 
-			logger->trace(
-				".... %s:%04d: %s", filename.c_str(), line, message.c_str());
+			logger->trace("%s:%04d: %s", filename.c_str(), line, message.c_str());
 		}
 	}
 
@@ -74,6 +73,7 @@ namespace net {
 	TlsConfig::TlsConfig() :
 		_logger(tools::Logger::get_logger())
 	{
+		DEBUG_CTOR(_logger);
 		mbedtls_entropy_init(&_entropy_ctx);
 
 		mbedtls_ctr_drbg_init(&_ctr_drbg);
@@ -114,6 +114,8 @@ namespace net {
 
 	TlsConfig::~TlsConfig()
 	{
+		DEBUG_DTOR(_logger);
+
 		// free all memory allocated by SSL library
 		mbedtls_ssl_config_free(&_ssl_config);
 		mbedtls_ctr_drbg_free(&_ctr_drbg);
@@ -132,6 +134,8 @@ namespace net {
 
 	mbed_err TlsConfig::set_user_crt(mbedtls_x509_crt& own_crt, mbedtls_pk_context& own_key)
 	{
+		DEBUG_ENTER(_logger);
+
 		return mbedtls_ssl_conf_own_cert(&_ssl_config, &own_crt, &own_key);
 	}
 
@@ -143,5 +147,4 @@ namespace net {
 
 
 	const char* TlsConfig::__class__ = "TlsConfig";
-
 }
