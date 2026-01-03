@@ -15,18 +15,18 @@
 #include "util/ObfuscatedString.h"
 
 
-namespace priv {
-
-struct comp { 
-    bool operator() (const std::string& lhs, const std::string& rhs) const {
-        return _stricmp(lhs.c_str(), rhs.c_str()) < 0;
-    }
-};
-}
 
 namespace utl {
+	namespace priv {
+		struct comp {
+			bool operator() (const std::string& lhs, const std::string& rhs) const {
+				return _stricmp(lhs.c_str(), rhs.c_str()) < 0;
+			}
+		};
+	}
 
-typedef std::map<const std::string, std::string, priv::comp> strimap;
+	using strimap = std::map<const std::string, std::string, priv::comp>;
+
 
 // Splits a string into multiple parts which are separated by a delimiter. The function
 // adds the parts to the specified vector and returns the number of added parts.
