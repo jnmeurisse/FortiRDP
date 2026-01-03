@@ -68,7 +68,7 @@ namespace fw {
 	{
 	public:
 		explicit FirewallClient(const net::Endpoint& ep, const std::string& realm, const net::TlsConfig& config);
-		virtual ~FirewallClient() override;
+		~FirewallClient() override;
 
 		/**
 		 * Opens a connection to the FortiGate portal and performs certificate validation.

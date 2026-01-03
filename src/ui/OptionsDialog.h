@@ -19,7 +19,7 @@ namespace ui {
 	{
 	public:
 		explicit OptionsDialog(HINSTANCE hInstance, HWND hParent);
-		virtual ~OptionsDialog() override;
+		~OptionsDialog() override;
 
 		fw::AuthMethod auth_method = fw::AuthMethod::BASIC;
 
@@ -47,8 +47,8 @@ namespace ui {
 		std::wstring rdp_filename;
 
 	private:
-		virtual INT_PTR onCreateDialogMessage(WPARAM wParam, LPARAM lParam) override;
-		virtual INT_PTR onButtonClick(int control_id, LPARAM lParam) override;
+		INT_PTR onCreateDialogMessage(WPARAM wParam, LPARAM lParam) override;
+		INT_PTR onButtonClick(int control_id, LPARAM lParam) override;
 
 		bool select_file(std::wstring& filename);
 	};

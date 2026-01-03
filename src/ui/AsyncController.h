@@ -43,7 +43,7 @@ namespace ui {
 	{
 	public:
 		explicit AsyncController(HWND hwnd);
-		virtual ~AsyncController() override;
+		~AsyncController() override;
 
 		/**
 		 * Initialize the CA certificate chain from the given file.
@@ -164,7 +164,7 @@ namespace ui {
 		/**
 		 * The thread procedure.
 		*/
-		virtual unsigned int run() override;
+		unsigned int run() override;
 	};
 
 }

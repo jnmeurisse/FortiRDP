@@ -17,7 +17,7 @@ namespace ui {
 	{
 	public:
 		explicit PinCodeDialog(HINSTANCE hInstance, HWND hParent);
-		virtual ~PinCodeDialog() override;
+		~PinCodeDialog() override;
 
 		/**
 		 * Initializes the information text.
@@ -33,9 +33,9 @@ namespace ui {
 		std::wstring _text;
 		std::wstring _code;
 
-		virtual INT_PTR onCreateDialogMessage(WPARAM wParam, LPARAM lParam) override;
-		virtual INT_PTR onButtonClick(int control_id, LPARAM lParam) override;
-		virtual INT_PTR onTextChange(int control_id, LPARAM lParam) override;
+		INT_PTR onCreateDialogMessage(WPARAM wParam, LPARAM lParam) override;
+		INT_PTR onButtonClick(int control_id, LPARAM lParam) override;
+		INT_PTR onTextChange(int control_id, LPARAM lParam) override;
 	};
 
 }

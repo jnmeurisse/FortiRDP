@@ -39,12 +39,12 @@ namespace ui {
 		}
 
 
-		virtual ~AsyncRequestMessage() override
+		~AsyncRequestMessage() override
 		{
 		}
 
 
-		virtual LRESULT send_message(HWND hWnd, void* lParam) const override
+		LRESULT send_message(HWND hWnd, void* lParam) const override
 		{
 			return ::SendMessage(hWnd, AsyncMessage::_windowsMessageId, _id, (LPARAM)lParam);
 		}
@@ -66,12 +66,12 @@ namespace ui {
 		}
 
 
-		virtual ~AsyncEventMessage() override
+		~AsyncEventMessage() override
 		{
 		}
 
 
-		virtual LRESULT send_message(HWND hWnd, void* lParam) const override
+		LRESULT send_message(HWND hWnd, void* lParam) const override
 		{
 			return ::PostMessage(hWnd, AsyncMessage::_windowsMessageId, _id, (LPARAM)lParam);
 		}

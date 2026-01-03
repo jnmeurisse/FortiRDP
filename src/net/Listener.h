@@ -23,7 +23,7 @@ namespace net {
 	{
 	public:
 		Listener();
-		virtual ~Listener() override;
+		~Listener() override;
 
 		/**
 		 * Binds the listener to a specified endpoint.
@@ -66,14 +66,14 @@ namespace net {
 		 *
 		 *
 		 */
-		virtual mbed_err accept(Socket& client_socket) override;
+		mbed_err accept(Socket& client_socket) override;
 
 		/**
 		 * Closes the listener.
 		 *
 		 * The listener stops immediately to listen for incoming connection.
 		*/
-		virtual void close() override;
+		void close() override;
 
 		/**
 		 * Returns the end point to which this listener was bound.

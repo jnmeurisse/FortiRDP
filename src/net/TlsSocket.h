@@ -39,7 +39,7 @@ namespace net {
 		 * Destroys a TlsSocket object.
 		 * See base class.
 		*/
-		virtual ~TlsSocket() override;
+		~TlsSocket() override;
 
 		/**
 		 * Enables or disables host name verification.
@@ -78,7 +78,7 @@ namespace net {
 		/**
 		 * Closes gracefully the socket.
 		*/
-		virtual void shutdown() override;
+		void shutdown() override;
 
 		/**
 		 * Returns the result of the certificate verification.
@@ -119,13 +119,13 @@ namespace net {
 		 * Receives data from the socket.
 		 * See Socket::recv_data
 		*/
-		virtual net::rcv_status recv_data(unsigned char* buf, size_t len) override;
+		net::rcv_status recv_data(unsigned char* buf, size_t len) override;
 
 		/**
 		 * Sends data to the socket.
 		 * See Socket::send_data
 		*/
-		virtual net::snd_status send_data(const unsigned char* buf, size_t len) override;
+		net::snd_status send_data(const unsigned char* buf, size_t len) override;
 
 	private:
 		// The class name

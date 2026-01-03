@@ -21,7 +21,7 @@ namespace ui {
 	{
 	public:
 		explicit SyncWaitTunnel(HWND hwnd, fw::FirewallTunnel& tunnel);
-		virtual ~SyncWaitTunnel() override;
+		~SyncWaitTunnel() override;
 
 	private:
 		// The class name.
@@ -31,7 +31,7 @@ namespace ui {
 		fw::FirewallTunnel& _tunnel;
 
 		// The wait procedure
-		virtual bool procedure() override;
+		bool procedure() override;
 	};
 
 }

@@ -18,7 +18,7 @@ namespace ui {
 	{
 	public:
 		explicit CredentialDialog(HINSTANCE hInstance, HWND hParent);
-		virtual ~CredentialDialog() override;
+		~CredentialDialog() override;
 
 		/**
 		 * Initializes the information label.
@@ -45,8 +45,8 @@ namespace ui {
 		std::wstring _username;
 		std::wstring _password;
 
-		virtual INT_PTR onCreateDialogMessage(WPARAM wParam, LPARAM lParam) override;
-		virtual INT_PTR onButtonClick(int control_id, LPARAM lParam) override;
+		INT_PTR onCreateDialogMessage(WPARAM wParam, LPARAM lParam) override;
+		INT_PTR onButtonClick(int control_id, LPARAM lParam) override;
 	};
 
 }

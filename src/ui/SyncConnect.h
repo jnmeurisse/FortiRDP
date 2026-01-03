@@ -24,7 +24,7 @@ namespace ui {
 	{
 	public:
 		explicit SyncConnect(HWND hwnd, fw::AuthMethod auth_method, fw::FirewallClient& portal_client);
-		virtual ~SyncConnect() override;
+		~SyncConnect() override;
 
 	private:
 		// The class name.
@@ -49,7 +49,7 @@ namespace ui {
 		bool ask_saml_auth(fw::AuthSamlInfo& saml_info);
 
 		// connect procedure.
-		virtual bool procedure() override;
+		bool procedure() override;
 	};
 
 }

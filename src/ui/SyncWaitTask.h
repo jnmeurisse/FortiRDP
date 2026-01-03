@@ -23,7 +23,7 @@ namespace ui {
 	{
 	public:
 		explicit SyncWaitTask(HWND hwnd, utl::Task* task);
-		virtual ~SyncWaitTask() override;
+		~SyncWaitTask() override;
 
 	private:
 		// The class name.
@@ -33,7 +33,7 @@ namespace ui {
 		utl::Task* const _task;
 
 		// The wait procedure.
-		virtual bool procedure() override;
+		bool procedure() override;
 	};
 
 }
