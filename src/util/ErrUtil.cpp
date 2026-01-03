@@ -10,7 +10,7 @@
 #include <array>
 #include <sstream>
 #include <mbedtls/error.h>
-#include <lwip/def.h>
+#include <lwip/err.h>
 
 
 namespace utl {
@@ -43,7 +43,7 @@ namespace utl {
 		std::array<char, 2048> buffer = { 0 };
 
 		// get mbedtls error
-		mbedtls_strerror(errnum, buffer.data(), buffer.size() - 1);
+		::mbedtls_strerror(errnum, buffer.data(), buffer.size() - 1);
 
 		// format the error message
 		os << buffer.data() << " (-0x" << std::hex << -errnum << ")";
@@ -58,7 +58,7 @@ namespace utl {
 		const char* errmsg;
 
 		// get the lwip error message
-		errmsg = lwip_strerr(errnum);
+		errmsg = ::lwip_strerr(errnum);
 
 		// format the error message
 		os << errmsg << " (-0x" << std::hex << -errnum << ")";
