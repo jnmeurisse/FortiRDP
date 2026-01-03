@@ -8,8 +8,8 @@
 #include "Task.h"
 
 #include <vector>
-#include "tools/StrUtil.h"
-#include "tools/Logger.h"
+#include "util/StrUtil.h"
+#include "util/Logger.h"
 
 
 namespace aux {

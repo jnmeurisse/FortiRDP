@@ -16,8 +16,8 @@
 #include <lwip/dns.h>
 #include "ui/ConnectDialog.h"
 #include "ui/CmdlineParams.h"
-#include "tools/Logger.h"
-#include "tools/Path.h"
+#include "util/Logger.h"
+#include "util/Path.h"
 
 
 #pragma comment(linker,"\"/manifestdependency:type='win32' \

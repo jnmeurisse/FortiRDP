@@ -13,8 +13,8 @@
 #include "http/Cookie.h"
 #include "http/CookieError.h"
 #include "http/HttpError.h"
-#include "tools/StrUtil.h"
-#include "tools/ErrUtil.h"
+#include "util/StrUtil.h"
+#include "util/ErrUtil.h"
 #include <cstring>
 #include <cctype>
 #include <locale>

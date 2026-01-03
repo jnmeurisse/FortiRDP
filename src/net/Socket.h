@@ -11,9 +11,9 @@
 #include <mbedtls/net_sockets.h>
 
 #include "net/Endpoint.h"
-#include "tools/ErrUtil.h"
-#include "tools/Timer.h"
-#include "tools/Logger.h"
+#include "util/ErrUtil.h"
+#include "util/Timer.h"
+#include "util/Logger.h"
 
 
 namespace net {

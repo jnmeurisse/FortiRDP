@@ -12,8 +12,8 @@
 #include <mbedtls/entropy.h>
 #include <mbedtls/x509_crt.h>
 
-#include "tools/Logger.h"
-#include "tools/ErrUtil.h"
+#include "util/Logger.h"
+#include "util/ErrUtil.h"
 
 
 namespace net {

@@ -12,7 +12,7 @@
 #include <mbedtls/ssl.h>
 
 #include "net/Socket.h"
-#include "tools/ErrUtil.h"
+#include "util/ErrUtil.h"
 
 
 namespace net {

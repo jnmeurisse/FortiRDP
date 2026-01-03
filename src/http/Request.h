@@ -12,9 +12,9 @@
 #include "http/Cookies.h"
 #include "http/Url.h"
 #include "net/TcpSocket.h"
-#include "tools/Logger.h"
-#include "tools/ByteBuffer.h"
-#include "tools/Timer.h"
+#include "util/Logger.h"
+#include "util/ByteBuffer.h"
+#include "util/Timer.h"
 
 
 namespace http {

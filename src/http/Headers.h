@@ -8,8 +8,8 @@
 #pragma once
 
 #include <string>
-#include "tools/ByteBuffer.h"
-#include "tools/StringMap.h"
+#include "util/ByteBuffer.h"
+#include "util/StringMap.h"
 
 
 namespace http {

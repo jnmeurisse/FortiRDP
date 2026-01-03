@@ -14,9 +14,9 @@
 #include <chrono>
 #include "fw/AuthTypes.h"
 #include "net/Endpoint.h"
-#include "tools/Logger.h"
-#include "tools/Mutex.h"
-#include "tools/TaskInfo.h"
+#include "util/Logger.h"
+#include "util/Mutex.h"
+#include "util/TaskInfo.h"
 #include "ui/CmdlineParams.h"
 #include "ui/RegistrySettings.h"
 #include "ui/ModelessDialog.h"

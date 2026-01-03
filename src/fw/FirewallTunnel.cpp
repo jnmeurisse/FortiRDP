@@ -6,7 +6,7 @@
 *
 */
 #include "FirewallTunnel.h"
-#include "tools/Logger.h"
+#include "util/Logger.h"
 #include <stdexcept>
 
 

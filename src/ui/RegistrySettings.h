@@ -9,7 +9,7 @@
 
 #include <string>
 #include "fw/AuthTypes.h"
-#include "tools/RegKey.h"
+#include "util/RegKey.h"
 #include "ui/ScreenSize.h"
 
 namespace ui {

@@ -10,10 +10,10 @@
 #include <iostream>
 #include <limits>
 #include <Windows.h>
-#include "tools/Path.h"
-#include "tools/SysUtil.h"
-#include "tools/StrUtil.h"
-#include "tools/XGetopt.h"
+#include "util/Path.h"
+#include "util/SysUtil.h"
+#include "util/StrUtil.h"
+#include "util/XGetopt.h"
 
 namespace ui {
 

@@ -20,8 +20,8 @@
 #include "fw/CrtDigest.h"
 #include "fw/FirewallTunnel.h"
 #include "net/Endpoint.h"
-#include "tools/Mutex.h"
-#include "tools/StringMap.h"
+#include "util/Mutex.h"
+#include "util/StringMap.h"
 
 
 

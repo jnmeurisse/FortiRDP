@@ -9,7 +9,7 @@
 
 #include <string>
 #include <map>
-#include "tools/StrUtil.h"
+#include "util/StrUtil.h"
 
 
 namespace aux {

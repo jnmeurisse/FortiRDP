@@ -14,7 +14,7 @@
 #include "fw/AuthTypes.h"
 #include "http/Url.h"
 #include "http/Cookies.h"
-#include "tools/Logger.h"
+#include "util/Logger.h"
 #include "ui/ModalDialog.h"
 
 

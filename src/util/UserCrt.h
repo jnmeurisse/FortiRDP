@@ -7,8 +7,8 @@
 */
 #pragma once
 #include <memory>
-#include "tools/X509Crt.h"
-#include "tools/PrivateKey.h"
+#include "util/X509Crt.h"
+#include "util/PrivateKey.h"
 
 
 namespace aux {

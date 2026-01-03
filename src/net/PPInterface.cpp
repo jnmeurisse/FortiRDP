@@ -10,7 +10,7 @@
 #include <array>
 #include <lwip/timeouts.h>
 #include <lwip/stats.h>
-#include "tools/ErrUtil.h"
+#include "util/ErrUtil.h"
 
 
 namespace net {

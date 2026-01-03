@@ -12,7 +12,7 @@
 #include <functional>
 #include "http/Url.h"
 #include "http/Cookie.h"
-#include "tools/ObfuscatedString.h"
+#include "util/ObfuscatedString.h"
 
 
 namespace http {

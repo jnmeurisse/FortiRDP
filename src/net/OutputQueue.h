@@ -9,9 +9,9 @@
 
 #include <lwip/tcp.h>
 #include "net/Socket.h"
-#include "tools/PBufQueue.h"
-#include "tools/ErrUtil.h"
-#include "tools/Logger.h"
+#include "util/PBufQueue.h"
+#include "util/ErrUtil.h"
+#include "util/Logger.h"
 
 
 namespace net {

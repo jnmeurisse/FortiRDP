@@ -11,8 +11,8 @@
 #include <cctype>
 #include <iostream>
 #include <sstream>
-#include "tools/StringMap.h"
-#include <net/TlsContext.h>
+#include "util/StringMap.h"
+#include "net/TlsContext.h"
 
 
 namespace http {

@@ -10,7 +10,7 @@
 #include <string>
 #include <vector>
 #include <cstdint>
-#include "tools/ObfuscatedString.h"
+#include "util/ObfuscatedString.h"
 
 
 namespace aux {

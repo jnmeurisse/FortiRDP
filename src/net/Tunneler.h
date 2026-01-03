@@ -11,10 +11,10 @@
 #include "net/TlsSocket.h"
 #include "net/Listener.h"
 #include "net/PPInterface.h"
-#include "tools/Counters.h"
-#include "tools/Thread.h"
-#include "tools/Logger.h"
-#include "tools/Event.h"
+#include "util/Counters.h"
+#include "util/Thread.h"
+#include "util/Logger.h"
+#include "util/Event.h"
 
 
 namespace net {

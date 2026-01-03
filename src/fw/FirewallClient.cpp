@@ -15,12 +15,12 @@
 #include "http/Cookie.h"
 #include "http/Cookies.h"
 #include "http/Url.h"
-#include "tools/Json11.h"
-#include "tools/Logger.h"
-#include "tools/pugixml.hpp"
-#include "tools/StringMap.h"
-#include "tools/StrUtil.h"
-#include "tools/X509Crt.h"
+#include "util/Json11.h"
+#include "util/Logger.h"
+#include "util/pugixml.hpp"
+#include "util/StringMap.h"
+#include "util/StrUtil.h"
+#include "util/X509Crt.h"
 
 
 namespace fw {

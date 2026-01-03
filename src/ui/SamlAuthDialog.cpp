@@ -12,9 +12,9 @@
 #include <stdexcept>
 #include <wrl.h>
 #include "resources/resource.h"
-#include "tools/ErrUtil.h"
-#include "tools/Path.h"
-#include "tools/Strutil.h"
+#include "util/ErrUtil.h"
+#include "util/Path.h"
+#include "util/Strutil.h"
 
 
 namespace ui {

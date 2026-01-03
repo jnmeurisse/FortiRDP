@@ -7,8 +7,8 @@
 */
 #include "SyncConnect.h"
 
-#include "tools/Path.h"
-#include "tools/SysUtil.h"
+#include "util/Path.h"
+#include "util/SysUtil.h"
 
 
 namespace ui {

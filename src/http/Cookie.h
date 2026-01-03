@@ -9,7 +9,7 @@
 
 #include <ctime>
 #include <string>
-#include "tools/ObfuscatedString.h"
+#include "util/ObfuscatedString.h"
 
 
 namespace http {

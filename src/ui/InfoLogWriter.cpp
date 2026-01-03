@@ -8,7 +8,7 @@
 #include "InfoLogWriter.h"
 
 #include "ui/AsyncMessage.h"
-#include "tools/Mutex.h"
+#include "util/Mutex.h"
 
 namespace ui {
 

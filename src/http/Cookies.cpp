@@ -8,7 +8,7 @@
 #include "Cookies.h"
 
 #include <string>
-#include "tools/StrUtil.h"
+#include "util/StrUtil.h"
 
 
 namespace http {

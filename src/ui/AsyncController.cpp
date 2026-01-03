@@ -12,10 +12,10 @@
 #include "ui/SyncWaitTunnel.h"
 #include "ui/SyncDisconnect.h"
 #include "ui/SyncWaitTask.h"
-#include "tools/Logger.h"
-#include "tools/Mutex.h"
-#include "tools/SysUtil.h"
-#include "tools/StrUtil.h"
+#include "util/Logger.h"
+#include "util/Mutex.h"
+#include "util/SysUtil.h"
+#include "util/StrUtil.h"
 #include <mbedtls/pk.h>
 
 

@@ -8,7 +8,7 @@
 #pragma once
 #include <memory>
 #include <mbedtls/x509_crt.h>
-#include "tools/ErrUtil.h"
+#include "util/ErrUtil.h"
 
 
 namespace aux {

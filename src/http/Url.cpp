@@ -9,7 +9,7 @@
 
 #include <cctype>
 #include "net/Endpoint.h"
-#include "tools/StrUtil.h"
+#include "util/StrUtil.h"
 
 
 namespace http {

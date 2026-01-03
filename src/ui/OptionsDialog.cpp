@@ -7,7 +7,7 @@
 */
 #include "OptionsDialog.h"
 
-#include "tools/StrUtil.h"
+#include "util/StrUtil.h"
 #include "resources/resource.h"
 
 namespace ui {

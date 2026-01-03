@@ -11,7 +11,7 @@
 #include <list>
 #include "net/DnsClient.h"
 #include "net/PortForwarders.h"
-#include "tools/ErrUtil.h"
+#include "util/ErrUtil.h"
 
 
 static void timeout_cb(void* arg)

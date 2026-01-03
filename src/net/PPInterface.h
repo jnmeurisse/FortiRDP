@@ -14,8 +14,8 @@
 #include "net/pppossl.h"
 #include "net/TlsSocket.h"
 #include "net/OutputQueue.h"
-#include "tools/Logger.h"
-#include "tools/Counters.h"
+#include "util/Logger.h"
+#include "util/Counters.h"
 
 
 namespace net {

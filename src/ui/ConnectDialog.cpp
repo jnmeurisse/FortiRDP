@@ -16,9 +16,9 @@
 #include "ui/OptionsDialog.h"
 #include "ui/PinCodeDialog.h"
 #include "ui/SamlAuthDialog.h"
-#include "tools/Mutex.h"
-#include "tools/StrUtil.h"
-#include "tools/SysUtil.h"
+#include "util/Mutex.h"
+#include "util/StrUtil.h"
+#include "util/SysUtil.h"
 #include "resources/resource.h"
 
 

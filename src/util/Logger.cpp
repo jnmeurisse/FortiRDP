@@ -14,8 +14,8 @@
 #include <memory>
 #include <ostream>
 #include <thread>
-#include "tools/Mutex.h"
-#include "tools/StrUtil.h"
+#include "util/Mutex.h"
+#include "util/StrUtil.h"
 
 
 namespace aux {

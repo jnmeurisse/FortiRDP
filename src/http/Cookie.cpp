@@ -11,8 +11,8 @@
 #include <chrono>
 #include <ctime>
 #include "http/CookieError.h"
-#include "tools/StrUtil.h"
-#include "tools/strptime.h"
+#include "util/StrUtil.h"
+#include "util/strptime.h"
 
 
 namespace http {

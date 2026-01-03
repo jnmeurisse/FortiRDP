@@ -9,7 +9,7 @@
 #include <memory>
 #include <mbedtls/ctr_drbg.h>
 #include <mbedtls/pk.h>
-#include "tools/ErrUtil.h"
+#include "util/ErrUtil.h"
 
 
 namespace aux {

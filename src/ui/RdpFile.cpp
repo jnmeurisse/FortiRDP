@@ -10,7 +10,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
-#include "tools/StrUtil.h"
+#include "util/StrUtil.h"
 
 namespace ui {
 	RdpFile::RdpFile(const aux::Path& path) :

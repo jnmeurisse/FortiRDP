@@ -7,8 +7,8 @@
 */
 #include "Request.h"
 
-#include "tools/ErrUtil.h"
-#include "tools/Logger.h"
+#include "util/ErrUtil.h"
+#include "util/Logger.h"
 
 
 namespace http {

@@ -8,7 +8,7 @@
 #include "Thread.h"
 
 #include <process.h>
-#include "tools/SysUtil.h"
+#include "util/SysUtil.h"
 
 
 namespace aux {

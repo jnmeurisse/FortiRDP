@@ -9,9 +9,9 @@
 
 #include <mbedtls/build_info.h>
 #include <lwip/init.h>
-#include "tools/SysUtil.h"
-#include "tools/StrUtil.h"
-#include "tools/Path.h"
+#include "util/SysUtil.h"
+#include "util/StrUtil.h"
+#include "util/Path.h"
 #include "resources/resource.h"
 
 

@@ -9,7 +9,7 @@
 
 #include <limits>
 #include <stdexcept>
-#include "tools/StrUtil.h"
+#include "util/StrUtil.h"
 
 
 namespace net {

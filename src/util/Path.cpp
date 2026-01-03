@@ -10,7 +10,7 @@
 #include <wil/com.h>
 #include <Shlwapi.h>
 #include <vector>
-#include "tools/ErrUtil.h"
+#include "util/ErrUtil.h"
 
 
 namespace aux {
