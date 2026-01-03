@@ -26,7 +26,7 @@
 #include <cstdio>
 #include <limits>
 
-namespace aux {
+namespace utl {
 
 	static const int max_depth = 200;
 
@@ -178,7 +178,7 @@ namespace aux {
 		}
 
 		const T m_value;
-		void dump(string &out) const override { aux::dump(m_value, out); }
+		void dump(string &out) const override { utl::dump(m_value, out); }
 	};
 
 	class JsonDouble final : public Value<Json::NUMBER, double> {

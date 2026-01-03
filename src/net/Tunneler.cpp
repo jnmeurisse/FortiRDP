@@ -25,7 +25,7 @@ namespace net {
 
 	Tunneler::Tunneler(TlsSocket& tunnel, const Endpoint& local_ep, const Endpoint& remote_ep,
 		const tunneler_config& config) :
-		aux::Thread(),
+		utl::Thread(),
 		_logger(Logger::get_logger()),
 		_config(config),
 		_state(State::READY),

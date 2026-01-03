@@ -10,7 +10,7 @@
 #include <ctime>
 
 
-namespace aux {
+namespace utl {
 
 	obfstring::obfstring():
 		_key(obfstring::create_obfuscation_key()),

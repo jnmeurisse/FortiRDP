@@ -189,7 +189,7 @@ namespace net {
 		friend err_t tcp_recv_cb(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, err_t err);
 
 		// A reference to the application logger.
-		aux::Logger* const _logger;
+		utl::Logger* const _logger;
 
 		// The current state of the forwarder.
 		State _state;

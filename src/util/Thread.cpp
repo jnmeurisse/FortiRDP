@@ -11,7 +11,7 @@
 #include "util/SysUtil.h"
 
 
-namespace aux {
+namespace utl {
 
 	/* Internal functions */
 	unsigned __stdcall thread_entry_point(void *);

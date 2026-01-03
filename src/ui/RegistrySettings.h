@@ -146,7 +146,7 @@ namespace ui {
 
 	private:
 		//- the registry root key.
-		aux::RegKey _key;
+		utl::RegKey _key;
 
 		//- a convenient method to retrieve a flag value.
 		bool get_bool(const std::wstring& value_name) const;

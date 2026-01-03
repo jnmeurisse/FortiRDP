@@ -12,11 +12,11 @@
 #include "util/Logger.h"
 
 
-namespace aux {
+namespace utl {
 
 	Task::Task(const std::wstring& path) :
 		_logger(Logger::get_logger()),
-		_cmdline(aux::quote(path))
+		_cmdline(utl::quote(path))
 	{
 		DEBUG_CTOR(_logger);
 
@@ -42,7 +42,7 @@ namespace aux {
 	{
 		_cmdline
 			.append(L" ")
-			.append(aux::quote(parameter));
+			.append(utl::quote(parameter));
 	}
 
 
@@ -56,7 +56,7 @@ namespace aux {
 			STARTUPINFO si = { 0 };
 			si.cb = sizeof(si);
 
-			_logger->debug(">> start task cmd=%s", aux::wstr2str(_cmdline).c_str());
+			_logger->debug(">> start task cmd=%s", utl::wstr2str(_cmdline).c_str());
 
 			std::vector<wchar_t> cmdline_buffer(_cmdline.begin(), _cmdline.end());
 			cmdline_buffer.push_back(L'\0');

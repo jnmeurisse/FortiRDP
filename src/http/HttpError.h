@@ -15,10 +15,10 @@ namespace http {
 	/**
 	 * Exception raised when an error is detected in an HTTP answer.
 	 */
-	class http_error final : public aux::frdp_error
+	class http_error final : public utl::frdp_error
 	{
 	public:
-		using aux::frdp_error::frdp_error;
+		using utl::frdp_error::frdp_error;
 	};
 
 }

@@ -13,7 +13,7 @@
 #include <lwip/def.h>
 
 
-namespace aux {
+namespace utl {
 
 	std::wstring win_errmsg(const win_err errnum)
 	{

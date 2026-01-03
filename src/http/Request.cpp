@@ -13,7 +13,7 @@
 
 namespace http {
 
-	using namespace aux;
+	using namespace utl;
 	using namespace net;
 
 	/* Initialization of common HTTP Verbs */
@@ -67,11 +67,11 @@ namespace http {
 	}
 
 
-	void Request::send(net::TcpSocket& socket, const aux::Timer& timer)
+	void Request::send(net::TcpSocket& socket, const utl::Timer& timer)
 	{
 		DEBUG_ENTER_FMT(_logger, "timeout=%lu", timer.remaining_time());
 
-		aux::ByteBuffer buffer(1024);
+		utl::ByteBuffer buffer(1024);
 
 		if (!_body.empty()) {
 			_headers.set("Content-Length", _body.size());
@@ -87,7 +87,7 @@ namespace http {
 		_headers.write(buffer);
 
 		// Add cookies, cookies are still obfuscated at this stage
-		aux::obfstring cookie_header{ _cookies.to_header(_url) };
+		utl::obfstring cookie_header{ _cookies.to_header(_url) };
 		if (cookie_header.size() > 0) {
 			// Cookies are appended decrypted in the buffer.
 			buffer
@@ -114,7 +114,7 @@ namespace http {
 	}
 
 
-	void Request::write_buffer(net::TcpSocket& socket, const unsigned char* buffer, size_t len, const aux::Timer& timer)
+	void Request::write_buffer(net::TcpSocket& socket, const unsigned char* buffer, size_t len, const utl::Timer& timer)
 	{
 		TRACE_ENTER_FMT(_logger, "buffer=0x%012Ix size=%zu timeout=%lu",
 			PTR_VAL(buffer),

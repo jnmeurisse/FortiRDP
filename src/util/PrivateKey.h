@@ -12,7 +12,7 @@
 #include "util/ErrUtil.h"
 
 
-namespace aux {
+namespace utl {
 
 	class PrivateKey {
 	public:

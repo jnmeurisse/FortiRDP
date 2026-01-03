@@ -22,20 +22,20 @@ namespace http {
 
 	static std::string normalize_domain(const std::string& domain)
 	{
-		return aux::trim(aux::lower(domain));
+		return utl::trim(utl::lower(domain));
 	}
 
 
 	static std::string normalize_path(std::string path)
 	{
-		path = aux::trim(path);
+		path = utl::trim(path);
 		return path.empty() ? "/" : path;
 	}
 
 
 	Cookie::Cookie(
 		const std::string& name,
-		const aux::obfstring& value,
+		const utl::obfstring& value,
 		const std::string& domain,
 		const std::string& path,
 		const std::time_t& expires,
@@ -52,9 +52,9 @@ namespace http {
 	}
 
 
-	aux::obfstring Cookie::to_header() const
+	utl::obfstring Cookie::to_header() const
 	{
-		return aux::obfstring{ _name + "=" }.append(_value);
+		return utl::obfstring{ _name + "=" }.append(_value);
 	}
 
 
@@ -97,26 +97,26 @@ namespace http {
 	}
 
 	
-	Cookie Cookie::parse(const aux::obfstring& cookie_string)
+	Cookie Cookie::parse(const utl::obfstring& cookie_string)
 	{
-		std::vector<aux::obfstring> parts;
+		std::vector<utl::obfstring> parts;
 
 		// Split the cookie string. Each cookie header must contain at least one cookie-pair.
 		// A cookie-pair defines a cookie’s name and value according to the standard syntax:
 		//    cookie-pair *( ";" SP cookie-av )
 		//    cookie-pair = cookie-name "=" cookie-value
 		// Additional attributes (cookie-av) are separated by semicolons.
-		if (aux::split(cookie_string, ';', parts) <= 0)
+		if (utl::split(cookie_string, ';', parts) <= 0)
 			throw CookieError{ "Empty cookie definition" };
 		
 		// split cookie-pair 
-		const aux::obfstring cookie_pair(parts[0]);
+		const utl::obfstring cookie_pair(parts[0]);
 		const std::string::size_type pos_pair = cookie_pair.find('=');
 		if (pos_pair == std::string::npos)
 			throw CookieError{ "Invalid cookie :" + cookie_string.uncrypt() };
 
 		const std::string cookie_name{ cookie_pair.substr(0, pos_pair).uncrypt() };
-		const aux::obfstring cookie_value{ cookie_pair.substr(pos_pair + 1, std::string::npos) };
+		const utl::obfstring cookie_value{ cookie_pair.substr(pos_pair + 1, std::string::npos) };
 		std::string domain;
 		std::string path;
 		std::time_t expires = EXPIRES_UNSPECIFIED;
@@ -125,7 +125,7 @@ namespace http {
 
 		for (size_t idx = 1; idx < parts.size(); idx++) {
 			// get next attribute-value
-			const std::string cookie_av{ aux::trimleft(parts[idx].uncrypt()) };
+			const std::string cookie_av{ utl::trimleft(parts[idx].uncrypt()) };
 
 			// extract attribute name and value
 			const std::string::size_type pos = cookie_av.find('=');
@@ -134,23 +134,23 @@ namespace http {
 				const std::string attribute_name{ cookie_av.substr(0, pos) };
 				const std::string attribute_value{ cookie_av.substr(pos + 1, std::string::npos) };
 
-				if (aux::iequal(attribute_name, "domain")) {
+				if (utl::iequal(attribute_name, "domain")) {
 					domain = attribute_value;
 				}
-				else if (aux::iequal(attribute_name, "path")) {
+				else if (utl::iequal(attribute_name, "path")) {
 					path = attribute_value;
 				}
-				else if (aux::iequal(attribute_name, "expires")) {
+				else if (utl::iequal(attribute_name, "expires")) {
 					expires = parse_http_date(attribute_value);
 				}
-				else if (aux::iequal(attribute_name, "max-age")) {
+				else if (utl::iequal(attribute_name, "max-age")) {
 					// not supported, attribute is ignored
 				}
 			}
-			else if (aux::iequal(cookie_av, "secure")) {
+			else if (utl::iequal(cookie_av, "secure")) {
 				secure = true;
 			}
-			else if (aux::iequal(cookie_av, "httponly")) {
+			else if (utl::iequal(cookie_av, "httponly")) {
 				http_only = true;
 			}
 		}

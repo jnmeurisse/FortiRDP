@@ -24,7 +24,7 @@ struct comp {
 };
 }
 
-namespace aux {
+namespace utl {
 
 typedef std::map<const std::string, std::string, priv::comp> strimap;
 

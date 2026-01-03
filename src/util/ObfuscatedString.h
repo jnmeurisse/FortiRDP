@@ -10,7 +10,7 @@
 #include <string>
 
 
-namespace aux {
+namespace utl {
 
 	/**
 	* Represents an obfuscated string.  This class is used to avoid keeping session cookies

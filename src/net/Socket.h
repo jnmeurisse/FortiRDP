@@ -17,7 +17,7 @@
 
 
 namespace net {
-	using namespace aux;
+	using namespace utl;
 
 	enum net_protocol {
 		NETCTX_PROTO_TCP = MBEDTLS_NET_PROTO_TCP,
@@ -239,7 +239,7 @@ namespace net {
 
 	protected:
 		// A reference to the application logger.
-		aux::Logger* const _logger;
+		utl::Logger* const _logger;
 
 		/* Allocates a disconnected socket.
 		*/

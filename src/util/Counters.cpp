@@ -8,7 +8,7 @@
 #include "Counters.h"
 
 
-namespace aux {
+namespace utl {
 
 	void Counters::clear() noexcept
 	{

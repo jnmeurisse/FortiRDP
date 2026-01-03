@@ -32,7 +32,7 @@ namespace ui {
 
 	INT_PTR AboutDialog::onCreateDialogMessage(WPARAM wParam, LPARAM lParam)
 	{
-		using namespace aux;
+		using namespace utl;
 		LPARAM_UNUSED();
 
 		// Retrieve major/minor version from .exe

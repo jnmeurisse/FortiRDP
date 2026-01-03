@@ -11,7 +11,7 @@
 #include "util/Logger.h"
 
 
-namespace aux {
+namespace utl {
 
 	/**
 	 * A Thread is an abstract class that enables creation of separate threads 

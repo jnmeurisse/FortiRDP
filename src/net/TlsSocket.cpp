@@ -10,7 +10,7 @@
 
 namespace net {
 
-	using namespace aux;
+	using namespace utl;
 
 
 	TlsSocket::TlsSocket(const TlsConfig& tls_config) :

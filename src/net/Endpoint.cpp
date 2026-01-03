@@ -53,16 +53,16 @@ namespace net {
 
 		if ((p >= str) &&  (*p == ':')) {
 			// Extract the host name and port.
-			_hostname = aux::trim(std::string(str, p));
+			_hostname = utl::trim(std::string(str, p));
 			int port_value;
-			valid_port = aux::str2i((std::string(p + 1, str + address.length())), port_value) 
+			valid_port = utl::str2i((std::string(p + 1, str + address.length())), port_value) 
 						&& (port_value > 0) 
 						&& (port_value <= std::numeric_limits<uint16_t>::max());
 			if (valid_port)
 				_port = static_cast<uint16_t>(port_value);
 		}
 		else {
-			_hostname = aux::trim(str);
+			_hostname = utl::trim(str);
 			_port = default_port;
 		}
 

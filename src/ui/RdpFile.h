@@ -24,7 +24,7 @@ namespace ui {
 	class RdpFile final
 	{
 	public:
-		explicit RdpFile(const aux::Path& path);
+		explicit RdpFile(const utl::Path& path);
 
 		inline bool empty() const { return _options_list.size() == 0; }
 		bool read();
@@ -36,7 +36,7 @@ namespace ui {
 		bool get(const std::string& name, std::string& type, std::string& value);
 
 	private:
-		const aux::Path _path;
+		const utl::Path _path;
 		std::list<RdpOption> _options_list;
 
 		RdpOption* find(const std::string& name);

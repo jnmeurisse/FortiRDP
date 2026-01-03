@@ -30,7 +30,7 @@ namespace ui {
 
 	protected:
 		// The logger.
-		aux::Logger* const _logger;
+		utl::Logger* const _logger;
 
 		// The recipient window of the user event message.
 		const HWND _hwnd;

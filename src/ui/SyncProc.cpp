@@ -11,7 +11,7 @@
 namespace ui {
 
 	SyncProc::SyncProc(HWND hwnd, const AsyncMessage* message) :
-		_logger(aux::Logger::get_logger()),
+		_logger(utl::Logger::get_logger()),
 		_hwnd(hwnd),
 		_message(message)
 	{

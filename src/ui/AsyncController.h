@@ -39,7 +39,7 @@ namespace ui {
 	* the hwnd parameter when the blocking operation is finished. A blocking operation is
 	* implemented in a SyncProcedure sub class.
 	*/
-	class AsyncController final : public aux::Thread
+	class AsyncController final : public utl::Thread
 	{
 	public:
 		explicit AsyncController(HWND hwnd);
@@ -49,12 +49,12 @@ namespace ui {
 		 * Initialize the CA certificate chain from the given file.
 		 * 
 		*/
-		bool load_ca_crt(const aux::Path& filename);
+		bool load_ca_crt(const utl::Path& filename);
 
 		/**
 		 * Initialize the user certificate.
 		*/
-		bool load_user_crt(const aux::Path& filename, ask_crt_passcode_fn ask_passcode);
+		bool load_user_crt(const utl::Path& filename, ask_crt_passcode_fn ask_passcode);
 
 		/**
 		 * Configure the authentication method.
@@ -79,7 +79,7 @@ namespace ui {
 		 * The monitor flag indicates that the  controller is monitoring the 
 		 * completion of the external task.
 		*/
-		bool start_task(const aux::TaskInfo& task_info, bool monitor);
+		bool start_task(const utl::TaskInfo& task_info, bool monitor);
 
 		/**
 		 * Disconnects the controller from the firewall.
@@ -110,7 +110,7 @@ namespace ui {
 		static const char* __class__;
 
 		// The application logger.
-		aux::Logger* const _logger;
+		utl::Logger* const _logger;
 
 		// The list of actions performed by the AsyncController in a background thread.
 		enum ControllerAction {
@@ -126,20 +126,20 @@ namespace ui {
 		volatile ControllerAction _action;
 
 		// A mutex to serialize execution of actions.
-		aux::Mutex _mutex;
+		utl::Mutex _mutex;
 
 		// An event set to execute an action.
-		aux::Event _requestEvent;
-		aux::Event _readyEvent;
+		utl::Event _requestEvent;
+		utl::Event _readyEvent;
 
 		// Tthe recipient window of the user event message sent at completion of an action.
 		const HWND _hwnd;
 
 		// The CA certificate chains.
-		aux::X509crtPtr _ca_crt;
+		utl::X509crtPtr _ca_crt;
 
 		// The user certificate.
-		aux::UserCrtPtr _user_crt;
+		utl::UserCrtPtr _user_crt;
 
 		// The authentication method.
 		fw::AuthMethod _auth_method;
@@ -149,7 +149,7 @@ namespace ui {
 
 		std::unique_ptr<fw::FirewallClient> _portal_client;
 		std::unique_ptr<fw::FirewallTunnel> _tunnel;
-		std::unique_ptr<aux::Task> _task;
+		std::unique_ptr<utl::Task> _task;
 
 		/**
 		 * Requests an action and wake up the thread.

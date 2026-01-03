@@ -207,7 +207,7 @@ namespace fw {
 		http::Cookies _cookie_jar;
 
 		// Mutex to serialize calls.
-		aux::Mutex _mutex;
+		utl::Mutex _mutex;
 
 		// The fortiGate realm.
 		const std::string _realm;
@@ -228,10 +228,10 @@ namespace fw {
 			const http::Headers& headers, http::Answer& answer, int allow_redir);
 
 		// Sends a login check to the firewall portal.
-		portal_err try_login_check(const aux::StringMap& in_params, aux::StringMap& out_params);
+		portal_err try_login_check(const utl::StringMap& in_params, utl::StringMap& out_params);
 
 		// Gets the redirect URL from the given map.
-		bool get_redir_url(const aux::StringMap& params, http::Url& url) const;
+		bool get_redir_url(const utl::StringMap& params, http::Url& url) const;
 	};
 
 }

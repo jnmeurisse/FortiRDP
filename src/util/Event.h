@@ -11,7 +11,7 @@
 #include "util/Logger.h"
 
 
-namespace aux {
+namespace utl {
 
 	/**
 	* An event is a synchronization object that enables one thread to notify another

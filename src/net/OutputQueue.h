@@ -16,7 +16,7 @@
 
 namespace net {
 
-	using namespace aux;
+	using namespace utl;
 
 	class OutputQueue final : public PBufQueue
 	{

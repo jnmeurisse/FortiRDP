@@ -15,7 +15,7 @@
 
 
 
-namespace aux {
+namespace utl {
 	
 	X509Crt::X509Crt()
 	{

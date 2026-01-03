@@ -22,8 +22,8 @@
 namespace ui {
 
 	AsyncController::AsyncController(HWND hwnd) :
-		aux::Thread(),
-		_logger(aux::Logger::get_logger()),
+		utl::Thread(),
+		_logger(utl::Logger::get_logger()),
 		_action(NONE),
 		_mutex(),
 		_requestEvent(false),
@@ -45,23 +45,23 @@ namespace ui {
 	}
 
 
-	bool AsyncController::load_ca_crt(const aux::Path& filename)
+	bool AsyncController::load_ca_crt(const utl::Path& filename)
 	{
 		DEBUG_ENTER(_logger);
 		bool init_status = true;
 
 		if (!_ca_crt) {
-			const std::string crt_filename = aux::wstr2str(filename.to_string());
-			const std::string compacted = aux::wstr2str(filename.compact(40));
+			const std::string crt_filename = utl::wstr2str(filename.to_string());
+			const std::string compacted = utl::wstr2str(filename.compact(40));
 
-			_ca_crt = std::make_unique<aux::X509Crt>();
+			_ca_crt = std::make_unique<utl::X509Crt>();
 
-			if (aux::file_exists(filename)) {
-				aux::mbed_err rc = _ca_crt->load(crt_filename.c_str());
+			if (utl::file_exists(filename)) {
+				utl::mbed_err rc = _ca_crt->load(crt_filename.c_str());
 
 				if (rc != 0) {
 					_logger->info("WARNING: failed to load CA cert file %s ", compacted.c_str());
-					_logger->info("%s", aux::mbed_errmsg(rc).c_str());
+					_logger->info("%s", utl::mbed_errmsg(rc).c_str());
 					init_status = false;
 				}
 				else {
@@ -79,24 +79,24 @@ namespace ui {
 	}
 
 
-	bool AsyncController::load_user_crt(const aux::Path& filename, ask_crt_passcode_fn ask_passcode)
+	bool AsyncController::load_user_crt(const utl::Path& filename, ask_crt_passcode_fn ask_passcode)
 	{
 		DEBUG_ENTER(_logger);
 		bool init_status = true;
 
 		if (!_user_crt) {
-			const std::string crt_filename = aux::wstr2str(filename.to_string());
-			const std::string compacted = aux::wstr2str(filename.compact(40));
+			const std::string crt_filename = utl::wstr2str(filename.to_string());
+			const std::string compacted = utl::wstr2str(filename.compact(40));
 
-			_user_crt = std::make_unique<aux::UserCrt>();
+			_user_crt = std::make_unique<utl::UserCrt>();
 
-			if (aux::file_exists(filename)) {
+			if (utl::file_exists(filename)) {
 				// Load the user certificate.
-				aux::mbed_err rc = _user_crt->crt.load(crt_filename.c_str());
+				utl::mbed_err rc = _user_crt->crt.load(crt_filename.c_str());
 
 				if (rc != 0) {
 					_logger->error("ERROR: failed to load user cert file %s ", compacted.c_str());
-					_logger->info("%s", aux::mbed_errmsg(rc).c_str());
+					_logger->info("%s", utl::mbed_errmsg(rc).c_str());
 					init_status = false;
 				}
 				else {
@@ -175,7 +175,7 @@ namespace ui {
 	}
 
 
-	bool AsyncController::start_task(const aux::TaskInfo& task_info, bool monitor)
+	bool AsyncController::start_task(const utl::TaskInfo& task_info, bool monitor)
 	{
 		DEBUG_ENTER(_logger);
 
@@ -184,14 +184,14 @@ namespace ui {
 		if (_tunnel) {
 			const net::Endpoint& endpoint = _tunnel->local_endpoint();
 
-			aux::strimap vars;
+			utl::strimap vars;
 			using pairofstr = std::pair<const std::string, std::string>;
 			vars.insert(pairofstr("host", endpoint.hostname()));
 			vars.insert(pairofstr("port", std::to_string(endpoint.port())));
 
-			_task = std::make_unique<aux::Task>(task_info.path());
+			_task = std::make_unique<utl::Task>(task_info.path());
 			for (unsigned int i = 0; i < task_info.params().size(); i++)
-				_task->add_parameter(aux::substvar(task_info.params()[i], vars));
+				_task->add_parameter(utl::substvar(task_info.params()[i], vars));
 
 			started = _task->start();
 
@@ -229,7 +229,7 @@ namespace ui {
 		DEBUG_ENTER_FMT(_logger, "action=%s", action_name(action));
 
 		// Only one thread can send_request an action.
-		aux::Mutex::Lock lock(_mutex);
+		utl::Mutex::Lock lock(_mutex);
 
 		// Wait that the controller thread is ready
 		LOG_DEBUG(_logger, "wait for action=%s", action_name(action));

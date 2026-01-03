@@ -14,7 +14,7 @@
 
 
 namespace net {
-	using namespace aux;
+	using namespace utl;
 
 	// Forward declarations
 	u32_t ppp_output_cb(ppp_pcb* pcb, struct pbuf* pbuf, void* ctx);

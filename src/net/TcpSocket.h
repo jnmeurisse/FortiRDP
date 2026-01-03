@@ -14,7 +14,7 @@
 
 
 namespace net {
-	using namespace aux;
+	using namespace utl;
 
 	class TcpSocket : public Socket {
 	public:

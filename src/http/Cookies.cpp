@@ -65,11 +65,11 @@ namespace http {
 	}
 
 
-	aux::obfstring Cookies::to_header(const Url& url) const
+	utl::obfstring Cookies::to_header(const Url& url) const
 	{
-		aux::obfstring buffer;
+		utl::obfstring buffer;
 		const std::string url_domain = url.get_hostname();
-		const bool secure_link = aux::iequal(url.get_scheme(), "https");
+		const bool secure_link = utl::iequal(url.get_scheme(), "https");
 
 		// Create the Set-Cookie header
 		for (auto it = _cookies.cbegin(); it != _cookies.cend(); it++) {
@@ -90,7 +90,7 @@ namespace http {
 			}
 		}
 
-		return buffer.size() > 0 ? buffer.substr(0, buffer.size() - 2) : aux::obfstring();
+		return buffer.size() > 0 ? buffer.substr(0, buffer.size() - 2) : utl::obfstring();
 	}
 
 }

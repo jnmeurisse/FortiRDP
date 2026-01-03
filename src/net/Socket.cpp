@@ -14,7 +14,7 @@
 
 
 namespace net {
-	using namespace aux;
+	using namespace utl;
 
 	Socket::Socket() :
 		_logger(Logger::get_logger()),

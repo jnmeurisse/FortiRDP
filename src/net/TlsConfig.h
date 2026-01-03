@@ -17,7 +17,7 @@
 
 
 namespace net {
-	using namespace aux;
+	using namespace utl;
 
 	class TlsConfig {
 	public:
@@ -45,7 +45,7 @@ namespace net {
 		static const char* __class__;
 
 		// A reference to the application logger.
-		aux::Logger* const _logger;
+		utl::Logger* const _logger;
 
 		// All data required to initialize a TLS socket.
 		mbedtls_entropy_context _entropy_ctx;

@@ -11,7 +11,7 @@
 
 
 namespace fw {
-	using namespace aux;
+	using namespace utl;
 
 	FirewallTunnel::FirewallTunnel(http::HttpsClientPtr tunnel_socket,
 		const net::Endpoint& local_ep, const net::Endpoint& remote_ep,

@@ -15,10 +15,10 @@ namespace http {
 	/**
 	 * Exception raised when the syntax of an HTTP cookie is incorrect.
 	 */
-	class CookieError final : public aux::frdp_error
+	class CookieError final : public utl::frdp_error
 	{
 	public:
-		using aux::frdp_error::frdp_error;
+		using utl::frdp_error::frdp_error;
 	};
 
 }

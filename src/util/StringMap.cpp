@@ -12,7 +12,7 @@
 #include "StrUtil.h"
 
 
-namespace aux {
+namespace utl {
 
 	StringMap::StringMap(const std::string& line, const char delim) :
 		_strmap()
@@ -30,7 +30,7 @@ namespace aux {
 	void StringMap::serase()
 	{
 		for (auto iter = _strmap.begin(); iter != _strmap.end(); ++iter) {
-			aux::serase(iter->second);
+			utl::serase(iter->second);
 		}
 
 		_strmap.clear();
@@ -41,7 +41,7 @@ namespace aux {
 	{
 		std::vector<std::string> tokens;
 
-		if (aux::split(line.c_str(), delim, tokens) > 0) {
+		if (utl::split(line.c_str(), delim, tokens) > 0) {
 			for (const auto& item : tokens) {
 				// Skip empty item.
 				if (item.empty())
@@ -51,10 +51,10 @@ namespace aux {
 				const size_t pos = item.find('=');
 				if (pos != std::string::npos) {
 					// The spaces after the equal sign are not significant
-					set(aux::trim(item.substr(0, pos)), aux::trimleft(item.substr(pos + 1, std::string::npos)));
+					set(utl::trim(item.substr(0, pos)), utl::trimleft(item.substr(pos + 1, std::string::npos)));
 				}
 				else {
-					set(aux::trim(item), "");
+					set(utl::trim(item), "");
 				}
 			}
 		}
@@ -65,7 +65,7 @@ namespace aux {
 
 	void StringMap::set(const std::string& name, const std::string& value)
 	{
-		aux::strimap::iterator it;
+		utl::strimap::iterator it;
 
 		// Check if the name is already defined. If yes, update the 
 		// associated value.
@@ -82,7 +82,7 @@ namespace aux {
 	bool StringMap::get_str(const std::string& name, std::string& value) const
 	{
 		bool found = false;
-		aux::strimap::const_iterator it{ _strmap.find(name) };
+		utl::strimap::const_iterator it{ _strmap.find(name) };
 
 		if (it != _strmap.end()) {
 			value = it->second;
@@ -102,7 +102,7 @@ namespace aux {
 	bool StringMap::get_int(const std::string& name, int& value) const
 	{
 		std::string tmp;
-		return get_str(name, tmp) && aux::str2i(tmp, value);
+		return get_str(name, tmp) && utl::str2i(tmp, value);
 	}
 
 

@@ -15,7 +15,7 @@ namespace net {
 		const char* file, int line, const char* str)
 	{
 		((void)level);
-		aux::Logger* const logger = static_cast<aux::Logger*>(ctx);
+		utl::Logger* const logger = static_cast<utl::Logger*>(ctx);
 
 		if (logger && strlen(str) > 1) {
 			// remove \n from str
@@ -71,7 +71,7 @@ namespace net {
 
 
 	TlsConfig::TlsConfig() :
-		_logger(aux::Logger::get_logger())
+		_logger(utl::Logger::get_logger())
 	{
 		DEBUG_CTOR(_logger);
 		mbedtls_entropy_init(&_entropy_ctx);

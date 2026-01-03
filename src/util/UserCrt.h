@@ -11,7 +11,7 @@
 #include "util/PrivateKey.h"
 
 
-namespace aux {
+namespace utl {
 
 	class UserCrt {
 	public:

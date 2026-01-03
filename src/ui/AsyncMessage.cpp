@@ -10,7 +10,7 @@
 namespace ui {
 
 	AsyncMessage::AsyncMessage(UINT eventNumber) :
-		_logger(aux::Logger::get_logger()),
+		_logger(utl::Logger::get_logger()),
 		_id(eventNumber)
 	{
 	}

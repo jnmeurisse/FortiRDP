@@ -8,7 +8,7 @@
 #include "UserCrt.h"
 
 
-namespace aux {
+namespace utl {
 
 	UserCrt::UserCrt():
 		crt(),

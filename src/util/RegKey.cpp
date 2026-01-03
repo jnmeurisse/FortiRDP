@@ -12,7 +12,7 @@
 #include "util/SysUtil.h"
 
 
-namespace aux {
+namespace utl {
 
 	RegKey::RegKey(HKEY root_key, const std::wstring& key_name) :
 		_root_key(root_key),

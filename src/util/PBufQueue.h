@@ -11,7 +11,7 @@
 #include <lwip/pbuf.h>
 
 
-namespace aux {
+namespace utl {
 
 	/**
 	 * PBufQueue represents a queue of LWIP pbufs (packet buffers). The queue is

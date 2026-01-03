@@ -10,7 +10,7 @@
 #include "util/SysUtil.h"
 
 
-namespace aux {
+namespace utl {
 
 	Event::Event() :
 		Event(true)

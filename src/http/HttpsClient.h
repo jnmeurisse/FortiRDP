@@ -20,7 +20,7 @@
 
 namespace http {
 
-	using namespace aux;
+	using namespace utl;
 
 	class HttpsClient : public net::TlsSocket
 	{
@@ -149,7 +149,7 @@ namespace http {
 		const net::Endpoint _host_ep;
 
 		// Connection keep alive timer.
-		aux::Timer _keepalive_timer;
+		utl::Timer _keepalive_timer;
 
 		// Maximum number of requests this client can issue during a session.
 		int _max_requests;

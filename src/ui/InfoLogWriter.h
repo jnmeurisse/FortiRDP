@@ -13,18 +13,18 @@
 
 namespace ui {
 
-	class InfoLogWriter final : public aux::LogWriter
+	class InfoLogWriter final : public utl::LogWriter
 	{
 	public:
-		explicit InfoLogWriter(HWND hWnd, aux::LogLevel level);
+		explicit InfoLogWriter(HWND hWnd, utl::LogLevel level);
 
-		void write(aux::LogLevel level, int indend, const void* object, const std::string& text) override;
+		void write(utl::LogLevel level, int indend, const void* object, const std::string& text) override;
 		void flush() override;
 
 
 	private:
 		const HWND _hWnd;
-		aux::LogQueue _logQueue;
+		utl::LogQueue _logQueue;
 	};
 
 }

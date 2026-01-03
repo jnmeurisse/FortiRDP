@@ -23,26 +23,26 @@
 
 
 #define DEBUG_ENTER_FMT(logger, fmt, ...) \
-			aux::LogScope __scope(logger, aux::LogLevel::LL_DEBUG, this, __class__, __func__, fmt, __VA_ARGS__)
+			utl::LogScope __scope(logger, utl::LogLevel::LL_DEBUG, this, __class__, __func__, fmt, __VA_ARGS__)
 #define TRACE_ENTER_FMT(logger, fmt, ...) \
-			aux::LogScope __scope(logger, aux::LogLevel::LL_TRACE, this, __class__, __func__, fmt, __VA_ARGS__)
+			utl::LogScope __scope(logger, utl::LogLevel::LL_TRACE, this, __class__, __func__, fmt, __VA_ARGS__)
 
 #define DEBUG_ENTER(logger) \
-			 aux::LogScope __scope(logger, aux::LogLevel::LL_DEBUG, this, __class__, __func__)
+			 utl::LogScope __scope(logger, utl::LogLevel::LL_DEBUG, this, __class__, __func__)
 #define TRACE_ENTER(logger) \
-			aux::LogScope __scope(logger, aux::LogLevel::LL_TRACE, this, __class__, __func__)
+			utl::LogScope __scope(logger, utl::LogLevel::LL_TRACE, this, __class__, __func__)
 
 #define LOG_DEBUG(_logger, fmt, ...) \
 			if ((_logger)->is_debug_enabled()) \
-				(_logger)->log(aux::LogLevel::LL_DEBUG, "= %s::%s - "##fmt, __class__, __func__, __VA_ARGS__)
+				(_logger)->log(utl::LogLevel::LL_DEBUG, "= %s::%s - "##fmt, __class__, __func__, __VA_ARGS__)
 
 #define LOG_TRACE(_logger, fmt, ...) \
 			if ((_logger)->is_trace_enabled()) \
-				(_logger)->log(aux::LogLevel::LL_TRACE, "= %s::%s - "##fmt, __class__, __func__, __VA_ARGS__)
+				(_logger)->log(utl::LogLevel::LL_TRACE, "= %s::%s - "##fmt, __class__, __func__, __VA_ARGS__)
 
 
 
-namespace aux {
+namespace utl {
 
 	class LogWriter;
 
@@ -114,7 +114,7 @@ namespace aux {
 		std::list<LogWriter *> _writers;
 
 		// A mutex to protect access to the list of writers.
-		aux::Mutex _mutex;
+		utl::Mutex _mutex;
 
 		// The current logger level.
 		LogLevel _level;
@@ -202,11 +202,11 @@ namespace aux {
 		void push(const std::string& text);
 		std::string pop();
 
-		inline aux::Mutex& mutex() { return _mutex; }
+		inline utl::Mutex& mutex() { return _mutex; }
 
 	private:
 		std::queue<std::string> _queue;
-		aux::Mutex _mutex;
+		utl::Mutex _mutex;
 	};
 
 }

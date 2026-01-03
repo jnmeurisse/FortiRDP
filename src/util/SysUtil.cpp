@@ -14,7 +14,7 @@
 #include "util/StrUtil.h"
 
 
-namespace aux {
+namespace utl {
 
 	bool file_exists(const std::wstring& path)
 	{
@@ -25,7 +25,7 @@ namespace aux {
 	}
 
 
-	bool file_exists(const aux::Path& path)
+	bool file_exists(const utl::Path& path)
 	{
 		return file_exists(path.to_string());
 	}

@@ -11,7 +11,7 @@
 
 namespace net {
 
-	using namespace aux;
+	using namespace utl;
 
 	Listener::Listener() :
 		Socket(),

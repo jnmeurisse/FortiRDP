@@ -16,7 +16,7 @@
 
 
 namespace net {
-	using namespace aux;
+	using namespace utl;
 
 	/**
 	 * The client side of a network TLS socket

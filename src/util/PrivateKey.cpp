@@ -8,7 +8,7 @@
 #include "PrivateKey.h"
 
 
-namespace aux {
+namespace utl {
 
 
 	PrivateKey::PrivateKey()

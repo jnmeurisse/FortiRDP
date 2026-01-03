@@ -11,7 +11,7 @@
 #include "util/ErrUtil.h"
 
 
-namespace aux {
+namespace utl {
 
 	class X509Crt {
 	public:

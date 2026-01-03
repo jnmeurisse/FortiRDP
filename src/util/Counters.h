@@ -8,7 +8,7 @@
 #pragma once
 
 
-namespace aux {
+namespace utl {
 
 	/**
 	* Holds transmitted bytes counters.

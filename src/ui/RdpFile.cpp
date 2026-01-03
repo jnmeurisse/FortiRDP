@@ -13,7 +13,7 @@
 #include "util/StrUtil.h"
 
 namespace ui {
-	RdpFile::RdpFile(const aux::Path& path) :
+	RdpFile::RdpFile(const utl::Path& path) :
 		_path(path)
 	{
 	}
@@ -35,7 +35,7 @@ namespace ui {
 					break;
 
 				// Split option parameters
-				if (aux::split(line, ':', params) == 3)
+				if (utl::split(line, ':', params) == 3)
 				{
 					// Add it to the list
 					add_option(params[0], params[1], params[2]);
@@ -98,7 +98,7 @@ namespace ui {
 	{
 		for (auto& it : _options_list)
 		{
-			if (aux::iequal(name, it.option_name))
+			if (utl::iequal(name, it.option_name))
 				return &it;
 		}
 
