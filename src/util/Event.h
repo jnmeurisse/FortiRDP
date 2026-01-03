@@ -80,7 +80,7 @@ namespace utl {
 		static const char* __class__;
 
 		// A reference to the application logger.
-		Logger* const _logger;
+		utl::Logger* const _logger;
 
 		// The event handle.
 		HANDLE _handle = INVALID_HANDLE_VALUE;

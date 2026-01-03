@@ -12,6 +12,8 @@
 
 
 namespace http {
+	using namespace utl;
+
 
 	void Cookies::clear()
 	{
@@ -69,7 +71,7 @@ namespace http {
 	{
 		utl::obfstring buffer;
 		const std::string url_domain = url.get_hostname();
-		const bool secure_link = utl::iequal(url.get_scheme(), "https");
+		const bool secure_link = str::iequal(url.get_scheme(), "https");
 
 		// Create the Set-Cookie header
 		for (auto it = _cookies.cbegin(); it != _cookies.cend(); it++) {

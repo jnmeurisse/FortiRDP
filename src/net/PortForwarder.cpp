@@ -10,6 +10,7 @@
 
 #include <algorithm>
 #include <array>
+#include <lwip/err.h>
 #include <lwip/timeouts.h>
 #include <lwip/tcp.h>
 #include "net/DnsClient.h"
@@ -18,7 +19,8 @@
 namespace net {
 	using namespace utl;
 
-	// Forward declarations
+
+	// lwip callbacks
 	void dns_found_cb(const char* name, const ip_addr_t* ipaddr, void* callback_arg);
 	err_t tcp_connected_cb(void* arg, struct tcp_pcb* tpcb, err_t err);
 	void tcp_err_cb(void* arg, err_t err);
@@ -27,7 +29,7 @@ namespace net {
 	void timeout_cb(void* arg);
 
 
-	PortForwarder::PortForwarder(const Endpoint& endpoint, bool tcp_nodelay, int keepalive) :
+	PortForwarder::PortForwarder(const net::Endpoint& endpoint, bool tcp_nodelay, int keepalive) :
 		_logger(Logger::get_logger()),
 		_state(State::READY),
 		_endpoint(endpoint),
@@ -57,7 +59,7 @@ namespace net {
 	}
 
 
-	bool PortForwarder::connect(Listener& listener)
+	bool PortForwarder::connect(net::Listener& listener)
 	{
 		DEBUG_ENTER(_logger);
 
@@ -189,7 +191,7 @@ namespace net {
 		// Abort the connection by sending a RST (reset) segment to the remote host.
 		// The TCP PCB is de-allocated, the function tcp_err_cb is called which
 		// finally set the current state to DISCONNECTED.
-		tcp_abort(_local_client);
+		::tcp_abort(_local_client);
 		_local_client = nullptr;
 
 		// Clear all queues
@@ -221,7 +223,7 @@ namespace net {
 
 		// The number of bytes received is less than 2048, so the cast is safe.
 		const u16_t length = static_cast<u16_t>(status.rbytes);
-		pbuf* const buffer = pbuf_alloc(PBUF_RAW, length, PBUF_RAM);
+		pbuf* const buffer = ::pbuf_alloc(PBUF_RAW, length, PBUF_RAM);
 		if (!buffer) {
 			_logger->error("ERROR: %s 0x%012Ix - memory allocation error",
 				__class__,
@@ -231,7 +233,7 @@ namespace net {
 		}
 
 		// Copy received data into the buffer.
-		pbuf_take(buffer, incoming_data.data(), length);
+		::pbuf_take(buffer, incoming_data.data(), length);
 
 		// If the local sender provides fewer bytes than the buffer capacity,
 		// it is assumed no more data will arrive immediately, so the data
@@ -250,7 +252,7 @@ namespace net {
 		}
 
 		// Decrement the reference counter and free the buffer if it drops to 0.
-		pbuf_free(buffer);
+		::pbuf_free(buffer);
 
 		return true;
 	}
@@ -287,7 +289,7 @@ namespace net {
 		if (_state != State::CONNECTED) 
 			return false;
 
-		return _reply_queue.write(_local_server).code != NETCTX_SND_ERROR;
+		return _reply_queue.write(_local_server).code != snd_status_code::NETCTX_SND_ERROR;
 	}
 
 
@@ -315,12 +317,12 @@ namespace net {
 			_forward_queue.clear();
 
 			// Remove all callbacks.  We are not interested to be called on such events.
-			tcp_err(_local_client, nullptr);
-			tcp_recv(_local_client, nullptr);
+			::tcp_err(_local_client, nullptr);
+			::tcp_recv(_local_client, nullptr);
 
 			// tcp_close never fails (see https://savannah.nongnu.org/bugs/?60757) even if
 			// the documentation suggests it could.
-			tcp_close(_local_client);
+			::tcp_close(_local_client);
 			_local_client = nullptr;
 
 			// We are now disconnected.  The TCP PCB has been deleted or will be deleted
@@ -361,7 +363,7 @@ namespace net {
 
 	void dns_found_cb(const char *name, const ip_addr_t *ipaddr, void *callback_arg)
 	{
-		PortForwarder* const pf = static_cast<PortForwarder*>(callback_arg);
+		auto pf = static_cast<PortForwarder*>(callback_arg);
 
 		if (pf->_endpoint.hostname().compare(name) != 0) {
 			pf->_state = PortForwarder::State::FAILED;
@@ -381,16 +383,16 @@ namespace net {
 			return;
 		}
 
-		lwip_err rc_con = tcp_connect(pf->_local_client, ipaddr, pf->_endpoint.port(), tcp_connected_cb);
+		lwip_err rc_con = ::tcp_connect(pf->_local_client, ipaddr, pf->_endpoint.port(), tcp_connected_cb);
 		if (rc_con == ERR_OK) {
 			// Start a connection timer
-			sys_timeout(10 * 1000, timeout_cb, &pf->_connect_timeout);
+			::sys_timeout(10 * 1000, timeout_cb, &pf->_connect_timeout);
 
 			// Configure the callbacks
-			tcp_arg(pf->_local_client, pf);
-			tcp_err(pf->_local_client, tcp_err_cb);
-			tcp_sent(pf->_local_client, tcp_sent_cb);
-			tcp_recv(pf->_local_client, tcp_recv_cb);
+			::tcp_arg(pf->_local_client, pf);
+			::tcp_err(pf->_local_client, tcp_err_cb);
+			::tcp_sent(pf->_local_client, tcp_sent_cb);
+			::tcp_recv(pf->_local_client, tcp_recv_cb);
 		}
 		else {
 			pf->_state = PortForwarder::State::FAILED;
@@ -400,7 +402,7 @@ namespace net {
 				lwip_errmsg(rc_con).c_str());
 
 			// Delete the TCP PCB.
-			tcp_close(pf->_local_client);
+			::tcp_close(pf->_local_client);
 
 			// Close the local server socket.
 			pf->_local_server.close();
@@ -408,10 +410,10 @@ namespace net {
 	}
 
 
-	err_t tcp_connected_cb(void *arg, struct tcp_pcb *tpcb, err_t err)
+	err_t tcp_connected_cb(void *arg, struct ::tcp_pcb *tpcb, err_t err)
 	{
 		LWIP_UNUSED_ARG(tpcb);
-		PortForwarder* const pf = static_cast<PortForwarder*>(arg);
+		auto pf = static_cast<PortForwarder*>(arg);
 
 		Logger* logger = pf->_logger;
 		logger->debug(".... 0x%012Ix PortForwarder TCP connected err=%d", PTR_VAL(pf), err);
@@ -429,7 +431,7 @@ namespace net {
 
 	void tcp_err_cb(void* arg, err_t err)
 	{
-		PortForwarder* const pf = static_cast<PortForwarder*>(arg);
+		auto pf = static_cast<PortForwarder*>(arg);
 
 		Logger* logger = pf->_logger;
 		logger->debug("... 0x%012Ix PortForwarder TCP error err=%d", PTR_VAL(pf), err);
@@ -456,7 +458,7 @@ namespace net {
 	err_t tcp_sent_cb(void* arg, tcp_pcb* tpcb, u16_t len)
 	{
 		LWIP_UNUSED_ARG(tpcb);
-		PortForwarder* const pf = static_cast<PortForwarder*>(arg);
+		auto pf = static_cast<PortForwarder*>(arg);
 		pf->_forwarded_bytes -= len;
 
 		return ERR_OK;
@@ -465,7 +467,7 @@ namespace net {
 
 	err_t tcp_recv_cb(void* arg, tcp_pcb* tpcb, pbuf* p, err_t err)
 	{
-		PortForwarder* const pf = static_cast<PortForwarder*>(arg);
+		auto pf = static_cast<PortForwarder*>(arg);
 		err_t rc = ERR_OK;
 		uint16_t len = 0;
 		Logger* const logger = pf->_logger;
@@ -481,8 +483,8 @@ namespace net {
 			if (!pf->_local_server.is_connected()) {
 				// The local server is disconnected, we can discard any received data.
 				// It is no longer possible to forward it.
-				tcp_recved(tpcb, len);
-				pbuf_free(p);
+				::tcp_recved(tpcb, len);
+				::pbuf_free(p);
 			}
 			else {
 				if (!pf->_reply_queue.push(p)) {
@@ -491,10 +493,10 @@ namespace net {
 				}
 				else {
 					// len bytes have been received
-					tcp_recved(tpcb, len);
+					::tcp_recved(tpcb, len);
 
 					// the buffer is now in the queue, we can free it.
-					pbuf_free(p);
+					::pbuf_free(p);
 				}
 			}
 		}
@@ -504,17 +506,17 @@ namespace net {
 				pf->_state = PortForwarder::State::DISCONNECTING;
 
 				// Remove all callbacks.  We are not interested to be called on such events
-				tcp_err(pf->_local_client, nullptr);
-				tcp_recv(pf->_local_client, nullptr);
+				::tcp_err(pf->_local_client, nullptr);
+				::tcp_recv(pf->_local_client, nullptr);
 
 				// Close the TCP PCB.
-				rc = tcp_close(tpcb);
+				rc = ::tcp_close(tpcb);
 				pf->_local_client = nullptr;
 
 				// Nothing can be forwarded anymore.
 				pf->_forward_queue.clear();
 
-				sys_timeout(10 * 1000, timeout_cb, &pf->_rflush_timeout);
+				::sys_timeout(10 * 1000, timeout_cb, &pf->_rflush_timeout);
 			}
 		}
 
@@ -532,7 +534,7 @@ namespace net {
 
 	void timeout_cb(void* arg)
 	{
-		bool* timeout = static_cast<bool*>(arg);
+		auto timeout = static_cast<bool*>(arg);
 		*timeout = true;
 	}
 

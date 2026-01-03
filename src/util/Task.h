@@ -25,7 +25,6 @@ namespace utl {
 		 */
 		void add_parameter(const std::wstring& parameter);
 	
-		
 		/**
 		 * Starts task.
 		 * 
@@ -57,7 +56,7 @@ namespace utl {
 		static const char* __class__;
 
 		// A reference to the application logger.
-		Logger* const _logger;
+		utl::Logger* const _logger;
 
 		std::wstring _cmdline;
 		PROCESS_INFORMATION _pi;

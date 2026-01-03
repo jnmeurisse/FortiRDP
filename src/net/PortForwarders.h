@@ -15,9 +15,9 @@
 
 namespace net {
 
-	using state_check_cb = std::function<bool(const PortForwarder *)>;
+	using state_check_cb = std::function<bool(const net::PortForwarder *)>;
 
-	class PortForwarders final : public std::list<PortForwarder*>
+	class PortForwarders final : public std::list<net::PortForwarder*>
 	{
 	public:
 		/**

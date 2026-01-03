@@ -23,7 +23,7 @@ namespace net {
 	class PPInterface final
 	{
 	public:
-		explicit PPInterface(TlsSocket& tunnel, Counters& counters);
+		explicit PPInterface(net::TlsSocket& tunnel, utl::Counters& counters);
 		~PPInterface();
 
 		/**
@@ -55,7 +55,7 @@ namespace net {
 		 * Returns true when data is available in the output queue and must be transmitted
 		 * to the peer.
 		*/
-		inline bool must_transmit() const noexcept { return _output_queue.size() > 0; }
+		inline bool must_transmit() const noexcept { return !_output_queue.is_empty(); }
 
 		/**
 		 * Returns the IP address assigned to this interface.
@@ -120,7 +120,7 @@ namespace net {
 		utl::Logger* const _logger;
 
 		// socket connected to the firewall.
-		TlsSocket&  _tunnel;
+		net::TlsSocket&  _tunnel;
 
 		// Counters of bytes sent to / received from the tunnel.
 		utl::Counters& _counters;
@@ -132,7 +132,7 @@ namespace net {
 
 		// The output queue.  All data in this queue are sent
 		// through the tunnel. 
-		OutputQueue _output_queue;
+		net::OutputQueue _output_queue;
 	};
 
 }

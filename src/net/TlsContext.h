@@ -81,7 +81,7 @@ namespace net {
 		 * @return mbed_err The result of the configuration process. Returns 0 on success
 		 *                  or a specific error code from the mbedTLS library on failure.
 		 */
-		mbed_err configure(const mbedtls_ssl_config& config, mbedtls_net_context& netctx);
+		utl::mbed_err configure(const mbedtls_ssl_config& config, mbedtls_net_context& netctx);
 
 		/**
 		 * Cleans up the TLS context by freeing its resources.
@@ -97,13 +97,13 @@ namespace net {
 		 * 
 		 */
 
-		mbed_err set_hostname(const std::string& hostname);
+		utl::mbed_err set_hostname(const std::string& hostname);
 
 		/**
 		 * Notifies the peer that the connection is being closed.
 		 *
 		 */
-		mbed_err close();
+		utl::mbed_err close();
 
 		/**
 		 * Performs the TLS handshake.
@@ -136,7 +136,6 @@ namespace net {
 		 */
 		net::snd_status send_data(const unsigned char* buf, size_t len);
 
-
 		/**
 		 * Returns the result of the certificate verification.
 		 *
@@ -144,7 +143,7 @@ namespace net {
 		 * of this method is undefined until the connect method has been
 		 * executed.
 		*/
-		mbed_err get_crt_check() const;
+		utl::mbed_err get_crt_check() const;
 
 		/**
 		 * Returns the cipher suite selected to encrypt the TLS communication.

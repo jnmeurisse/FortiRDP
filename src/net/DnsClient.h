@@ -10,7 +10,7 @@
 #include <string>
 #include <lwip/dns.h>
 #include <lwip/ip_addr.h>
-#include <lwip/err.h>
+#include "util/ErrUtil.h"
 
 
 namespace net {
@@ -45,7 +45,7 @@ namespace net {
 		 * be sent to the DNS server.  The found_callback is called later with the
 		 * result of the DNS query.
 		*/
-		static err_t query(const std::string& hostname, ip_addr_t& addr, dns_found_callback found_callback, void* callback_arg);
+		static utl::lwip_err query(const std::string& hostname, ip_addr_t& addr, dns_found_callback found_callback, void* callback_arg);
 	};
 
 }

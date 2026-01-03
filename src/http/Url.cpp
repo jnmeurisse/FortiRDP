@@ -13,6 +13,8 @@
 
 
 namespace http {
+	using namespace utl;
+
 
 	Url::Url(const std::string& url) : 
 		Url()
@@ -208,11 +210,11 @@ namespace http {
 
 	Url::Url(const std::string& scheme, const std::string& authority,
 		const std::string& path, const std::string& query, const std::string& fragment) :
-		_scheme(utl::trim(scheme)),
-		_authority(utl::trim(authority)),
-		_path(utl::trim(path)),
-		_query(utl::trim(query)),
-		_fragment(utl::trim(fragment))
+		_scheme(str::trim(scheme)),
+		_authority(str::trim(authority)),
+		_path(str::trim(path)),
+		_query(str::trim(query)),
+		_fragment(str::trim(fragment))
 	{
 	}
 

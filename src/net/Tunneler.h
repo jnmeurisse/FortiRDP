@@ -39,7 +39,7 @@ namespace net {
 		* @param remote  The remote network endpoint to forward traffic to.
 		* @param config  Configuration settings for the tunneler.
 		*/
-		explicit Tunneler(TlsSocket& tunnel, const Endpoint& local, const Endpoint& remote,
+		explicit Tunneler(net::TlsSocket& tunnel, const net::Endpoint& local, const net::Endpoint& remote,
 			const tunneler_config& config);
 		
 		/**
@@ -86,12 +86,12 @@ namespace net {
 		/**
 		 * Returns the transmitted/received bytes counters.
 		*/
-		inline const Counters& counters() const { return _counters; }
+		inline const utl::Counters& counters() const { return _counters; }
 
 		/**
 		 * Returns the local endpoint address and port.
 		*/
-		inline const Endpoint& local_endpoint() const { return _listener.endpoint(); }
+		inline const net::Endpoint& local_endpoint() const { return _listener.endpoint(); }
 
 	protected:
 		unsigned int run() override;
@@ -115,23 +115,23 @@ namespace net {
 		volatile bool _terminate;
 
 		// Tunnel socket.
-		TlsSocket&  _tunnel;
+		net::TlsSocket&  _tunnel;
 
 		// Counters of bytes sent to / received from the tunnel.
-		Counters _counters;
+		utl::Counters _counters;
 
 		// PP interface.
-		PPInterface _pp_interface;
+		net::PPInterface _pp_interface;
 		
 		// This event is set when the tunneler is listening.
-		Event _listening_status;
+		utl::Event _listening_status;
 
 		// The local end point and an associated listener.
-		const Endpoint _local_endpoint;
-		Listener _listener;
+		const net::Endpoint _local_endpoint;
+		net::Listener _listener;
 
 		// The remote end point (protected by the firewall).
-		Endpoint _remote_endpoint;
+		net::Endpoint _remote_endpoint;
 	};
 
 }

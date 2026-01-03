@@ -10,6 +10,7 @@
 #include <Windows.h>
 #include <string>
 #include <stdexcept>
+#include <system_error>
 #include <lwip/err.h>
 
 
@@ -45,12 +46,20 @@ namespace utl {
 		using std::runtime_error::runtime_error;
 	};
 
+
 	class mbed_error : public frdp_error {
 	public:
 		explicit mbed_error(mbed_err errnum);
 		
 	private:
 		const mbed_err _errnum;
+	};
+
+
+	class win_error : public std::system_error
+	{
+	public:
+		explicit win_error(win_err error_code, const std::string& func_name);
 	};
 
 }

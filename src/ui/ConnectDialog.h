@@ -33,7 +33,7 @@ namespace ui {
 	class ConnectDialog final : public ModelessDialog
 	{
 	public:
-		explicit ConnectDialog(HINSTANCE hInstance, const CmdlineParams& cmdlineParams);
+		explicit ConnectDialog(HINSTANCE hInstance, const ui::CmdlineParams& cmdlineParams);
 		~ConnectDialog() override;
 
 		std::wstring getFirewallAddress() const;
@@ -59,13 +59,13 @@ namespace ui {
 		utl::Logger* const _logger;
 
 		// Command line parameters.
-		const CmdlineParams _params;
+		const ui::CmdlineParams _params;
 
 		// Registry parameters.
-		RegistrySettings _settings;
+		ui::RegistrySettings _settings;
 
 		// A writer that appends data in the InfoLog text box
-		InfoLogWriter _writer;
+		ui::InfoLogWriter _writer;
 
 		// Connection parameters :
 		// - Firewall endpoint
@@ -130,7 +130,6 @@ namespace ui {
 		void onDisconnectedEvent(bool success);
 		void onTunnelListeningEvent(bool success);
 		void onOutputInfoEvent(utl::LogQueue* pLogQueue);
-
 	};
 
 }

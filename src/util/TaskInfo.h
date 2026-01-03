@@ -18,7 +18,7 @@ namespace utl {
 	public:
 		explicit TaskInfo(const std::wstring& path, const std::vector<std::wstring>& params);
 		explicit TaskInfo(const std::wstring& path);
-		~TaskInfo();
+		~TaskInfo() = default;
 
 		/**
 		 * Returns a reference to the task path

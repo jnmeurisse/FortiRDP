@@ -77,6 +77,7 @@ namespace ui {
 
 	INT_PTR OptionsDialog::onButtonClick(int control_id, LPARAM lParam)
 	{
+		using namespace utl;
 		LPARAM_UNUSED();
 
 		INT_PTR rc = FALSE;
@@ -86,7 +87,7 @@ namespace ui {
 		case IDOK:
 			full_screen = get_checkbox_state(IDC_CHECK_FULLSCREEN);
 			if (!full_screen && screen_size_updatable) {
-				if (!utl::str2i(get_control_text(IDC_SCREEN_WIDTH), screen_size.width)
+				if (!str::str2i(get_control_text(IDC_SCREEN_WIDTH), screen_size.width)
 					|| screen_size.width < 0 || screen_size.width > ScreenSize::max_width) {
 					set_focus(IDC_SCREEN_WIDTH);
 					show_message_box(L"Invalid screen width", MB_OK | MB_ICONERROR);
@@ -94,14 +95,13 @@ namespace ui {
 					break;
 				}
 
-				if (!utl::str2i(get_control_text(IDC_SCREEN_HEIGHT), screen_size.height)
+				if (!str::str2i(get_control_text(IDC_SCREEN_HEIGHT), screen_size.height)
 					|| screen_size.height < 0 || screen_size.height > ScreenSize::max_height) {
 					set_focus(IDC_SCREEN_HEIGHT);
 					show_message_box(L"Invalid screen height", MB_OK | MB_ICONERROR);
 
 					break;
 				}
-
 			}
 
 			clear_rdp_username = get_checkbox_state(IDC_CHECK_CLEAR_USERNAME);

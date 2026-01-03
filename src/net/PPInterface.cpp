@@ -8,7 +8,6 @@
 #include "PPInterface.h"
 
 #include <array>
-#include <lwip/timeouts.h>
 #include <lwip/stats.h>
 #include "util/ErrUtil.h"
 
@@ -16,11 +15,13 @@
 namespace net {
 	using namespace utl;
 
-	// Forward declarations
+
+	// lwip callbacks
 	u32_t ppp_output_cb(ppp_pcb* pcb, struct pbuf* pbuf, void* ctx);
 	void ppp_link_status_cb(ppp_pcb* pcb, int err_code, void* ctx);
 
-	PPInterface::PPInterface(TlsSocket& tunnel, Counters& counters) :
+
+	PPInterface::PPInterface(net::TlsSocket& tunnel, utl::Counters& counters) :
 		_logger(Logger::get_logger()),
 		_tunnel(tunnel),
 		_counters(counters),
@@ -37,7 +38,7 @@ namespace net {
 		DEBUG_DTOR(_logger);
 
 		if (_pcb)
-			ppp_free(_pcb);
+			::ppp_free(_pcb);
 	}
 
 
@@ -57,17 +58,17 @@ namespace net {
 
 		
 		// initialize lwIP statistics
-		stats_init();
+		::stats_init();
 
 		// Create a PPP over the SSLVPN connection.
-		_pcb = pppossl_create(&_nif, ppp_output_cb, ppp_link_status_cb, this);
+		_pcb = ::pppossl_create(&_nif, ppp_output_cb, ppp_link_status_cb, this);
 		if (_pcb == nullptr) {
 			_logger->error("ERROR: pppossl_create - memory allocation failure");
 			return false;
 		}
 
 		// IP traffic is routed through that interface.
-		ppp_set_default(_pcb);
+		::ppp_set_default(_pcb);
 
 		// FortiGate does not support these options, disable it.
 		_pcb->lcp_wantoptions.neg_accompression = false;
@@ -76,9 +77,9 @@ namespace net {
 
 		// Start the connection.  The ppp_link_status_cb will be called
 		// by the lwIP stack to report the connection success/failure.
-		ppp_err rc_con = ppp_connect(_pcb, 0);
+		const ppp_err rc_con = ::ppp_connect(_pcb, 0);
 		if (rc_con != PPPERR_NONE) {
-			ppp_free(_pcb);
+			::ppp_free(_pcb);
 			_pcb = nullptr;
 
 			_logger->error("ERROR: %s - connect failure (%s)",
@@ -96,11 +97,11 @@ namespace net {
 		DEBUG_ENTER(_logger);
 
 		if (_logger->is_debug_enabled())
-			stats_display();
+			::stats_display();
 
 		if (!dead()) {
 
-			ppp_err rc = ppp_close(_pcb, nocarrier? 1 : 0);
+			const ppp_err rc = ::ppp_close(_pcb, nocarrier? 1 : 0);
 
 			if (rc != PPPERR_NONE) {
 				_logger->error("ERROR: %s - close failure (%s)",
@@ -123,7 +124,7 @@ namespace net {
 				_logger->error("ERROR: %s - active interface released", __class__);
 			}
 
-			ppp_free(_pcb);
+			::ppp_free(_pcb);
 			_pcb = nullptr;
 		}
 	}
@@ -131,7 +132,7 @@ namespace net {
 
 	std::string PPInterface::addr() const
 	{
-		return std::string(ip4addr_ntoa(netif_ip4_addr(_pcb->netif)));
+		return std::string(::ip4addr_ntoa(netif_ip4_addr(_pcb->netif)));
 	}
 
 
@@ -224,7 +225,7 @@ namespace net {
 			_counters.received += status.rbytes;
 
 			// PPP data available, pass it to the lwIP stack.
-			const ppp_err ppp_rc = pppossl_input(_pcb, buffer.data(), status.rbytes);
+			const ppp_err ppp_rc = ::pppossl_input(_pcb, buffer.data(), status.rbytes);
 			if (ppp_rc) {
 				_logger->error("ERROR: %s - input failure (%s)",
 					__class__,
@@ -275,7 +276,7 @@ namespace net {
 
 	int PPInterface::last_xmit() const
 	{
-		const pppossl_pcb* const pcbssl = static_cast<const pppossl_pcb *>(_pcb->link_ctx_cb);
+		auto pcbssl = static_cast<const pppossl_pcb *>(_pcb->link_ctx_cb);
 
 		return pcbssl->last_xmit;
 	}
@@ -284,7 +285,7 @@ namespace net {
 	u32_t ppp_output_cb(ppp_pcb *pcb, struct pbuf* pbuf, void *ctx)
 	{
 		LWIP_UNUSED_ARG(pcb);
-		net::PPInterface* const pp_interface = static_cast<net::PPInterface *>(ctx);
+		auto pp_interface = static_cast<PPInterface *>(ctx);
 
 		return pp_interface->_output_queue.push(pbuf) ? pbuf->tot_len : 0;
 	}
@@ -293,7 +294,7 @@ namespace net {
 	void ppp_link_status_cb(ppp_pcb *pcb, int err_code, void *ctx)
 	{
 		LWIP_UNUSED_ARG(pcb);
-		net::PPInterface* const pp_interface = static_cast<net::PPInterface*>(ctx);
+		auto pp_interface = static_cast<PPInterface*>(ctx);
 
 		if (err_code) {
 			Logger* const logger = pp_interface->_logger;
@@ -312,5 +313,4 @@ namespace net {
 	}
 
 	const char* PPInterface::__class__ = "PPInterface";
-
 }

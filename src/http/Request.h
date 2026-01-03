@@ -34,7 +34,7 @@ namespace http {
 		 * @param url The URL to which the HTTP request will be made.
 		 * @param cookies The cookie jar containing cookies to be included in the request header.
 		 */
-		explicit Request(const std::string& verb, const Url& url, const Cookies& cookie_jar);
+		explicit Request(const std::string& verb, const http::Url& url, const http::Cookies& cookie_jar);
 
 		/**
 		* Destroys this HTTP request.
@@ -67,12 +67,12 @@ namespace http {
 		/**
 		 * Returns the request's url.
 		*/
-		inline const Url& url() const noexcept { return _url; }
+		inline const http::Url& url() const noexcept { return _url; }
 
 		/**
 		 * Returns the request's headers
 		*/
-		inline Headers& headers() { return _headers; }
+		inline http::Headers& headers() { return _headers; }
 		
 		/**
 		 * Sends this HTTP request to the server.
@@ -110,14 +110,14 @@ namespace http {
 		utl::Logger* const _logger;
 
 		// All cookies (a reference to the cookie jar).
-		const Cookies& _cookies;
+		const http::Cookies& _cookies;
 
 		// Fixed components of the HTTP request.
 		const std::string _verb;
-		const Url _url;
+		const http::Url _url;
 
 		// Dynamic components of the HTTP request.
-		Headers _headers;
+		http::Headers _headers;
 		utl::ByteBuffer _body;
 
 		void write_buffer(net::TcpSocket& socket, const unsigned char* buffer, size_t len, const utl::Timer& timer);

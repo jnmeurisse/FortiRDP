@@ -7,10 +7,9 @@
 */
 #include <winsock2.h>
 #include <Ws2ipdef.h>
-
 #include "Socket.h"
-#include <cstdint>
 
+#include <cstdint>
 
 
 namespace net {
@@ -34,9 +33,10 @@ namespace net {
 	}
 
 
-	mbed_err Socket::connect(const Endpoint& ep, net::net_protocol protocol, const Timer& timer)
+	utl::mbed_err Socket::connect(const net::Endpoint& ep, net::net_protocol protocol, const utl::Timer& timer)
 	{
 		LWIP_UNUSED_ARG(timer);
+
 		if (get_fd() != -1) {
 			// The socket is connected.
 			return MBEDTLS_ERR_NET_INVALID_CONTEXT;
@@ -44,12 +44,15 @@ namespace net {
 
 		const std::string host{ ep.hostname() };
 		const std::string port{ std::to_string(ep.port()) };
+		const int mbedtls_proto = (protocol == net_protocol::NETCTX_PROTO_TCP)
+			? MBEDTLS_NET_PROTO_TCP
+			: MBEDTLS_NET_PROTO_UDP;
 
-		return ::mbedtls_net_connect(&_netctx, host.c_str(),port.c_str(), protocol);
+		return ::mbedtls_net_connect(&_netctx, host.c_str(),port.c_str(), mbedtls_proto);
 	}
 
 
-	mbed_err Socket::bind(const Endpoint& ep, net::net_protocol protocol)
+	utl::mbed_err Socket::bind(const net::Endpoint& ep, net::net_protocol protocol)
 	{
 		mbed_err rc = MBEDTLS_ERR_NET_INVALID_CONTEXT;
 
@@ -74,8 +77,11 @@ namespace net {
 
 			const std::string host{ ep.hostname() };
 			const std::string port{ std::to_string(ep.port()) };
+			const int mbedtls_proto = (protocol == net_protocol::NETCTX_PROTO_TCP)
+				? MBEDTLS_NET_PROTO_TCP
+				: MBEDTLS_NET_PROTO_UDP;
 
-			rc = ::mbedtls_net_bind(&_netctx, host.c_str(), port.c_str(), protocol);
+			rc = ::mbedtls_net_bind(&_netctx, host.c_str(), port.c_str(), mbedtls_proto);
 		}
 
 		return rc;
@@ -96,9 +102,9 @@ namespace net {
 	}
 
 
-	mbed_err Socket::set_blocking_mode(bool enable)
+	utl::mbed_err Socket::set_blocking_mode(bool enable)
 	{
-		int rc = MBEDTLS_ERR_NET_INVALID_CONTEXT;
+		mbed_err rc = MBEDTLS_ERR_NET_INVALID_CONTEXT;
 
 		if (get_fd() != -1) {
 			rc = enable
@@ -113,21 +119,19 @@ namespace net {
 	}
 
 
-	mbed_err Socket::set_nodelay(bool no_delay)
+	utl::mbed_err Socket::set_nodelay(bool no_delay)
 	{
-		int rc = MBEDTLS_ERR_NET_INVALID_CONTEXT;
+		mbed_err rc = MBEDTLS_ERR_NET_INVALID_CONTEXT;
 
 		if (get_fd() != -1) {
 			const int tcp_nodelay = no_delay ? 1 : 0;
 
-			rc = ::setsockopt(
+			if (::setsockopt(
 				get_fd(),
 				IPPROTO_TCP,
 				TCP_NODELAY,
 				reinterpret_cast<const char*>(& tcp_nodelay),
-				sizeof(tcp_nodelay));
-
-			if (rc)
+				sizeof(tcp_nodelay)) != 0)
 				rc = MBEDTLS_ERR_NET_INVALID_CONTEXT;
 		}
 
@@ -137,7 +141,7 @@ namespace net {
 
 	net::rcv_status Socket::recv_data(unsigned char* buf, size_t len)
 	{
-		net::rcv_status status { rcv_status_code::NETCTX_RCV_ERROR, MBEDTLS_ERR_NET_INVALID_CONTEXT, 0 };
+		rcv_status status { rcv_status_code::NETCTX_RCV_ERROR, MBEDTLS_ERR_NET_INVALID_CONTEXT, 0 };
 
 		const int rc = ::mbedtls_net_recv(&_netctx, buf, len);
 
@@ -167,21 +171,21 @@ namespace net {
 
 	net::snd_status Socket::send_data(const unsigned char* buf, size_t len)
 	{
-		net::snd_status status { NETCTX_SND_ERROR, MBEDTLS_ERR_NET_INVALID_CONTEXT, 0 };
+		snd_status status { snd_status_code::NETCTX_SND_ERROR, MBEDTLS_ERR_NET_INVALID_CONTEXT, 0 };
 
 		const int rc = ::mbedtls_net_send(&_netctx, buf, len);
 
 		if (rc > 0) {
-			status.code = NETCTX_SND_OK;
+			status.code = snd_status_code::NETCTX_SND_OK;
 			status.rc = 0;
 			status.sbytes = rc;
 		}
 		else if (rc == MBEDTLS_ERR_SSL_WANT_WRITE) {
-			status.code = NETCTX_SND_RETRY;
+			status.code = snd_status_code::NETCTX_SND_RETRY;
 			status.rc = MBEDTLS_NET_POLL_WRITE;
 		}
 		else {
-			status.code = NETCTX_SND_ERROR;
+			status.code = snd_status_code::NETCTX_SND_ERROR;
 			status.rc = rc;
 		}
 
@@ -199,12 +203,12 @@ namespace net {
 
 			if (::getsockname(get_fd(), reinterpret_cast<sockaddr*>(&sock_addr), &len) == 0) {
 				if (sock_addr.ss_family == AF_INET) {
-					const struct sockaddr_in* addr4 = reinterpret_cast<const struct sockaddr_in*>(&sock_addr);
+					auto addr4 = reinterpret_cast<const struct sockaddr_in*>(&sock_addr);
 					port = ntohs(addr4->sin_port);
 					rc = true;
 				}
 				else if (sock_addr.ss_family == AF_INET6) {
-					const struct sockaddr_in6* addr6 = reinterpret_cast<const struct sockaddr_in6*>(&sock_addr);
+					auto addr6 = reinterpret_cast<const struct sockaddr_in6*>(&sock_addr);
 					port = ntohs(addr6->sin6_port);
 					rc = true;
 				}
@@ -217,7 +221,7 @@ namespace net {
 
 	net::Socket::poll_status Socket::poll(int rw, uint32_t timeout)
 	{
-		Socket::poll_status status { poll_status_code::NETCTX_POLL_ERROR, MBEDTLS_ERR_NET_INVALID_CONTEXT };
+		poll_status status { poll_status_code::NETCTX_POLL_ERROR, MBEDTLS_ERR_NET_INVALID_CONTEXT };
 
 		// Wait to be ready for read or write.
 		const int rc = ::mbedtls_net_poll(&_netctx, rw, timeout);
@@ -241,7 +245,7 @@ namespace net {
 	}
 
 
-	mbed_err Socket::accept(Socket& client_socket)
+	utl::mbed_err Socket::accept(net::Socket& client_socket)
 	{
 		if (!is_connected())
 			return MBEDTLS_ERR_NET_INVALID_CONTEXT;
@@ -258,5 +262,4 @@ namespace net {
 	}
 
 	const char* Socket::__class__ = "Socket";
-
 }

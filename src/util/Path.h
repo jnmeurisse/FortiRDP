@@ -61,6 +61,11 @@ namespace utl {
 		*/
 		static Path get_appdata_path();
 
+		/**
+		* Returns true if a file exists.
+		*/
+		static bool exists(const Path& path);
+
 	private:
 		// The folder name (including the last \ delimiter).
 		std::wstring _folder;

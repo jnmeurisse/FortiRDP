@@ -89,7 +89,7 @@ namespace fw {
 		 *         - `portal_err::CERT_UNTRUSTED` if the certificate could not be trusted.
 		 *         - `portal_err::HTTP_ERROR` if the portal page retrieval failed.
 		 */
-		portal_err open(const confirm_crt_fn& confirm_crt);
+		fw::portal_err open(const confirm_crt_fn& confirm_crt);
 
 		/**
 		 * Performs basic authentication with the FortiGate portal using the provided credentials.
@@ -112,7 +112,7 @@ namespace fw {
 		 *         - portal_err::CERT_UNTRUSTED if certificate verification fails.
 		 *         - portal_err::LOGIN_CANCELLED if the login is canceled by the user.
 		 */
-		portal_err login_basic(const ask_credentials_fn& ask_credential, const ask_pincode_fn& ask_code);
+		fw::portal_err login_basic(const ask_credentials_fn& ask_credential, const ask_pincode_fn& ask_code);
 
 		/**
 		 * Performs SAML-based authentication with the portal server.
@@ -130,7 +130,7 @@ namespace fw {
 		 *         - portal_err::CERT_INVALID if the certificate is invalid.
 		 *         - portal_err::LOGIN_CANCELLED if the login is canceled by the user.
 		 */
-		portal_err login_saml(const ask_samlauth_fn& ask_samlauth);
+		fw::portal_err login_saml(const ask_samlauth_fn& ask_samlauth);
 
 		/* Log out from the portal.
 		*/
@@ -152,7 +152,7 @@ namespace fw {
 		 * @return true if the information is successfully retrieved and parsed;
 		 *         false if the client is not authenticated or if the send_request fails.
 		 */
-		bool get_info(PortalInfo& portal_info);
+		bool get_info(fw::PortalInfo& portal_info);
 
 		/**
 		 * Retrieves the SSL VPN configuration.
@@ -171,7 +171,7 @@ namespace fw {
 		 *         false if the client is not authenticated, the send_request fails, or if
 		 *         there are issues parsing or decoding the XML response.
 		 */
-		bool get_config(SslvpnConfig& sslvpn_config);
+		bool get_config(fw::SslvpnConfig& sslvpn_config);
 
 		/**
 		 * Allocates a firewall tunnel between a local and a remote endpoint.
@@ -195,13 +195,12 @@ namespace fw {
 		*/
 		bool is_authenticated() const;
 
-
 	private:
 		// The class name
 		static const char* __class__;
 
 		// The peer certificate digest.
-		CrtDigest _peer_crt_digest;
+		fw::CrtDigest _peer_crt_digest;
 
 		// Session cookies.
 		http::Cookies _cookie_jar;
@@ -228,7 +227,7 @@ namespace fw {
 			const http::Headers& headers, http::Answer& answer, int allow_redir);
 
 		// Sends a login check to the firewall portal.
-		portal_err try_login_check(const utl::StringMap& in_params, utl::StringMap& out_params);
+		fw::portal_err try_login_check(const utl::StringMap& in_params, utl::StringMap& out_params);
 
 		// Gets the redirect URL from the given map.
 		bool get_redir_url(const utl::StringMap& params, http::Url& url) const;

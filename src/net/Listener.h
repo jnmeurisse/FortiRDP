@@ -9,12 +9,10 @@
 
 #include "net/Endpoint.h"
 #include "net/Socket.h"
-#include "util/Logger.h"
+#include "util/ErrUtil.h"
 
 
 namespace net {
-
-	using namespace utl;
 
 	/**
 	* A socket listener
@@ -43,7 +41,7 @@ namespace net {
 		 *
 		 * @return mbed_err 0 on success; a negative error code on failure.
 		 */
-		mbed_err bind(const Endpoint& endpoint);
+		utl::mbed_err bind(const net::Endpoint& endpoint, net::net_protocol protocol) override;
 
 		/**
 		 * Accepts an incoming connection on the listener's bound socket.
@@ -66,7 +64,7 @@ namespace net {
 		 *
 		 *
 		 */
-		mbed_err accept(Socket& client_socket) override;
+		utl::mbed_err accept(net::Socket& client_socket) override;
 
 		/**
 		 * Closes the listener.
@@ -78,7 +76,7 @@ namespace net {
 		/**
 		 * Returns the end point to which this listener was bound.
 		*/
-		inline const Endpoint& endpoint() const { return _endpoint; }
+		inline const net::Endpoint& endpoint() const { return _endpoint; }
 
 		/**
 		 * Returns true if the listener is ready to accept a connection.
@@ -89,7 +87,7 @@ namespace net {
 		// The class name
 		static const char* __class__;
 
-		Endpoint _endpoint;
+		net::Endpoint _endpoint;
 	};
 
 }

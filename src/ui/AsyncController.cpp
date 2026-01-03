@@ -14,15 +14,14 @@
 #include "ui/SyncWaitTask.h"
 #include "util/Logger.h"
 #include "util/Mutex.h"
-#include "util/SysUtil.h"
+#include "util/Path.h"
 #include "util/StrUtil.h"
 #include <mbedtls/pk.h>
 
 
 namespace ui {
-
 	AsyncController::AsyncController(HWND hwnd) :
-		utl::Thread(),
+		Thread(),
 		_logger(utl::Logger::get_logger()),
 		_action(NONE),
 		_mutex(),
@@ -51,12 +50,12 @@ namespace ui {
 		bool init_status = true;
 
 		if (!_ca_crt) {
-			const std::string crt_filename = utl::wstr2str(filename.to_string());
-			const std::string compacted = utl::wstr2str(filename.compact(40));
+			const std::string crt_filename = utl::str::wstr2str(filename.to_string());
+			const std::string compacted = utl::str::wstr2str(filename.compact(40));
 
 			_ca_crt = std::make_unique<utl::X509Crt>();
 
-			if (utl::file_exists(filename)) {
+			if (utl::Path::exists(filename)) {
 				utl::mbed_err rc = _ca_crt->load(crt_filename.c_str());
 
 				if (rc != 0) {
@@ -85,12 +84,12 @@ namespace ui {
 		bool init_status = true;
 
 		if (!_user_crt) {
-			const std::string crt_filename = utl::wstr2str(filename.to_string());
-			const std::string compacted = utl::wstr2str(filename.compact(40));
+			const std::string crt_filename = utl::str::wstr2str(filename.to_string());
+			const std::string compacted = utl::str::wstr2str(filename.compact(40));
 
 			_user_crt = std::make_unique<utl::UserCrt>();
 
-			if (utl::file_exists(filename)) {
+			if (utl::Path::exists(filename)) {
 				// Load the user certificate.
 				utl::mbed_err rc = _user_crt->crt.load(crt_filename.c_str());
 
@@ -191,7 +190,7 @@ namespace ui {
 
 			_task = std::make_unique<utl::Task>(task_info.path());
 			for (unsigned int i = 0; i < task_info.params().size(); i++)
-				_task->add_parameter(utl::substvar(task_info.params()[i], vars));
+				_task->add_parameter(utl::str::substvar(task_info.params()[i], vars));
 
 			started = _task->start();
 

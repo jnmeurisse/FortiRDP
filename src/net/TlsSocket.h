@@ -16,8 +16,6 @@
 
 
 namespace net {
-	using namespace utl;
-
 	/**
 	 * The client side of a network TLS socket
 	*/
@@ -57,7 +55,7 @@ namespace net {
 		 * Initiates a connection to the specified endpoint.
 		 * See base class.
 		*/
-		mbed_err connect(const Endpoint& ep, const Timer& timer) override;
+		utl::mbed_err connect(const Endpoint& ep, const utl::Timer& timer) override;
 
 		/**
 		 * Performs the SSL/TLS handshake.
@@ -73,7 +71,7 @@ namespace net {
 		 *
 		 * @return A `tls_handshake_status` indicating the result of the handshake.
 		 */
-		tls_handshake_status handshake(const Timer& timer);
+		net::tls_handshake_status handshake(const utl::Timer& timer);
 
 		/**
 		 * Closes gracefully the socket.
@@ -87,7 +85,7 @@ namespace net {
 		 * of this method is undefined until the connect method has been
 		 * executed.
 		*/
-		mbed_err get_crt_check() const;
+		utl::mbed_err get_crt_check() const;
 
 		/**
 		 * Returns the cipher suite selected to encrypt the TLS communication.

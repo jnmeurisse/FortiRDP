@@ -9,13 +9,14 @@
 #include "Timer.h"
 
 namespace utl {
+
 	Timer::Timer() :
 		Timer(0)
-    {
-    }
+	{
+	}
 
 
-    Timer::Timer(uint32_t duration) :
+	Timer::Timer(uint32_t duration) :
 		_logger(Logger::get_logger())
 	{
 		DEBUG_CTOR(_logger);

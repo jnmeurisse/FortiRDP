@@ -8,8 +8,10 @@
 #include "net/TcpSocket.h"
 
 namespace net {
+	using namespace utl;
 
-	TcpSocket::TcpSocket() : 
+
+	TcpSocket::TcpSocket() :
 		Socket()
 	{
 		DEBUG_CTOR(_logger);
@@ -22,7 +24,7 @@ namespace net {
 	}
 
 
-	mbed_err TcpSocket::connect(const Endpoint& ep, const Timer& timer)
+	utl::mbed_err TcpSocket::connect(const net::Endpoint& ep, const utl::Timer& timer)
 	{
 		DEBUG_ENTER_FMT(_logger, "ep=%s", ep.to_string().c_str());
 
@@ -41,7 +43,7 @@ namespace net {
 	}
 
 
-	net::rcv_status TcpSocket::read(unsigned char* buf, size_t len, const Timer& timer)
+	net::rcv_status TcpSocket::read(unsigned char* buf, size_t len, const utl::Timer& timer)
 	{
 		TRACE_ENTER_FMT(_logger, "buffer=0x%012Ix size=%zu", PTR_VAL(buf), len);
 
@@ -87,11 +89,11 @@ namespace net {
 	}
 
 
-	net::snd_status TcpSocket::write(const unsigned char* buf, size_t len, const Timer& timer)
+	net::snd_status TcpSocket::write(const unsigned char* buf, size_t len, const utl::Timer& timer)
 	{
 		TRACE_ENTER_FMT(_logger, "buffer=0x%012Ix size=%zu", PTR_VAL(buf), len);
 
-		snd_status write_status { NETCTX_SND_OK, 0, 0 };
+		snd_status write_status { snd_status_code::NETCTX_SND_OK, 0, 0 };
 
 		bool keep_writing = len > 0;
 		while (keep_writing) {
@@ -108,7 +110,7 @@ namespace net {
 
 				keep_writing = len > 0;
 			}
-			else if (write_status.code == NETCTX_SND_RETRY) {
+			else if (write_status.code == snd_status_code::NETCTX_SND_RETRY) {
 				// Handle the "Busy/Retry" case
 				const poll_status poll_snd_status{ poll(write_status.rc, timer.remaining_time()) };
 
@@ -167,5 +169,4 @@ namespace net {
 	}
 
 	const char* TcpSocket::__class__ = "TcpSocket";
-
 };

@@ -17,9 +17,7 @@
 
 
 namespace net {
-	using namespace utl;
-
-	enum net_protocol {
+	enum class net_protocol {
 		NETCTX_PROTO_TCP = MBEDTLS_NET_PROTO_TCP,
 		NETCTX_PROTO_UDP = MBEDTLS_NET_PROTO_UDP
 	};
@@ -72,7 +70,7 @@ namespace net {
 	 * - `NETCTX_SND_OK`    : Indicates that data was successfully sent.
 	 * - `NETCTX_SND_RETRY` : Indicates that the send operation should be retried.
 	 */
-	enum snd_status_code {
+	enum class snd_status_code {
 		NETCTX_SND_ERROR,
 		NETCTX_SND_OK,
 		NETCTX_SND_RETRY
@@ -134,7 +132,7 @@ namespace net {
 		 *
 		 * @return A status code indicating the success or failure of the connection attempt.
 		 */
-		virtual mbed_err connect(const Endpoint& ep, net::net_protocol protocol, const Timer& timer);
+		virtual utl::mbed_err connect(const net::Endpoint& ep, net::net_protocol protocol, const utl::Timer& timer);
 
 		/**
 		 * Binds the listener to a specified endpoint.
@@ -148,7 +146,7 @@ namespace net {
 		 *
 		 * @return mbed_err 0 on success; a negative error code on failure.
 		 */
-		virtual mbed_err bind(const Endpoint& ep, net::net_protocol protocol);
+		virtual utl::mbed_err bind(const net::Endpoint& ep, net::net_protocol protocol);
 
 		/**
 		 * Closes the socket.
@@ -169,7 +167,7 @@ namespace net {
 		 * @return An error code of type `mbed_err` indicating the success or failure
 		 *         of changing the mode.
 		*/
-		mbed_err set_blocking_mode(bool enable);
+		utl::mbed_err set_blocking_mode(bool enable);
 
 		/**
 		 * Configures the no-delay option for the socket.
@@ -188,7 +186,7 @@ namespace net {
 		 * @return An error code of type `mbed_err` indicating the success or failure
 		 *         of setting the option.
 		 */
-		mbed_err set_nodelay(bool no_delay);
+		utl::mbed_err set_nodelay(bool no_delay);
 
 		/**
 		 * Receives data from the socket.
@@ -299,7 +297,7 @@ namespace net {
 		 * @return A value of type `poll_status`, indicating the status of the
 		 *         polling operation (e.g., success, timeout, etc.).
 		 */
-		virtual net::Socket::poll_status poll(int rw, uint32_t timeout);
+		virtual Socket::poll_status poll(int rw, uint32_t timeout);
 
 		/**
 		 * Accepts a new connection on the current socket and assigns it to the client socket.
@@ -316,7 +314,7 @@ namespace net {
 		 *                    not connected or the client socket is already connected.
 		 *                  - For other error codes, see mbedtls library documentation.
 		 */
-		virtual mbed_err accept(Socket& client_socket);
+		virtual utl::mbed_err accept(net::Socket& client_socket);
 
 	private:
 		// The class name.

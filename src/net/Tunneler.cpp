@@ -22,10 +22,12 @@ static void timeout_cb(void* arg)
 
 
 namespace net {
+	using namespace utl;
 
-	Tunneler::Tunneler(TlsSocket& tunnel, const Endpoint& local_ep, const Endpoint& remote_ep,
+
+	Tunneler::Tunneler(net::TlsSocket& tunnel, const net::Endpoint& local_ep, const net::Endpoint& remote_ep,
 		const tunneler_config& config) :
-		utl::Thread(),
+		Thread(),
 		_logger(Logger::get_logger()),
 		_config(config),
 		_state(State::READY),
@@ -53,7 +55,7 @@ namespace net {
 		DEBUG_ENTER(_logger);
 		bool started = true;
 
-		mbed_err rc = _listener.bind(_local_endpoint);
+		mbed_err rc = _listener.bind(_local_endpoint, net_protocol::NETCTX_PROTO_TCP);
 
 		if (rc < 0) {
 			_logger->error("ERROR: listener error on %s", _local_endpoint.to_string().c_str());
@@ -368,5 +370,3 @@ namespace net {
 
 	const char* Tunneler::__class__ = "Tunneler";
 }
-
-

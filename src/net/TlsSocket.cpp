@@ -9,11 +9,10 @@
 
 
 namespace net {
-
 	using namespace utl;
 
 
-	TlsSocket::TlsSocket(const TlsConfig& tls_config) :
+	TlsSocket::TlsSocket(const net::TlsConfig& tls_config) :
 		TcpSocket(),
 		_tlscfg{ tls_config },
 		_enable_hostname_verification{ false }
@@ -34,7 +33,7 @@ namespace net {
 	}
 
 
-	mbed_err TlsSocket::connect(const Endpoint& ep, const Timer& timer)
+	utl::mbed_err TlsSocket::connect(const Endpoint& ep, const utl::Timer& timer)
 	{
 		DEBUG_ENTER_FMT(_logger, "ep=%s", ep.to_string().c_str());
 
@@ -57,7 +56,7 @@ namespace net {
 	}
 
 
-	tls_handshake_status TlsSocket::handshake(const Timer& timer)
+	net::tls_handshake_status TlsSocket::handshake(const utl::Timer& timer)
 	{
 		DEBUG_ENTER(_logger);
 
@@ -124,7 +123,7 @@ namespace net {
 	}
 
 
-	mbed_err TlsSocket::get_crt_check() const
+	utl::mbed_err TlsSocket::get_crt_check() const
 	{
 		return _tlsctx.get_crt_check();
 	}
@@ -169,5 +168,4 @@ namespace net {
 
 
 	const char* TlsSocket::__class__ = "TlsSocket";
-
 }

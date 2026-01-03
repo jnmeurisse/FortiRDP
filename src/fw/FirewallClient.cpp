@@ -25,8 +25,6 @@
 
 namespace fw {
 
-	using namespace utl;
-
 	FirewallClient::FirewallClient(const net::Endpoint& ep, const std::string& realm, const net::TlsConfig& config):
 		HttpsClient(ep, config),
 		_peer_crt_digest(),
@@ -46,10 +44,10 @@ namespace fw {
 	}
 
 
-	portal_err FirewallClient::open(const confirm_crt_fn& confirm_crt)
+	fw::portal_err FirewallClient::open(const confirm_crt_fn& confirm_crt)
 	{
 		DEBUG_ENTER(_logger);
-		Mutex::Lock lock{ _mutex };
+		utl::Mutex::Lock lock{ _mutex };
 		http::Answer answer;
 
 		_logger->info(">> connecting to %s", host().to_string().c_str());
@@ -81,7 +79,7 @@ namespace fw {
 		int crt_status = get_crt_check();
 
 		if (crt_status & MBEDTLS_X509_BADCERT_NOT_TRUSTED) {
-			if (x509crt_is_trusted(get_peer_crt()))
+			if (utl::x509crt_is_trusted(get_peer_crt()))
 				crt_status &= ~MBEDTLS_X509_BADCERT_NOT_TRUSTED;
 		}
 
@@ -137,7 +135,7 @@ namespace fw {
 	}
 
 
-	portal_err FirewallClient::try_login_check(const utl::StringMap& in_params, utl::StringMap& out_params)
+	fw::portal_err FirewallClient::try_login_check(const utl::StringMap& in_params, utl::StringMap& out_params)
 	{
 		DEBUG_ENTER(_logger);
 
@@ -179,7 +177,7 @@ namespace fw {
 	}
 
 
-	portal_err FirewallClient::login_basic(const ask_credentials_fn& ask_credential, const ask_pincode_fn& ask_code)
+	fw::portal_err FirewallClient::login_basic(const ask_credentials_fn& ask_credential, const ask_pincode_fn& ask_code)
 	{
 		DEBUG_ENTER(_logger);
 		utl::Mutex::Lock lock{ _mutex };
@@ -229,7 +227,7 @@ namespace fw {
 		params_query.set("credential", HttpsClient::encode_url(credentials.password));
 
 		// Safe erase password stored in memory.
-		utl::serase(credentials.password);
+		utl::str::serase(credentials.password);
 
 		// Loop until code returns with access denied, login canceled or an error
 		// is detected.
@@ -358,14 +356,14 @@ namespace fw {
 				params_query.set("magic", params_result.get_str_value("magic", ""));
 				params_query.set(
 					"reqid",
-					utl::string_format(
+					utl::str::string_format(
 						"%s,%s",
 						params_result.get_str_value("reqid", "").c_str(),
 						params_result.get_str_value("polid", "").c_str()
 					));
 				params_query.set(
 					"grpid",
-					utl::string_format(
+					utl::str::string_format(
 						"%s,%s,%s",
 						params_result.get_str_value("grpid", "").c_str(),
 						params_result.get_str_value("pid", "").c_str(),
@@ -389,13 +387,13 @@ namespace fw {
 	}
 
 
-	portal_err FirewallClient::login_saml(const ask_samlauth_fn& ask_samlauth)
+	fw::portal_err FirewallClient::login_saml(const ask_samlauth_fn& ask_samlauth)
 	{
 		DEBUG_ENTER(_logger);
 		utl::Mutex::Lock lock{ _mutex };
 
 		std::string service_provider_crt;
-		if (!X509crt_to_pem(get_peer_crt(), service_provider_crt))
+		if (!utl::X509crt_to_pem(get_peer_crt(), service_provider_crt))
 			return portal_err::CERT_INVALID;
 
 		AuthSamlInfo saml_auth_info{
@@ -435,7 +433,7 @@ namespace fw {
 	}
 
 
-	bool FirewallClient::get_info(PortalInfo& portal_info)
+	bool FirewallClient::get_info(fw::PortalInfo& portal_info)
 	{
 		DEBUG_ENTER(_logger);
 		utl::Mutex::Lock lock{ _mutex };
@@ -478,7 +476,7 @@ namespace fw {
 	}
 
 
-	bool FirewallClient::get_config(SslvpnConfig& sslvpn_config)
+	bool FirewallClient::get_config(fw::SslvpnConfig& sslvpn_config)
 	{
 		DEBUG_ENTER(_logger);
 		utl::Mutex::Lock lock{ _mutex };

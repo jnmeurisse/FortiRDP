@@ -7,6 +7,7 @@
 */
 #include "CmdlineParams.h"
 
+#include <cstdint>
 #include <iostream>
 #include <limits>
 #include <Windows.h>
@@ -16,7 +17,6 @@
 #include "util/XGetopt.h"
 
 namespace ui {
-
 
 	bool CmdlineParams::initialize()
 	{
@@ -38,6 +38,8 @@ namespace ui {
 
 	bool CmdlineParams::initialize(int argc, const wchar_t * const *argv)
 	{
+		using namespace utl;
+
 		_full_screen = false;
 		_admin_console = false;
 		_multi_clients = false;
@@ -80,12 +82,12 @@ namespace ui {
 
 			case L'p':
 				int port;
-				if (utl::str2i(optarg, port) && port > 0 && (port <= std::numeric_limits<uint16_t>::max()))
+				if (str::str2i(optarg, port) && port > 0 && (port <= std::numeric_limits<uint16_t>::max()))
 					_local_port = static_cast<uint16_t>(port);
 				break;
 
 			case L'c':
-				_ca_cert_filename = utl::trim(optarg);
+				_ca_cert_filename = str::trim(optarg);
 				break;
 
 			case L'v':
@@ -97,7 +99,7 @@ namespace ui {
 				break;
 
 			case L'x':
-				_app_name = utl::trim(optarg);
+				_app_name = str::trim(optarg);
 				break;
 
 			case L's':
@@ -109,7 +111,7 @@ namespace ui {
 				break;
 
 			case L'r':
-				_rdp_filename = utl::trim(optarg);
+				_rdp_filename = str::trim(optarg);
 				break;
 
 			case L'C':
@@ -125,17 +127,17 @@ namespace ui {
 				break;
 
 			case L'w':
-				if (!utl::str2i(optarg, _screen_size.width))
+				if (!str::str2i(optarg, _screen_size.width))
 					_screen_size.width = -1;
 				break;
 
 			case L'h':
-				if (!utl::str2i(optarg, _screen_size.height))
+				if (!str::str2i(optarg, _screen_size.height))
 					_screen_size.height = -1;
 				break;
 
 			case L'U':
-				_us_cert_filename = utl::trim(optarg);
+				_us_cert_filename = str::trim(optarg);
 				break;
 
 			case L'A':
@@ -202,10 +204,10 @@ namespace ui {
 		int i = 0;
 		for (; optind < argc; optind++) {
 			if (i == 0) {
-				_fw_address = utl::trim(argv[optind]);
+				_fw_address = str::trim(argv[optind]);
 			}
 			else if (i == 1) {
-				_host_addres = utl::trim(argv[optind]);
+				_host_addres = str::trim(argv[optind]);
 			}
 			else
 				return false;
@@ -228,7 +230,7 @@ namespace ui {
 		const std::string version{ utl::get_file_ver(app_path.to_string()) };
 
 		// Show program parameters.
-		std::cout << utl::string_format("fortirdp %s (jn.meurisse@gmail.com)\n\n", version.c_str());
+		std::cout << utl::str::string_format("fortirdp %s (jn.meurisse@gmail.com)\n\n", version.c_str());
 		std::cout << "fortirdp [-v [-t]] [-A auth] [-u username] [-c cacert_file] [-x app] [-f] [-a] [-s] [-p port]\n";
 		std::cout << "         [-r rdp_file] [-m] [-l] [-C] [-M] [-n] firewall-ip[:port1] remote-ip[:port2]\n";
 		std::cout << "\n";

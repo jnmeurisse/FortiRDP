@@ -7,10 +7,10 @@
 */
 #include "SysUtil.h"
 
+#include <Windows.h>
 #include <lmcons.h>
 #include <string>
 #include <vector>
-#include <system_error>
 #include "util/StrUtil.h"
 
 
@@ -22,12 +22,6 @@ namespace utl {
 
 		return (dwAttrib != INVALID_FILE_ATTRIBUTES &&
 			!(dwAttrib & FILE_ATTRIBUTE_DIRECTORY));
-	}
-
-
-	bool file_exists(const utl::Path& path)
-	{
-		return file_exists(path.to_string());
 	}
 
 
@@ -67,7 +61,7 @@ namespace utl {
 				goto terminate;
 
 			const VS_FIXEDFILEINFO* pFileInfo = static_cast<VS_FIXEDFILEINFO*>(file_info_ptr);
-			file_version = string_format("%d.%d.%d",
+			file_version = str::string_format("%d.%d.%d",
 				HIWORD(pFileInfo->dwFileVersionMS),
 				LOWORD(pFileInfo->dwFileVersionMS),
 				HIWORD(pFileInfo->dwFileVersionLS));
@@ -85,12 +79,6 @@ namespace utl {
 #else
 		return "32 bits"
 #endif
-	}
-
-
-	void throw_winapi_error(DWORD error_code, const std::string& func_name)
-	{
-		throw std::system_error{ (int) error_code, std::system_category(), func_name };
 	}
 
 }

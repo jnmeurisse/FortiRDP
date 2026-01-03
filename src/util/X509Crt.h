@@ -22,12 +22,12 @@ namespace utl {
 		/**
 		 * Loads one or more certificates and adds them to the list of certificates.
 		*/
-		mbed_err load(const char* filename);
+		utl::mbed_err load(const char* filename);
 
 		/**
 		 * Writes an informational string about the certificate into the buffer.
 		*/
-		mbed_err get_info(char* buf, size_t size, const char* prefix) const;
+		utl::mbed_err get_info(char* buf, size_t size, const char* prefix) const;
 
 		/**
 		 * Returns a reference to the certificate chain.

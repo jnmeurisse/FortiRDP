@@ -19,6 +19,7 @@
 
 namespace ui {
 	using namespace Microsoft::WRL;
+	using namespace utl;
 
 	class webview2_error : public std::runtime_error
 	{
@@ -226,13 +227,13 @@ namespace ui {
 					}
 
 					// Navigate to URL
-					std::string status_message = utl::string_format("Connecting to %s://%s",
+					std::string status_message = str::string_format("Connecting to %s://%s",
 						_saml_auth_info.service_provider_url.get_scheme().c_str(),
 						_saml_auth_info.service_provider_url.get_authority().c_str()
 					);
 
-					set_control_text(IDC_SAML_STATUS, utl::str2wstr(status_message));
-					hr = web_view->Navigate(utl::str2wstr(_saml_auth_info.service_provider_url.to_string(false)).c_str());
+					set_control_text(IDC_SAML_STATUS, str::str2wstr(status_message));
+					hr = web_view->Navigate(str::str2wstr(_saml_auth_info.service_provider_url.to_string(false)).c_str());
 					if (FAILED(hr))
 						throw webview2_error(hr, "Navigate");
 
@@ -424,10 +425,10 @@ namespace ui {
 					if (FAILED(hr))
 						throw webview2_error(hr, "get_IsSuccess");
 
-					const http::Url source_url{ utl::wstr2str(source_uri.get()) };
-					if (utl::iequal(source_url.get_hostname(), _saml_auth_info.service_provider_url.get_hostname())) {
+					const http::Url source_url{ str::wstr2str(source_uri.get()) };
+					if (str::iequal(source_url.get_hostname(), _saml_auth_info.service_provider_url.get_hostname())) {
 						hr = _web_cookie_manager->GetCookies(
-							utl::str2wstr(_saml_auth_info.service_provider_url.to_string(false)).c_str(),
+							str::str2wstr(_saml_auth_info.service_provider_url.to_string(false)).c_str(),
 							Callback<ICoreWebView2GetCookiesCompletedHandler>(this, &SamlAuthDialog::onCookiesAvailable).Get()
 						);
 						if (FAILED(hr))
@@ -490,8 +491,8 @@ namespace ui {
 				// send->get_Source returns about:blank because the connection is not yet validated.
 				// The OnSource event registered the target URI in the IDC_SAML_STATUS control.
 
-				http::Url web_server_url{ utl::wstr2str(get_control_text(IDC_SAML_STATUS)) };
-				if (utl::iequal(web_server_url.get_authority(), _saml_auth_info.service_provider_url.get_authority())) {
+				http::Url web_server_url{ str::wstr2str(get_control_text(IDC_SAML_STATUS)) };
+				if (str::iequal(web_server_url.get_authority(), _saml_auth_info.service_provider_url.get_authority())) {
 					// Get a reference to the web server certificate
 					wil::com_ptr<ICoreWebView2Certificate> certificate_ptr = nullptr;
 					hr = args->get_ServerCertificate(&certificate_ptr);
@@ -507,7 +508,7 @@ namespace ui {
 					// Compare the web server certificate and the SAML service provider certificate.
 					// If both matches, we do not warn the user as it has been previously accepted during
 					// the initial connection.
-					if (utl::iequal(utl::wstr2str(certificate_pem.get()), _saml_auth_info.service_provider_crt)) {
+					if (str::iequal(str::wstr2str(certificate_pem.get()), _saml_auth_info.service_provider_crt)) {
 						hr = args->put_Action(
 							COREWEBVIEW2_SERVER_CERTIFICATE_ERROR_ACTION::COREWEBVIEW2_SERVER_CERTIFICATE_ERROR_ACTION_ALWAYS_ALLOW);
 						if (FAILED(hr))
@@ -582,10 +583,10 @@ namespace ui {
 			throw webview2_error(hr, "get_IsSession");
 
 		return http::Cookie(
-			utl::wstr2str(cookie_name.get()),
-			utl::obfstring(utl::wstr2str(cookie_value.get())),
-			utl::wstr2str(cookie_domain.get()),
-			utl::wstr2str(cookie_path.get()),
+			str::wstr2str(cookie_name.get()),
+			utl::obfstring(str::wstr2str(cookie_value.get())),
+			str::wstr2str(cookie_domain.get()),
+			str::wstr2str(cookie_path.get()),
 			isSession ? -1 : dcom_time_to_time_t(expires_value),
 			isSecure != 0,
 			httpOnly != 0

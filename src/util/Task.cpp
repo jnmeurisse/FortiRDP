@@ -8,15 +8,16 @@
 #include "Task.h"
 
 #include <vector>
-#include "util/StrUtil.h"
+#include <cstring>
 #include "util/Logger.h"
+#include "util/StrUtil.h"
 
 
 namespace utl {
 
 	Task::Task(const std::wstring& path) :
 		_logger(Logger::get_logger()),
-		_cmdline(utl::quote(path))
+		_cmdline(str::quote(path))
 	{
 		DEBUG_CTOR(_logger);
 
@@ -31,10 +32,10 @@ namespace utl {
 		DEBUG_DTOR(_logger);
 
 		if (_pi.hThread != INVALID_HANDLE_VALUE)
-			CloseHandle(_pi.hThread);
+			::CloseHandle(_pi.hThread);
 
 		if (_pi.hProcess != INVALID_HANDLE_VALUE)
-			CloseHandle(_pi.hProcess);
+			::CloseHandle(_pi.hProcess);
 	}
 
 
@@ -42,7 +43,7 @@ namespace utl {
 	{
 		_cmdline
 			.append(L" ")
-			.append(utl::quote(parameter));
+			.append(str::quote(parameter));
 	}
 
 
@@ -56,7 +57,7 @@ namespace utl {
 			STARTUPINFO si = { 0 };
 			si.cb = sizeof(si);
 
-			_logger->debug(">> start task cmd=%s", utl::wstr2str(_cmdline).c_str());
+			_logger->debug(">> start task cmd=%s", str::wstr2str(_cmdline).c_str());
 
 			std::vector<wchar_t> cmdline_buffer(_cmdline.begin(), _cmdline.end());
 			cmdline_buffer.push_back(L'\0');

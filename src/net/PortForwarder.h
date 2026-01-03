@@ -25,7 +25,7 @@ namespace net {
 
 	class PortForwarder final {
 	public:
-		explicit PortForwarder(const Endpoint& endpoint, bool tcp_nodelay, int keepalive);
+		explicit PortForwarder(const net::Endpoint& endpoint, bool tcp_nodelay, int keepalive);
 		~PortForwarder();
 
 		/**
@@ -44,7 +44,7 @@ namespace net {
 		 *              or `false` if an error occurs at any stage.
 		 *
 		 */
-		bool connect(Listener& listener);
+		bool connect(net::Listener& listener);
 		
 		/**
 		 * Disconnects this forwarder from the server.
@@ -160,7 +160,7 @@ namespace net {
 		static const char* __class__;
 
 		// forwarder states
-		enum State {
+		enum class State {
 			READY,					// The forwarder is allocated and ready 
 			FAILED,					// The forwarder failed to connect
 			CONNECTING,				// The forwarder is connecting
@@ -195,7 +195,7 @@ namespace net {
 		State _state;
 
 		// The end point this forwarder is connected to.
-		const Endpoint _endpoint;
+		const net::Endpoint _endpoint;
 
 		// True if TCP no delay mode is enabled.
 		const bool _tcp_nodelay;
@@ -204,7 +204,7 @@ namespace net {
 		const int _keepalive;
 
 		// The local endpoint acting as a server.
-		TcpSocket _local_server;
+		net::TcpSocket _local_server;
 		
 		// The local endpoint acting as a client.
 		struct ::tcp_pcb* _local_client;
@@ -227,8 +227,8 @@ namespace net {
 		//   local server        forwarder        remote endpoint
 		//                  -> forward queue -> 
 		//                  <- reply queue   <-
-		OutputQueue _reply_queue;
-		OutputQueue _forward_queue;
+		net::OutputQueue _reply_queue;
+		net::OutputQueue _forward_queue;
 
 		// Number of bytes in transit (sent to the remote endpoint)
 		size_t _forwarded_bytes;

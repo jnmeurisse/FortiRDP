@@ -53,17 +53,17 @@ namespace utl {
 		/**
 		 * Returns the thread identifier
 		*/
-		inline unsigned int get_id() const { return _id; }
+		inline unsigned int get_id() const noexcept { return _id; }
 
 		/**
 		 * Returns the thread handle
 		*/
-		inline HANDLE get_handle() const { return _handle; }
+		inline HANDLE get_handle() const noexcept { return _handle; }
 
 		/**
 		 * Specifies whether this object is deleted when thread terminates.
 		*/
-		inline bool get_auto_delete() const { return _auto_delete; }
+		inline bool get_auto_delete() const noexcept { return _auto_delete; }
 
 	protected:
 		virtual unsigned int run() = 0;
@@ -73,7 +73,7 @@ namespace utl {
 		static const char* __class__;
 
 		// A reference to the application logger.
-		Logger* const _logger;
+		utl::Logger* const _logger;
 
 		// Handle to the windows thread.
 		HANDLE _handle;

@@ -30,7 +30,7 @@ namespace utl {
 	void StringMap::serase()
 	{
 		for (auto iter = _strmap.begin(); iter != _strmap.end(); ++iter) {
-			utl::serase(iter->second);
+			str::serase(iter->second);
 		}
 
 		_strmap.clear();
@@ -41,7 +41,7 @@ namespace utl {
 	{
 		std::vector<std::string> tokens;
 
-		if (utl::split(line.c_str(), delim, tokens) > 0) {
+		if (str::split(line.c_str(), delim, tokens) > 0) {
 			for (const auto& item : tokens) {
 				// Skip empty item.
 				if (item.empty())
@@ -51,10 +51,10 @@ namespace utl {
 				const size_t pos = item.find('=');
 				if (pos != std::string::npos) {
 					// The spaces after the equal sign are not significant
-					set(utl::trim(item.substr(0, pos)), utl::trimleft(item.substr(pos + 1, std::string::npos)));
+					set(str::trim(item.substr(0, pos)), str::trimleft(item.substr(pos + 1, std::string::npos)));
 				}
 				else {
-					set(utl::trim(item), "");
+					set(str::trim(item), "");
 				}
 			}
 		}
@@ -65,7 +65,7 @@ namespace utl {
 
 	void StringMap::set(const std::string& name, const std::string& value)
 	{
-		utl::strimap::iterator it;
+		strimap::iterator it;
 
 		// Check if the name is already defined. If yes, update the 
 		// associated value.
@@ -82,7 +82,7 @@ namespace utl {
 	bool StringMap::get_str(const std::string& name, std::string& value) const
 	{
 		bool found = false;
-		utl::strimap::const_iterator it{ _strmap.find(name) };
+		strimap::const_iterator it{ _strmap.find(name) };
 
 		if (it != _strmap.end()) {
 			value = it->second;
@@ -91,6 +91,7 @@ namespace utl {
 
 		return found;
 	}
+
 
 	std::string StringMap::get_str_value(const std::string& name, const std::string& default_value) const
 	{
@@ -102,7 +103,7 @@ namespace utl {
 	bool StringMap::get_int(const std::string& name, int& value) const
 	{
 		std::string tmp;
-		return get_str(name, tmp) && utl::str2i(tmp, value);
+		return get_str(name, tmp) && str::str2i(tmp, value);
 	}
 
 

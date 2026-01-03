@@ -7,7 +7,7 @@
 */
 #include "Event.h"
 
-#include "util/SysUtil.h"
+#include "util/ErrUtil.h"
 
 
 namespace utl {
@@ -27,7 +27,7 @@ namespace utl {
 		LOG_DEBUG(_logger, "handle=%x", _handle);
 
 		if (_handle == NULL)
-			throw_winapi_error(::GetLastError(), "CreateEvent error");
+			throw win_error(::GetLastError(), "CreateEvent");
 	}
 
 
@@ -46,8 +46,7 @@ namespace utl {
 		LOG_DEBUG(_logger, "rc=%d, handle=%x", rc, _handle);
 
 		if (!rc)
-			throw_winapi_error(::GetLastError(), "DuplicateHandle error");
-
+			throw win_error(::GetLastError(), "DuplicateHandle");
 	}
 
 
@@ -94,7 +93,7 @@ namespace utl {
 			return false;
 
 		case WAIT_FAILED:
-			throw_winapi_error(::GetLastError(), "Event::wait");
+			throw win_error(::GetLastError(), "WaitForSingleObject");
 
 		default:
 			return false;
@@ -102,5 +101,4 @@ namespace utl {
 	}
 
 	const char* Event::__class__ = "Event";
-
 }

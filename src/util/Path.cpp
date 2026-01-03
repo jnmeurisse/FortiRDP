@@ -10,6 +10,7 @@
 #include <wil/com.h>
 #include <Shlwapi.h>
 #include <vector>
+#include "util/SysUtil.h"
 #include "util/ErrUtil.h"
 
 
@@ -63,7 +64,7 @@ namespace utl {
 			if (rc == buffer.size() && ::GetLastError() == ERROR_INSUFFICIENT_BUFFER)
 				buffer_size += 1024;
 			else if (rc == 0)
-				throw utl::win_errmsg(::GetLastError());
+				throw win_errmsg(::GetLastError());
 			else
 				return Path(buffer.data());
 		} while (true);
@@ -82,6 +83,12 @@ namespace utl {
 	}
 
 
+	bool Path::exists(const Path& path)
+	{
+		return file_exists(path.to_string());
+	}
+
+
 	Path Path::get_known_folder_path(REFKNOWNFOLDERID rfid)
 	{
 		wil::unique_cotaskmem_string buffer;
@@ -89,7 +96,7 @@ namespace utl {
 		// Get the path to the folder for the current user.
 		const HRESULT hr = ::SHGetKnownFolderPath(rfid, KF_FLAG_DEFAULT, NULL, &buffer);
 		if (FAILED(hr))
-			throw utl::win_errmsg(::GetLastError());
+			throw win_error(::GetLastError(), "SHGetKnownFolderPath");
 
 		// The returned path does not include a trailing backslash, add one.
 		std::wstring path{ buffer.get() };

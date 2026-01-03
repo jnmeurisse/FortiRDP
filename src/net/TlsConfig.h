@@ -17,7 +17,6 @@
 
 
 namespace net {
-	using namespace utl;
 
 	class TlsConfig {
 	public:
@@ -33,7 +32,7 @@ namespace net {
 		/**
 		 * Defines the client certificate.
 		*/
-		mbed_err set_user_crt(mbedtls_x509_crt& own_crt, mbedtls_pk_context& own_key);
+		utl::mbed_err set_user_crt(mbedtls_x509_crt& own_crt, mbedtls_pk_context& own_key);
 
 		/**
 		 * @return the mbedtls_ssl_config.

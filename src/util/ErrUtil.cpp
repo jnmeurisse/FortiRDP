@@ -105,4 +105,10 @@ namespace utl {
 	{
 	}
 
+
+	win_error::win_error(win_err error_code, const std::string& func_name) :
+		std::system_error((int)error_code, std::system_category(), func_name)
+	{
+	}
+
 }

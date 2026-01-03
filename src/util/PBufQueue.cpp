@@ -31,7 +31,7 @@ namespace utl {
 	void PBufQueue::clear()
 	{
 		if (_chain) {
-			pbuf_free(_chain);
+			::pbuf_free(_chain);
 
 			_chain = nullptr;
 			_offset = 0;
@@ -50,7 +50,7 @@ namespace utl {
 				if (size() + pbuf_tot_len(buffer) <= _capacity) {
 					// Append the buffer at the end of the queue.  The queues now references
 					// the buffer.
-					pbuf_chain(_chain, buffer);
+					::pbuf_chain(_chain, buffer);
 					rc = true;
 				}
 			}
@@ -60,7 +60,7 @@ namespace utl {
 				_offset = 0;
 
 				// We keep a reference to this buffer.
-				pbuf_ref(buffer);
+				::pbuf_ref(buffer);
 				rc = true;
 			}
 		}
@@ -99,7 +99,7 @@ namespace utl {
 
 	uint16_t PBufQueue::count() const noexcept
 	{
-		return pbuf_clen(_chain);
+		return ::pbuf_clen(_chain);
 	}
 
 

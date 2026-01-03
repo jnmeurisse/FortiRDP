@@ -16,8 +16,8 @@
 
 
 namespace http {
-
 	using namespace utl;
+
 
 	// HTTP status code
 	const int HttpsClient::STATUS_OK = 200;
@@ -140,6 +140,10 @@ namespace http {
 
 		// Receive the answer from the server.
 		answer.recv(*this, utl::Timer{ _receive_timeout });
+		LOG_DEBUG(_logger, "status=%3.3d body size=%zu",
+			answer.get_status_code(),
+			answer.body().size()
+		);
 
 		// Update the keep alive timeout and max requests.
 		int timeout = DEFAULT_KEEP_ALIVE_TIMEOUT;

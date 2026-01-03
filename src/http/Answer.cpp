@@ -22,7 +22,9 @@
 
 
 namespace http {
+	using namespace utl;
 	using namespace net;
+
 
 	const int default_code = 400;
 	const std::string default_reason = "Bad Request";
@@ -180,10 +182,10 @@ namespace http {
 			return answer_status::ERR_INVALID_STATUS_CODE;
 
 		// Read the reason phrase
-		utl::ByteBuffer buffer(1024);
+		ByteBuffer buffer(1024);
 		answer_status status = read_line(socket, buffer, timer);
 		if (status == answer_status::ERR_NONE  && !buffer.empty()) {
-			_reason_phrase = utl::trim(buffer.to_string());
+			_reason_phrase = str::trim(buffer.to_string());
 		}
 
 		return status;
@@ -213,10 +215,10 @@ namespace http {
 		DEBUG_ENTER(_logger);
 
 ;		answer_status status;
-		utl::ByteBuffer buffer(MAX_HEADER_SIZE);
+		ByteBuffer buffer(MAX_HEADER_SIZE);
 
 		while ((status = read_line(socket, buffer, timer)) == answer_status::ERR_NONE && !buffer.empty()) {
-			utl::obfstring line{ buffer.to_obfstring() };
+			obfstring line{ buffer.to_obfstring() };
 
 			// Split header into name and value at the first colon.
 			const std::string::size_type pos{ line.find(':') };
@@ -227,14 +229,14 @@ namespace http {
 				if (!is_valid_field_name(field_name))
 					return answer_status::ERR_INVALID_FIELD;
 
-				const utl::obfstring field_value{ utl::trim(line.substr(pos + 1, std::string::npos)) };
+				const obfstring field_value{ str::trim(line.substr(pos + 1, std::string::npos)) };
 
-				if (utl::iequal(field_name, "Set-Cookie")) {
+				if (str::iequal(field_name, "Set-Cookie")) {
 					// A cookie definition
 					try {
 						_cookies.add(Cookie::parse(field_value));
 					}
-					catch (const CookieError& e) {
+					catch (const cookie_error& e) {
 						_logger->debug("ERROR: %s", e.what());
 					}
 				}
@@ -305,7 +307,7 @@ namespace http {
 
 	bool Answer::read_body(net::TcpSocket& socket, size_t size, size_t max_size, const utl::Timer& timer)
 	{
-		DEBUG_ENTER(_logger);
+		DEBUG_ENTER_FMT(_logger, "size=%zu", size);
 
 		// read by chunk of 4096 bytes
 		std::array<unsigned char, 4096> buffer;
@@ -358,13 +360,13 @@ namespace http {
 		// Get the encoding scheme
 		std::string transfer_encoding;
 		if (_headers.get("Transfer-Encoding", transfer_encoding)) {
-			transfer_encoding = utl::lower(utl::trim(transfer_encoding));
+			transfer_encoding = str::lower(str::trim(transfer_encoding));
 		}
 
 		bool gzip_content = false;
 		std::string content_encoding;
 		if (_headers.get("Content-Encoding", content_encoding)) {
-			content_encoding = utl::lower(utl::trim(content_encoding));
+			content_encoding = str::lower(str::trim(content_encoding));
 			if (content_encoding.compare("") == 0) {
 				// encoding not specified.
 			}
@@ -376,6 +378,11 @@ namespace http {
 			}
 		}
 
+		LOG_DEBUG(_logger, "Transfer-Encoding=%s Content-Encoding=%s",
+			transfer_encoding.c_str(),
+			content_encoding.c_str()
+		);
+
 		// Read the body.
 		// Are we using a chunked-style transfer encoding?
 		if (transfer_encoding.compare("chunked") == 0) {
@@ -384,7 +391,7 @@ namespace http {
 
 			// chunked message
 			long chunk_size = 0;
-			utl::ByteBuffer buffer(MAX_LINE_SIZE);
+			ByteBuffer buffer(MAX_LINE_SIZE);
 
 			do {
 				// read chunk size
@@ -392,7 +399,7 @@ namespace http {
 					throw http_error(answer_status_msg(answer_status::ERR_CHUNK_SIZE));
 
 				// decode chunk size
-				if (!utl::str2num(buffer.to_string(), 16, 0, MAX_CHUNK_SIZE, chunk_size)) {
+				if (!str::str2num(buffer.to_string(), 16, 0, MAX_CHUNK_SIZE, chunk_size)) {
 					throw http_error(answer_status_msg(answer_status::ERR_CHUNK_SIZE));
 				}
 
@@ -414,7 +421,7 @@ namespace http {
 			if (_headers.get("Content-Length", length)) {
 				long size = 0;
 
-				if (!utl::str2num(length, 10, 0, MAX_BODY_SIZE, size)) {
+				if (!str::str2num(length, 10, 0, MAX_BODY_SIZE, size)) {
 					throw http_error(answer_status_msg(answer_status::ERR_BODY_SIZE));
 				}
 

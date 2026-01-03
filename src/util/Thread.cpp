@@ -8,7 +8,7 @@
 #include "Thread.h"
 
 #include <process.h>
-#include "util/SysUtil.h"
+#include "util/ErrUtil.h"
 
 
 namespace utl {
@@ -26,7 +26,7 @@ namespace utl {
 		LOG_DEBUG(_logger, "handle=%x id=%d", _handle, _id);
 
 		if (_handle == NULL)
-			throw_winapi_error(::GetLastError(), "_beginthreadex error");
+			throw win_error(::GetLastError(), "_beginthreadex");
 	}
 
 
@@ -37,7 +37,7 @@ namespace utl {
 		if (_handle != NULL)
 		{
 			LOG_DEBUG(_logger, "handle=%x id=%d", _handle, _id);
-			CloseHandle(_handle);
+			::CloseHandle(_handle);
 		}
 	}
 
@@ -63,7 +63,7 @@ namespace utl {
 			return false;
 
 		case WAIT_FAILED:
-			throw_winapi_error(::GetLastError(), "Thread::wait");
+			throw win_error(::GetLastError(), "WaitForSingleObject");
 
 		default:
 			return false;
@@ -76,7 +76,7 @@ namespace utl {
 	*/
 	unsigned __stdcall thread_entry_point(void* data)
 	{
-		Thread* const thread = reinterpret_cast<Thread*>(data);
+		auto thread = static_cast<Thread*>(data);
 		unsigned int rc = thread->run();
 
 		if (thread->_auto_delete) {
@@ -88,5 +88,4 @@ namespace utl {
 	}
 
 	const char* Thread::__class__ = "Thread";
-
 }

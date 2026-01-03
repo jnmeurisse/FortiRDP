@@ -14,8 +14,6 @@
 
 
 namespace net {
-	using namespace utl;
-
 	class TcpSocket : public Socket {
 	public:
 		/**
@@ -35,7 +33,7 @@ namespace net {
 		 * 	     https://github.com/Mbed-TLS/mbedtls/issues/8027
 		 *
 		*/
-		virtual mbed_err connect(const Endpoint& ep, const Timer& timer);
+		virtual utl::mbed_err connect(const net::Endpoint& ep, const utl::Timer& timer);
 
 		/**
 		 * Reads a sequence of bytes from the socket.
@@ -51,7 +49,7 @@ namespace net {
 		 * @return A value of type `rcv_status` indicating the status of the
 		 *         read operation.
 		 */
-		virtual net::rcv_status read(unsigned char* buf, size_t len, const Timer& timer);
+		virtual net::rcv_status read(unsigned char* buf, size_t len, const utl::Timer& timer);
 
 		/**
 		 * Writes a sequence of bytes to the socket.
@@ -67,7 +65,7 @@ namespace net {
 		 * @return A value of type `snd_status` indicating the status of the
 		 *         write operation.
 		 */
-		virtual net::snd_status write(const unsigned char* buf, size_t len, const Timer& timer);
+		virtual net::snd_status write(const unsigned char* buf, size_t len, const utl::Timer& timer);
 
 		/**
 		* Receives data from the socket.
@@ -91,7 +89,6 @@ namespace net {
 	private:
 		// The class name.
 		static const char* __class__;
-
 	};
 
 }

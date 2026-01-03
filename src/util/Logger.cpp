@@ -149,7 +149,7 @@ namespace utl {
 
 	void Logger::write(LogLevel level, const char* format, va_list args)
 	{
-		write(level, utl::string_format(format, args));
+		write(level, str::string_format(format, args));
 	}
 
 
@@ -165,7 +165,7 @@ namespace utl {
 			if (format) {
 				va_list args;
 				va_start(args, format);
-				const std::string message = utl::string_format(format, args);
+				const std::string message = str::string_format(format, args);
 				va_end(args);
 				_logger->log(_level, "> %s::%s - %s", _class_name, _func_name, message.c_str());
 			}
@@ -276,7 +276,7 @@ namespace utl {
 	
 	std::string LogQueue::pop()
 	{
-		utl::Mutex::Lock lock(_mutex);
+		Mutex::Lock lock(_mutex);
 
 		std::string text = _queue.front();
 		_queue.pop();

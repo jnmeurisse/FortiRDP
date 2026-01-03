@@ -7,6 +7,7 @@
 */
 #pragma once
 
+#include <cstdint>
 #include <lwip/tcp.h>
 #include "net/Socket.h"
 #include "util/PBufQueue.h"
@@ -16,23 +17,21 @@
 
 namespace net {
 
-	using namespace utl;
-
-	class OutputQueue final : public PBufQueue
+	class OutputQueue final : public utl::PBufQueue
 	{
 	public:
 		explicit OutputQueue(uint16_t capacity);
 		~OutputQueue();
 
-		net::snd_status write(Socket& socket);
-		lwip_err write(struct tcp_pcb* socket, size_t& written);
+		net::snd_status write(net::Socket& socket);
+		utl::lwip_err write(struct ::tcp_pcb* socket, size_t& written);
 
 	private:
 		// The class name
 		static const char* __class__;
 
 		// a reference to the application logger
-		Logger* const _logger;
+		utl::Logger* const _logger;
 	};
 
 }

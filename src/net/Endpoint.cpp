@@ -13,6 +13,8 @@
 
 
 namespace net {
+	using namespace utl;
+
 
 	Endpoint::Endpoint() :
 		_hostname("0.0.0.0"),
@@ -53,16 +55,16 @@ namespace net {
 
 		if ((p >= str) &&  (*p == ':')) {
 			// Extract the host name and port.
-			_hostname = utl::trim(std::string(str, p));
+			_hostname = str::trim(std::string(str, p));
 			int port_value;
-			valid_port = utl::str2i((std::string(p + 1, str + address.length())), port_value) 
+			valid_port = str::str2i((std::string(p + 1, str + address.length())), port_value)
 						&& (port_value > 0) 
 						&& (port_value <= std::numeric_limits<uint16_t>::max());
 			if (valid_port)
 				_port = static_cast<uint16_t>(port_value);
 		}
 		else {
-			_hostname = utl::trim(str);
+			_hostname = str::trim(str);
 			_port = default_port;
 		}
 

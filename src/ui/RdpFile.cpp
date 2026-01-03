@@ -35,7 +35,7 @@ namespace ui {
 					break;
 
 				// Split option parameters
-				if (utl::split(line, ':', params) == 3)
+				if (utl::str::split(line, ':', params) == 3)
 				{
 					// Add it to the list
 					add_option(params[0], params[1], params[2]);
@@ -96,9 +96,8 @@ namespace ui {
 
 	RdpOption* RdpFile::find(const std::string& name)
 	{
-		for (auto& it : _options_list)
-		{
-			if (utl::iequal(name, it.option_name))
+		for (auto& it : _options_list) {
+			if (utl::str::iequal(name, it.option_name))
 				return &it;
 		}
 

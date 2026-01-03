@@ -23,7 +23,6 @@ namespace http {
 	public:
 		Cookie() = delete;
 
-
 		/**
 		 * Allocates a cookie from the cookie attributes.
 		 *
@@ -39,7 +38,6 @@ namespace http {
 			const bool secure,
 			const bool http_only
 		);
-
 
 		/**
 		 * Returns an obfuscated string representation of this cookie.
@@ -113,7 +111,7 @@ namespace http {
 		 * @param cookie_string The cookie definition.
 		 * @return a Cookie.
 		 *
-		 * Note: The method throws a CookieError if the cookie is not valid.
+		 * Note: The method throws a cookie_error if the cookie is not valid.
 		*/
 		static Cookie parse(const utl::obfstring& cookie_string);
 

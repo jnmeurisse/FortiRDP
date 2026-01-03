@@ -9,7 +9,7 @@
 
 #include <vector>
 #include <system_error>
-#include "util/SysUtil.h"
+#include "util/ErrUtil.h"
 
 
 namespace utl {
@@ -28,11 +28,11 @@ namespace utl {
 			KEY_ALL_ACCESS,
 			nullptr,
 			&_key,
-			NULL);
+			nullptr);
 
 		
 		if (rc != ERROR_SUCCESS)
-			throw_winapi_error(rc, "RegCreateKey error");
+			throw win_error(rc, "RegCreateKey");
 	}
 
 
@@ -57,7 +57,7 @@ namespace utl {
 			&size);
 
 		if (rc != ERROR_SUCCESS)
-			throw_winapi_error(rc, "RegGetValue error");
+			throw win_error(rc, "RegGetValue");
 
 		return data;
 	}
@@ -84,7 +84,7 @@ namespace utl {
 			sizeof(DWORD));
 
 		if (rc != ERROR_SUCCESS)
-			throw_winapi_error(rc, "RegSetValue error");
+			throw win_error(rc, "RegSetValue");
 	}
 
 
@@ -103,7 +103,7 @@ namespace utl {
 			&len);
 
 		if (rc != ERROR_SUCCESS)
-			throw_winapi_error(rc, "RegGetValue error");
+			throw win_error(rc, "RegGetValue");
 
 		// Allocate the required space.
 		// Note: 'len' is in bytes and includes space for the null terminator.
@@ -119,7 +119,7 @@ namespace utl {
 			buffer.data(),
 			&len);
 		if (rc != ERROR_SUCCESS)
-			throw_winapi_error(rc, "RegGetValue error");
+			throw win_error(rc, "RegGetValue");
 
 		// Returns the string not including the null char
 		return buffer.data();
@@ -148,7 +148,7 @@ namespace utl {
 			(DWORD) size);
 
 		if (rc != ERROR_SUCCESS)
-			throw_winapi_error(rc, "RegSetValueEx error");
+			throw win_error(rc, "RegSetValueEx");
 	}
 
 
@@ -158,7 +158,7 @@ namespace utl {
 			_key,
 			key_name.c_str());
 		if (rc != ERROR_SUCCESS)
-			throw_winapi_error(rc, "RegDeleteKey error");
+			throw win_error(rc, "RegDeleteKey");
 	}
 
 
@@ -168,7 +168,7 @@ namespace utl {
 			_key,
 			value_name.c_str());
 		if (rc != ERROR_SUCCESS)
-			throw_winapi_error(rc, "RegDeleteValue error");
+			throw win_error(rc, "RegDeleteValue");
 	}
 
 }

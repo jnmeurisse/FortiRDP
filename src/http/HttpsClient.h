@@ -20,8 +20,6 @@
 
 namespace http {
 
-	using namespace utl;
-
 	class HttpsClient : public net::TlsSocket
 	{
 	public:

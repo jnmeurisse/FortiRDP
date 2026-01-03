@@ -12,9 +12,9 @@
 
 
 namespace http {
-
 	using namespace utl;
 	using namespace net;
+
 
 	/* Initialization of common HTTP Verbs */
 	const std::string Request::GET_VERB = "GET";
@@ -26,7 +26,7 @@ namespace http {
 	const std::string Request::TRACE_VERB = "TRACE";
 
 
-	Request::Request(const std::string& verb, const Url& url, const Cookies& cookie_jar) :
+	Request::Request(const std::string& verb, const http::Url& url, const http::Cookies& cookie_jar) :
 		_logger(Logger::get_logger()),
 		_cookies(cookie_jar),
 		_verb(verb),
@@ -71,12 +71,11 @@ namespace http {
 	{
 		DEBUG_ENTER_FMT(_logger, "timeout=%lu", timer.remaining_time());
 
-		utl::ByteBuffer buffer(1024);
-
 		if (!_body.empty()) {
 			_headers.set("Content-Length", _body.size());
 		}
 
+		ByteBuffer buffer(1024);
 		buffer
 			.append(_verb).append(' ')
 			.append(_url.to_string(true)).append(' ')
@@ -122,7 +121,7 @@ namespace http {
 			timer.remaining_time()
 		);
 
-		const snd_status status{ socket.write(buffer, len, timer) };
+		const net::snd_status status{ socket.write(buffer, len, timer) };
 
 		if (status.code == snd_status_code::NETCTX_SND_ERROR || status.code == snd_status_code::NETCTX_SND_RETRY) {
 			// Send failed or timed out.

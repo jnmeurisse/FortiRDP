@@ -15,7 +15,7 @@ namespace http {
 	/**
 	 * Exception raised when the syntax of an HTTP cookie is incorrect.
 	 */
-	class CookieError final : public utl::frdp_error
+	class cookie_error final : public utl::frdp_error
 	{
 	public:
 		using utl::frdp_error::frdp_error;

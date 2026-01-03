@@ -47,12 +47,12 @@ namespace net {
 		/**
 		 * Returns the host name from this end point.
 		*/
-		inline const std::string& hostname() const { return _hostname; }
+		inline const std::string& hostname() const noexcept { return _hostname; }
 
 		/**
 		 * Returns the port from this end point.
 		*/
-		inline const uint16_t port() const { return _port; }
+		inline uint16_t port() const noexcept { return _port; }
 
 		/**
 		 * Returns true if this end point is undefined.

@@ -16,19 +16,21 @@
 
 
 namespace http {
+	using namespace utl;
+
 
 	constexpr std::time_t EXPIRES_UNSPECIFIED = -1;
 
 
 	static std::string normalize_domain(const std::string& domain)
 	{
-		return utl::trim(utl::lower(domain));
+		return str::trim(str::lower(domain));
 	}
 
 
 	static std::string normalize_path(std::string path)
 	{
-		path = utl::trim(path);
+		path = str::trim(path);
 		return path.empty() ? "/" : path;
 	}
 
@@ -106,14 +108,14 @@ namespace http {
 		//    cookie-pair *( ";" SP cookie-av )
 		//    cookie-pair = cookie-name "=" cookie-value
 		// Additional attributes (cookie-av) are separated by semicolons.
-		if (utl::split(cookie_string, ';', parts) <= 0)
-			throw CookieError{ "Empty cookie definition" };
+		if (str::split(cookie_string, ';', parts) <= 0)
+			throw cookie_error{ "Empty cookie definition" };
 		
 		// split cookie-pair 
 		const utl::obfstring cookie_pair(parts[0]);
 		const std::string::size_type pos_pair = cookie_pair.find('=');
 		if (pos_pair == std::string::npos)
-			throw CookieError{ "Invalid cookie :" + cookie_string.uncrypt() };
+			throw cookie_error{ "Invalid cookie :" + cookie_string.uncrypt() };
 
 		const std::string cookie_name{ cookie_pair.substr(0, pos_pair).uncrypt() };
 		const utl::obfstring cookie_value{ cookie_pair.substr(pos_pair + 1, std::string::npos) };
@@ -125,7 +127,7 @@ namespace http {
 
 		for (size_t idx = 1; idx < parts.size(); idx++) {
 			// get next attribute-value
-			const std::string cookie_av{ utl::trimleft(parts[idx].uncrypt()) };
+			const std::string cookie_av{ str::trimleft(parts[idx].uncrypt()) };
 
 			// extract attribute name and value
 			const std::string::size_type pos = cookie_av.find('=');
@@ -134,23 +136,23 @@ namespace http {
 				const std::string attribute_name{ cookie_av.substr(0, pos) };
 				const std::string attribute_value{ cookie_av.substr(pos + 1, std::string::npos) };
 
-				if (utl::iequal(attribute_name, "domain")) {
+				if (str::iequal(attribute_name, "domain")) {
 					domain = attribute_value;
 				}
-				else if (utl::iequal(attribute_name, "path")) {
+				else if (str::iequal(attribute_name, "path")) {
 					path = attribute_value;
 				}
-				else if (utl::iequal(attribute_name, "expires")) {
+				else if (str::iequal(attribute_name, "expires")) {
 					expires = parse_http_date(attribute_value);
 				}
-				else if (utl::iequal(attribute_name, "max-age")) {
+				else if (str::iequal(attribute_name, "max-age")) {
 					// not supported, attribute is ignored
 				}
 			}
-			else if (utl::iequal(cookie_av, "secure")) {
+			else if (str::iequal(cookie_av, "secure")) {
 				secure = true;
 			}
-			else if (utl::iequal(cookie_av, "httponly")) {
+			else if (str::iequal(cookie_av, "httponly")) {
 				http_only = true;
 			}
 		}

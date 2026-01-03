@@ -16,7 +16,7 @@ namespace utl {
 	class UserCrt {
 	public:
 		UserCrt();
-		~UserCrt();
+		~UserCrt() = default;
 		UserCrt(UserCrt& other) = delete;
 
 		X509Crt crt;

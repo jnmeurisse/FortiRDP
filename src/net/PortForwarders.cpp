@@ -9,6 +9,8 @@
 
 
 namespace net {
+	using namespace utl;
+
 
 	PortForwarders::PortForwarders() :
 		_logger(Logger::get_logger())
@@ -85,5 +87,4 @@ namespace net {
 	}
 
 	const char* PortForwarders::__class__ = "PortForwarders";
-
 }

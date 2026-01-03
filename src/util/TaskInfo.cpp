@@ -23,9 +23,4 @@ namespace utl {
 	{
 	}
 
-
-	TaskInfo::~TaskInfo()
-	{
-	}
-
 }

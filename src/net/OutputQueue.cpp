@@ -9,6 +9,8 @@
 #include <memory>
 
 namespace net {
+	using namespace utl;
+
 
 	OutputQueue::OutputQueue(uint16_t capacity) : 
 		PBufQueue(capacity),
@@ -24,9 +26,9 @@ namespace net {
 	}
 
 
-	net::snd_status OutputQueue::write(Socket& socket)
+	net::snd_status OutputQueue::write(net::Socket& socket)
 	{
-		snd_status snd_status{ NETCTX_SND_OK, 0, 0 };
+		snd_status snd_status{ snd_status_code::NETCTX_SND_OK, 0, 0 };
 
 		if (_logger->is_trace_enabled())
 			_logger->trace(
@@ -44,7 +46,7 @@ namespace net {
 			// Send this block.
 			snd_status = socket.send_data(data_cblock.pdata, data_cblock.len);
 
-			if (snd_status.code == NETCTX_SND_OK) {
+			if (snd_status.code == snd_status_code::NETCTX_SND_OK) {
 				// Move the pointer into the queue if bytes have been sent.
 				if (!move(snd_status.sbytes))
 					_logger->error("INTERNAL ERROR: OutputQueue::move failed");
@@ -66,7 +68,7 @@ namespace net {
 	}
 
 
-	lwip_err OutputQueue::write(struct tcp_pcb* socket, size_t& written)
+	utl::lwip_err OutputQueue::write(struct tcp_pcb* socket, size_t& written)
 	{
 		if (_logger->is_trace_enabled())
 			_logger->trace(
@@ -99,7 +101,7 @@ namespace net {
 			const u8_t flags = TCP_WRITE_FLAG_COPY | (data_cblock.more ? TCP_WRITE_FLAG_MORE : 0);
 
 			// Send
-			rc = tcp_write(socket, data_cblock.pdata, data_cblock.len, flags);
+			rc = ::tcp_write(socket, data_cblock.pdata, data_cblock.len, flags);
 			if (rc)
 				goto write_error;
 
@@ -113,7 +115,7 @@ namespace net {
 		}
 
 		if (written > 0) {
-			rc = tcp_output(socket);
+			rc = ::tcp_output(socket);
 		}
 
 	write_error:
@@ -136,5 +138,4 @@ namespace net {
 	}
 
 	const char* OutputQueue::__class__ = "OutputQueue";
-
 }

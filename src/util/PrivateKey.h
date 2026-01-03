@@ -17,25 +17,27 @@ namespace utl {
 	class PrivateKey {
 	public:
 		explicit PrivateKey();
-		explicit PrivateKey(PrivateKey& other) = delete;
 		~PrivateKey();
+
+		/**
+		 * Forbid copying the key.
+		*/
+		explicit PrivateKey(const PrivateKey& other) = delete;
+		PrivateKey& operator=(const PrivateKey&) = delete;
 
 		/**
 		 * Loads the private key from the file.
 		*/
-		mbed_err load(const char* filename, const char* passcode);
+		utl::mbed_err load(const char* filename, const char* passcode);
 
 		/**
 		* Returns a reference to the private key.
 		*/
-		inline mbedtls_pk_context& get_pk() { return _key; }
+		mbedtls_pk_context& get_pk() { return _key; }
 
 	private:
 		mbedtls_ctr_drbg_context _ctr_drbg;
 		mbedtls_pk_context _key;
 	};
-
-
-	using PrivateKeyPtr = std::unique_ptr<PrivateKey>;
 
 }

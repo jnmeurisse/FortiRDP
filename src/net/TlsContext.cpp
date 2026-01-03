@@ -9,7 +9,6 @@
 
 namespace net {
 
-
 	TlsContext::TlsContext() :
 		_sslctx{}
 	{
@@ -23,7 +22,7 @@ namespace net {
 	}
 
 
-	mbed_err TlsContext::configure(const mbedtls_ssl_config& config, mbedtls_net_context& netctx)
+	utl::mbed_err TlsContext::configure(const mbedtls_ssl_config& config, mbedtls_net_context& netctx)
 	{
 		::mbedtls_ssl_set_bio(&_sslctx, &netctx, mbedtls_net_send, mbedtls_net_recv, nullptr);
 
@@ -37,13 +36,13 @@ namespace net {
 	}
 
 
-	mbed_err TlsContext::set_hostname(const std::string& hostname)
+	utl::mbed_err TlsContext::set_hostname(const std::string& hostname)
 	{
 		return ::mbedtls_ssl_set_hostname(&_sslctx, hostname.c_str());
 	}
 
 
-	mbed_err TlsContext::close()
+	utl::mbed_err TlsContext::close()
 	{
 		int rc;
 
@@ -92,7 +91,7 @@ namespace net {
 	{
 		rcv_status status { rcv_status_code::NETCTX_RCV_ERROR, MBEDTLS_ERR_SSL_BAD_INPUT_DATA, 0 };
 
-		int rc = ::mbedtls_ssl_read(&_sslctx, buf, len);
+		const int rc = ::mbedtls_ssl_read(&_sslctx, buf, len);
 
 		if (rc > 0) {
 			status.code = rcv_status_code::NETCTX_RCV_OK;
@@ -124,7 +123,7 @@ namespace net {
 	{
 		snd_status status{ snd_status_code::NETCTX_SND_ERROR, MBEDTLS_ERR_SSL_BAD_INPUT_DATA, 0 };
 
-		int rc = ::mbedtls_ssl_write(&_sslctx, buf, len);
+		const int rc = ::mbedtls_ssl_write(&_sslctx, buf, len);
 
 		if (rc > 0) {
 			status.code = snd_status_code::NETCTX_SND_OK;
@@ -140,7 +139,7 @@ namespace net {
 			status.rc = MBEDTLS_NET_POLL_WRITE;
 		}
 		else {
-			status.code = NETCTX_SND_ERROR;
+			status.code = snd_status_code::NETCTX_SND_ERROR;
 			status.rc = rc;
 		}
 
@@ -148,7 +147,7 @@ namespace net {
 	}
 
 
-	mbed_err TlsContext::get_crt_check() const
+	utl::mbed_err TlsContext::get_crt_check() const
 	{
 		return ::mbedtls_ssl_get_verify_result(&_sslctx);
 	}

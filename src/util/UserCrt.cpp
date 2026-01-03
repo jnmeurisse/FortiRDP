@@ -16,9 +16,4 @@ namespace utl {
 	{
 	}
 
-
-	UserCrt::~UserCrt()
-	{
-	}
-
 }

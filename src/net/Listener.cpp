@@ -10,8 +10,8 @@
 
 
 namespace net {
-
 	using namespace utl;
+
 
 	Listener::Listener() :
 		Socket(),
@@ -27,13 +27,13 @@ namespace net {
 	}
 
 
-	mbed_err Listener::bind(const Endpoint& endpoint)
+	utl::mbed_err Listener::bind(const net::Endpoint& endpoint, net::net_protocol protocol)
 	{
 		DEBUG_ENTER_FMT(_logger, "ep=%s", endpoint.to_string().c_str());
 
 		mbed_err rc = 0;
 
-		rc = Socket::bind(endpoint, net_protocol::NETCTX_PROTO_TCP);
+		rc = Socket::bind(endpoint, protocol);
 		if (rc) {
 			// Unable to bind this host.
 			_endpoint = endpoint;
@@ -65,7 +65,7 @@ terminate:
 	}
 
 
-	mbed_err Listener::accept(Socket& client_socket)
+	utl::mbed_err Listener::accept(net::Socket& client_socket)
 	{
 		DEBUG_ENTER_FMT(_logger, "fd=%d", get_fd());
 

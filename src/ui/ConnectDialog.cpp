@@ -29,7 +29,7 @@ namespace ui {
 	static const int SYSCMD_LAUNCH = 2;
 	static const int SYSCMD_OPTIONS = 3;
 
-	ConnectDialog::ConnectDialog(HINSTANCE hInstance, const CmdlineParams& params) :
+	ConnectDialog::ConnectDialog(HINSTANCE hInstance, const ui::CmdlineParams& params) :
 		ModelessDialog(hInstance, NULL_HWND, IDD_CONNECT_DIALOG),
 		_logger(utl::Logger::get_logger()),
 		_params(params),
@@ -211,21 +211,23 @@ namespace ui {
 
 	void ConnectDialog::connect(bool clear_log)
 	{
+		using namespace utl;
+
 		DEBUG_ENTER(_logger);
 
 		// Check if fw and host addresses are valid.
 		try {
 			// Split the address and the domain if specified
 			std::vector<std::wstring> address_parts;
-			if (!in_range(utl::split(utl::trim(getFirewallAddress()), '/', address_parts), 1, 2))
+			if (!in_range(str::split(str::trim(getFirewallAddress()), '/', address_parts), 1, 2))
 				throw std::invalid_argument("invalid syntax");
 
-			std::string fw_addr{ utl::trim(utl::wstr2str(address_parts[0])) };
+			std::string fw_addr = str::trim(str::wstr2str(address_parts[0]));
 			_firewall_endpoint = net::Endpoint(fw_addr, DEFAULT_FW_PORT);
 
 			_realm.clear();
 			if (address_parts.size() == 2)
-				_realm = utl::trim(address_parts[1]);
+				_realm = str::trim(address_parts[1]);
 
 		}
 		catch (const std::invalid_argument&) {
@@ -235,7 +237,7 @@ namespace ui {
 		}
 
 		try {
-			std::string host_addr{ utl::trim(utl::wstr2str(getHostAddress())) };
+			std::string host_addr = str::trim(str::wstr2str(getHostAddress()));
 			_host_endpoint = net::Endpoint(host_addr, DEFAULT_RDP_PORT);
 
 		}
@@ -285,10 +287,10 @@ namespace ui {
 		}
 		else {
 			std::vector<std::wstring> task_info;
-			utl::split(_params.appname(), L';', task_info);
+			utl::str::split(_params.appname(), L';', task_info);
 
 			if (task_info.size() > 0)
-				task_name = utl::trim(task_info[0]);
+				task_name = str::trim(task_info[0]);
 			for (int i = 1; i < task_info.size(); i++)
 				task_params.push_back(task_info[i]);
 		}
@@ -330,7 +332,7 @@ namespace ui {
 				);
 			}
 
-			if (!utl::file_exists(user_crt)) {
+			if (!utl::Path::exists(user_crt)) {
 				std::wstring message{ L"User certificate file not found : " + user_crt.to_string() };
 				showErrorMessageDialog(message);
 				return;
@@ -343,7 +345,7 @@ namespace ui {
 				const bool modal_result = codeDialog.show_modal() == TRUE;
 				if (modal_result) {
 					// Returns code to caller
-					passcode = utl::wstr2str(codeDialog.getCode());
+					passcode = str::wstr2str(codeDialog.getCode());
 				}
 
 				return modal_result;
@@ -374,7 +376,7 @@ namespace ui {
 			::EnableMenuItem(get_sys_menu(false), SYSCMD_OPTIONS, MF_BYCOMMAND | MF_DISABLED);
 
 		// Start the client
-		_controller->connect(_firewall_endpoint, utl::wstr2str(_realm));
+		_controller->connect(_firewall_endpoint, str::wstr2str(_realm));
 	}
 
 
@@ -389,6 +391,8 @@ namespace ui {
 
 	void ConnectDialog::showCredentialsDialog(fw::AuthCredentials* pCredentials)
 	{
+		using namespace utl;
+
 		DEBUG_ENTER(_logger);
 
 		CredentialDialog credentialDialog(instance_handle(), window_handle());
@@ -396,15 +400,15 @@ namespace ui {
 			"Enter user name and password to access firewall " +
 			_controller->portal_client()->host().hostname()
 		};
-		credentialDialog.setText(utl::str2wstr(message));
+		credentialDialog.setText(str::str2wstr(message));
 		credentialDialog.setUsername(_username);
 
 		const bool modal_result = credentialDialog.show_modal() == TRUE;
 		if (modal_result && pCredentials) {
 			// Returns user name and password to caller
 			_username = credentialDialog.getUsername();
-			pCredentials->username = utl::wstr2str(_username);
-			pCredentials->password = utl::wstr2str(credentialDialog.getPassword());
+			pCredentials->username = str::wstr2str(_username);
+			pCredentials->password = str::wstr2str(credentialDialog.getPassword());
 
 			// Save user name in last usage registry but only if not specified on
 			// the command line.
@@ -430,18 +434,20 @@ namespace ui {
 
 	void ConnectDialog::showPinCodeDialog(fw::AuthCode* pCode)
 	{
+		using namespace utl;
+
 		DEBUG_ENTER(_logger);
 
 		PinCodeDialog codeDialog{ instance_handle(), window_handle() };
 		const std::string message = (!pCode)
 			? "Enter code to access firewall " + _controller->portal_client()->host().hostname()
 			: pCode->prompt;
-		codeDialog.setText(utl::str2wstr(message));
+		codeDialog.setText(str::str2wstr(message));
 
 		const bool modal_result = codeDialog.show_modal() == TRUE;
 		if (modal_result && pCode) {
 			// Returns code to caller.
-			pCode->code = utl::wstr2str(codeDialog.getCode());
+			pCode->code = str::wstr2str(codeDialog.getCode());
 		}
 
 		::ReplyMessage(modal_result);
@@ -566,11 +572,11 @@ namespace ui {
 		case TIMER_COUNTERS:
 			if (tunneler) {
 				const utl::Counters& counters = tunneler->counters();
-				const std::string message = utl::string_format(
+				const std::string message = utl::str::string_format(
 					"KBytes sent/received : %.1f/%.1f",
 					counters.sent / 1024.0,
 					counters.received / 1024.0);
-				set_control_text(IDC_BYTES_SENT, utl::str2wstr(message));
+				set_control_text(IDC_BYTES_SENT, utl::str::str2wstr(message));
 			}
 			break;
 
@@ -752,7 +758,7 @@ namespace ui {
 
 			// Clear saved user name.
 			std::string key = "Software\\Microsoft\\Terminal Server Client\\Servers\\" + endpoint.hostname();
-			utl::RegKey rdp_server{ HKEY_CURRENT_USER, utl::str2wstr(key) };
+			utl::RegKey rdp_server{ HKEY_CURRENT_USER, utl::str::str2wstr(key) };
 
 			try {
 				rdp_server.del_value(L"UsernameHint");
@@ -767,13 +773,11 @@ namespace ui {
 			};
 
 			// Remove entry in the MRU list.
-			const std::wstring mru_entry = utl::str2wstr(endpoint.to_string());
+			const std::wstring mru_entry = utl::str::str2wstr(endpoint.to_string());
 
 			for (int i = 0; i < 10; i++) {
 				try {
-					wchar_t value_name[5]{ 0 };
-					wsprintf(value_name, L"MRU%d", i);
-
+					const std::wstring value_name = L"MRU" + i;
 					std::wstring value = rdp_default.get_string(value_name, L"");
 					if (value.compare(mru_entry) == 0) {
 						rdp_default.del_value(value_name);
@@ -884,7 +888,7 @@ namespace ui {
 		if (pLogQueue) {
 			utl::Mutex::Lock lock{ pLogQueue->mutex() };
 			while (pLogQueue->size() > 0)
-				writeInfo(utl::str2wstr(pLogQueue->pop()));
+				writeInfo(utl::str::str2wstr(pLogQueue->pop()));
 		}
 	}
 
@@ -907,7 +911,7 @@ namespace ui {
 		}
 		else if (eventId == AsyncMessage::ShowInvalidCertificateDialogRequest->id()) {
 			std::string message{ reinterpret_cast<char*>(param) };
-			showInvalidCertificateDialog(utl::str2wstr(message));
+			showInvalidCertificateDialog(utl::str::str2wstr(message));
 
 		}
 		else if (eventId == AsyncMessage::ShowErrorMessageDialogRequest->id()) {

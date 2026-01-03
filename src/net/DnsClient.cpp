@@ -35,9 +35,16 @@ namespace net {
 	}
 
 
-	err_t DnsClient::query(const std::string& hostname, ip_addr_t& addr, dns_found_callback found_callback, void* callback_arg)
+	utl::lwip_err DnsClient::query(
+		const std::string& hostname, ip_addr_t& addr, dns_found_callback found_callback, void* callback_arg)
 	{
-		return dns_gethostbyname_addrtype(hostname.c_str(), &addr, found_callback, callback_arg, LWIP_DNS_ADDRTYPE_IPV4);
+		return ::dns_gethostbyname_addrtype(
+			hostname.c_str(),
+			&addr,
+			found_callback,
+			callback_arg,
+			LWIP_DNS_ADDRTYPE_IPV4
+		);
 	}
 
 }

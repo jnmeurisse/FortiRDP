@@ -17,7 +17,7 @@ namespace http {
 	/** 
 	* A collection of HTTP headers
 	*/
-	class Headers final : utl::StringMap
+	class Headers final : private utl::StringMap
 	{
 	public:
 		using utl::StringMap::serase;
