@@ -231,6 +231,9 @@
     <ClCompile Include="..\..\src\util\XGetopt.cpp">
       <Filter>sources\utl</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\util\gzip.cpp">
+      <Filter>sources\utl</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\ui\AboutDialog.h">
@@ -462,6 +465,9 @@
       <Filter>sources\utl</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\util\XGetopt.h">
+      <Filter>sources\utl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\util\gzip.h">
       <Filter>sources\utl</Filter>
     </ClInclude>
   </ItemGroup>

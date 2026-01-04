@@ -68,6 +68,7 @@
     <ClCompile Include="..\..\src\util\Counters.cpp" />
     <ClCompile Include="..\..\src\util\ErrUtil.cpp" />
     <ClCompile Include="..\..\src\util\Event.cpp" />
+    <ClCompile Include="..\..\src\util\gzip.cpp" />
     <ClCompile Include="..\..\src\util\Json11.cpp" />
     <ClCompile Include="..\..\src\util\Logger.cpp" />
     <ClCompile Include="..\..\src\util\Mutex.cpp" />
@@ -146,6 +147,7 @@
     <ClInclude Include="..\..\src\util\Counters.h" />
     <ClInclude Include="..\..\src\util\ErrUtil.h" />
     <ClInclude Include="..\..\src\util\Event.h" />
+    <ClInclude Include="..\..\src\util\gzip.h" />
     <ClInclude Include="..\..\src\util\Json11.h" />
     <ClInclude Include="..\..\src\util\Logger.h" />
     <ClInclude Include="..\..\src\util\Mutex.h" />
