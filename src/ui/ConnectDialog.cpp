@@ -777,7 +777,7 @@ namespace ui {
 
 			for (int i = 0; i < 10; i++) {
 				try {
-					const std::wstring value_name = L"MRU" + i;
+					const std::wstring value_name = L"MRU" + std::to_wstring(i);
 					std::wstring value = rdp_default.get_string(value_name, L"");
 					if (value.compare(mru_entry) == 0) {
 						rdp_default.del_value(value_name);
