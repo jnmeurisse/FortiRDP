@@ -140,15 +140,15 @@ namespace ui {
 
 	std::wstring Dialog::get_window_text(HWND hWnd)
 	{
-		// Allocate a temporary buffer
-		const size_t len = ::GetWindowTextLength(hWnd);
-		std::vector<wchar_t> buffer(len + 1);
+		// Allocate a temporary buffer (add one for null character)
+		const int len = ::GetWindowTextLength(hWnd) + 1;
+		std::vector<wchar_t> buffer(len);
 
 		// Get the window text
-		::GetWindowText(hWnd, buffer.data(), len + 1);
+		::GetWindowText(hWnd, buffer.data(), len);
 
-		// Convert the buffer to a wstring
-		return std::wstring(buffer.data(), len);
+		// Convert the buffer containing a null terminated string to a wstring
+		return std::wstring(buffer.data());
 	}
 
 

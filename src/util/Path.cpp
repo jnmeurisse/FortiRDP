@@ -9,6 +9,7 @@
 
 #include <wil/com.h>
 #include <Shlwapi.h>
+#include <algorithm>
 #include <vector>
 #include "util/SysUtil.h"
 #include "util/ErrUtil.h"
@@ -43,9 +44,12 @@ namespace utl {
 	}
 
 	
-	std::wstring Path::compact(size_t max_char) const
+	std::wstring Path::compact(unsigned int max_char) const
 	{
-		std::vector<wchar_t> buffer(max_char + 1);
+		// Allocate a buffer that can store max_char characters and a null character.
+		max_char = std::min(max_char, std::numeric_limits<unsigned int>::max() - 1) + 1;
+		std::vector<wchar_t> buffer(max_char);
+
 		if (max_char > 0 && ::PathCompactPathEx(buffer.data(), to_string().c_str(), max_char, 0))
 			return buffer.data();
 		else

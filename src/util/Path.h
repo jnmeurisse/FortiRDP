@@ -44,7 +44,7 @@ namespace utl {
 		/**
 		 * Returns the path truncated to the specified number of characters.
 		*/
-		std::wstring compact(size_t max_char) const;
+		std::wstring compact(unsigned int max_char) const;
 
 		/**
 		 * Returns the path to the specified module.
