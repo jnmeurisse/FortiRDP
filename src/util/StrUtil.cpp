@@ -70,9 +70,9 @@ namespace utl {
 		{
 			const size_t count = parts.size();
 
-			int index = 0;
+			size_t index = 0;
 			do {
-				const int begin = index;
+				const size_t begin = index;
 				while (index < str.size() && str[index] != delim)
 					index++;
 

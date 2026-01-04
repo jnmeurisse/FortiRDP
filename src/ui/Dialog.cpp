@@ -141,7 +141,7 @@ namespace ui {
 	std::wstring Dialog::get_window_text(HWND hWnd)
 	{
 		// Allocate a temporary buffer
-		const int len = ::GetWindowTextLength(hWnd);
+		const size_t len = ::GetWindowTextLength(hWnd);
 		std::vector<wchar_t> buffer(len + 1);
 
 		// Get the window text

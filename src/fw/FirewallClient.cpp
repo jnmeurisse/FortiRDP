@@ -297,8 +297,9 @@ namespace fw {
 				std::string device;
 
 				if (params_result.get_str("tokeninfo", device)) {
+					const int message_index = retcode - 2;
 					device = http::HttpsClient::decode_url(device);
-					code.prompt = messages[retcode - 2] + device;
+					code.prompt = messages[message_index] + device;
 				}
 				else {
 					code.prompt = "Enter authentication code";
