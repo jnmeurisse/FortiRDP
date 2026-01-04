@@ -72,7 +72,7 @@ namespace utl {
 		/**
 		 * Clears the queue.
 		*/
-		void clear();
+		void clear() noexcept;
 
 		/**
 		 * Appends a pbuf or a chain of pbufs to the end of the queue.
@@ -87,7 +87,7 @@ namespace utl {
 		 *        free the buffer (using pbuf_free) if it does not use it anymore.
 		 *
 		 */
-		bool push(struct pbuf* buffer);
+		bool push(struct pbuf* buffer) noexcept;
 
 		/**
 		* Removes the first pbuf from the queue.
@@ -96,7 +96,7 @@ namespace utl {
 		*         if the queue was empty.  The caller becomes the owner of the
 		*         pbuf and is responsible to free it.
 		*/
-		struct pbuf* pop();
+		struct pbuf* pop() noexcept;
 
 		/**
 		* Returns the total number of bytes occupied in the queue.
@@ -138,12 +138,12 @@ namespace utl {
 		/**
 		* Returns the first continuous block of data with a size not exceeding `len`.
 		*/
-		cblock get_cblock(size_t len) const;
+		cblock get_cblock(size_t len) const noexcept;
 
 		/**
 		* Returns the first largest continuous block of data.
 		*/
-		cblock get_cblock() const;
+		cblock get_cblock() const noexcept;
 
 		/**
 		 * Moves the read offset within the payload of the current `pbuf` in the queue.
@@ -175,10 +175,10 @@ namespace utl {
 		inline const uint8_t* payload() const noexcept { return static_cast<uint8_t*>(_chain->payload); }
 
 		// A convenient function that returns the pbuf len as a size_t
-		static inline size_t pbuf_len(const struct pbuf* buffer);
+		static size_t pbuf_len(const struct pbuf* buffer) noexcept;
 
 		// A convenient function that returns the pbuf tot_len as a size_t
-		static inline size_t pbuf_tot_len(const struct pbuf* buffer);
+		static size_t pbuf_tot_len(const struct pbuf* buffer) noexcept;
 	};
 
 }

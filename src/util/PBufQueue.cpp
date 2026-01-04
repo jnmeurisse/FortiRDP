@@ -28,7 +28,7 @@ namespace utl {
 	}
 
 
-	void PBufQueue::clear()
+	void PBufQueue::clear() noexcept
 	{
 		if (_chain) {
 			::pbuf_free(_chain);
@@ -39,7 +39,7 @@ namespace utl {
 	}
 
 
-	bool PBufQueue::push(struct pbuf* buffer)
+	bool PBufQueue::push(struct pbuf* buffer) noexcept
 	{
 		bool rc = false;
 
@@ -69,7 +69,7 @@ namespace utl {
 	}
 
 
-	struct pbuf* PBufQueue::pop()
+	struct pbuf* PBufQueue::pop() noexcept
 	{
 		struct pbuf* head = _chain;
 
@@ -103,7 +103,7 @@ namespace utl {
 	}
 
 
-	PBufQueue::cblock PBufQueue::get_cblock(size_t len) const
+	PBufQueue::cblock PBufQueue::get_cblock(size_t len) const noexcept
 	{
 		if (is_empty()) {
 			return { nullptr, 0, false };
@@ -134,7 +134,7 @@ namespace utl {
 	}
 
 
-	PBufQueue::cblock PBufQueue::get_cblock() const
+	PBufQueue::cblock PBufQueue::get_cblock() const noexcept
 	{
 		return get_cblock(pbuf_len(_chain) - _offset);
 	}
@@ -160,13 +160,13 @@ namespace utl {
 	}
 
 
-	size_t PBufQueue::pbuf_len(const pbuf* buffer)
+	size_t PBufQueue::pbuf_len(const pbuf* buffer) noexcept
 	{
 		return static_cast<size_t>(buffer->len);
 	}
 
 
-	size_t PBufQueue::pbuf_tot_len(const pbuf* buffer)
+	size_t PBufQueue::pbuf_tot_len(const pbuf* buffer) noexcept
 	{
 		return static_cast<size_t>(buffer->tot_len);
 	}
