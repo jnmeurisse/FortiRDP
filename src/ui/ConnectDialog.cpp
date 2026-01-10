@@ -29,6 +29,9 @@ namespace ui {
 	static const int SYSCMD_LAUNCH = 2;
 	static const int SYSCMD_OPTIONS = 3;
 
+	static const int MAX_INFO_MESSAGE = 12;
+
+
 	ConnectDialog::ConnectDialog(HINSTANCE hInstance, const ui::CmdlineParams& params) :
 		ModelessDialog(hInstance, NULL_HWND, IDD_CONNECT_DIALOG),
 		_logger(utl::Logger::get_logger()),
@@ -186,9 +189,10 @@ namespace ui {
 	{
 		utl::Mutex::Lock lock{ _msg_mutex };
 
-		// Add the new message and remove old one, we keep only the last 10 messages
+		// Add the new message and remove old one.
+		// We keep only the last MAX_INFO_MESSAGE messages
 		_msg_buffer.push_back(message);
-		while (_msg_buffer.size() > 10) {
+		while (_msg_buffer.size() > MAX_INFO_MESSAGE) {
 			_msg_buffer.erase(_msg_buffer.cbegin());
 		}
 
@@ -571,11 +575,24 @@ namespace ui {
 		switch (wParam) {
 		case TIMER_COUNTERS:
 			if (tunneler) {
+				std::string client_info;
+
+				if (_params.multi_clients()) {
+					const size_t client_counter = tunneler->clients_count();
+					client_info = utl::str::string_format(
+						"(%zu client%c)",
+						client_counter,
+						client_counter <= 1 ? ' ' : 's'
+					);
+				}
+
 				const utl::Counters& counters = tunneler->counters();
 				const std::string message = utl::str::string_format(
-					"KBytes sent/received : %.1f/%.1f",
+					"KBytes sent/received : %.1f/%.1f %s",
 					counters.sent / 1024.0,
-					counters.received / 1024.0);
+					counters.received / 1024.0,
+					client_info.c_str()
+				);
 				set_control_text(IDC_BYTES_SENT, utl::str::str2wstr(message));
 			}
 			break;
