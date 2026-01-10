@@ -9,6 +9,7 @@
 
 #include <cstdint>
 #include <lwip/pbuf.h>
+#include "util/Logger.h"
 
 
 namespace utl {
@@ -161,6 +162,12 @@ namespace utl {
 		bool move(size_t len) noexcept;
 
 	private:
+		// The class name
+		static const char* __class__;
+
+		// A reference to the application logger.
+		utl::Logger* const _logger;
+
 		// The capacity of this queue.
 		const size_t _capacity;
 
