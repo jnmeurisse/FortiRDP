@@ -170,13 +170,20 @@ static void RedirectStdioToConsole()
 static void lwip_log_cb(void *ctx, int level, const char* fmt, va_list args)
 {
 	utl::Logger* const logger = static_cast<utl::Logger*>(ctx);
-	
-	if (level == LWIP_ERROR_MESSAGE)
-		logger->log(utl::LogLevel::LL_ERROR, fmt, args);
-	else if (level == LWIP_DIAG_MESSAGE)
-		logger->log(utl::LogLevel::LL_DEBUG, fmt, args);
-	else
-		logger->log(utl::LogLevel::LL_TRACE, fmt, args);
+
+	std::string format{ fmt };
+	if (format.size() > 1) {
+		// remove \n from format
+		if (format[format.size() - 1] == '\n')
+			format[format.size() - 1] = '\0';
+
+		if (level == LWIP_ERROR_MESSAGE)
+			logger->log(utl::LogLevel::LL_ERROR, format.c_str(), args);
+		else if (level == LWIP_DIAG_MESSAGE)
+			logger->log(utl::LogLevel::LL_DEBUG, format.c_str(), args);
+		else
+			logger->log(utl::LogLevel::LL_TRACE, format.c_str(), args);
+	}
 }
 
 #ifndef _WIN64
