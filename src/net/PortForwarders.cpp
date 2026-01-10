@@ -62,7 +62,7 @@ namespace net {
 	}
 
 
-	bool PortForwarders::has_connecting_forwarders() const
+	bool PortForwarders::has_connecting_forwarders() const noexcept
 	{
 		for (const auto* pf : *this) {
 			if (pf && pf->connecting()) {

@@ -46,7 +46,7 @@ namespace net {
 		/*
 		 * Returns true if at least one port forwarder is trying to connect.
 		*/
-		bool has_connecting_forwarders() const;
+		bool has_connecting_forwarders() const noexcept;
 
 		/**
 		 * Returns the number of connected forwarders.
