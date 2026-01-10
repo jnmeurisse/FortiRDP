@@ -62,6 +62,8 @@ namespace ui {
 		_rdp_filename = L"";
 		_tcp_nodelay = false;
 
+		int port = 0;
+
 		int c;
 		while ((c = getopt(argc, argv, L"?u:famvc:tx:p:sr:lCMnw:h:U:A:")) != EOF) {
 			switch (c) {
@@ -81,9 +83,8 @@ namespace ui {
 				break;
 
 			case L'p':
-				int port;
-				if (str::str2i(optarg, port) && port > 0 && (port <= std::numeric_limits<uint16_t>::max()))
-					_local_port = static_cast<uint16_t>(port);
+				if (!str::str2i(optarg, port))
+					port = -1;
 				break;
 
 			case L'c':
@@ -174,8 +175,11 @@ namespace ui {
 			return false;
 
 		// Check if the local TCP port is valid.
-		if (_local_port > 0)
+		if (port >= 0 && (port <= std::numeric_limits<uint16_t>::max()))
+			_local_port = static_cast<uint16_t>(port);
+		else
 			return false;
+
 
 		// Validate the authentication method.
 		bool auth_method_valid = false;
