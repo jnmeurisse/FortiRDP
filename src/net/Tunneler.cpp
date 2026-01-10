@@ -34,6 +34,7 @@ namespace net {
 		_terminate(false),
 		_tunnel(tunnel),
 		_counters(),
+		_clients_count(0),
 		_pp_interface(tunnel, _counters),
 		_listening_status(),
 		_local_endpoint(local_ep),
@@ -332,6 +333,8 @@ namespace net {
 			default:
 				break;
 			}
+
+			_clients_count = active_port_forwarders.connected_count();
 		}
 
 		// Free all resources used by the PPP interface.

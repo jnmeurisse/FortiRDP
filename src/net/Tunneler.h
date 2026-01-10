@@ -81,12 +81,17 @@ namespace net {
 		/**
 		 * Returns the state of the listener.
 		*/
-		inline State get_state() const { return _state; }
+		inline State get_state() const noexcept { return _state; }
 
 		/**
 		 * Returns the transmitted/received bytes counters.
 		*/
-		inline const utl::Counters& counters() const { return _counters; }
+		inline const utl::Counters& counters() const noexcept { return _counters; }
+
+		/**
+		* Returns the number of active clients
+		*/
+		inline size_t clients_count() const noexcept { return _clients_count; }
 
 		/**
 		 * Returns the local endpoint address and port.
@@ -119,6 +124,9 @@ namespace net {
 
 		// Counters of bytes sent to / received from the tunnel.
 		utl::Counters _counters;
+
+		// Counters of connected clients
+		size_t _clients_count;
 
 		// PP interface.
 		net::PPInterface _pp_interface;
