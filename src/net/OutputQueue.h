@@ -23,7 +23,7 @@ namespace net {
 		explicit OutputQueue(uint16_t capacity);
 		~OutputQueue();
 
-		net::snd_status write(net::Socket& socket);
+		utl::mbed_err write(net::Socket& socket, size_t& written);
 		utl::lwip_err write(struct ::tcp_pcb* socket, size_t& written);
 
 	private:

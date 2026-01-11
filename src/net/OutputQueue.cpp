@@ -12,7 +12,7 @@ namespace net {
 	using namespace utl;
 
 
-	OutputQueue::OutputQueue(uint16_t capacity) : 
+	OutputQueue::OutputQueue(uint16_t capacity) :
 		PBufQueue(capacity),
 		_logger(Logger::get_logger())
 	{
@@ -26,63 +26,64 @@ namespace net {
 	}
 
 
-	net::snd_status OutputQueue::write(net::Socket& socket)
+	utl::mbed_err OutputQueue::write(net::Socket& socket, size_t& written)
 	{
+		TRACE_ENTER_FMT(_logger, "write to mbedtls socket=0x%012Ix, queue_size=%zu",
+			PTR_VAL(std::addressof(socket)),
+			size()
+		);
+
+		written = 0;
 		snd_status snd_status{ snd_status_code::NETCTX_SND_OK, 0, 0 };
 
-		if (_logger->is_trace_enabled())
-			_logger->trace(
-				".... 0x%012Ix enter %s::%s mbedtls_socket=%Ix",
-				PTR_VAL(this),
-				__class__,
-				__func__,
-				PTR_VAL(std::addressof(socket))
-			);
-
-		if (!is_empty()) {
+		while (!is_empty() && snd_status.code == snd_status_code::NETCTX_SND_OK) {
 			// Get the next contiguous block of data.
-			PBufQueue::cblock data_cblock{ get_cblock() };
+			const PBufQueue::cblock data_cblock{ get_cblock() };
 
 			// Send this block.
 			snd_status = socket.send_data(data_cblock.pdata, data_cblock.len);
 
 			if (snd_status.code == snd_status_code::NETCTX_SND_OK) {
 				// Move the pointer into the queue if bytes have been sent.
-				if (!move(snd_status.sbytes))
+				if (!move(snd_status.sbytes)) {
 					_logger->error("INTERNAL ERROR: OutputQueue::move failed");
+					snd_status.code = snd_status_code::NETCTX_SND_ERROR;
+					snd_status.rc = MBEDTLS_ERR_NET_SOCKET_FAILED;
+				}
+				else
+					written += snd_status.sbytes;
 			}
 		}
 
-		if (_logger->is_trace_enabled())
-			_logger->trace(
-				".... 0x%012Ix leave %s::%s mbedtls_socket=0x%012Ix status=%d rc=%d written=%zu",
-				PTR_VAL(this),
-				__class__,
-				__func__,
-				PTR_VAL(std::addressof(socket)),
-				snd_status.code,
-				snd_status.rc,
-				snd_status.sbytes);
+		LOG_TRACE(_logger, "written to mbedtls => status=%d rc=%d written=%zu, queue_size=%zu",
+			snd_status.code,
+			snd_status.rc,
+			written,
+			size()
+		);
 
-		return snd_status;
+		if (snd_status.code == snd_status_code::NETCTX_SND_RETRY) {
+			// The output buffer was full, we will try to send the pbuf chain later
+			snd_status.rc = 0;
+		}
+
+		return snd_status.rc;
 	}
 
 
 	utl::lwip_err OutputQueue::write(struct tcp_pcb* socket, size_t& written)
 	{
-		if (_logger->is_trace_enabled())
-			_logger->trace(
-				".... 0x%012Ix enter %s::%s lwip_socket=0x%012Ix",
-				PTR_VAL(this),
-				__class__,
-				__func__,
-				PTR_VAL(std::addressof(socket)));
+		TRACE_ENTER_FMT(_logger, "write to lwip socket=0x%012Ix, queue_size=%zu, sndbuf=%d, unsent=%d",
+			PTR_VAL(std::addressof(socket)),
+			size(),
+			tcp_sndbuf(socket),
+			socket->unsent != nullptr
+		);
 
 		written = 0;
-
 		lwip_err rc = ERR_OK;
 
-		while (!is_empty()) {
+		while (!is_empty() && rc == ERR_OK) {
 			// Determine the space available in the TCP send buffer.
 			const size_t send_buffer_size = tcp_sndbuf(socket);
 
@@ -102,37 +103,31 @@ namespace net {
 
 			// Send
 			rc = ::tcp_write(socket, data_cblock.pdata, data_cblock.len, flags);
-			if (rc)
-				goto write_error;
-
-			// Report the number of sent bytes.
-			written += data_cblock.len;
-
-			// Move the pointer into the queue if bytes have been sent
-			if (!move(data_cblock.len)) {
-				_logger->error("INTERNAL ERROR: OutputQueue::move failed");
+			if (rc == ERR_OK) {
+				// Move the pointer into the queue if bytes have been copied to the TCP queue.
+				if (!move(data_cblock.len)) {
+					_logger->error("INTERNAL ERROR: OutputQueue::move failed");
+					rc = ERR_VAL;
+				}
+				else
+					written += data_cblock.len;
 			}
 		}
 
-		if (written > 0) {
+		if (rc == ERR_OK && (written > 0 || socket->unsent)) {
 			rc = ::tcp_output(socket);
 		}
 
-	write_error:
-		if (_logger->is_trace_enabled())
-			_logger->trace(
-				".... 0x%012Ix leave %s::%s lwip_socket=0x%012Ix rc=%d written=%d",
-				PTR_VAL(this),
-				__class__,
-				__func__,
-				PTR_VAL(std::addressof(socket)),
-				rc,
-				written
-			);
+		LOG_TRACE(_logger, "written to lwip => rc=%d written=%zu, queue_size=%zu",
+			rc,
+			written,
+			size()
+		);
 
-		if (rc == ERR_IF)
+		if (rc == ERR_IF) {
 			// The output buffer was full, we will try to send the pbuf chain later
 			rc = ERR_OK;
+		}
 
 		return rc;
 	}

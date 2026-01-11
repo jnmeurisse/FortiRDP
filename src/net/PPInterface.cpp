@@ -171,37 +171,24 @@ namespace net {
 	bool PPInterface::send()
 	{
 		TRACE_ENTER(_logger);
-		bool rc;
+		mbed_err rc = 0;
 
 		if (!_output_queue.is_empty()) {
 			size_t written = 0;
-			const snd_status_code status = _output_queue.write(_tunnel, written);
-			LOG_TRACE(_logger, "status=%d sbytes=%zu", status, written);
+			rc = _output_queue.write(_tunnel, written);
+			LOG_TRACE(_logger, "rc=%d sbytes=%zu", rc, written);
 
-			switch (status) {
-			case snd_status_code::NETCTX_SND_OK:
-				rc = true;
+			if (rc == 0) {
 				_counters.sent += written;
-				break;
-
-			case snd_status_code::NETCTX_SND_RETRY:
-				rc = true;
-				break;
-
-			case snd_status_code::NETCTX_SND_ERROR:
-			default:
-				rc = false;
-				_logger->error("ERROR: %s - tunnel send failure", __class__);
-				break;
 			}
-		}
-		else {
-			rc = true;
+			else {
+				_logger->error("ERROR: %s - tunnel send failure (%d)", __class__, rc);
+			}
 		}
 
 		LOG_TRACE(_logger, "socket fd=%d rc=%d", _tunnel.get_fd(), rc);
 
-		return rc;
+		return rc == 0;
 	}
 
 

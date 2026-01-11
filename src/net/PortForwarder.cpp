@@ -290,7 +290,16 @@ namespace net {
 			return false;
 
 		size_t written = 0;
-		return _reply_queue.write(_local_server, written) != snd_status_code::NETCTX_SND_ERROR;
+		const mbed_err rc = _reply_queue.write(_local_server, written);
+		if (rc) {
+			_logger->error("ERROR: %s 0x%012Ix - %s",
+				__class__,
+				PTR_VAL(this),
+				mbed_errmsg(rc).c_str()
+			);
+		}
+
+		return rc == 0;
 	}
 
 
@@ -349,13 +358,13 @@ namespace net {
 		// Attempt to send all available data; the actual amount sent depends on
 		// the underlying network capacity.
 		size_t written = 0;
-		const snd_status_code status{ _reply_queue.write(_local_server, written) };
+		const mbed_err rc = _reply_queue.write(_local_server, written);
 
 		// Disconnects this forwarder
 		//        if an error has occurred,
 		//     or if all data has been forwarded
 		//     or if we are not able to forward in a fixed delay 
-		if (status == snd_status_code::NETCTX_SND_ERROR || _rflush_timeout || _forward_queue.is_empty()) {
+		if (rc != 0 || _rflush_timeout || _forward_queue.is_empty()) {
 			_forward_queue.clear();
 			_local_server.close();
 			_state = State::DISCONNECTED;
