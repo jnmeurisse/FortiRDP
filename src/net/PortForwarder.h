@@ -65,58 +65,60 @@ namespace net {
 		/**
 		 * Returns true if this forwarder is connected.
 		*/
-		inline bool connected() const noexcept { return _state == State::CONNECTED; }
+		inline bool is_connected() const noexcept { return _state == State::CONNECTED; }
 
 		/**
 		 * Returns true if this forwarder is in the connecting phase.
 		*/
-		inline bool connecting() const noexcept { return _state == State::CONNECTING; }
+		inline bool is_connecting() const noexcept { return _state == State::CONNECTING; }
 
 		/**
 		 * Returns true if the connection has timed out.
 		*/
-		inline bool ctimeout() const noexcept { return _state == State::CONNECTING && _connect_timeout; }
+		inline bool has_connection_timed_out() const noexcept { return is_connecting() && _connect_timeout; }
 
 		/**
 		 * Returns true if this forwarder is in the disconnecting phase.
 		*/
-		inline bool disconnecting() const noexcept { return _state == State::DISCONNECTING; }
+		inline bool is_disconnecting() const noexcept { return _state == State::DISCONNECTING; }
 
 		/**
 		 * Returns true if this forwarder was not able to connect.
 		*/
-		inline bool failed() const noexcept { return _state == State::FAILED; }
+		inline bool has_failed() const noexcept { return _state == State::FAILED; }
 
 		/**
 		 * Returns true if this forwarder is disconnected.
 		*/
-		inline bool disconnected() const noexcept { return _state == State::DISCONNECTED; }
+		inline bool is_disconnected() const noexcept { return _state == State::DISCONNECTED; }
 
 		/**
 		 * Returns true if this forwarder has space in the forward queue.
 		*/
-		inline bool can_receive() const noexcept { return !_forward_queue.is_full(); }
+		inline bool can_receive_data() const noexcept { return !_forward_queue.is_full(); }
 
 		/**
 		 * Returns true if this forwarder has data in the forward queue and
-		 * the TCP send buffer is not full. 
+		 * the TCP send buffer is not full or segments are queued but not yet sent.
 		*/
-		inline bool must_forward() const { return !_forward_queue.is_empty() && tcp_sndbuf(_local_client) > 0; }
+		inline bool has_data_to_forward() const noexcept { 
+			return has_pending_tcp_segment() || (!_forward_queue.is_empty() && !is_tcp_sndbuf_full());
+		}
 
 		/**
 		 * Returns true if this forwarder has data in the reply queue.
 		*/
-		inline bool must_reply() const noexcept { return !_reply_queue.is_empty(); }
+		inline bool has_data_to_reply() const noexcept { return !_reply_queue.is_empty(); }
 
 		/**
 		 * Returns true if this forwarder can still flush the reply queue.
 		*/
-		inline bool can_rflush() const noexcept { return  _local_server.is_connected(); }
+		inline bool can_flush_reply_queue() const noexcept { return  _local_server.is_connected(); }
 
 		/**
 		 * Returns true if this forwarder can still flush the forward queue.
 		*/
-		inline bool can_fflush() const noexcept { return _local_client != nullptr; }
+		inline bool can_flush_forward_queue() const noexcept { return _local_client != nullptr; }
 
 		/**
 		 * Returns the underlying socket file descriptor.
@@ -145,7 +147,7 @@ namespace net {
 		 * This function handles forward queue flushing during disconnection, ensuring all
 		 * data is sent or cleared and the state is updated appropriately.
 		*/
-		void fflush();
+		void flush_forward_queue();
 
 		/**
 		 * Flushes the reply queue.
@@ -153,7 +155,7 @@ namespace net {
 		 * This function handles reply queue flushing during disconnection, ensuring all
 		 * replies are sent or cleared and the state is updated appropriately.
 		*/
-		void rflush();
+		void flush_reply_queue();
 
 	private:
 		// The class name
@@ -187,6 +189,15 @@ namespace net {
 
 		// A callback for receiving data from the remote endpoint.
 		friend err_t tcp_recv_cb(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, err_t err);
+
+		// Returns the available tcp buffer queue space for sending (in bytes).
+		inline size_t tcp_snd_buffer_size() const noexcept { return tcp_sndbuf(_local_client); }
+
+		// Returns true if the tcp buffer queue for sending is full.
+		inline bool is_tcp_sndbuf_full() const noexcept { return tcp_snd_buffer_size() == 0; }
+
+		// Returns true if the tcp queue has unsent segments.
+		inline bool has_pending_tcp_segment() const noexcept { return _local_client->unsent != nullptr; }
 
 		// A reference to the application logger.
 		utl::Logger* const _logger;

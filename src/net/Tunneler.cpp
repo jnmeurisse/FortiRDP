@@ -140,17 +140,17 @@ namespace net {
 				for (auto pf : active_port_forwarders) {
 					const int fd = pf->get_fd();
 
-					if (pf->connected()) {
+					if (pf->is_connected()) {
 						// Do we have data to send or to reply ?
-						if (pf->can_receive())
+						if (pf->can_receive_data())
 							FD_SET(fd, &read_set);
 
-						if (pf->must_reply())
+						if (pf->has_data_to_reply())
 							FD_SET(fd, &write_set);
 					}
-					else if (pf->disconnecting()) {
+					else if (pf->is_disconnecting()) {
 						// Can we send data still in the output queue ?
-						if (pf->can_rflush())
+						if (pf->can_flush_reply_queue())
 							FD_SET(fd, &write_set);
 					}
 				}
@@ -197,7 +197,7 @@ namespace net {
 					for (auto pf : active_port_forwarders) {
 						const int fd = pf->get_fd();
 
-						if (pf->connected()) {
+						if (pf->is_connected()) {
 							if (FD_ISSET(fd, &read_set)) {
 								if (!pf->recv())
 									pf->disconnect();
@@ -208,10 +208,10 @@ namespace net {
 									pf->disconnect();
 							}
 						}
-						else if (pf->disconnecting()) {
+						else if (pf->is_disconnecting()) {
 							if (FD_ISSET(fd, &write_set)) {
-								if (pf->can_rflush())
-									pf->rflush();
+								if (pf->can_flush_reply_queue())
+									pf->flush_reply_queue();
 							}
 						}
 					}
@@ -233,30 +233,30 @@ namespace net {
 			// The pppossl_netif_output function is called, which in turn calls
 			// the ppp_output_cb callback registered when the PPP interface was created.
 			for (auto pf : active_port_forwarders) {
-				if (pf->ctimeout()) {
+				if (pf->has_connection_timed_out()) {
 					// Abort all forwarders in connection time out
 					pf->abort();
 				}
 
-				if (pf->connected()) {
-					if (pf->must_forward()) {
+				if (pf->is_connected()) {
+					if (pf->has_data_to_forward()) {
 						if (!pf->forward())
 							pf->disconnect();
 					}
 				}
-				else if (pf->disconnecting()) {
-					if (pf->can_fflush())
-						pf->fflush();
+				else if (pf->is_disconnecting()) {
+					if (pf->can_flush_forward_queue())
+						pf->flush_forward_queue();
 				}
 			}
 
 			sys_check_timeouts();
 
 			// Delete all failed port forwarders
-			active_port_forwarders.delete_having_state([](const PortForwarder* pf) {return pf->failed(); });
+			active_port_forwarders.delete_having_state([](const PortForwarder* pf) {return pf->has_failed(); });
 
 			// Delete all closed port forwarders
-			active_port_forwarders.delete_having_state([](const PortForwarder* pf) {return pf->disconnected(); });
+			active_port_forwarders.delete_having_state([](const PortForwarder* pf) {return pf->is_disconnected(); });
 
 			switch (_state) {
 			case State::CONNECTING:

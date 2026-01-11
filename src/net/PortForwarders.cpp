@@ -52,7 +52,7 @@ namespace net {
 	{
 		size_t counter = 0;
 		for (auto* pf : *this) {
-			if (pf && pf->connected()) {
+			if (pf && pf->is_connected()) {
 				pf->abort();
 				counter++;
 			}
@@ -65,7 +65,7 @@ namespace net {
 	bool PortForwarders::has_connecting_forwarders() const noexcept
 	{
 		for (const auto* pf : *this) {
-			if (pf && pf->connecting()) {
+			if (pf && pf->is_connecting()) {
 				return true;
 			}
 		}
@@ -78,7 +78,7 @@ namespace net {
 	{
 		size_t counter = 0;
 		for (const auto* pf : *this) {
-			if (pf && pf->connected()) {
+			if (pf && pf->is_connected()) {
 				counter++;
 			}
 		}

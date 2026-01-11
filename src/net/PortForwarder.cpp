@@ -40,8 +40,8 @@ namespace net {
 		_connect_timeout(false),
 		_fflush_timeout(false),
 		_rflush_timeout(false),
-		_reply_queue(16 * 1024),
-		_forward_queue(16 * 1024),
+		_reply_queue(8 * 1024),
+		_forward_queue(8 * 1024),
 		_forwarded_bytes(0)
 	{
 		DEBUG_CTOR(_logger);
@@ -118,7 +118,7 @@ namespace net {
 		// Allocate the TCP client.
 		_local_client = tcp_new();
 		if (!_local_client) {
-			_logger->error("ERROR: %s 0x%012Ix - memory allocation failure",
+			_logger->error("ERROR: %s 0x%012Ix - tcp_new memory allocation failure",
 				__class__,
 				PTR_VAL(this)
 			);
@@ -225,7 +225,7 @@ namespace net {
 		const u16_t length = static_cast<u16_t>(status.rbytes);
 		pbuf* const buffer = ::pbuf_alloc(PBUF_RAW, length, PBUF_RAM);
 		if (!buffer) {
-			_logger->error("ERROR: %s 0x%012Ix - memory allocation error",
+			_logger->error("ERROR: %s 0x%012Ix - pbuf memory allocation error",
 				__class__,
 				PTR_VAL(this)
 			);
@@ -266,7 +266,7 @@ namespace net {
 			return false;
 
 		size_t written = 0;
-		lwip_err rc = _forward_queue.write(_local_client, written);
+		const lwip_err rc = _forward_queue.write(_local_client, written);
 		if (rc) {
 			_logger->error("ERROR: %s 0x%012Ix - %s",
 				__class__,
@@ -289,11 +289,12 @@ namespace net {
 		if (_state != State::CONNECTED) 
 			return false;
 
-		return _reply_queue.write(_local_server).code != snd_status_code::NETCTX_SND_ERROR;
+		size_t written = 0;
+		return _reply_queue.write(_local_server, written) != snd_status_code::NETCTX_SND_ERROR;
 	}
 
 
-	void PortForwarder::fflush()
+	void PortForwarder::flush_forward_queue()
 	{
 		if (_state != State::DISCONNECTING) {
 			_logger->error("ERROR: %s 0x%012Ix - not in disconnecting state",
@@ -334,7 +335,7 @@ namespace net {
 	}
 
 
-	void PortForwarder::rflush()
+	void PortForwarder::flush_reply_queue()
 	{
 		if (_state != State::DISCONNECTING) {
 			_logger->error("ERROR: %s 0x%012Ix - not in disconnecting state",
@@ -347,13 +348,14 @@ namespace net {
 
 		// Attempt to send all available data; the actual amount sent depends on
 		// the underlying network capacity.
-		const snd_status status{ _reply_queue.write(_local_server) };
+		size_t written = 0;
+		const snd_status_code status{ _reply_queue.write(_local_server, written) };
 
 		// Disconnects this forwarder
 		//        if an error has occurred,
 		//     or if all data has been forwarded
 		//     or if we are not able to forward in a fixed delay 
-		if (status.code == snd_status_code::NETCTX_SND_ERROR || _rflush_timeout || _forward_queue.is_empty()) {
+		if (status == snd_status_code::NETCTX_SND_ERROR || _rflush_timeout || _forward_queue.is_empty()) {
 			_forward_queue.clear();
 			_local_server.close();
 			_state = State::DISCONNECTED;
@@ -416,7 +418,8 @@ namespace net {
 		auto pf = static_cast<PortForwarder*>(arg);
 
 		Logger* logger = pf->_logger;
-		logger->debug(".... 0x%012Ix PortForwarder TCP connected err=%d", PTR_VAL(pf), err);
+		if (logger->is_debug_enabled())
+			logger->debug("PortForwarder 0x%012Ix TCP connected err=%d", PTR_VAL(pf), err);
 
 		// We are now connected.
 		pf->_state = PortForwarder::State::CONNECTED;
@@ -474,7 +477,7 @@ namespace net {
 
 		if (logger->is_trace_enabled()) {
 			logger->trace(
-				".... 0x%012Ix PortForwarder tcp_rcv_cb", PTR_VAL(pf), pf->_state);
+				"PortForwarder 0x%012Ix tcp_rcv_cb", PTR_VAL(pf), pf->_state);
 		}
 
 		if (p) {
@@ -522,15 +525,17 @@ namespace net {
 
 		if (logger->is_trace_enabled()) {
 			logger->trace(
-				".... 0x%012Ix PortForwarder tcp_rcv_cb len=%d err=%d state=%d", 
+				"PortForwarder 0x%012Ix tcp_rcv_cb len=%d err=%d state=%d", 
 				PTR_VAL(pf),
 				len,
 				err,
-				pf->_state);
+				pf->_state
+			);
 		}
 
 		return rc;
 	}
+
 
 	void timeout_cb(void* arg)
 	{
