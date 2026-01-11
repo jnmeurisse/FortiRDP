@@ -8,21 +8,20 @@
 
 /*>>  Memory options ---------- */
 
+/* Use standard malloc / free / realloc provided by the C library */
+#define MEM_LIBC_MALLOC			1
+
 /* MEMP_MEM_INIT==1: Force use of memset to initialize pool memory. */
 #define MEMP_MEM_INIT			1
 
 /* MEM_ALIGNMENT: set to 4 byte alignment */
 #define MEM_ALIGNMENT			4
 
-/* MEM_SIZE: the size of the heap memory. */
-#define MEM_SIZE				(128 * 1024)
-
-/* MEM_OVERFLOW_CHECK : Check memory overflow when free is called */
 #ifdef _DEBUG
+/* MEM_OVERFLOW_CHECK : Check memory overflow when free is called */
 #define MEMP_OVERFLOW_CHECK		1
 #define MEM_OVERFLOW_CHECK		1
 #endif
-
 
 /*>> Internal Memory Pool Sizes ---------- */
 
@@ -39,7 +38,7 @@
 #define MEMP_NUM_TCP_SEG		255
 
 /* PBUF_POOL_SIZE: the number of buffers in the pbuf pool. */
-#define PBUF_POOL_SIZE			512
+#define PBUF_POOL_SIZE			256
 
 /*>> ARP options */
 
