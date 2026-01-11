@@ -21,6 +21,10 @@ namespace net {
 	void ppp_link_status_cb(ppp_pcb* pcb, int err_code, void* ctx);
 
 
+	// Max Xmit idle time (in ms) before sending a PPP Keep alive packet
+	constexpr int PPP_MAXIDLE = 60 * 1000;
+
+
 	PPInterface::PPInterface(net::TlsSocket& tunnel, utl::Counters& counters) :
 		_logger(Logger::get_logger()),
 		_tunnel(tunnel),
@@ -55,7 +59,6 @@ namespace net {
 			_logger->error("ERROR: %s already initialized");
 			return false;
 		}
-
 		
 		// initialize lwIP statistics
 		::stats_init();
@@ -171,12 +174,14 @@ namespace net {
 		bool rc;
 
 		if (!_output_queue.is_empty()) {
-			const snd_status status{ _output_queue.write(_tunnel) };
+			size_t written = 0;
+			const snd_status_code status = _output_queue.write(_tunnel, written);
+			LOG_TRACE(_logger, "status=%d sbytes=%zu", status, written);
 
-			switch (status.code) {
+			switch (status) {
 			case snd_status_code::NETCTX_SND_OK:
 				rc = true;
-				_counters.sent += status.sbytes;
+				_counters.sent += written;
 				break;
 
 			case snd_status_code::NETCTX_SND_RETRY:
@@ -187,7 +192,6 @@ namespace net {
 			default:
 				rc = false;
 				_logger->error("ERROR: %s - tunnel send failure", __class__);
-				_logger->error(mbed_errmsg(status.rc).c_str());
 				break;
 			}
 		}
@@ -195,15 +199,7 @@ namespace net {
 			rc = true;
 		}
 
-		if (_logger->is_trace_enabled())
-			_logger->trace(
-				".... 0x%012Ix       %s::%s socket fd=%d rc=%d",
-				PTR_VAL(this),
-				__class__,
-				__func__,
-				_tunnel.get_fd(),
-				rc
-			);
+		LOG_TRACE(_logger, "socket fd=%d rc=%d", _tunnel.get_fd(), rc);
 
 		return rc;
 	}
@@ -218,6 +214,11 @@ namespace net {
 
 		// Read data available in the tunnel.
 		const rcv_status status{ _tunnel.recv_data(buffer.data(), buffer.size())};
+		LOG_TRACE(_logger, "code=%d rc=%d rbytes=%zu",
+			status.code,
+			status.rc,
+			status.rbytes
+		);
 
 		switch (status.code) {
 		case rcv_status_code::NETCTX_RCV_OK: {
@@ -241,7 +242,7 @@ namespace net {
 			break;
 
 		case rcv_status_code::NETCTX_RCV_EOF:
-			// the PPPP socket was closed by peer.
+			// the tunnel socket was closed by peer.
 			rc = false;
 			break;
 
@@ -253,14 +254,7 @@ namespace net {
 			break;
 		}
 
-		if (_logger->is_trace_enabled())
-			_logger->trace(
-				".... 0x%012Ix       %s::%s socket fd=%d rc=%d",
-				PTR_VAL(this),
-				__class__,
-				__func__,
-				_tunnel.get_fd(),
-				rc);
+		LOG_TRACE(_logger, "socket fd=%d rc=%d", _tunnel.get_fd(), rc);
 
 		return rc;
 	}
@@ -268,7 +262,7 @@ namespace net {
 
 	void PPInterface::send_keep_alive()
 	{
-		if (_pcb && (_pcb->lcp_fsm.state == PPP_FSM_OPENED) && (sys_now() - last_xmit() > 60 * 1000)) {
+		if (_pcb && (_pcb->lcp_fsm.state == PPP_FSM_OPENED) && (sys_now() - last_xmit() > PPP_MAXIDLE)) {
 			ppossl_send_ka(_pcb);
 		}
 	}
@@ -301,7 +295,7 @@ namespace net {
 
 			if (err_code == PPPERR_USER) {
 				// The PPP interface is now down.
-				logger->trace(".... 0x%012Ix ppp_link_status_cb interface is down", PTR_VAL(pp_interface));
+				logger->trace("ppp_link_status_cb interface 0x%012Ix is down", PTR_VAL(pp_interface));
 			} 
 			else
 			{
