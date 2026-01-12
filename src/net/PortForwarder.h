@@ -25,7 +25,7 @@ namespace net {
 
 	class PortForwarder final {
 	public:
-		explicit PortForwarder(const net::Endpoint& endpoint, bool tcp_nodelay, int keepalive);
+		explicit PortForwarder(const net::Endpoint& endpoint, bool tcp_nodelay, bool keepalive);
 		~PortForwarder();
 
 		/**
@@ -211,8 +211,8 @@ namespace net {
 		// True if TCP no delay mode is enabled.
 		const bool _tcp_nodelay;
 
-		// The keep alive delay.
-		const int _keepalive;
+		// The keep alive is enabled.
+		const bool _keepalive;
 
 		// The local endpoint acting as a server.
 		net::TcpSocket _local_server;

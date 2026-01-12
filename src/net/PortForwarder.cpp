@@ -29,7 +29,7 @@ namespace net {
 	void timeout_cb(void* arg);
 
 
-	PortForwarder::PortForwarder(const net::Endpoint& endpoint, bool tcp_nodelay, int keepalive) :
+	PortForwarder::PortForwarder(const net::Endpoint& endpoint, bool tcp_nodelay, bool keepalive) :
 		_logger(Logger::get_logger()),
 		_state(State::READY),
 		_endpoint(endpoint),
@@ -131,13 +131,16 @@ namespace net {
 		if (_tcp_nodelay)
 			tcp_nagle_disable(_local_client);
 
-		if (_keepalive > 0) {
+		if (_keepalive) {
 			// Turn on TCP keep alive
 			ip_set_option(_local_client, SOF_KEEPALIVE);
 
-			// Set the time between keep alive messages in milli-seconds
-			_local_client->keep_idle = _keepalive;
-			_local_client->keep_intvl = _keepalive;
+			// Peer is considered dead when keep_idle + (keep_intvl * keep_cnt) = 180 s
+			// expires without any response from the pear.  When the peer is considered
+			// dead, the lwIP library calls tcp_err_cb callback.
+			_local_client->keep_idle = 30000;		// 30 sec
+			_local_client->keep_intvl = 20000;		// 20 sec
+			_local_client->keep_cnt = 6;			// 6 probes
 		}
 
 		if (rc_query == ERR_OK) {
