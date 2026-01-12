@@ -76,7 +76,7 @@ namespace net {
 		/**
 		 * Closes gracefully the socket.
 		*/
-		void shutdown() override;
+		utl::mbed_err shutdown() override;
 
 		/**
 		 * Returns the result of the certificate verification.

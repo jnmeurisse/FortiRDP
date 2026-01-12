@@ -103,15 +103,14 @@ namespace net {
 	}
 
 
-    void TlsSocket::shutdown()
+	utl::mbed_err TlsSocket::shutdown()
     {
 		DEBUG_ENTER_FMT(_logger, "fd=%d", get_fd());
+		utl::mbed_err rc = 0;
 
 		if (is_connected()) {
 			// Notify the peer that the connection is being closed.
-			mbed_err rc = _tlsctx.close();
-			if (rc)
-				_logger->error("ERROR: close notify error (%d)", rc);
+			rc = _tlsctx.close();
 
 			// shutdown and close the socket.
 			TcpSocket::shutdown();
@@ -119,7 +118,7 @@ namespace net {
 
 		_tlsctx.clear();
 
-		return;
+		return rc;
 	}
 
 

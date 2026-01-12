@@ -102,8 +102,6 @@ namespace net {
 		unsigned int run() override;
 
 	private:
-		void compute_sleep_time(timeval &timeout) const;
-
 		// The class name
 		static const char* __class__;
 
@@ -140,6 +138,9 @@ namespace net {
 
 		// The remote end point (protected by the firewall).
 		net::Endpoint _remote_endpoint;
+
+		void compute_sleep_time(timeval& timeout) const;
+		void shutdown_tunnel();
 	};
 
 }

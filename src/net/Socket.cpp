@@ -94,11 +94,13 @@ namespace net {
 	}
 
 
-	void Socket::shutdown()
+	utl::mbed_err Socket::shutdown()
 	{
 		// Gracefully shutdown the connection and close the socket.
 		// The file descriptor is reset to -1 by the function.
 		::mbedtls_net_free(&_netctx);
+
+		return 0;
 	}
 
 

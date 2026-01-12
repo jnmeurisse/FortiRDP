@@ -156,7 +156,7 @@ namespace net {
 		/**
 		 * Closes gracefully the socket.
 		*/
-		virtual void shutdown();
+		virtual utl::mbed_err shutdown();
 
 		/**
 		 * Enables or disables the blocking mode.

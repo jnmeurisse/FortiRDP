@@ -164,7 +164,7 @@ namespace net {
 					if (FD_ISSET(_tunnel.get_fd(), &write_set)) {
 						// Send PPP through the tunnel 
 						if (!_pp_interface.send()) {
-							_tunnel.shutdown();
+							shutdown_tunnel();
 							terminate();
 						}
 					}
@@ -173,8 +173,7 @@ namespace net {
 						// Receive PPP data from the tunnel.
 						if (!_pp_interface.recv()) {
 							_logger->info(">> tunnel closed by peer");
-
-							_tunnel.shutdown();
+							shutdown_tunnel();
 							terminate();
 						}
 					}
@@ -346,7 +345,7 @@ namespace net {
 		_listener.close();
 
 		// Shutdown the tunnel socket.
-		_tunnel.shutdown();
+		shutdown_tunnel();
 
 		LOG_DEBUG(_logger, "closing tunneler stop=%d terminate=%d", stop, _terminate);
 
@@ -370,6 +369,14 @@ namespace net {
 
 		return;
 	}
+
+	void Tunneler::shutdown_tunnel()
+	{
+		const mbed_err rc = _tunnel.shutdown();
+		if (rc)
+			_logger->error("ERROR: close notify error (%d)", rc);
+	}
+
 
 	const char* Tunneler::__class__ = "Tunneler";
 }
