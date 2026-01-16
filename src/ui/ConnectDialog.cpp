@@ -765,16 +765,16 @@ namespace ui {
 	{
 		DEBUG_ENTER(_logger);
 
-		if (_params.is_mstsc() && (_params.clear_rdp_username() || _settings.get_clear_rdp_username())) {
-			// see http://woshub.com/how-to-clear-rdp-connections-history/
+		// see http://woshub.com/how-to-clear-rdp-connections-history/
 
-			net::Endpoint endpoint{ "127.0.0.1", 0 };
-			if (_controller && _controller->tunnel()) {
-				endpoint = _controller->tunnel()->local_endpoint();
-			}
+		net::Endpoint endpoint{ "127.0.0.1", 0 };
+		if (_controller && _controller->tunnel()) {
+			endpoint = _controller->tunnel()->local_endpoint();
+		}
 
+		if (_params.clear_rdp_username() || _settings.get_clear_rdp_username()) {
 			// Clear saved user name.
-			std::string key = "Software\\Microsoft\\Terminal Server Client\\Servers\\" + endpoint.hostname();
+			const std::string key = "Software\\Microsoft\\Terminal Server Client\\Servers\\" + endpoint.hostname();
 			utl::RegKey rdp_server{ HKEY_CURRENT_USER, utl::str::str2wstr(key) };
 
 			try {
@@ -783,26 +783,26 @@ namespace ui {
 			catch (std::system_error& err) {
 				_logger->debug("ERROR: ClearRdpHistory %s", err.what());
 			}
+		}
 
-			utl::RegKey rdp_default{
-				HKEY_CURRENT_USER,
-				L"Software\\Microsoft\\Terminal Server Client\\Default"
-			};
+		utl::RegKey rdp_default{
+			HKEY_CURRENT_USER,
+			L"Software\\Microsoft\\Terminal Server Client\\Default"
+		};
 
-			// Remove entry in the MRU list.
-			const std::wstring mru_entry = utl::str::str2wstr(endpoint.to_string());
+		// Remove entry in the MRU list.
+		const std::wstring mru_entry = utl::str::str2wstr(endpoint.to_string());
 
-			for (int i = 0; i < 10; i++) {
-				try {
-					const std::wstring value_name = L"MRU" + std::to_wstring(i);
-					std::wstring value = rdp_default.get_string(value_name, L"");
-					if (value.compare(mru_entry) == 0) {
-						rdp_default.del_value(value_name);
-					}
+		for (int i = 0; i < 10; i++) {
+			try {
+				const std::wstring value_name = L"MRU" + std::to_wstring(i);
+				std::wstring value = rdp_default.get_string(value_name, L"");
+				if (value.compare(mru_entry) == 0) {
+					rdp_default.del_value(value_name);
 				}
-				catch (std::system_error& err) {
-					_logger->debug("ERROR: ClearRdpHistory %s", err.what());
-				}
+			}
+			catch (std::system_error& err) {
+				_logger->debug("ERROR: ClearRdpHistory %s", err.what());
 			}
 		}
 	}
@@ -852,7 +852,7 @@ namespace ui {
 	{
 		DEBUG_ENTER_FMT(_logger, "success=%d", success);
 
-		if (!_task_info->path().empty()) {
+		if (_params.is_mstsc()) {
 			clearRdpHistory();
 		}
 
