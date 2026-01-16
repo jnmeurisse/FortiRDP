@@ -580,7 +580,7 @@ namespace ui {
 				if (_params.multi_clients()) {
 					const size_t client_counter = tunneler->clients_count();
 					client_info = utl::str::string_format(
-						"(%zu client%c)",
+						"(%zu session%c)",
 						client_counter,
 						client_counter <= 1 ? ' ' : 's'
 					);
