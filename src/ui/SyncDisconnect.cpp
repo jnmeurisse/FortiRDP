@@ -65,7 +65,7 @@ namespace ui {
 			}
 		}
 
-		// Make sure the socket with the portal is disconnected.
+		// Make sure the socket is disconnected from the portal.
 		const utl::mbed_err rc = _portal_client.shutdown();
 		if (rc)
 			_logger->error("ERROR: close notify error (%d)", rc);
