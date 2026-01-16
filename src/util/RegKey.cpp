@@ -167,7 +167,8 @@ namespace utl {
 		LSTATUS rc = ::RegDeleteValue(
 			_key,
 			value_name.c_str());
-		if (rc != ERROR_SUCCESS)
+
+		if (!(rc == ERROR_SUCCESS || rc == ERROR_FILE_NOT_FOUND))
 			throw win_error(rc, "RegDeleteValue");
 	}
 
