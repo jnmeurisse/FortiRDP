@@ -42,15 +42,28 @@ namespace net {
 	}
 
 
-	utl::mbed_err TlsContext::close()
+	net::tls_close_status TlsContext::close_notify()
 	{
-		int rc;
+		tls_close_status status { close_status_code::SSLCTX_CLOSE_ERROR, MBEDTLS_ERR_SSL_BAD_INPUT_DATA };
 
-		do {
-			rc = ::mbedtls_ssl_close_notify(&_sslctx);
-		} while (rc == MBEDTLS_ERR_SSL_WANT_WRITE);
+		const int rc = ::mbedtls_ssl_close_notify(&_sslctx);
+		if (rc == 0) {
+			status.status_code = close_status_code::SSLCTX_CLOSE_OK;
+			status.rc = 0;
+		}
+		else if (rc == MBEDTLS_ERR_SSL_WANT_READ) {
+			status.status_code = close_status_code::SSLCTX_CLOSE_RETRY;
+			status.rc = MBEDTLS_NET_POLL_READ;
+		}
+		else if (rc == MBEDTLS_ERR_SSL_WANT_WRITE) {
+			status.status_code = close_status_code::SSLCTX_CLOSE_RETRY;
+			status.rc = MBEDTLS_NET_POLL_WRITE;
+		}
+		else {
+			status.rc = rc;
+		}
 
-		return rc;
+		return status;
 	}
 
 
@@ -62,6 +75,7 @@ namespace net {
 		switch (status.rc) {
 		case 0:
 			status.status_code = hdk_status_code::SSLCTX_HDK_OK;
+			status.rc = 0;
 			break;
 
 		case MBEDTLS_ERR_SSL_WANT_READ:

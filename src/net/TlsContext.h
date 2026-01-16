@@ -21,16 +21,15 @@ namespace net {
 	 * Enum representing the status codes for the TLS handshake.
 	 *
 	 * This enum defines different states or outcomes during the TLS handshake process.
-	 * - `SSLCTX_HDK_ERROR`     : Indicates an error occurred during the handshake.
 	 * - `SSLCTX_HDK_OK`        : Indicates the handshake was successful.
+	 * - `SSLCTX_HDK_ERROR`     : Indicates an error occurred during the handshake.
 	 * - `SSLCTX_HDK_WAIT_IO`   : Indicates that the handshake is waiting for I/O operations.
 	 * - `SSLCTX_HDK_WAIT_ASYNC`: Indicates that the handshake is waiting for asynchronous
 	 *                            operations to complete.
 	*/
-
 	enum class hdk_status_code {
-		SSLCTX_HDK_ERROR,
 		SSLCTX_HDK_OK,
+		SSLCTX_HDK_ERROR,
 		SSLCTX_HDK_WAIT_IO,
 		SSLCTX_HDK_WAIT_ASYNC,
 	};
@@ -46,10 +45,41 @@ namespace net {
 	 * Possible combinations :
 	 *     code        | HDK_ERROR   | HDK_OK     | HDK_WAIT_IO   | HDK_WAIT_ASYNC
 	 *     rc          | error code  |    0       | r/w bit mask  | error code
-	
 	 */
 	struct tls_handshake_status {
 		hdk_status_code status_code;
+		int rc;
+	};
+
+	/**
+	 * @enum close_status_code
+	 * Enum representing the status codes for the TLS close notify.
+	 *
+	 * This enum defines different the outcome of the close notify operation.
+	 * - `SSLCTX_CLOSE_OK`      : Indicates the close notify was successful.
+	 * - `SSLCTX_CLOSE_ERROR`   : Indicates an error occurred during the close notify.
+	 * - `SSLCTX_CLOSE_RETRY`   : Indicates that the close notify operation should be retried.
+	*/
+	enum class close_status_code {
+		SSLCTX_CLOSE_OK,
+		SSLCTX_CLOSE_ERROR,
+		SSLCTX_CLOSE_RETRY
+	};
+
+	/**
+	 * @struct tls_close_status
+	 * Struct holding the status of the TLS close notify.
+	 *
+	 * This struct represents the result of a TLS close notify operation. It includes:
+	 * - `status_code` : The status of the close notify.
+	 * - `rc`          : A return code that provides additional information, such as
+	 *                   error codes or operation success codes.
+	 * Possible combinations :
+	 *     code        | CLOSE_ERROR | CLOSE_OK   | CLOSE_RETRY
+	 *     rc          | error code  |    0       | r/w bit mask
+	 */
+	struct tls_close_status {
+		close_status_code status_code;
 		int rc;
 	};
 
@@ -96,14 +126,13 @@ namespace net {
 		 *  Sets host name to check against the received server certificate.
 		 * 
 		 */
-
 		utl::mbed_err set_hostname(const std::string& hostname);
 
 		/**
 		 * Notifies the peer that the connection is being closed.
 		 *
 		 */
-		utl::mbed_err close();
+		net::tls_close_status close_notify();
 
 		/**
 		 * Performs the TLS handshake.

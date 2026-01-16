@@ -110,9 +110,27 @@ namespace net {
 
 		if (is_connected()) {
 			// Notify the peer that the connection is being closed.
-			rc = _tlsctx.close();
+			utl::Timer timer(5000);
+			bool keep_closing = true;
 
-			// shutdown and close the socket.
+			while (keep_closing) {
+				const net::tls_close_status close_status = _tlsctx.close_notify();
+				if (close_status.status_code == close_status_code::SSLCTX_CLOSE_RETRY) {
+					// Handle the "Busy/Retry" case
+					const poll_status poll_wait_status = poll(close_status.rc, timer.remaining_time());
+
+					if (poll_wait_status.code != poll_status_code::NETCTX_POLL_OK) {
+						keep_closing = false;
+						rc = poll_wait_status.rc;
+					}
+				}
+				else {
+					keep_closing = false;
+					rc = close_status.rc;
+				}
+			}
+
+			// shutdown and close the socket even if the close notify failed.
 			TcpSocket::shutdown();
 		}
 
