@@ -167,7 +167,7 @@ namespace net {
 
 	const mbedtls_x509_crt* TlsContext::get_peer_crt() const
 	{
-		return mbedtls_ssl_get_peer_cert(&_sslctx);
+		return ::mbedtls_ssl_get_peer_cert(&_sslctx);
 	}
 
 }
