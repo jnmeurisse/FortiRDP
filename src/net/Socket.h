@@ -27,14 +27,14 @@ namespace net {
 	 * Enumerates the possible status codes for receiving data.
 	 *
 	 * This enumeration represents the outcome of a data-receive operation.
-	 * - `NETCTX_RCV_ERROR` : Indicates that an error occurred during the receive operation.
 	 * - `NETCTX_RCV_OK`    : Indicates that data was successfully received.
+	 * - `NETCTX_RCV_ERROR` : Indicates that an error occurred during the receive operation.
 	 * - `NETCTX_RCV_RETRY` : Indicates that the receive operation should be retried.
 	 * - `NETCTX_RCV_EOF`   : Indicates that the end of the socket has been closed.
 	 */
 	enum class rcv_status_code {
-		NETCTX_RCV_ERROR,
 		NETCTX_RCV_OK,
+		NETCTX_RCV_ERROR,
 		NETCTX_RCV_RETRY,
 		NETCTX_RCV_EOF
 	};
@@ -66,13 +66,13 @@ namespace net {
 	 * Enumerates the possible status codes for receiving data.
 	 *
 	 * This enumeration represents the outcome of a data-send operation.
-	 * - `NETCTX_SND_ERROR` : Indicates that an error occurred during the send operation.
 	 * - `NETCTX_SND_OK`    : Indicates that data was successfully sent.
+	 * - `NETCTX_SND_ERROR` : Indicates that an error occurred during the send operation.
 	 * - `NETCTX_SND_RETRY` : Indicates that the send operation should be retried.
 	 */
 	enum class snd_status_code {
-		NETCTX_SND_ERROR,
 		NETCTX_SND_OK,
+		NETCTX_SND_ERROR,
 		NETCTX_SND_RETRY
 	};
 
