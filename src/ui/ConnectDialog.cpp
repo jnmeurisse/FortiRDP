@@ -927,7 +927,7 @@ namespace ui {
 
 		}
 		else if (eventId == AsyncMessage::ShowInvalidCertificateDialogRequest->id()) {
-			std::string message{ reinterpret_cast<char*>(param) };
+			std::string message{ static_cast<char*>(param) };
 			showInvalidCertificateDialog(utl::str::str2wstr(message));
 
 		}
