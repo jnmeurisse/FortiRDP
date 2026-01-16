@@ -780,7 +780,7 @@ namespace ui {
 			try {
 				rdp_server.del_value(L"UsernameHint");
 			}
-			catch (std::system_error& err) {
+			catch (const std::system_error& err) {
 				_logger->debug("ERROR: ClearRdpHistory %s", err.what());
 			}
 		}
@@ -801,7 +801,7 @@ namespace ui {
 					rdp_default.del_value(value_name);
 				}
 			}
-			catch (std::system_error& err) {
+			catch (const std::system_error& err) {
 				_logger->debug("ERROR: ClearRdpHistory %s", err.what());
 			}
 		}
