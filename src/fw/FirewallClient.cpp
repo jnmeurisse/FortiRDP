@@ -566,7 +566,7 @@ namespace fw {
 			try {
 				connect();
 			}
-			catch (std::runtime_error& e) {
+			catch (const std::runtime_error& e) {
 				_logger->error("ERROR: failed to connect to %s", host().to_string().c_str());
 				_logger->error("ERROR: %s", e.what());
 
@@ -599,7 +599,7 @@ namespace fw {
 		try {
 			HttpsClient::send_request(request);
 		}
-		catch (std::runtime_error& e) {
+		catch (const std::runtime_error& e) {
 			_logger->error("ERROR: failed to send HTTP request to %s", host().to_string().c_str());
 			_logger->error("ERROR: %s", e.what());
 
@@ -609,7 +609,7 @@ namespace fw {
 		try {
 			recv_answer(answer);
 		}
-		catch (std::runtime_error& e) {
+		catch (const std::runtime_error& e) {
 			_logger->error("ERROR: failed to receive HTTP data from %s", host().to_string().c_str());
 			_logger->error("ERROR: %s", e.what());
 
