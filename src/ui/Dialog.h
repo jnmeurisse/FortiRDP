@@ -93,6 +93,13 @@ namespace ui {
 		void set_control_textlen(int control_id, int length) const;
 
 		/**
+		 * Computes the maximum number of lines visible in a text box.
+		 * 
+		 * @returns the number of lines or -1 in case of error.
+		 */
+		int get_control_text_max_lines(int control_id) const;
+
+		/**
 		 * Enables or disables a dialog control.
 		*/
 		void set_control_enable(int control_id, bool enable) const;

@@ -7,6 +7,7 @@
 */
 #include "ConnectDialog.h"
 
+#include <algorithm>
 #include <stdexcept>
 #include <system_error>
 #include <vector>
@@ -188,11 +189,12 @@ namespace ui {
 	void ConnectDialog::writeInfo(const std::wstring& message)
 	{
 		utl::Mutex::Lock lock{ _msg_mutex };
+		const int max_lines = std::max(get_control_text_max_lines(IDC_STATUSTEXT) - 2, MAX_INFO_MESSAGE);
 
 		// Add the new message and remove old one.
-		// We keep only the last MAX_INFO_MESSAGE messages
+		// We keep only the last messages that are visible in the text box.
 		_msg_buffer.push_back(message);
-		while (_msg_buffer.size() > MAX_INFO_MESSAGE) {
+		while (_msg_buffer.size() > max_lines) {
 			_msg_buffer.erase(_msg_buffer.cbegin());
 		}
 

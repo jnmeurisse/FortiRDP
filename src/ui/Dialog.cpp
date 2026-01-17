@@ -114,6 +114,38 @@ namespace ui {
 	}
 
 
+	int Dialog::get_control_text_max_lines(int control_id) const
+	{
+		HWND hwnd = control_handle(control_id);
+		if (!hwnd)
+			return -1;
+
+		RECT rect;
+		if (!::GetClientRect(hwnd, &rect))
+			return -1;
+
+		// Get the font assigned to the control
+		const HFONT hFont = (HFONT)SendMessage(hwnd, WM_GETFONT, 0, 0);
+		const HDC hdc = ::GetDC(hwnd);
+		const HFONT hOldFont = (HFONT)SelectObject(hdc, hFont);
+		
+		TEXTMETRIC tm;
+		if (!::GetTextMetrics(hdc, &tm))
+			return -1;
+
+		// Sum of height and external spacing
+		const int lineHeight = tm.tmHeight + tm.tmExternalLeading;
+
+		// Cleanup
+		SelectObject(hdc, hOldFont);
+		ReleaseDC(hwnd, hdc);
+
+		// Prevent division by zero and return result
+		const int clientHeight = rect.bottom - rect.top;
+		return (lineHeight > 0) ? (clientHeight / lineHeight) : 0;
+	}
+
+
 	void Dialog::set_control_enable(int control_id, bool enable) const
 	{
 		::EnableWindow(control_handle(control_id), enable);
