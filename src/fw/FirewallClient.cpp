@@ -112,7 +112,7 @@ namespace fw {
 			Fetch the top page, following up to two redirects if necessary.
 			Then verify that the resulting top page exists.
 		*/
-		if (!send_request(http::Request::GET_VERB, make_url("/" + _realm), "", http::Headers(), answer, 2))
+		if (!send_request(http::Request::GET_VERB, make_url("/"), "", http::Headers(), answer, 2))
 			return portal_err::COMM_ERROR;
 
 		if (answer.get_status_code() != HttpsClient::STATUS_OK) {
@@ -192,7 +192,7 @@ namespace fw {
 			that the FortiGate firewall uses for the authentication process.
 		*/
 		if (!_realm.empty())
-			params_query.set("realm", _realm);
+			params_query.set("realm", encode_url(_realm));
 		params_query.set("lang", "en");
 		const http::Url login_url = make_url("/remote/login", params_query.join("&"));
 		if (!send_request(http::Request::GET_VERB, login_url, "", http::Headers(), answer, 0))
@@ -223,7 +223,7 @@ namespace fw {
 		params_query.set("ajax", "1");
 		params_query.set("username", HttpsClient::encode_url(credentials.username));
 		if (!_realm.empty())
-			params_query.set("realm", _realm);
+			params_query.set("realm", HttpsClient::encode_url(_realm));
 		params_query.set("credential", HttpsClient::encode_url(credentials.password));
 
 		// Safe erase password stored in memory.
@@ -397,8 +397,11 @@ namespace fw {
 		if (!utl::X509crt_to_pem(get_peer_crt(), service_provider_crt))
 			return portal_err::CERT_INVALID;
 
+		utl::StringMap params_query;
+		params_query.set("realm", HttpsClient::encode_url(_realm));
+
 		AuthSamlInfo saml_auth_info{
-			make_url("/remote/saml/start", "realm=" + _realm),
+			make_url("/remote/saml/start", params_query.join("&")),
 			service_provider_crt,
 			_cookie_jar,
 			[this]() -> bool { return this->is_authenticated(); }
