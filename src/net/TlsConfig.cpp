@@ -22,7 +22,8 @@ namespace net {
 		if (logger && strlen(str) > 1) {
 			// remove \n from str
 			std::string message{ str };
-			message[message.size() - 1] = '\0';
+			if (message[message.size() - 1] == '\n')
+				message[message.size() - 1] = '\0';
 
 			// get filename from whole path
 			std::string path{ file };
