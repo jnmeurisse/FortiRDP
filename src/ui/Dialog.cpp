@@ -280,8 +280,8 @@ namespace ui {
 
 	HFONT Dialog::create_font(int size, const std::wstring& name)
 	{
-		HDC hdc = ::GetDC(_hWindow);
-		int logsize = -::MulDiv(size, GetDeviceCaps(hdc, LOGPIXELSY), 72);
+		const HDC hdc = ::GetDC(_hWindow);
+		const int logsize = -::MulDiv(size, GetDeviceCaps(hdc, LOGPIXELSY), 72);
 
 		return ::CreateFont(
 			logsize,

@@ -83,7 +83,7 @@ namespace ui {
 			fw::confirm_crt_fn confirm_crt_callback = [this](const mbedtls_x509_crt* crt, int status) {
 				return confirm_certificate(crt, status);
 			};
-			fw::portal_err rc = _portal_client.open(confirm_crt_callback);
+			const fw::portal_err rc = _portal_client.open(confirm_crt_callback);
 
 			if (rc != fw::portal_err::NONE) {
 				if (rc != fw::portal_err::CERT_UNTRUSTED) {
