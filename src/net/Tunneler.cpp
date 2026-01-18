@@ -56,7 +56,7 @@ namespace net {
 		DEBUG_ENTER(_logger);
 		bool started = true;
 
-		mbed_err rc = _listener.bind(_local_endpoint, net_protocol::NETCTX_PROTO_TCP);
+		const mbed_err rc = _listener.bind(_local_endpoint, net_protocol::NETCTX_PROTO_TCP);
 
 		if (rc < 0) {
 			_logger->error("ERROR: listener error on %s", _local_endpoint.to_string().c_str());

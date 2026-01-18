@@ -127,7 +127,7 @@ namespace ui {
 						return ask_saml_auth(saml_info);
 					};
 
-					fw::portal_err rc = _portal_client.login_saml(ask_samlauth_callback);
+					const fw::portal_err rc = _portal_client.login_saml(ask_samlauth_callback);
 					if (rc != fw::portal_err::NONE) {
 						showErrorMessageDialog(L"Login error");
 					}

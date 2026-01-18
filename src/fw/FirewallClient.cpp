@@ -427,7 +427,7 @@ namespace fw {
 		http::Answer answer;
 
 		const http::Url logout_url = make_url("/remote/logout");
-		bool ok = send_request(http::Request::GET_VERB, logout_url, "", headers, answer, 0);
+		const bool ok = send_request(http::Request::GET_VERB, logout_url, "", headers, answer, 0);
 
 		// Delete all session cookies
 		LOG_DEBUG(_logger, "clear cookie jar 0x%012Ix", PTR_VAL(std::addressof(_cookie_jar)));
@@ -511,7 +511,7 @@ namespace fw {
 		const std::string data(body.cbegin(), body.cend());
 
 		pugi::xml_document doc;
-		pugi::xml_parse_result parse_result = doc.load_string(data.c_str());
+		const pugi::xml_parse_result parse_result = doc.load_string(data.c_str());
 
 		if (parse_result.status != pugi::xml_parse_status::status_ok) {
 			_logger->error("ERROR: portal configuration - XML parse error");

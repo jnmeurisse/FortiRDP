@@ -56,7 +56,7 @@ namespace ui {
 			_ca_crt = std::make_unique<utl::X509Crt>();
 
 			if (utl::Path::exists(filename)) {
-				utl::mbed_err rc = _ca_crt->load(crt_filename.c_str());
+				const utl::mbed_err rc = _ca_crt->load(crt_filename.c_str());
 
 				if (rc != 0) {
 					_logger->info("WARNING: failed to load CA cert file %s ", compacted.c_str());
