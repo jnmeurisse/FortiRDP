@@ -7,9 +7,6 @@
 */
 #include "SyncConnect.h"
 
-#include "util/Path.h"
-#include "util/SysUtil.h"
-
 
 namespace ui {
 	SyncConnect::SyncConnect(HWND hwnd, fw::AuthMethod auth_method, fw::FirewallClient& portal_client) :
