@@ -155,9 +155,14 @@ namespace ui {
 		}
 
 	exit:
-		return connected &&
+		connected = connected &&
 			_portal_client.is_connected() &&
 			_portal_client.is_authenticated();
+
+		if (!connected)
+			_logger->info(">> disconnected");
+
+		return connected;
 	}
 
 	const char* SyncConnect::__class__ = "SyncConnect";
