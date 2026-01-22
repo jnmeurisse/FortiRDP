@@ -126,7 +126,7 @@ fortirdp -f 10.34.1.37 192.168.1.10
 
 ### Launch a custom interactive application
 ```
-fortirdp -n -x "C:\Tools\MyViewer.exe;\${host}:\${port}" 10.34.1.37 192.168.1.10:5900
+fortirdp -x "C:\Tools\MyViewer.exe;${host}:${port}" 10.34.1.37 192.168.1.10:5900
 ```
 
 ### Manual application launch & listen to a fixed port
@@ -138,6 +138,6 @@ C:\Tools\MyViewer.exe localhost:8443
 ### Launch a browser application
 ```
 fortirdp -M -x \
-  "c:\Program Files\Google\Chrome\Application\chrome.exe;https://\${host}:\${port}" \
+  "c:\Program Files\Google\Chrome\Application\chrome.exe;https://${host}:${port}" \
   10.34.1.37 192.168.1.10:443
 ```
