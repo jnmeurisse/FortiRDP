@@ -578,21 +578,20 @@ namespace ui {
 		case TIMER_COUNTERS:
 			if (tunneler) {
 				std::string client_info;
+				const size_t clients_counter = tunneler->clients_count();
 
-				if (_params.multi_clients()) {
-					const size_t client_counter = tunneler->clients_count();
+				if (clients_counter > 1) {
 					client_info = utl::str::string_format(
-						"(%zu session%c)",
-						client_counter,
-						client_counter <= 1 ? ' ' : 's'
+						"(%zu sessions)",
+						clients_counter
 					);
 				}
 
-				const utl::Counters& counters = tunneler->counters();
+				const utl::Counters& sent_rcvd_counters = tunneler->counters();
 				const std::string message = utl::str::string_format(
 					"KBytes sent/received : %.1f/%.1f %s",
-					counters.sent / 1024.0,
-					counters.received / 1024.0,
+					sent_rcvd_counters.sent / 1024.0,
+					sent_rcvd_counters.received / 1024.0,
 					client_info.c_str()
 				);
 				set_control_text(IDC_BYTES_SENT, utl::str::str2wstr(message));
