@@ -16,8 +16,7 @@ namespace utl {
 	class Counters final
 	{
 	public:
-		volatile size_t sent{ 0 };
-		volatile size_t received{ 0 };
+		Counters() noexcept;
 
 		/**
 		 * Resets counters to 0.
@@ -41,7 +40,11 @@ namespace utl {
 		/**
 		 * Returns the transmitted total.
 		*/
-		size_t total() const noexcept { return sent + received; }
+		size_t total() const noexcept { return sent + rcvd; }
+
+		// Transmitted bytes
+		size_t sent;
+		size_t rcvd;
 	};
 
 }
