@@ -19,6 +19,7 @@
 #include "http/Headers.h"
 #include "fw/CrtDigest.h"
 #include "fw/FirewallTunnel.h"
+#include "net/TunnelConfig.h"
 #include "net/Endpoint.h"
 #include "util/Mutex.h"
 #include "util/StringMap.h"
@@ -33,14 +34,13 @@ namespace fw {
 		std::string user;			// username connected to the portal
 		std::string group;			// group name this user belong to
 		std::string version;		// portal version
-	};
 
-	// SSLVPN configuration.
-	struct SslvpnConfig
-	{
-		std::string local_addr;		// IP address assigned to this client.
+		void clear() {
+			user.clear();
+			group.clear();
+			version.clear();
+		}
 	};
-
 
 	// Portal Client error codes
 	enum class portal_err {
@@ -49,6 +49,7 @@ namespace fw {
 		CERT_UNTRUSTED,
 		CERT_INVALID,
 		HTTP_ERROR,
+		PORTAL_ERROR,
 		ACCESS_DENIED,
 		LOGIN_CANCELLED
 	};
@@ -139,39 +140,14 @@ namespace fw {
 		/**
 		 * Retrieves information about the portal.
 		 *
-		 * This function makes an authenticated send_request to the portal server to fetch
-		 * details about the portal, including user, group, and version information. If
-		 * the client is not authenticated, the function returns false. If the send_request is
-		 * successful, the portal information is parsed and stored in the provided
-		 * `PortalInfo` object.
-		 *
-		 * @param portal_info The object that will receive the portal information.
-		 *                    The object will be updated with the user, group, and
-		 *                    version information from the portal.
-		 *
-		 * @return true if the information is successfully retrieved and parsed;
-		 *         false if the client is not authenticated or if the send_request fails.
 		 */
-		bool get_info(fw::PortalInfo& portal_info);
+		inline const fw::PortalInfo& get_portal_info() const noexcept { return _portal_info; }
 
 		/**
-		 * Retrieves the SSL VPN configuration.
+		 * Retrieves the SSL VPN tunnel configuration.
 		 *
-		 * This function makes an authenticated send_request to the portal server to fetch the
-		 * SSL VPN configuration in XML format. It is mandatory to obtain this configuration
-		 * to get the IP address from the FortiGate device. If the send_request is successful,
-		 * the local address (IPv4) is extracted and stored in the provided `SslvpnConfig`
-		 * object. If the client is not authenticated or if there are issues with the
-		 * send_request or XML parsing, the function returns `false`.
-		 *
-		 * @param sslvpn_config The object to store the SSL VPN configuration, particularly
-		 *                      the assigned local IPv4 address.
-		 *
-		 * @return true if the configuration is successfully retrieved and parsed;
-		 *         false if the client is not authenticated, the send_request fails, or if
-		 *         there are issues parsing or decoding the XML response.
 		 */
-		bool get_config(fw::SslvpnConfig& sslvpn_config);
+		const net::TunnelConfig& get_tunnel_config() const noexcept { return _tunnel_config; };
 
 		/**
 		 * Allocates a firewall tunnel between a local and a remote endpoint.
@@ -211,6 +187,10 @@ namespace fw {
 		// The fortiGate realm.
 		const std::string _realm;
 
+		// Information collected during the login
+		fw::PortalInfo _portal_info;
+		net::TunnelConfig _tunnel_config;
+
 		// Logs an HTTP error message.
 		void log_http_error(const char* msg, const http::Answer& answer);
 
@@ -231,6 +211,34 @@ namespace fw {
 
 		// Gets the redirect URL from the given map.
 		bool get_redir_url(const utl::StringMap& params, http::Url& url) const;
+
+		/**
+		 * Retrieves information about the portal.
+		 *
+		 * This function makes an authenticated send_request to the portal server to fetch
+		 * details about the portal, including user, group, and version information. If
+		 * the client is not authenticated, the function returns false. If the send_request is
+		 * successful, the portal information is parsed and stored in the _portal_info
+		 * object.
+		 *
+		 * @return true if the information is successfully retrieved and parsed;
+		 *         false if the client is not authenticated or if the send_request fails.
+		 */
+		bool load_portal_info();
+
+		/**
+		 * Retrieves the SSL VPN configuration.
+		 *
+		 * This function makes an authenticated send_request to the portal server to fetch the
+		 * SSL VPN configuration in XML format. It is mandatory to obtain this configuration
+		 * to get the IP address from the FortiGate device. If the send_request is successful,
+		 * the local address (IPv4) is extracted and stored in the _vpn_config object.
+
+		 * @return true if the configuration is successfully retrieved and parsed;
+		 *         false if the client is not authenticated, the send_request fails, or if
+		 *         there are issues parsing or decoding the XML response.
+		 */
+		bool load_tunnel_config();
 	};
 
 }

@@ -30,7 +30,9 @@ namespace fw {
 		_peer_crt_digest(),
 		_cookie_jar(),
 		_mutex(),
-		_realm(realm)
+		_realm(realm),
+		_portal_info(),
+		_tunnel_config()
 	{
 		DEBUG_CTOR(_logger);
 
@@ -186,6 +188,8 @@ namespace fw {
 		http::Answer answer;
 		utl::StringMap params_query;
 		AuthCredentials credentials;
+		_portal_info.clear();
+		_tunnel_config.clear();
 
 		/*
 			Fetch the login page. This operation obtains the cookies
@@ -233,12 +237,12 @@ namespace fw {
 		// is detected.
 		while (true) {
 			utl::StringMap params_result;
-			portal_err err = try_login_check(params_query, params_result);
+			const portal_err err = try_login_check(params_query, params_result);
 			if (err != portal_err::NONE)
 				return err;
 
 			// Get the result of the last authentication check.
-			int retcode = params_result.get_int_value("ret", -1);
+			const int retcode = params_result.get_int_value("ret", -1);
 
 			if (retcode == 0) {
 				// ********************************
@@ -385,6 +389,11 @@ namespace fw {
 
 			// loop and retry login
 		}
+
+		if (!load_portal_info())
+			return portal_err::PORTAL_ERROR;
+		if (!load_tunnel_config())
+			return portal_err::PORTAL_ERROR;
 	}
 
 
@@ -411,6 +420,11 @@ namespace fw {
 		if (!ask_samlauth(saml_auth_info))
 			goto terminate;
 
+		if (!load_portal_info())
+			return portal_err::PORTAL_ERROR;
+		if (!load_tunnel_config())
+			return portal_err::PORTAL_ERROR;
+
 		return portal_err::NONE;
 
 	terminate:
@@ -434,103 +448,6 @@ namespace fw {
 		_cookie_jar.clear();
 
 		return ok;
-	}
-
-
-	bool FirewallClient::get_info(fw::PortalInfo& portal_info)
-	{
-		DEBUG_ENTER(_logger);
-		utl::Mutex::Lock lock{ _mutex };
-
-		if (!is_authenticated())
-			return false;
-
-		http::Headers headers;
-		http::Answer answer;
-
-		const http::Url portal_url = make_url("/remote/portal", "access");
-		if (!send_request(http::Request::GET_VERB, portal_url, "", headers, answer, 0))
-		{
-			_logger->error("ERROR: get portal info failure");
-			return false;
-		}
-
-		if (answer.get_status_code() != HttpsClient::STATUS_OK) {
-			log_http_error("get portal info failure ", answer);
-			return false;
-		}
-	
-		const utl::ByteBuffer& body = answer.body();
-		const std::string data{ body.cbegin(), body.cend() };
-		LOG_DEBUG(_logger, "portal_info : %s...", data.substr(0, 80).c_str());
-
-		std::string parser_error;
-		utl::Json info = utl::Json::parse(data, parser_error);
-		if (info.is_object()) {
-			utl::Json user = info["user"];
-			utl::Json group = info["group"];
-			utl::Json version = info["version"];
-
-			portal_info.user = user.is_string() ? user.string_value() : "";
-			portal_info.group = group.is_string() ? group.string_value() : "";
-			portal_info.version = version.is_string() ? version.string_value() : "";
-		}
-
-		return true;
-	}
-
-
-	bool FirewallClient::get_config(fw::SslvpnConfig& sslvpn_config)
-	{
-		DEBUG_ENTER(_logger);
-		utl::Mutex::Lock lock{ _mutex };
-
-		if (!is_authenticated())
-			return false;
-
-		http::Headers headers;
-		http::Answer answer;
-
-		/*
-			Retrieve the SSL VPN configuration.
-			This call is mandatory because the FortiGate will not provide an IP address otherwise.
-		*/
-		const http::Url vpninfo_url = make_url("/remote/fortisslvpn_xml");
-		if (!send_request(http::Request::GET_VERB, vpninfo_url, "", headers, answer, 0))
-		{
-			_logger->error("ERROR: get portal configuration failure");
-			return false;
-		}
-
-		if (answer.get_status_code() != HttpsClient::STATUS_OK) {
-			log_http_error("get portal configuration failure ", answer);
-			return false;
-		}
-
-		const utl::ByteBuffer& body = answer.body();
-		const std::string data(body.cbegin(), body.cend());
-
-		pugi::xml_document doc;
-		const pugi::xml_parse_result parse_result = doc.load_string(data.c_str());
-
-		if (parse_result.status != pugi::xml_parse_status::status_ok) {
-			_logger->error("ERROR: portal configuration - XML parse error");
-			return false;
-		}
-
-		const pugi::xml_node& root = doc.child("sslvpn-tunnel");
-		if (root.empty()) {
-			_logger->error("ERROR: portal configuration - XML decode error");
-			return false;
-		}
-
-		const pugi::xml_attribute& address = root
-			.child("ipv4")
-			.child("assigned-addr")
-			.attribute("ipv4");
-		sslvpn_config.local_addr = address.as_string();
-
-		return true;
 	}
 
 
@@ -745,6 +662,133 @@ namespace fw {
 			return false;
 		
 		url = http::Url(decode_url(redir));
+		return true;
+	}
+
+
+	bool FirewallClient::load_portal_info()
+	{
+		DEBUG_ENTER(_logger);
+		utl::Mutex::Lock lock{ _mutex };
+
+		if (!is_authenticated())
+			return false;
+
+		http::Headers headers;
+		http::Answer answer;
+
+		const http::Url portal_url = make_url("/remote/portal", "access");
+		if (!send_request(http::Request::GET_VERB, portal_url, "", headers, answer, 0))
+		{
+			_logger->error("ERROR: get portal info failure");
+			return false;
+		}
+
+		if (answer.get_status_code() != HttpsClient::STATUS_OK) {
+			log_http_error("get portal info failure ", answer);
+			return false;
+		}
+
+		const utl::ByteBuffer& body = answer.body();
+		const std::string data{ body.cbegin(), body.cend() };
+		LOG_DEBUG(_logger, "portal_info : %s...", data.substr(0, 80).c_str());
+
+		std::string parser_error;
+		utl::Json info = utl::Json::parse(data, parser_error);
+		if (info.is_object()) {
+			utl::Json user = info["user"];
+			utl::Json group = info["group"];
+			utl::Json version = info["version"];
+
+			_portal_info.user = user.is_string() ? user.string_value() : "";
+			_portal_info.group = group.is_string() ? group.string_value() : "";
+			_portal_info.version = version.is_string() ? version.string_value() : "";
+		}
+
+		return true;
+	}
+
+
+	bool FirewallClient::load_tunnel_config()
+	{
+		DEBUG_ENTER(_logger);
+		utl::Mutex::Lock lock{ _mutex };
+
+		if (!is_authenticated())
+			return false;
+
+		http::Headers headers;
+		http::Answer answer;
+
+		/*
+			Retrieve the SSL VPN configuration.
+			This call is mandatory because the FortiGate will not provide an IP address otherwise.
+		*/
+		const http::Url vpninfo_url = make_url("/remote/fortisslvpn_xml");
+		if (!send_request(http::Request::GET_VERB, vpninfo_url, "", headers, answer, 0))
+		{
+			_logger->error("ERROR: get portal configuration failure");
+			return false;
+		}
+
+		if (answer.get_status_code() != HttpsClient::STATUS_OK) {
+			log_http_error("get portal configuration failure ", answer);
+			return false;
+		}
+
+		const utl::ByteBuffer& body = answer.body();
+		const std::string data(body.cbegin(), body.cend());
+
+		pugi::xml_document doc;
+		const pugi::xml_parse_result parse_result = doc.load_string(data.c_str());
+
+		if (parse_result.status != pugi::xml_parse_status::status_ok) {
+			_logger->error("ERROR: tunnel configuration - XML parse error");
+			return false;
+		}
+
+		const pugi::xml_node& root = doc.child("sslvpn-tunnel");
+		if (root.empty()) {
+			_logger->error("ERROR: tunnel configuration - XML decode error");
+			return false;
+		}
+
+		const pugi::xml_node& ipv4_config = root.child("ipv4");
+		if (ipv4_config.empty()) {
+			_logger->error("ERROR: tunnel configuration - IPv4 not configured");
+			return false;
+		}
+
+		// Extract the DNS servers
+		std::vector<std::string> dns_list;
+		for (pugi::xml_node dns : ipv4_config.children("dns")) {
+			dns_list.push_back(dns.attribute("ip").as_string());
+		}
+
+		if (!dns_list.empty()) {
+			if (ip4addr_aton(dns_list[0].c_str(), &_tunnel_config.dns[0]) != 1) {
+				_logger->error("ERROR: tunnel configuration - DNS error");
+				return false;
+			}
+
+			if (dns_list.size() == 2) {
+				if (ip4addr_aton(dns_list[1].c_str(), &_tunnel_config.dns[1]) != 1) {
+					_logger->error("ERROR: tunnel configuration - DNS error");
+					return false;
+				}
+			}
+		}
+
+		// Extract the assigned IP
+		const pugi::xml_attribute& address = ipv4_config
+			.child("assigned-addr")
+			.attribute("ipv4");
+
+		if (ipaddr_aton(address.as_string(), &_tunnel_config.inner_addr) != 1) {
+			_logger->error("ERROR: tunnel configuration - address error");
+			return false;
+		}
+		
 		return true;
 	}
 
