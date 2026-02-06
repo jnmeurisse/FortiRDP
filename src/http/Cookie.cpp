@@ -10,9 +10,10 @@
 #include <array>
 #include <chrono>
 #include <ctime>
+#include <iomanip>
+#include <sstream>
 #include "http/CookieError.h"
 #include "util/StrUtil.h"
-#include "util/strptime.h"
 
 
 namespace http {
@@ -170,20 +171,24 @@ namespace http {
 
 	time_t Cookie::parse_http_date(const std::string& value)
 	{
-		static std::array<std::string, 4> COOKIE_DATE_FORMATS
-		{
+		static const std::array<std::string, 4> COOKIE_DATE_FORMATS{ {
 			"%a, %d %b %Y %H:%M:%S %Z",
 			"%a, %d-%b-%Y %H:%M:%S %Z",
 			"%a, %d %b %y %H:%M:%S %Z",
 			"%a, %d-%b-%y %H:%M:%S %Z"
-		};
-		
-		for (const auto &date_format : COOKIE_DATE_FORMATS) {
-			struct tm tm { 0 };
+		} };
 
-			const char* const p = strptime(value.c_str(), date_format.c_str(), &tm);
-			if (p && tm.tm_year > 0)
-				return mktime(&tm);
+		for (const auto& date_format : COOKIE_DATE_FORMATS) {
+			std::tm tm = {};
+			std::istringstream ss(value);
+
+			// parse the string
+			ss >> std::get_time(&tm, date_format.c_str());
+
+			if (!ss.fail()) {
+				// converts struct tm to time_t
+				return std::mktime(&tm);
+			}
 		}
 
 		return 0;
