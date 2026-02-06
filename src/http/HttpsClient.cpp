@@ -36,7 +36,7 @@ namespace http {
 	HttpsClient::HttpsClient(const net::Endpoint& ep, const net::TlsConfig& config) :
 		TlsSocket(config),
 		_host_ep(ep),
-		_keepalive_timer(),
+		_keepalive_timer(DEFAULT_KEEP_ALIVE_TIMEOUT * 1000),
 		_max_requests(100),
 		_keepalive_timeout(DEFAULT_KEEP_ALIVE_TIMEOUT),
 		_connect_timeout(DEFAULT_CONNECT_TIMEOUT * 1000),
@@ -83,7 +83,7 @@ namespace http {
 	{
 		DEBUG_ENTER(_logger);
 
-		_keepalive_timer.start(10000);
+		_keepalive_timer.start(_keepalive_timeout * 1000);
 		_request_count = 0;
 
 		utl::Timer connect_timer{ _connect_timeout };
