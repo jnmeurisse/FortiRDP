@@ -8,8 +8,10 @@
 #pragma once
 
 #include <functional>
+#include <set>
 #include <string>
 #include <mbedtls/x509_crt.h>
+#include <lwip/ip_addr.h>
 #include "fw/AuthTypes.h"
 #include "http/HttpsClient.h"
 #include "http/Answer.h"
@@ -19,11 +21,9 @@
 #include "http/Headers.h"
 #include "fw/CrtDigest.h"
 #include "fw/FirewallTunnel.h"
-#include "net/TunnelConfig.h"
 #include "net/Endpoint.h"
 #include "util/Mutex.h"
 #include "util/StringMap.h"
-
 
 
 namespace fw {
@@ -31,9 +31,14 @@ namespace fw {
 	// Portal info
 	struct PortalInfo
 	{
-		std::string user;			// username connected to the portal
-		std::string group;			// group name this user belong to
-		std::string version;		// portal version
+		// The username connected to the portal.
+		std::string user;
+
+		// The group name this user belong to.
+		std::string group;
+
+		// portal version
+		std::string version;
 
 		void clear() {
 			user.clear();
@@ -41,6 +46,26 @@ namespace fw {
 			version.clear();
 		}
 	};
+
+	struct TunnelConfig {
+	public:
+		// Set of supported tunnel types.
+		std::set<net::TunnelType> tunnel_types;
+
+		// IP address assigned to this client.
+		ip_addr_t inner_addr;
+
+		// Assigned DNS servers
+		ip_addr_t dns[2];
+
+		void clear() {
+			tunnel_types.clear();
+			ip_addr_set_zero(&inner_addr);
+			ip_addr_set_zero(&dns[0]);
+			ip_addr_set_zero(&dns[1]);
+		}
+	};
+
 
 	// Portal Client error codes
 	enum class portal_err {
@@ -147,7 +172,7 @@ namespace fw {
 		 * Retrieves the SSL VPN tunnel configuration.
 		 *
 		 */
-		const net::TunnelConfig& get_tunnel_config() const noexcept { return _tunnel_config; };
+		const fw::TunnelConfig& get_tunnel_config() const noexcept { return _tunnel_config; };
 
 		/**
 		 * Allocates a firewall tunnel between a local and a remote endpoint.
@@ -163,8 +188,7 @@ namespace fw {
 		 * @return A pointer to the allocated FirewallTunnel instance, or nullptr if
 		 *         the tunnel could not be created.
 		 */
-		fw::FirewallTunnel* create_tunnel(const net::Endpoint& local_ep, const net::Endpoint& remote_ep,
-			const net::tunneler_config& config);
+		fw::FirewallTunnel* create_tunnel(const net::tunneler_config& config);
 
 		/**
 		 * Returns true if this client is authenticated on the portal.
@@ -189,7 +213,7 @@ namespace fw {
 
 		// Information collected during the login
 		fw::PortalInfo _portal_info;
-		net::TunnelConfig _tunnel_config;
+		fw::TunnelConfig _tunnel_config;
 
 		// Logs an HTTP error message.
 		void log_http_error(const char* msg, const http::Answer& answer);

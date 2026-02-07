@@ -161,10 +161,25 @@ namespace ui {
 			const net::Endpoint local_endpoint(localhost, local_port);
 
 			// Configure the tunneler.
-			const net::tunneler_config config { tcp_nodelay, multi_clients ? 32 : 1 };
+			const auto& tunnel_config = _portal_client->get_tunnel_config();
 
-			// Create a SSL tunnel from this host to the firewall and assign it to local pointer.
-			_tunnel.reset(_portal_client->create_tunnel(local_endpoint, remote_endpoint, config));
+			net::TunnelType tunnel_type = net::TunnelType::PPP;
+			if (tunnel_config.tunnel_types.contains(net::TunnelType::TUN))
+				tunnel_type = net::TunnelType::TUN;
+
+			const net::tunneler_config config{
+				.tunnel_type = tunnel_type,
+				.local_endpoint = local_endpoint,
+				.max_clients = multi_clients ? 10 : 1,
+				.remote_endpoint = remote_endpoint,
+				.tcp_nodelay = tcp_nodelay,
+				.inner_addr = tunnel_config.inner_addr,
+				.dns1 = tunnel_config.dns[0],
+				.dns2 = tunnel_config.dns[1],
+			};
+
+			// Create a SSL tunnel from this host to the firewall and assign it to a local pointer.
+			_tunnel.reset(_portal_client->create_tunnel(config));
 
 			// Start the tunnel.
 			request_action(AsyncController::TUNNEL);

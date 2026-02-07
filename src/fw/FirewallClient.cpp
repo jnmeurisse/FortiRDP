@@ -461,15 +461,12 @@ namespace fw {
 	}
 
 
-	fw::FirewallTunnel* FirewallClient::create_tunnel(const net::Endpoint& local_ep,
-		const net::Endpoint& remote_ep, const net::tunneler_config& config)
+	fw::FirewallTunnel* FirewallClient::create_tunnel(const net::tunneler_config& config)
 	{
 		DEBUG_ENTER(_logger);
 
 		return new fw::FirewallTunnel(
 			std::make_unique<http::HttpsClient>(host(), get_tls_config()),
-			local_ep,
-			remote_ep,
 			config,
 			_cookie_jar
 		);
