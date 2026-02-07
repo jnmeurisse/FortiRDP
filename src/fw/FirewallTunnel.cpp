@@ -13,13 +13,10 @@
 
 namespace fw {
 
-	FirewallTunnel::FirewallTunnel(http::HttpsClientPtr tunnel_socket,
-		const net::Endpoint& local_ep, const net::Endpoint& remote_ep,
-		const net::tunneler_config& config, const http::Cookies& cookie_jar
-	) :
-		net::Tunneler(*tunnel_socket, local_ep, remote_ep, config),
+	FirewallTunnel::FirewallTunnel(http::HttpsClientPtr tunnel, const net::tunneler_config& config, const http::Cookies& cookie_jar) :
+		net::Tunneler(*tunnel, config),
 		_logger(utl::Logger::get_logger()),
-		_tunnel_socket{ std::move(tunnel_socket) },
+		_tunnel_socket{ std::move(tunnel) },
 		_cookie_jar{ cookie_jar }
 	{
 		DEBUG_CTOR(_logger);

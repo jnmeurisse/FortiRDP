@@ -24,16 +24,12 @@ namespace fw {
 		* The Tunnel forwards traffic received on the specified local endpoint
 		* to the remote endpoint through a secure, encrypted tunnel.
 		*
-		* @param tunnel_socket  The TLS socket used for secure communication.
-		* @param local  The local network endpoint to listen for incoming traffic.
-		* @param remote  The remote network endpoint to forward traffic to.
-		* @param config  Configuration settings for the tunneler.
+		* @param tunnel  The TLS socket used for secure communication.
+		* @param config  The tunneler configuration.
 		* @param cookie_jar Session cookies
 		*/
-		FirewallTunnel(http::HttpsClientPtr tunnel_socket, const net::Endpoint& local_ep,
-			const net::Endpoint& remote_ep, const net::tunneler_config& config, const http::Cookies& cookie_jar);
+		FirewallTunnel(http::HttpsClientPtr tunnel, const net::tunneler_config& config, const http::Cookies& cookie_jar);
 		~FirewallTunnel() override;
-
 
 		/**
 		 * Starts the tunneler.
@@ -43,13 +39,13 @@ namespace fw {
 		bool start() override;
 
 	private:
-		// The class name
+		// This class name
 		static const char* __class__;
 
 		// A reference to the application logger.
 		utl::Logger* const _logger;
 
-		// The encrypted socket.
+		// The encrypted socket connected to the firewall.
 		const http::HttpsClientPtr _tunnel_socket;
 
 		// The application cookie jar
