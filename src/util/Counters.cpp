@@ -10,7 +10,7 @@
 
 namespace utl {
 
-	Counters::Counters() :
+	Counters::Counters() noexcept :
 		sent(0),
 		rcvd(0)
 	{
