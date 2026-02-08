@@ -763,13 +763,8 @@ namespace fw {
 		}
 
 		if (!dns_list.empty()) {
-			if (ip4addr_aton(dns_list[0].c_str(), &_tunnel_config.dns[0]) != 1) {
-				_logger->error("ERROR: tunnel configuration - DNS error");
-				return false;
-			}
-
-			if (dns_list.size() == 2) {
-				if (ip4addr_aton(dns_list[1].c_str(), &_tunnel_config.dns[1]) != 1) {
+			for (int i = 0; i < dns_list.size(); i++) {
+				if (!_tunnel_config.dns[i].set_address(dns_list[i])) {
 					_logger->error("ERROR: tunnel configuration - DNS error");
 					return false;
 				}
@@ -777,11 +772,11 @@ namespace fw {
 		}
 
 		// Extract the assigned IP
-		const pugi::xml_attribute& address = ipv4_config
+		const pugi::xml_attribute& ipv4_address = ipv4_config
 			.child("assigned-addr")
 			.attribute("ipv4");
 
-		if (ipaddr_aton(address.as_string(), &_tunnel_config.inner_addr) != 1) {
+		if (!_tunnel_config.inner_addr.set_address(ipv4_address.as_string())) {
 			_logger->error("ERROR: tunnel configuration - address error");
 			return false;
 		}

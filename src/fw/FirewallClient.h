@@ -11,17 +11,17 @@
 #include <set>
 #include <string>
 #include <mbedtls/x509_crt.h>
-#include <lwip/ip_addr.h>
 #include "fw/AuthTypes.h"
+#include "fw/CrtDigest.h"
+#include "fw/FirewallTunnel.h"
 #include "http/HttpsClient.h"
 #include "http/Answer.h"
 #include "http/Cookies.h"
 #include "http/Url.h"
 #include "http/Request.h"
 #include "http/Headers.h"
-#include "fw/CrtDigest.h"
-#include "fw/FirewallTunnel.h"
 #include "net/Endpoint.h"
+#include "net/IpAddress.h"
 #include "util/Mutex.h"
 #include "util/StringMap.h"
 
@@ -53,16 +53,16 @@ namespace fw {
 		std::set<net::TunnelType> tunnel_types;
 
 		// IP address assigned to this client.
-		ip_addr_t inner_addr;
+		net::IpAddress inner_addr;
 
 		// Assigned DNS servers
-		ip_addr_t dns[2];
+		net::IpAddress dns[2];
 
 		void clear() {
 			tunnel_types.clear();
-			ip_addr_set_zero(&inner_addr);
-			ip_addr_set_zero(&dns[0]);
-			ip_addr_set_zero(&dns[1]);
+			inner_addr.clear();
+			dns[0].clear();
+			dns[1].clear();
 		}
 	};
 
