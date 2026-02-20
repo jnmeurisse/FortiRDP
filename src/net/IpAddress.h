@@ -77,6 +77,11 @@ namespace net {
 		bool set_address(const ip_addr_t& address);
 
 		/**
+		 * Returns the address as a raw ip_addr_t value.
+		 */
+		inline const ip_addr_t& get_address() const{ return _addr; }
+
+		/**
 		 * Checks whether the address is the any address (0.0.0.0).
 		 * @return True if address is "any".
 		 */

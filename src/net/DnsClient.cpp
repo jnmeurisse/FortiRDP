@@ -12,7 +12,7 @@ namespace net {
 
 	void DnsClient::set_server(uint8_t num, const net::IpAddress& server)
 	{
-		::dns_setserver(num, &server.address());
+		::dns_setserver(num, &server.get_address());
 	}
 
 
