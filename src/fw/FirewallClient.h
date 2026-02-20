@@ -7,10 +7,12 @@
 */
 #pragma once
 
+#include <array>
 #include <functional>
 #include <set>
 #include <string>
 #include <mbedtls/x509_crt.h>
+#include <lwip/dns.h>
 #include "fw/AuthTypes.h"
 #include "fw/CrtDigest.h"
 #include "fw/FirewallTunnel.h"
@@ -56,13 +58,13 @@ namespace fw {
 		net::IpAddress inner_addr;
 
 		// Assigned DNS servers
-		net::IpAddress dns[2];
+		std::array<net::IpAddress, DNS_MAX_SERVERS> dns_servers;
 
 		void clear() {
 			tunnel_types.clear();
 			inner_addr.clear();
-			dns[0].clear();
-			dns[1].clear();
+			for (uint8_t num = 0; num < dns_servers.size(); num++)
+				dns_servers[num].clear();
 		}
 	};
 

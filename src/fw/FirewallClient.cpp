@@ -7,6 +7,7 @@
 */
 #include "FirewallClient.h"
 
+#include <algorithm>
 #include <array>
 #include <memory>
 #include <stdexcept>
@@ -763,8 +764,8 @@ namespace fw {
 		}
 
 		if (!dns_list.empty()) {
-			for (int i = 0; i < dns_list.size(); i++) {
-				if (!_tunnel_config.dns[i].set_address(dns_list[i])) {
+			for (uint8_t num = 0; num < std::min(_tunnel_config.dns_servers.size(), dns_list.size()); num++) {
+				if (!_tunnel_config.dns_servers[num].set_address(dns_list[num])) {
 					_logger->error("ERROR: tunnel configuration - DNS error");
 					return false;
 				}
