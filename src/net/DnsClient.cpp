@@ -10,28 +10,42 @@
 
 namespace net {
 
-	bool DnsClient::is_configured()
+	void DnsClient::set_server(uint8_t num, const net::IpAddress& server)
 	{
-		return !ip4_addr_isany_val(*dns_getserver(0)) || !ip4_addr_isany_val(*dns_getserver(1));
+		::dns_setserver(num, &server.address());
 	}
 
 
-	std::string DnsClient::dns()
+	net::IpAddress DnsClient::get_server(uint8_t num)
+	{
+		net::IpAddress address;
+		address.set_address(*dns_getserver(num));
+		return address;
+	}
+
+
+	bool DnsClient::is_configured()
+	{
+		bool configured = false;
+		for (uint8_t num = 0; num < DNS_MAX_SERVERS && !configured; num++)
+			configured = !get_server(num).is_any();
+
+		return configured;
+	}
+
+
+	std::string DnsClient::to_string()
 	{
 		std::string buffer;
-		const ip_addr_t *addr1 = dns_getserver(0);
-		const ip_addr_t *addr2 = dns_getserver(1);
 
-		if (!ip4_addr_isany_val(*addr1))
-			buffer = ip4addr_ntoa(addr1);
-
-		if (!ip4_addr_isany_val(*addr1) && !ip4_addr_cmp(addr1, addr2)) {
-			if (!buffer.empty())
-				buffer += ", ";
-			buffer += ip4addr_ntoa(addr2);
+		for (uint8_t num = 0; num < DNS_MAX_SERVERS; num++) {
+			const IpAddress addr = get_server(num);
+			if (!addr.is_any()) {
+				buffer.append(addr.to_string()).append(",");
+			}
 		}
 
-		return buffer;
+		return buffer.length() == 0 ? buffer : buffer.substr(0, buffer.length() - 1);
 	}
 
 
