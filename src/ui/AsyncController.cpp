@@ -167,15 +167,15 @@ namespace ui {
 			if (tunnel_config.tunnel_types.contains(net::TunnelType::TUN))
 				tunnel_type = net::TunnelType::TUN;
 
-			const net::tunneler_config config{
+			net::tunneler_config config{
 				.tunnel_type = tunnel_type,
 				.local_endpoint = local_endpoint,
-				.max_clients = multi_clients ? 10 : 1,
+				.max_clients = multi_clients ? 16 : 1,
 				.remote_endpoint = remote_endpoint,
 				.tcp_nodelay = tcp_nodelay,
+				.connect_timeout = 10000,
 				.inner_addr = tunnel_config.inner_addr,
-				.dns1 = tunnel_config.dns[0],
-				.dns2 = tunnel_config.dns[1],
+				.dns_servers = tunnel_config.dns_servers
 			};
 
 			// Create a SSL tunnel from this host to the firewall and assign it to a local pointer.
