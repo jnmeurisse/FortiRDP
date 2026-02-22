@@ -7,10 +7,14 @@
 */
 #pragma once
 
+#include <array>
+#include <memory>
+#include "net/DnsClient.h"
 #include "net/Endpoint.h"
-#include "net/TlsSocket.h"
+#include "net/InnerInterface.h"
+#include "net/IpAddress.h"
 #include "net/Listener.h"
-#include "net/PPInterface.h"
+#include "net/TlsSocket.h"
 #include "util/Counters.h"
 #include "util/Thread.h"
 #include "util/Logger.h"
@@ -19,11 +23,37 @@
 
 namespace net {
 
-	struct tunneler_config {
-		bool tcp_nodelay;
-		int  max_clients;
-		int  connect_timeout;
+	enum class TunnelType {
+		PPP,
+		TUN
 	};
+
+
+	struct tunneler_config {
+		//
+		net::TunnelType tunnel_type;
+
+		// Local endpoint address & port
+		const net::Endpoint& local_endpoint;
+
+		// The maximum number of clients that are allowed to connect to the local end point
+		int  max_clients;
+
+		// The remote end point (protected by the firewall).
+		const net::Endpoint& remote_endpoint;
+	
+		bool tcp_nodelay;
+
+		// timeout in ms 
+		int connect_timeout;
+
+		// inner IP address
+		net::IpAddress inner_addr;
+
+		// Assigned DNS servers
+		std::array<net::IpAddress, net::DnsClient::MAX_SERVERS> dns_servers;
+	};
+
 
 	class Tunneler : public utl::Thread
 	{
@@ -35,12 +65,9 @@ namespace net {
 		* to the remote endpoint through a secure, encrypted tunnel.
 		*
 		* @param tunnel  The TLS socket used for secure communication.
-		* @param local   The local network endpoint to listen for incoming traffic.
-		* @param remote  The remote network endpoint to forward traffic to.
 		* @param config  Configuration settings for the tunneler.
 		*/
-		explicit Tunneler(net::TlsSocket& tunnel, const net::Endpoint& local, const net::Endpoint& remote,
-			const tunneler_config& config);
+		explicit Tunneler(net::TlsSocket& tunnel, const tunneler_config& config);
 		
 		/**
 		* Tunneler destructor
@@ -86,7 +113,7 @@ namespace net {
 		/**
 		 * Returns the transmitted/received bytes counters.
 		*/
-		inline const utl::Counters& counters() const noexcept { return _counters; }
+		const utl::Counters& counters() const noexcept;
 
 		/**
 		* Returns the number of active clients
@@ -120,24 +147,17 @@ namespace net {
 		// Tunnel socket.
 		net::TlsSocket&  _tunnel;
 
-		// Counters of bytes sent to / received from the tunnel.
-		utl::Counters _counters;
-
 		// Counters of connected clients
 		size_t _clients_count;
 
-		// PP interface.
-		net::PPInterface _pp_interface;
+		// Inner interface (PPP or TUN)
+		std::unique_ptr<net::InnerInterface> _interface;
 		
 		// This event is set when the tunneler is listening.
 		utl::Event _listening_status;
 
-		// The local end point and an associated listener.
-		const net::Endpoint _local_endpoint;
+		// The listener. 
 		net::Listener _listener;
-
-		// The remote end point (protected by the firewall).
-		net::Endpoint _remote_endpoint;
 
 		void compute_sleep_time(timeval& timeout) const;
 		void shutdown_tunnel();

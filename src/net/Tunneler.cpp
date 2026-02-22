@@ -9,8 +9,12 @@
 
 #include <windows.h>
 #include <list>
+#include <memory>
+#include <stdexcept>
 #include "net/DnsClient.h"
 #include "net/PortForwarders.h"
+#include "net/PPInterface.h"
+#include "net/TUInterface.h"
 #include "util/ErrUtil.h"
 
 
@@ -25,21 +29,30 @@ namespace net {
 	using namespace utl;
 
 
-	Tunneler::Tunneler(net::TlsSocket& tunnel, const net::Endpoint& local_ep, const net::Endpoint& remote_ep,
-		const tunneler_config& config) :
+	std::unique_ptr<net::InnerInterface> create_inner_interface(net::TlsSocket& tunnel, const tunneler_config& config)
+	{
+		if (config.tunnel_type == net::TunnelType::PPP) {
+			return std::make_unique<PPInterface>(tunnel, config.inner_addr);
+		}
+		else if (config.tunnel_type == net::TunnelType::TUN) {
+			return std::make_unique<TUInterface>(tunnel, config.inner_addr);
+		}
+		else
+			throw std::invalid_argument("tunnel type not supported");
+	}
+
+
+	Tunneler::Tunneler(net::TlsSocket& tunnel, const tunneler_config& config) :
 		Thread(),
 		_logger(Logger::get_logger()),
 		_config(config),
 		_state(State::READY),
 		_terminate(false),
 		_tunnel(tunnel),
-		_counters(),
 		_clients_count(0),
-		_pp_interface(tunnel, _counters),
+		_interface(create_inner_interface(tunnel, _config)),
 		_listening_status(),
-		_local_endpoint(local_ep),
-		_listener(),
-		_remote_endpoint(remote_ep)
+		_listener()
 	{
 		DEBUG_CTOR(_logger);
 	}
@@ -56,10 +69,10 @@ namespace net {
 		DEBUG_ENTER(_logger);
 		bool started = true;
 
-		const mbed_err rc = _listener.bind(_local_endpoint, net_protocol::NETCTX_PROTO_TCP);
+		const mbed_err rc = _listener.bind(_config.local_endpoint, net_protocol::NETCTX_PROTO_TCP);
 
 		if (rc < 0) {
-			_logger->error("ERROR: listener error on %s", _local_endpoint.to_string().c_str());
+			_logger->error("ERROR: listener error on %s", _config.local_endpoint.to_string().c_str());
 			_logger->error("%s", mbed_errmsg(rc).c_str());
 		
 			started = false;
@@ -106,11 +119,15 @@ namespace net {
 		_logger->info(">> starting tunnel");
 		_state = State::CONNECTING;
 
+		DnsClient::clear();
+		for (uint8_t num = 0; num < DnsClient::MAX_SERVERS; num++)
+			DnsClient::set_server(num, _config.dns_servers[num]);
+
 
 		// Disable Nagle algorithm if required
 		_tunnel.set_nodelay(_config.tcp_nodelay);
 
-		if (!_pp_interface.open()) {
+		if (!_interface->open()) {
 			_state = State::STOPPED;
 			return 0;
 		}
@@ -121,7 +138,7 @@ namespace net {
 
 			// Define select conditions only if the tunnel is still connected.
 			if (_tunnel.is_connected()) {
-				if (_pp_interface.must_transmit()) {
+				if (_interface->must_transmit()) {
 					// data is available in the output queue, check if we can write.
 					FD_SET(_tunnel.get_fd(), &write_set);
 				}
@@ -129,7 +146,7 @@ namespace net {
 				// always check if data is available from the tunnel.
 				FD_SET(_tunnel.get_fd(), &read_set);
 
-				if (_pp_interface.if4_up() && !connecting && 
+				if (_interface->is_if_up() && !connecting && 
 					active_port_forwarders.connected_count() < _config.max_clients) {
 					// We are ready to accept a new connection only if the PPP interface
 					// is up, if we are not currently accepting a connection and the 
@@ -163,7 +180,7 @@ namespace net {
 				if (rc > 0) {
 					if (FD_ISSET(_tunnel.get_fd(), &write_set)) {
 						// Send PPP through the tunnel 
-						if (!_pp_interface.send()) {
+						if (!_interface->send()) {
 							shutdown_tunnel();
 							terminate();
 						}
@@ -171,7 +188,7 @@ namespace net {
 
 					if (FD_ISSET(_tunnel.get_fd(), &read_set)) {
 						// Receive PPP data from the tunnel.
-						if (!_pp_interface.recv()) {
+						if (!_interface->recv()) {
 							_logger->info(">> tunnel closed by peer");
 							shutdown_tunnel();
 							terminate();
@@ -180,7 +197,7 @@ namespace net {
 
 					if (FD_ISSET(_listener.get_fd(), &read_set)) {
 						// Accept a new connection.
-						PortForwarder* pf = new PortForwarder(_remote_endpoint, _config.tcp_nodelay, true);
+						PortForwarder* pf = new PortForwarder(_config.remote_endpoint, _config.tcp_nodelay, true);
 
 						if (pf->connect(_listener)) {
 							// A new port forwarder is active.
@@ -262,7 +279,7 @@ namespace net {
 				if (_terminate) {
 					_state = State::CLOSING;
 				}
-				else if (_pp_interface.if4_up()) {
+				else if (_interface->is_if_up()) {
 					// The listener is now accepting inbound connection.
 					_listening_status.set();
 
@@ -270,13 +287,13 @@ namespace net {
 					_logger->info(">> tunnel is up, listening on %s",
 						_listener.endpoint().to_string().c_str());
 					_logger->info("     IP=%s/%d GW=%s MTU=%d",
-						_pp_interface.addr().c_str(),
-						_pp_interface.netmask(),
-						_pp_interface.gateway().c_str(),
-						_pp_interface.mtu());
+						_interface->addr().c_str(),
+						_interface->netmask(),
+						_interface->gateway().c_str(),
+						_interface->mtu());
 
 					if (DnsClient::is_configured()) {
-						_logger->info("     DNS=%s", DnsClient::dns().c_str());
+						_logger->info("     DNS=%s", DnsClient::to_string().c_str());
 					}
 				}
 				break;
@@ -294,7 +311,7 @@ namespace net {
 					}
 				}
 				else {
-					_pp_interface.send_keep_alive();
+					_interface->send_keep_alive();
 
 					// A port forwarder connection was started.
 					if (connecting) {
@@ -309,7 +326,7 @@ namespace net {
 				if (active_port_forwarders.empty() || abort_timeout) {
 					// All connections are closed, shutdown the ppp interface
 					_state = State::DISCONNECTING;
-					_pp_interface.close(!_tunnel.is_connected());
+					_interface->close(!_tunnel.is_connected());
 
 					// Set a timer to ensure the thread exits. The timeout is deliberately
 					// longer than SyncDisconnect's timeout. If the interface remains active,
@@ -322,7 +339,7 @@ namespace net {
 
 			case State::DISCONNECTING:
 				// Wait until PPP interface is in dead state.
-				if (_pp_interface.dead() || disconnect_timeout) {
+				if (_interface->is_if_dead() || disconnect_timeout) {
 					_logger->info(">> tunnel is down");
 					stop = true;
 				}
@@ -337,7 +354,7 @@ namespace net {
 		}
 
 		// Free all resources used by the PPP interface.
-		_pp_interface.release();
+		_interface->release();
 		sys_untimeout(timeout_cb, &abort_timeout);
 		sys_untimeout(timeout_cb, &disconnect_timeout);
 

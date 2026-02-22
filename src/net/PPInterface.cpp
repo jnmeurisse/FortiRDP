@@ -25,13 +25,9 @@ namespace net {
 	constexpr int PPP_MAXIDLE = 60 * 1000;
 
 
-	PPInterface::PPInterface(net::TlsSocket& tunnel, utl::Counters& counters) :
-		_logger(Logger::get_logger()),
-		_tunnel(tunnel),
-		_counters(counters),
-		_nif(),
-		_pcb(nullptr),
-		_output_queue(32 * 1024)
+	PPInterface::PPInterface(net::TlsSocket& tunnel, const net::IpAddress& address) :
+		InnerInterface(tunnel, address),
+		_pcb(nullptr)
 	{
 		DEBUG_CTOR(_logger);
 	}
@@ -102,8 +98,7 @@ namespace net {
 		if (_logger->is_debug_enabled())
 			::stats_display();
 
-		if (!dead()) {
-
+		if (!is_if_dead()) {
 			const ppp_err rc = ::ppp_close(_pcb, nocarrier? 1 : 0);
 
 			if (rc != PPPERR_NONE) {
@@ -130,6 +125,18 @@ namespace net {
 			::ppp_free(_pcb);
 			_pcb = nullptr;
 		}
+	}
+
+
+	bool PPInterface::is_if_up() const noexcept
+	{
+		return  _pcb && _pcb->if4_up;
+	}
+
+
+	bool PPInterface::is_if_dead() const noexcept
+	{
+		return !_pcb || _pcb->phase == PPP_PHASE_DEAD;
 	}
 
 
@@ -171,24 +178,7 @@ namespace net {
 	bool PPInterface::send()
 	{
 		TRACE_ENTER(_logger);
-		mbed_err rc = 0;
-
-		if (!_output_queue.is_empty()) {
-			size_t written = 0;
-			rc = _output_queue.write(_tunnel, written);
-			LOG_TRACE(_logger, "rc=%d sbytes=%zu", rc, written);
-
-			if (rc == 0) {
-				_counters.sent += written;
-			}
-			else {
-				_logger->error("ERROR: %s - tunnel send failure (%d)", __class__, rc);
-			}
-		}
-
-		LOG_TRACE(_logger, "socket fd=%d rc=%d", _tunnel.get_fd(), rc);
-
-		return rc == 0;
+		return InnerInterface::send();
 	}
 
 
@@ -210,7 +200,7 @@ namespace net {
 		switch (status.code) {
 		case rcv_status_code::NETCTX_RCV_OK: {
 			rc = true;
-			_counters.received += status.rbytes;
+			_counters.rcvd += status.rbytes;
 
 			// PPP data available, pass it to the lwIP stack.
 			const ppp_err ppp_rc = ::pppossl_input(_pcb, buffer.data(), status.rbytes);

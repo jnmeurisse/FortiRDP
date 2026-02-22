@@ -17,19 +17,19 @@
 
 namespace net {
 
-	class PPInterface final : public InnerInterface
+	class TUInterface final : public InnerInterface
 	{
 	public:
-		explicit PPInterface(net::TlsSocket& tunnel, const net::IpAddress& address);
-		~PPInterface();
+		explicit TUInterface(net::TlsSocket& tunnel, const net::IpAddress& address);
+		~TUInterface();
 
 		/**
-		 * Opens a PPP interface.
+		 * Opens a TUN interface.
 		*/
 		bool open() override;
 
 		/**
-		 * Initiates the end of the PPP over SSL interface.
+		 * Initiates the end of the TUN over SSL interface.
 		*/
 		void close(bool nocarrier) override;
 
@@ -39,12 +39,12 @@ namespace net {
 		void release() override;
 
 		/**
-		 * Returns true if the PPP interface is up.
+		 * Returns true if the TUN interface is up.
 		*/
 		bool is_if_up() const noexcept override;
 
 		/**
-		 * Returns true if the PPP interface is dead.
+		 * Returns true if the TUN interface is dead.
 		*/
 		bool is_if_dead() const noexcept override;
 
@@ -69,7 +69,7 @@ namespace net {
 		int mtu() const override;
 
 		/**
-		 * Writes PPP data available in the output queue to the tunnel.
+		 * Writes TUN data available in the output queue to the tunnel.
 		 *
 		 * The internal counters are updated with the amount of bytes written
 		 * to the socket. The function returns false if the socket was closed
@@ -78,7 +78,7 @@ namespace net {
 		bool send() override;
 
 		/**
-		 * Reads any data from the tunnel and pass it to the PPP stack.
+		 * Reads any data from the tunnel and pass it to the TUN stack.
 		 *
 		 * The internal counters are updated  with the amount of bytes read
 		 * from the socket. The function returns false if the socket was closed
@@ -89,16 +89,10 @@ namespace net {
 		/**
 		 * Sends a keep alive packet.
 		 * 
-		 * Note: the keep alive packet is sent only if if nothing was sent
-		 * during the last minute.  The keep alive packet is a LCP Discard
-		 * sent to the FortiGate PPP interface.
 		*/
 		void send_keep_alive() override;
 
 	private:
-		friend u32_t ppp_output_cb(ppp_pcb *pcb, struct pbuf* pbuf, void *ctx);
-		friend void ppp_link_status_cb(ppp_pcb *pcb, int err_code, void *ctx);
-
 		/**
 		 * @return the last transmission timeout.
 		*/
