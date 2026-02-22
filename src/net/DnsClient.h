@@ -7,6 +7,7 @@
 */
 #pragma once
 
+#include <cstdint>
 #include <string>
 #include <lwip/dns.h>
 #include "net/IpAddress.h"
@@ -27,6 +28,13 @@ namespace net {
 	public:
 		DnsClient() = delete;
 		~DnsClient() = delete;
+
+		static constexpr uint8_t MAX_SERVERS = DNS_MAX_SERVERS;
+
+		/**
+		* Clears the DNS server addresses.
+		*/
+		static void clear();
 
 		/**
 		 * Initialize one of the DNS servers.

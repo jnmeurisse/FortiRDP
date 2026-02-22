@@ -10,6 +10,13 @@
 
 namespace net {
 
+	void DnsClient::clear()
+	{
+		for (uint8_t num = 0; num < DnsClient::MAX_SERVERS; num++)
+			dns_setserver(num, NULL);
+	}
+
+
 	void DnsClient::set_server(uint8_t num, const net::IpAddress& server)
 	{
 		::dns_setserver(num, &server.get_address());
@@ -18,9 +25,7 @@ namespace net {
 
 	net::IpAddress DnsClient::get_server(uint8_t num)
 	{
-		net::IpAddress address;
-		address.set_address(*dns_getserver(num));
-		return address;
+		return IpAddress(*::dns_getserver(num));
 	}
 
 
