@@ -12,7 +12,6 @@
 #include <set>
 #include <string>
 #include <mbedtls/x509_crt.h>
-#include <lwip/dns.h>
 #include "fw/AuthTypes.h"
 #include "fw/CrtDigest.h"
 #include "fw/FirewallTunnel.h"
@@ -22,6 +21,7 @@
 #include "http/Url.h"
 #include "http/Request.h"
 #include "http/Headers.h"
+#include "net/DnsClient.h"
 #include "net/Endpoint.h"
 #include "net/IpAddress.h"
 #include "util/Mutex.h"
@@ -58,7 +58,7 @@ namespace fw {
 		net::IpAddress inner_addr;
 
 		// Assigned DNS servers
-		std::array<net::IpAddress, DNS_MAX_SERVERS> dns_servers;
+		std::array<net::IpAddress, net::DnsClient::MAX_SERVERS> dns_servers;
 
 		void clear() {
 			tunnel_types.clear();
@@ -184,8 +184,6 @@ namespace fw {
 		 * is not established upon creation. The caller must explicitly invoke
 		 * `connect()` on the returned tunnel object to establish the connection.
 		 *
-		 * @param local_ep The local network endpoint for the tunnel.
-		 * @param remote_ep The remote network endpoint to which traffic is forwarded.
 		 * @param config The configuration parameters for the tunneler.
 		 * @return A pointer to the allocated FirewallTunnel instance, or nullptr if
 		 *         the tunnel could not be created.

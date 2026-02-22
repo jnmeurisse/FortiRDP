@@ -7,7 +7,6 @@
 */
 #include "FirewallClient.h"
 
-#include <algorithm>
 #include <array>
 #include <memory>
 #include <stdexcept>
@@ -758,30 +757,32 @@ namespace fw {
 		}
 
 		// Extract the DNS servers
-		std::vector<std::string> dns_list;
-		for (pugi::xml_node dns : ipv4_config.children("dns")) {
-			dns_list.push_back(dns.attribute("ip").as_string());
-		}
-
-		if (!dns_list.empty()) {
-			for (uint8_t num = 0; num < std::min(_tunnel_config.dns_servers.size(), dns_list.size()); num++) {
-				if (!_tunnel_config.dns_servers[num].set_address(dns_list[num])) {
-					_logger->error("ERROR: tunnel configuration - DNS error");
+		uint8_t dns_server_num = 0;
+		for (pugi::xml_node dns_node : ipv4_config.children("dns")) {
+			if (dns_server_num < _tunnel_config.dns_servers.size()) {
+				const auto dns_server_address = net::IpAddress::from_string(dns_node.attribute("ip").as_string());
+				if (!dns_server_address.has_value()) {
+					_logger->error("ERROR: tunnel configuration - DNS address error");
 					return false;
 				}
+	
+				if (!dns_server_address.value().is_any()) {
+					_tunnel_config.dns_servers[dns_server_num] = dns_server_address.value();
+					dns_server_num++;
+				}
+
 			}
 		}
 
 		// Extract the assigned IP
-		const pugi::xml_attribute& ipv4_address = ipv4_config
-			.child("assigned-addr")
-			.attribute("ipv4");
-
-		if (!_tunnel_config.inner_addr.set_address(ipv4_address.as_string())) {
+		const pugi::xml_attribute& ipv4_attribute = ipv4_config.child("assigned-addr").attribute("ipv4");
+		const auto ipv4_address = net::IpAddress::from_string(ipv4_attribute.as_string());
+		if (!ipv4_address.has_value()) {
 			_logger->error("ERROR: tunnel configuration - address error");
 			return false;
 		}
-		
+		_tunnel_config.inner_addr = ipv4_address.value();
+
 		return true;
 	}
 
