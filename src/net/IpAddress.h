@@ -9,10 +9,11 @@
 
 #include <string>
 #include <lwip/ip_addr.h>
+#include <optional>
 
 namespace net {
 	/**
-	 * This class encapsulates a lwIP IPv4 address and exposes helper functions
+	 * This class encapsulates a lwIP IP address and exposes helper functions
 	 * for parsing, formatting, comparison, and state checks.
 	 */
 	class IpAddress
@@ -25,11 +26,17 @@ namespace net {
 		IpAddress();
 
 		/**
+		 * Constructor.
+		 * Initializes the address from a lwIP address.
+		 */
+		IpAddress(const ip_addr_t& address);
+
+		/**
 		 * Copy constructor.
 		 * 
-		 * @param ip_address Address to copy from.
+		 * @param address Address to copy from.
 		 */
-		IpAddress(const IpAddress& ip_address);
+		IpAddress(const IpAddress& address);
 
 		/**
 		 * Assignment operator.
@@ -61,25 +68,9 @@ namespace net {
 		void clear() noexcept;
 
 		/**
-		 * Sets the address from a string representation.
-		 * 
-		 * @param address IPv4 string (e.g., "192.168.1.1").
-		 * @return true if the address could be converted, false on failure.
-		 */
-		bool set_address(const std::string& address);
-
-		/**
-		 * Sets the address from a raw ip_addr_t value.
-
-		 * @param address Raw address to copy.
-		 * @return Always true.
-		 */
-		bool set_address(const ip_addr_t& address);
-
-		/**
 		 * Returns the address as a raw ip_addr_t value.
 		 */
-		inline const ip_addr_t& get_address() const{ return _addr; }
+		inline const ip_addr_t& get_address() const noexcept { return _ip_addr; }
 
 		/**
 		 * Checks whether the address is the any address (0.0.0.0).
@@ -88,14 +79,22 @@ namespace net {
 		bool is_any() const noexcept;
 
 		/**
+		 * Allocates an IpAddress from a string representation.
+		 *
+		 * @param address IPv4 string (e.g., "192.168.1.1").
+		 * @return the address.
+		 */
+		static std::optional<IpAddress> from_string(const std::string& address);
+
+		/**
 		 * Converts the address to string form.
 		 * 
-		 * @return Dotted IPv4 string representation.
+		 * @return IP address string representation.
 		 */
 		std::string to_string() const noexcept;
 
 	private:
-		ip_addr_t _addr;
+		ip_addr_t _ip_addr;
 	};
 
 }
