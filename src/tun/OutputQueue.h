@@ -15,7 +15,7 @@
 #include "util/Logger.h"
 
 
-namespace net {
+namespace tun {
 
 	class OutputQueue final : public utl::PBufQueue
 	{
