@@ -5,14 +5,14 @@
 * SPDX-License-Identifier: Apache-2.0
 *
 */
-#include "net/InnerInterface.h"
+#include "tun/InnerInterface.h"
 #include "util/Logger.h"
 
 namespace net {
 	using namespace utl;
 
 
-	InnerInterface::InnerInterface(net::TlsSocket& tunnel, const net::IpAddress& address):
+	InnerInterface::InnerInterface(net::TlsSocket& tunnel):
 		_logger(Logger::get_logger()),
 		_tunnel(tunnel),
 		_counters(),
@@ -26,6 +26,30 @@ namespace net {
 	InnerInterface::~InnerInterface()
 	{
 		DEBUG_DTOR(_logger);
+	}
+
+
+	net::IpAddress InnerInterface::addr() const
+	{
+		return IpAddress(_nif.ip_addr);
+	}
+
+
+	net::IpAddress InnerInterface::netmask() const
+	{
+		return IpAddress(_nif.netmask);
+	}
+
+
+	net::IpAddress InnerInterface::gateway() const
+	{
+		return IpAddress(_nif.gw);
+	}
+
+
+	int InnerInterface::mtu() const
+	{
+		return _nif.mtu;
 	}
 
 

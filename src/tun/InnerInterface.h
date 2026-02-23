@@ -11,7 +11,7 @@
 #include <lwip/netif.h>
 #include "net/IpAddress.h"
 #include "net/TlsSocket.h"
-#include "net/OutputQueue.h"
+#include "tun/OutputQueue.h"
 #include "util/Logger.h"
 #include "util/Counters.h"
 
@@ -21,16 +21,16 @@ namespace net {
 	class InnerInterface
 	{
 	public:
-		explicit InnerInterface(net::TlsSocket& tunnel, const net::IpAddress& address);
+		explicit InnerInterface(net::TlsSocket& tunnel);
 		virtual ~InnerInterface();
 
 		/**
-		 * Initiates the interface over SSL interface.
+		 * Opens the interface.
 		*/
 		virtual bool open() = 0;
 
 		/**
-		* Close the interface
+		 * Closes the interface.
 		*/
 		virtual void close(bool nocarrier) = 0;
 
@@ -58,22 +58,22 @@ namespace net {
 		/**
 		 * Returns the IP address assigned to this interface.
 		*/
-		virtual std::string addr() const = 0;
+		net::IpAddress addr() const;
 
 		/**
 		 * Returns the net mask assigned to this interface.
 		*/
-		virtual int netmask() const = 0;
+		net::IpAddress netmask() const;
 
 		/**
 		 * Returns the gateway IP address assigned to this interface.
 		*/
-		virtual std::string gateway() const = 0;
+		net::IpAddress gateway() const;
 
 		/**
 		 * Returns the network MTU.
 		*/
-		virtual int mtu() const = 0;
+		int mtu() const;
 
 		/**
 		 * Writes data available in the output queue into the tunnel.
@@ -114,19 +114,19 @@ namespace net {
 		// A reference to the application logger.
 		utl::Logger* const _logger;
 
+		// The lwIP internal network interface.
+		// Received data are passed to that interface.
+		struct ::netif _nif;
+
 		// socket connected to the firewall.
 		net::TlsSocket& _tunnel;
 
 		// Counters of bytes sent to / received from the tunnel.
 		utl::Counters _counters;
 
-		// The lwIP network interface.
-		// Received data are passed to that interface.
-		struct ::netif _nif;
-
 		// The output queue.
 		// All data in this queue are sent through the tunnel. 
-		net::OutputQueue _output_queue;
+		tun::OutputQueue _output_queue;
 	};
 
 }
