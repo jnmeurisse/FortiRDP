@@ -9,15 +9,15 @@
 
 #include <list>
 #include <functional>
-#include "net/PortForwarder.h"
+#include "tun/PortForwarder.h"
 #include "util/Logger.h"
 
 
-namespace net {
+namespace tun {
 
-	using state_check_cb = std::function<bool(const net::PortForwarder *)>;
+	using state_check_cb = std::function<bool(const tun::PortForwarder *)>;
 
-	class PortForwarders final : public std::list<net::PortForwarder*>
+	class PortForwarders final : public std::list<tun::PortForwarder*>
 	{
 	public:
 		/**

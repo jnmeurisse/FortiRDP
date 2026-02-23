@@ -8,7 +8,7 @@
 #include "PortForwarders.h"
 
 
-namespace net {
+namespace tun {
 	using namespace utl;
 
 
@@ -23,7 +23,7 @@ namespace net {
 	{
 		DEBUG_DTOR(_logger);
 
-		delete_having_state([](const PortForwarder*) {return true; });
+		delete_having_state([](const tun::PortForwarder*) {return true; });
 	}
 
 
@@ -32,7 +32,7 @@ namespace net {
 		size_t count = 0;
 
 		for (auto it = begin(); it != end();) {
-			PortForwarder* const pf = (*it);
+			tun::PortForwarder* const pf = (*it);
 
 			if (check_cb(pf)) {
 				delete pf;
