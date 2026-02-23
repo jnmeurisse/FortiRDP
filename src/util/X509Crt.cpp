@@ -79,7 +79,7 @@ namespace utl {
 	static DWORD WinVerifySslCert(PCCERT_CONTEXT certContext) {
 		DWORD errorStatus = (DWORD) - 1;
 
-		static char* usage[3] = {
+		static const char* usage[3] = {
 			szOID_PKIX_KP_SERVER_AUTH,
 			szOID_SERVER_GATED_CRYPTO,
 			szOID_SGC_NETSCAPE
