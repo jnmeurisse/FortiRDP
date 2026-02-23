@@ -11,11 +11,11 @@
 #include "net/TcpSocket.h"
 #include "net/Listener.h"
 #include "net/Endpoint.h"
-#include "net/OutputQueue.h"
+#include "tun/OutputQueue.h"
 #include "util/Logger.h"
 
 
-namespace net {
+namespace tun {
 	/**
 	* PortForwarder: A class responsible for handling TCP port forwarding. It
 	* accepts local client connections, resolves destination host names, forwards
@@ -238,8 +238,8 @@ namespace net {
 		//   local server        forwarder        remote endpoint
 		//                  -> forward queue -> 
 		//                  <- reply queue   <-
-		net::OutputQueue _reply_queue;
-		net::OutputQueue _forward_queue;
+		tun::OutputQueue _reply_queue;
+		tun::OutputQueue _forward_queue;
 
 		// Number of bytes in transit (sent to the remote endpoint)
 		size_t _forwarded_bytes;

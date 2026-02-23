@@ -16,7 +16,7 @@
 #include "net/DnsClient.h"
 
 
-namespace net {
+namespace tun {
 	using namespace utl;
 
 
@@ -88,7 +88,7 @@ namespace net {
 		// is sent to the FortiGate firewall and is asynchronous.  dns_found_cb is 
 		// called when the host name is resolved or if the resolution fails.
 		ip_addr_t addr;
-		const lwip_err rc_query = DnsClient::query(_endpoint.hostname(), addr, dns_found_cb, this);
+		const lwip_err rc_query = net::DnsClient::query(_endpoint.hostname(), addr, dns_found_cb, this);
 		if (rc_query == ERR_OK || rc_query == ERR_INPROGRESS) {
 			// host name is already resolved or not yet resolved.
 			_state = State::CONNECTING;
@@ -219,8 +219,8 @@ namespace net {
 			return true;
 		}
 
-		const rcv_status status{ _local_server.recv_data(incoming_data.data(), available_space)};
-		if (status.code != rcv_status_code::NETCTX_RCV_OK) {
+		const net::rcv_status status{ _local_server.recv_data(incoming_data.data(), available_space)};
+		if (status.code != net::rcv_status_code::NETCTX_RCV_OK) {
 			return false;
 		}
 
