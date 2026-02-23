@@ -10,6 +10,7 @@
 
 namespace tun {
 	using namespace utl;
+	using namespace net;
 
 
 	OutputQueue::OutputQueue(uint16_t capacity) :

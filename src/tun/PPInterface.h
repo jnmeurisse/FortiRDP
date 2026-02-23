@@ -10,14 +10,13 @@
 #include <string>
 #include <lwip/arch.h>
 #include <lwip/pbuf.h>
-#include "net/pppossl.h"
-#include "net/InnerInterface.h"
 #include "net/TlsSocket.h"
+#include "tun/InnerInterface.h"
 
 
-namespace net {
+namespace tun {
 
-	class PPInterface final : public InnerInterface
+	class PPInterface final : public tun::InnerInterface
 	{
 	public:
 		explicit PPInterface(net::TlsSocket& tunnel, const net::IpAddress& address);
@@ -49,33 +48,9 @@ namespace net {
 		bool is_if_dead() const noexcept override;
 
 		/**
-		 * Returns the IP address assigned to this interface.
-		*/
-		std::string addr() const override;
-
-		/**
 		 * Returns the net mask assigned to this interface.
 		*/
-		int netmask() const override;
-
-		/**
-		 * Returns the gateway IP address assigned to this interface.
-		*/
-		std::string gateway() const override;
-
-		/**
-		 * Returns the network MTU.
-		*/
-		int mtu() const override;
-
-		/**
-		 * Writes PPP data available in the output queue to the tunnel.
-		 *
-		 * The internal counters are updated with the amount of bytes written
-		 * to the socket. The function returns false if the socket was closed
-		 * or if an error occurred.
-		*/
-		bool send() override;
+		//int netmask() const override;
 
 		/**
 		 * Reads any data from the tunnel and pass it to the PPP stack.
@@ -96,9 +71,6 @@ namespace net {
 		void send_keep_alive() override;
 
 	private:
-		friend u32_t ppp_output_cb(ppp_pcb *pcb, struct pbuf* pbuf, void *ctx);
-		friend void ppp_link_status_cb(ppp_pcb *pcb, int err_code, void *ctx);
-
 		/**
 		 * @return the last transmission timeout.
 		*/
@@ -106,8 +78,6 @@ namespace net {
 
 		// The class name
 		static const char* __class__;
-
-		::ppp_pcb* _pcb;
 	};
 
 }

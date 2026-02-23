@@ -12,13 +12,8 @@
 #include "util/ErrUtil.h"
 
 
-namespace net {
+namespace tun {
 	using namespace utl;
-
-
-	// lwip callbacks
-	u32_t ppp_output_cb(ppp_pcb* pcb, struct pbuf* pbuf, void* ctx);
-	void ppp_link_status_cb(ppp_pcb* pcb, int err_code, void* ctx);
 
 
 	// Max Xmit idle time (in ms) before sending a PPP Keep alive packet
@@ -26,8 +21,7 @@ namespace net {
 
 
 	PPInterface::PPInterface(net::TlsSocket& tunnel, const net::IpAddress& address) :
-		InnerInterface(tunnel, address),
-		_pcb(nullptr)
+		InnerInterface(tunnel)
 	{
 		DEBUG_CTOR(_logger);
 	}
@@ -36,9 +30,6 @@ namespace net {
 	PPInterface::~PPInterface()
 	{
 		DEBUG_DTOR(_logger);
-
-		if (_pcb)
-			::ppp_free(_pcb);
 	}
 
 
@@ -51,7 +42,7 @@ namespace net {
 			return false;
 		}
 
-		if (_pcb) {
+		if (netif_is_up(&_nif)) {
 			_logger->error("ERROR: %s already initialized");
 			return false;
 		}
@@ -60,19 +51,15 @@ namespace net {
 		::stats_init();
 
 		// Create a PPP over the SSLVPN connection.
-		_pcb = ::pppossl_create(&_nif, ppp_output_cb, ppp_link_status_cb, this);
-		if (_pcb == nullptr) {
-			_logger->error("ERROR: pppossl_create - memory allocation failure");
+		const lwip_err rc_init = ::pppif_init(&_nif);
+		if (rc_init) {
+			_logger->error("ERROR: pppif_init - %s", lwip_errmsg(rc_init).c_str());
 			return false;
 		}
 
 		// IP traffic is routed through that interface.
-		::ppp_set_default(_pcb);
-
-		// FortiGate does not support these options, disable it.
-		_pcb->lcp_wantoptions.neg_accompression = false;
-		_pcb->lcp_wantoptions.neg_pcompression = false;
-		_pcb->lcp_wantoptions.neg_asyncmap = false;
+		::netif_set_default(&_nif);
+		::netif_set_link_callback(&_nif, );
 
 		// Start the connection.  The ppp_link_status_cb will be called
 		// by the lwIP stack to report the connection success/failure.
@@ -130,7 +117,7 @@ namespace net {
 
 	bool PPInterface::is_if_up() const noexcept
 	{
-		return  _pcb && _pcb->if4_up;
+		return netif_is_up(&_nif);
 	}
 
 
@@ -139,11 +126,6 @@ namespace net {
 		return !_pcb || _pcb->phase == PPP_PHASE_DEAD;
 	}
 
-
-	std::string PPInterface::addr() const
-	{
-		return std::string(::ip4addr_ntoa(netif_ip4_addr(_pcb->netif)));
-	}
 
 
 	int PPInterface::netmask() const
@@ -160,25 +142,6 @@ namespace net {
 		}
 		
 		return mask_size;
-	}
-
-
-	std::string PPInterface::gateway() const
-	{
-		return std::string(ip4addr_ntoa(netif_ip4_gw(_pcb->netif)));
-	}
-
-
-	int PPInterface::mtu() const
-	{
-		return _pcb->netif->mtu;
-	}
-
-
-	bool PPInterface::send()
-	{
-		TRACE_ENTER(_logger);
-		return InnerInterface::send();
 	}
 
 
@@ -203,6 +166,7 @@ namespace net {
 			_counters.rcvd += status.rbytes;
 
 			// PPP data available, pass it to the lwIP stack.
+			_nif.input()
 			const ppp_err ppp_rc = ::pppossl_input(_pcb, buffer.data(), status.rbytes);
 			if (ppp_rc) {
 				_logger->error("ERROR: %s - input failure (%s)",

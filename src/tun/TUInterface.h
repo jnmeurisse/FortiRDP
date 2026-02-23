@@ -1,21 +1,17 @@
 /*!
 * This file is part of FortiRDP
 *
-* Copyright (C) 2022 Jean-Noel Meurisse
+* Copyright (C) 2026 Jean-Noel Meurisse
 * SPDX-License-Identifier: Apache-2.0
 *
 */
 #pragma once
 
-#include <string>
-#include <lwip/arch.h>
-#include <lwip/pbuf.h>
-#include "net/pppossl.h"
-#include "net/InnerInterface.h"
 #include "net/TlsSocket.h"
+#include "tun/InnerInterface.h"
 
 
-namespace net {
+namespace tun {
 
 	class TUInterface final : public InnerInterface
 	{
@@ -49,24 +45,9 @@ namespace net {
 		bool is_if_dead() const noexcept override;
 
 		/**
-		 * Returns the IP address assigned to this interface.
-		*/
-		std::string addr() const override;
-
-		/**
 		 * Returns the net mask assigned to this interface.
 		*/
-		int netmask() const override;
-
-		/**
-		 * Returns the gateway IP address assigned to this interface.
-		*/
-		std::string gateway() const override;
-
-		/**
-		 * Returns the network MTU.
-		*/
-		int mtu() const override;
+		//int netmask() const override;
 
 		/**
 		 * Writes TUN data available in the output queue to the tunnel.
@@ -101,7 +82,8 @@ namespace net {
 		// The class name
 		static const char* __class__;
 
-		::ppp_pcb* _pcb;
+		// IP address of ths interface
+		net::IpAddress _ip_address;
 	};
 
 }

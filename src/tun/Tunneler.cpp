@@ -11,10 +11,11 @@
 #include <list>
 #include <memory>
 #include <stdexcept>
+#include <lwip/timeouts.h>
 #include "net/DnsClient.h"
-#include "net/PortForwarders.h"
-#include "net/PPInterface.h"
-#include "net/TUInterface.h"
+#include "tun/PortForwarders.h"
+#include "tun/PPInterface.h"
+#include "tun/TUInterface.h"
 #include "util/ErrUtil.h"
 
 
@@ -25,16 +26,16 @@ static void timeout_cb(void* arg)
 }
 
 
-namespace net {
+namespace tun {
 	using namespace utl;
 
 
-	std::unique_ptr<net::InnerInterface> create_inner_interface(net::TlsSocket& tunnel, const tunneler_config& config)
+	std::unique_ptr<InnerInterface> create_inner_interface(net::TlsSocket& tunnel, const tunneler_config& config)
 	{
-		if (config.tunnel_type == net::TunnelType::PPP) {
+		if (config.tunnel_type == TunnelType::PPP) {
 			return std::make_unique<PPInterface>(tunnel, config.inner_addr);
 		}
-		else if (config.tunnel_type == net::TunnelType::TUN) {
+		else if (config.tunnel_type == TunnelType::TUN) {
 			return std::make_unique<TUInterface>(tunnel, config.inner_addr);
 		}
 		else
@@ -42,7 +43,7 @@ namespace net {
 	}
 
 
-	Tunneler::Tunneler(net::TlsSocket& tunnel, const tunneler_config& config) :
+	Tunneler::Tunneler(net::TlsSocket& tunnel, const tun::tunneler_config& config) :
 		Thread(),
 		_logger(Logger::get_logger()),
 		_config(config),
@@ -69,7 +70,7 @@ namespace net {
 		DEBUG_ENTER(_logger);
 		bool started = true;
 
-		const mbed_err rc = _listener.bind(_config.local_endpoint, net_protocol::NETCTX_PROTO_TCP);
+		const mbed_err rc = _listener.bind(_config.local_endpoint, net::net_protocol::NETCTX_PROTO_TCP);
 
 		if (rc < 0) {
 			_logger->error("ERROR: listener error on %s", _config.local_endpoint.to_string().c_str());
@@ -119,9 +120,9 @@ namespace net {
 		_logger->info(">> starting tunnel");
 		_state = State::CONNECTING;
 
-		DnsClient::clear();
-		for (uint8_t num = 0; num < DnsClient::MAX_SERVERS; num++)
-			DnsClient::set_server(num, _config.dns_servers[num]);
+		net::DnsClient::clear();
+		for (uint8_t num = 0; num < net::DnsClient::MAX_SERVERS; num++)
+			net::DnsClient::set_server(num, _config.dns_servers[num]);
 
 
 		// Disable Nagle algorithm if required
@@ -287,13 +288,13 @@ namespace net {
 					_logger->info(">> tunnel is up, listening on %s",
 						_listener.endpoint().to_string().c_str());
 					_logger->info("     IP=%s/%d GW=%s MTU=%d",
-						_interface->addr().c_str(),
+						_interface->addr().to_string().c_str(),
 						_interface->netmask(),
-						_interface->gateway().c_str(),
+						_interface->gateway().to_string().c_str(),
 						_interface->mtu());
 
-					if (DnsClient::is_configured()) {
-						_logger->info("     DNS=%s", DnsClient::to_string().c_str());
+					if (net::DnsClient::is_configured()) {
+						_logger->info("     DNS=%s", net::DnsClient::to_string().c_str());
 					}
 				}
 				break;

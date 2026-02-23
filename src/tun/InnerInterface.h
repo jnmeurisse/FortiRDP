@@ -16,7 +16,7 @@
 #include "util/Counters.h"
 
 
-namespace net {
+namespace tun {
 
 	class InnerInterface
 	{

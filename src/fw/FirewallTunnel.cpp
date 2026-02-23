@@ -13,8 +13,8 @@
 
 namespace fw {
 
-	FirewallTunnel::FirewallTunnel(http::HttpsClientPtr tunnel, const net::tunneler_config& config, const http::Cookies& cookie_jar) :
-		net::Tunneler(*tunnel, config),
+	FirewallTunnel::FirewallTunnel(http::HttpsClientPtr tunnel, const tun::tunneler_config& config, const http::Cookies& cookie_jar) :
+		tun::Tunneler(*tunnel, config),
 		_logger(utl::Logger::get_logger()),
 		_tunnel_socket{ std::move(tunnel) },
 		_cookie_jar{ cookie_jar }
@@ -45,7 +45,7 @@ namespace fw {
 		}
 
 		// start the thread
-		return net::Tunneler::start();
+		return tun::Tunneler::start();
 	}
 
 

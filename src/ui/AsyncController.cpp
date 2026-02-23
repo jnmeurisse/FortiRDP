@@ -163,11 +163,11 @@ namespace ui {
 			// Configure the tunneler.
 			const auto& tunnel_config = _portal_client->get_tunnel_config();
 
-			net::TunnelType tunnel_type = net::TunnelType::PPP;
-			if (tunnel_config.tunnel_types.contains(net::TunnelType::TUN))
-				tunnel_type = net::TunnelType::TUN;
+			tun::TunnelType tunnel_type = tun::TunnelType::PPP;
+			if (tunnel_config.tunnel_types.contains(tun::TunnelType::TUN))
+				tunnel_type = tun::TunnelType::TUN;
 
-			net::tunneler_config config{
+			tun::tunneler_config config{
 				.tunnel_type = tunnel_type,
 				.local_endpoint = local_endpoint,
 				.max_clients = multi_clients ? 16 : 1,

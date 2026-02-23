@@ -461,7 +461,7 @@ namespace fw {
 	}
 
 
-	fw::FirewallTunnel* FirewallClient::create_tunnel(const net::tunneler_config& config)
+	fw::FirewallTunnel* FirewallClient::create_tunnel(const tun::tunneler_config& config)
 	{
 		DEBUG_ENTER(_logger);
 

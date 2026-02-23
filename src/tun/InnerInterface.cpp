@@ -8,7 +8,7 @@
 #include "tun/InnerInterface.h"
 #include "util/Logger.h"
 
-namespace net {
+namespace tun {
 	using namespace utl;
 
 
@@ -31,19 +31,19 @@ namespace net {
 
 	net::IpAddress InnerInterface::addr() const
 	{
-		return IpAddress(_nif.ip_addr);
+		return net::IpAddress(_nif.ip_addr);
 	}
 
 
 	net::IpAddress InnerInterface::netmask() const
 	{
-		return IpAddress(_nif.netmask);
+		return net::IpAddress(_nif.netmask);
 	}
 
 
 	net::IpAddress InnerInterface::gateway() const
 	{
-		return IpAddress(_nif.gw);
+		return net::IpAddress(_nif.gw);
 	}
 
 

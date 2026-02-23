@@ -9,13 +9,12 @@
 
 #include "http/HttpsClient.h"
 #include "http/Cookies.h"
-#include "net/Endpoint.h"
-#include "net/Tunneler.h"
+#include "tun/Tunneler.h"
 
 
 namespace fw {
 
-	class FirewallTunnel final : public net::Tunneler
+	class FirewallTunnel final : public tun::Tunneler
 	{
 	public:
 		/**
@@ -26,9 +25,9 @@ namespace fw {
 		*
 		* @param tunnel  The TLS socket used for secure communication.
 		* @param config  The tunneler configuration.
-		* @param cookie_jar Session cookies
+		* @param cookie_jar  Session cookies
 		*/
-		FirewallTunnel(http::HttpsClientPtr tunnel, const net::tunneler_config& config, const http::Cookies& cookie_jar);
+		FirewallTunnel(http::HttpsClientPtr tunnel, const tun::tunneler_config& config, const http::Cookies& cookie_jar);
 		~FirewallTunnel() override;
 
 		/**

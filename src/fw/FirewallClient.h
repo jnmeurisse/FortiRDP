@@ -52,7 +52,7 @@ namespace fw {
 	struct TunnelConfig {
 	public:
 		// Set of supported tunnel types.
-		std::set<net::TunnelType> tunnel_types;
+		std::set<tun::TunnelType> tunnel_types;
 
 		// IP address assigned to this client.
 		net::IpAddress inner_addr;
@@ -188,7 +188,7 @@ namespace fw {
 		 * @return A pointer to the allocated FirewallTunnel instance, or nullptr if
 		 *         the tunnel could not be created.
 		 */
-		fw::FirewallTunnel* create_tunnel(const net::tunneler_config& config);
+		fw::FirewallTunnel* create_tunnel(const tun::tunneler_config& config);
 
 		/**
 		 * Returns true if this client is authenticated on the portal.

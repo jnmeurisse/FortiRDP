@@ -1,32 +1,26 @@
 /*!
 * This file is part of FortiRDP
 *
-* Copyright (C) 2022 Jean-Noel Meurisse
+* Copyright (C) 2026 Jean-Noel Meurisse
 * SPDX-License-Identifier: Apache-2.0
 *
 */
-#include "TUNInterface.h"
+#include "TUInterface.h"
 
 #include <array>
 #include <lwip/stats.h>
 #include "util/ErrUtil.h"
 
 
-namespace net {
+namespace tun {
 	using namespace utl;
-
-	// lwip callbacks
-	u32_t tun_output_cb(struct netif* netif, struct pbuf* p, const ip4_addr_t* ipaddr);
 
 
 	TUInterface::TUInterface(net::TlsSocket& tunnel, const net::IpAddress& address) :
-		InnerInterface(tunnel, address),
-		_pcb(nullptr)
+		InnerInterface(tunnel),
+		_ip_address(address)
 	{
 		DEBUG_CTOR(_logger);
-
-		_nif.name[0] = 't';
-		_nif.name[1] = 'u';
 	}
 
 
@@ -45,7 +39,7 @@ namespace net {
 			return false;
 		}
 
-		if (_pcb) {
+		if (_nif.state) {
 			_logger->error("ERROR: %s already initialized");
 			return false;
 		}
@@ -54,16 +48,19 @@ namespace net {
 		::stats_init();
 
 		// Create a TUN over the SSLVPN connection.
-		//_nif = netif_add(_nif, )
+		const lwip_err rc = tunif_init(&_nif);
+		if (rc) {
+			_logger->error("ERROR: tuinif_init - ");
+			return false;
+		}
 
+		netif_set_addr(&_nif, &_ip_address.get_address());
 
 		// IP traffic is routed through that interface.
 		netif_set_default(&_nif);
 		netif_set_up(&_nif);
 
-		// Start the connection.
-
-		
+		_nif.state = (void *)1;
 	}
 
 
@@ -75,6 +72,14 @@ namespace net {
 			::stats_display();
 
 		if (!is_if_dead()) {
+			const ppp_err rc = ::tun_close(_pcb, nocarrier ? 1 : 0);
+
+			if (rc != PPPERR_NONE) {
+//				_logger->error("ERROR: %s - close failure",
+//					__class__,
+//					ppp_errmsg(rc).c_str()
+//				);
+			}
 		}
 
 		return;
@@ -95,50 +100,6 @@ namespace net {
 
 	bool TUInterface::is_if_dead() const noexcept
 	{
-	}
-
-
-	std::string TUInterface::addr() const
-	{
-	}
-
-
-	int TUInterface::netmask() const
-	{
-	}
-
-
-	std::string TUInterface::gateway() const
-	{
-	}
-
-
-	int TUInterface::mtu() const
-	{
-	}
-
-
-	bool TUInterface::send()
-	{
-		TRACE_ENTER(_logger);
-		mbed_err rc = 0;
-
-		if (!_output_queue.is_empty()) {
-			size_t written = 0;
-			rc = _output_queue.write(_tunnel, written);
-			LOG_TRACE(_logger, "rc=%d sbytes=%zu", rc, written);
-
-			if (rc == 0) {
-				_counters.sent += written;
-			}
-			else {
-				_logger->error("ERROR: %s - tunnel send failure (%d)", __class__, rc);
-			}
-		}
-
-		LOG_TRACE(_logger, "socket fd=%d rc=%d", _tunnel.get_fd(), rc);
-
-		return rc == 0;
 	}
 
 
@@ -199,11 +160,11 @@ namespace net {
 	}
 
 
-	u32_t tun_output_cb(struct netif* netif, struct pbuf* p, const ip4_addr_t* ipaddr)
+	u32_t tun_output_cb(struct ::tun_pcb_s* pcb, struct pbuf* p, void* ctx)
 	{
 
 	}
 
 
-	const char* TUInterface::__class__ = "TUNInterface";
+	const char* TUInterface::__class__ = "TUInterface";
 }

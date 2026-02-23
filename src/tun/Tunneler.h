@@ -11,7 +11,7 @@
 #include <memory>
 #include "net/DnsClient.h"
 #include "net/Endpoint.h"
-#include "net/InnerInterface.h"
+#include "tun/InnerInterface.h"
 #include "net/IpAddress.h"
 #include "net/Listener.h"
 #include "net/TlsSocket.h"
@@ -21,7 +21,7 @@
 #include "util/Event.h"
 
 
-namespace net {
+namespace tun {
 
 	enum class TunnelType {
 		PPP,
@@ -31,7 +31,7 @@ namespace net {
 
 	struct tunneler_config {
 		//
-		net::TunnelType tunnel_type;
+		tun::TunnelType tunnel_type;
 
 		// Local endpoint address & port
 		const net::Endpoint& local_endpoint;
@@ -151,7 +151,7 @@ namespace net {
 		size_t _clients_count;
 
 		// Inner interface (PPP or TUN)
-		std::unique_ptr<net::InnerInterface> _interface;
+		std::unique_ptr<tun::InnerInterface> _interface;
 		
 		// This event is set when the tunneler is listening.
 		utl::Event _listening_status;
