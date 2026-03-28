@@ -112,6 +112,13 @@
 #define VJ_SUPPORT				0
 
 
+/*>> Network Interfaces options */
+#define LWIP_SINGLE_NETIF				1
+#define LWIP_NETIF_STATUS_CALLBACK		1
+#define LWIP_NETIF_LINK_CALLBACK		1
+#define LWIP_NETIF_REMOVE_CALLBACK		1
+
+
 /*>> Statistics options */
 
 /* LWIP_STATS==1: Enable statistics collection in lwip_stats. */
