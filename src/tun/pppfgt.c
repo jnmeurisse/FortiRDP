@@ -8,7 +8,7 @@
 #include <netif/ppp/ppp_opts.h>
 #if PPP_SUPPORT  /* don't build if not configured for use in lwipopts.h */
 
-#include "pposif.h"
+#include "pppfgt.h"
 #include <lwip/arch.h>
 #include <lwip/err.h>
 #include <lwip/pbuf.h>
@@ -18,6 +18,8 @@
 #include <lwip/snmp.h>
 #include <lwip/def.h>
 #include <netif/ppp/ppp_impl.h>
+
+# define PPPFGT_RX_BUFFER	8192
 
 
 /* PPP packet parser states. */
@@ -35,111 +37,160 @@ enum {
 typedef u16_t ppp_header[3];
 
 /*
-* PPP over SSL device context.
+* PPP tunnel state.
 */
-struct pppossl_state_s {
+struct pppfgt_context_s {
 	ppp_pcb* ppp_pcb;
-	u32_t last_xmit;                   /* Time stamp of last transmission. */
-	struct {
-		int state;                     /* The input process state. */
-		uint16_t counter;              /* ..number of bytes processed */
-		ppp_header header;             /* ..PPP header */
-		struct pbuf* data;             /* ..payload */
-	} in;
-};
 
-typedef struct pppossl_state_s pppossl_context;
+	u32_t last_xmit;                   /* Time stamp of last transmission.	*/
+
+	/* RX streaming state */
+	u8_t rx_buf[PPPFGT_RX_BUFFER];
+	u16_t rx_len;
+	u16_t rx_needed;
+	u8_t header_parsed;
+};
 
 
 /* Callbacks called from PPP core */
-static void  pppossl_connect_cb(ppp_pcb* ppp, void* ctx);
-static void  pppossl_disconnect_cb(ppp_pcb* ppp, void* ctx);
-static err_t pppossl_destroy_cb(ppp_pcb* ppp, void* ctx);
-static err_t pppossl_write_cb(ppp_pcb* ppp, void* ctx, struct pbuf* p);
-static err_t pppossl_netif_output_cb(ppp_pcb* ppp, void* ctx, struct pbuf* pb, u16_t protocol);
-static void  pppossl_send_config_cb(ppp_pcb* ppp, void* ctx, u32_t accm, int pcomp, int accomp);
-static void  pppossl_recv_config_cb(ppp_pcb* ppp, void* ctx, u32_t accm, int pcomp, int accomp);
+static void  ppp_connect_cb(ppp_pcb* ppp, void* ctx);
+static void  ppp_disconnect_cb(ppp_pcb* ppp, void* ctx);
+static err_t ppp_destroy_cb(ppp_pcb* ppp, void* ctx);
+static err_t ppp_write_cb(ppp_pcb* ppp, void* ctx, struct pbuf* p);
+static err_t ppp_netif_output_cb(ppp_pcb* ppp, void* ctx, struct pbuf* pb, u16_t protocol);
+static void  ppp_send_config_cb(ppp_pcb* ppp, void* ctx, u32_t accm, int pcomp, int accomp);
+static void  ppp_recv_config_cb(ppp_pcb* ppp, void* ctx, u32_t accm, int pcomp, int accomp);
 
-static void pppossl_netif_removed_cb(struct netif* netif);
 
 /* Callbacks structure for PPP core */
 static const struct link_callbacks pppossl_callbacks = {
-	pppossl_connect_cb,
+	ppp_connect_cb,
 #if PPP_SERVER
 	nullptr,
 #endif /* PPP_SERVER */
-	pppossl_disconnect_cb,
-	pppossl_destroy_cb,
-	pppossl_write_cb,
-	pppossl_netif_output_cb,
-	pppossl_send_config_cb,
-	pppossl_recv_config_cb
+	ppp_disconnect_cb,
+	ppp_destroy_cb,
+	ppp_write_cb,
+	ppp_netif_output_cb,
+	ppp_send_config_cb,
+	ppp_recv_config_cb
 };
 
 
-err_t pppif_init(struct netif* netif)
+pppfgt_context* pppfgt_create(struct netif* netif, ppp_link_status_cb_fn link_status_cb, void* ctx_cb)
 {
-	pppossl_context* context = mem_malloc(sizeof(pppossl_context));
-	if (context == NULL)
-		return ERR_MEM;
-	context->last_xmit = 0;
-	context->in.state = PP_HEADER;
+	pppfgt_context* context = mem_malloc(sizeof(struct pppfgt_context_s));
 
-	context->ppp_pcb = ppp_new(netif, &pppossl_callbacks, context, link_status_cb, ctx_cb);
-	if (context->ppp_pcb == NULL) {
-		mem_free(context);
-		return ERR_MEM;
+	if (context) {
+		context->last_xmit = 0;
+		context->rx_len = 0;
+		context->header_parsed = 0;
+
+		context->ppp_pcb = ppp_new(netif, &pppossl_callbacks, context, link_status_cb, ctx_cb);
+		if (context->ppp_pcb == NULL) {
+			mem_free(context);
+			return NULL;
+		}
+
+		// IP traffic is routed through that interface.
+		ppp_set_default(context->ppp_pcb);
 	}
 
-	// FortiGate does not support these options, disable it.
-	context->ppp_pcb->lcp_wantoptions.neg_accompression = 0;
-	context->ppp_pcb->lcp_wantoptions.neg_pcompression = 0;
-	context->ppp_pcb->lcp_wantoptions.neg_asyncmap = 0;
+	return context;
+}
 
-	netif->state = context;
-	netif_set_remove_callback(netif, pppossl_netif_removed_cb);
+
+err_t pppfgt_free(pppfgt_context* context)
+{
+	err_t rc = ERR_OK;
+
+	if (context) {
+		rc = ppp_free(context->ppp_pcb);
+		mem_free(context);
+	}
+
+	return rc;
+}
+
+
+err_t pppfgt_connect(pppfgt_context* context)
+{
+	if (!context || !context->ppp_pcb)
+		return ERR_ARG;
+
+	return ppp_connect(context->ppp_pcb, 0);
+}
+
+
+err_t pppfgt_disconnect(pppfgt_context* context)
+{
+	if (!context || !context->ppp_pcb)
+		return ERR_ARG;
+
+	return ppp_close(context->ppp_pcb, 0);
+}
+
+
+err_t pppfgt_input_bytes(pppfgt_context* context, const u8_t* data, size_t len)
+{
+	const u8_t* src = data;
+
+	while (len) {
+		context->rx_buf[context->rx_len++] = *src++;
+		len--;
+
+		if (!context->header_parsed)
+		{
+			if (context->rx_len == sizeof(ppp_header)) {
+				ppp_header* header = (ppp_header*)context->rx_buf;
+				const u16_t total_len = lwip_ntohs((*header)[0]);
+				const u16_t frame_size = lwip_ntohs((*header)[2]);
+
+
+				// Check header consistency
+				if (total_len != frame_size + sizeof(ppp_header) || (*header)[1] != 0x5050)
+					return ERR_IF;
+
+				// Check if frame fits the buffer
+				if (frame_size > sizeof(context->rx_buf)) {
+					PPPDEBUG(LOG_WARNING, ("pppossl_input[%d]: ppp frame larger than buffer\n", ppp->netif->num));
+					return ERR_IF;
+				}
+
+				context->rx_len = 0;
+				context->rx_needed = frame_size;
+				context->header_parsed = 1;
+			}
+		}
+		else {
+			if (context->rx_len == context->rx_needed)
+			{
+				struct pbuf* p = pbuf_alloc(PBUF_RAW, context->rx_needed, PBUF_RAM);
+				if (!p) return ERR_MEM;
+
+				ppp_input(context->ppp_pcb, p);
+
+				context->rx_len = 0;
+				context->header_parsed = 0;
+			}
+		}
+	}
 
 	return ERR_OK;
 }
 
 
-err_t pppif_connect(struct netif* netif)
-{
-	if (!netif || !netif->state)
-		return ERR_IF;
-
-	pppossl_context* const ppp_ctx = netif->state;
-	if (!ppp_ctx->ppp_pcb)
-		return ERR_IF;
-
-	// Start the connection.  The ppp_link_status_cb will be called
-	// by the lwIP stack to report the connection success/failure.
-	return ppp_connect(ppp_ctx->ppp_pcb, 0);
-}
-
-
-/*
-* Drop the input packet.
-*/
-static void
-pppossl_input_free_current_packet(pppossl_context* ppp_ctx)
-{
-	if (ppp_ctx->in.data != NULL) {
-		pbuf_free(ppp_ctx->in.data);
-	}
-	ppp_ctx->in.data = NULL;
-}
-
 
 /* Called by PPP core */
 static void
-pppossl_connect_cb(ppp_pcb* ppp, void* ctx)
+ppp_connect_cb(ppp_pcb* ppp, void* ctx)
 {
-	pppossl_context* const ppp_ctx = ctx;
+	pppfgt_context* const context = ctx;
 
 	/* reset PPP over SSL context to its initial state */
-	ppp_ctx->last_xmit = 0;
-	memset(&ppp_ctx->in, 0, sizeof ppp_ctx->in);
+	context->last_xmit = 0;
+	context->header_parsed = 0;
+	context->rx_len = 0;
 
 	/* ask DNS  */
 	ppp_set_usepeerdns(ppp, 1);
@@ -158,7 +209,7 @@ pppossl_connect_cb(ppp_pcb* ppp, void* ctx)
 
 
 static void
-pppossl_disconnect_cb(ppp_pcb* ppp, void* ctx)
+ppp_disconnect_cb(ppp_pcb* ppp, void* ctx)
 {
 	LWIP_UNUSED_ARG(ctx);
 	ppp_link_end(ppp); /* notify upper layers */
@@ -166,21 +217,17 @@ pppossl_disconnect_cb(ppp_pcb* ppp, void* ctx)
 
 
 static err_t
-pppossl_destroy_cb(ppp_pcb* ppp, void* ctx)
+ppp_destroy_cb(ppp_pcb* ppp, void* ctx)
 {
-	pppossl_context* const ppp_ctx = ctx;
 	LWIP_UNUSED_ARG(ppp);
-
-	pppossl_input_free_current_packet(ppp_ctx);
-	mem_free(ppp_ctx);
 	return ERR_OK;
 }
 
 
 static err_t
-pppossl_write_cb(ppp_pcb* ppp, void* ctx, struct pbuf* pbuf)
+ppp_write_cb(ppp_pcb* ppp, void* ctx, struct pbuf* pbuf)
 {
-	pppossl_context* const ppp_ctx = ctx;
+	pppfgt_context* const context = ctx;
 	err_t err = ERR_OK;
 
 	if (!pbuf) {
@@ -222,7 +269,7 @@ pppossl_write_cb(ppp_pcb* ppp, void* ctx, struct pbuf* pbuf)
 			}
 		}
 
-		ppp_ctx->last_xmit = sys_now();
+		context->last_xmit = sys_now();
 		MIB2_STATS_NETIF_ADD(ppp->netif, ifoutoctets, pbuf->tot_len + sizeof(ppp_header));
 		MIB2_STATS_NETIF_INC(ppp->netif, ifoutucastpkts);
 		LINK_STATS_INC(link.xmit);
@@ -232,7 +279,7 @@ pppossl_write_cb(ppp_pcb* ppp, void* ctx, struct pbuf* pbuf)
 	return err;
 
 failed:
-	ppp_ctx->last_xmit = 0;
+	context->last_xmit = 0;
 	LINK_STATS_INC(link.err);
 	LINK_STATS_INC(link.drop);
 	MIB2_STATS_NETIF_INC(ppp->netif, ifoutdiscards);
@@ -243,7 +290,7 @@ failed:
 
 
 static err_t
-pppossl_netif_output_cb(ppp_pcb* ppp, void* ctx, struct pbuf* pb, u16_t protocol)
+ppp_netif_output_cb(ppp_pcb* ppp, void* ctx, struct pbuf* pb, u16_t protocol)
 {
 	// Fill the PPP frame...
 	// - configure the address control  protocol
@@ -266,12 +313,12 @@ pppossl_netif_output_cb(ppp_pcb* ppp, void* ctx, struct pbuf* pb, u16_t protocol
 	pbuf_chain(nb, pb);
 
 	// Output everything
-	return pppossl_write_cb(ppp, ctx, nb);
+	return ppp_write_cb(ppp, ctx, nb);
 }
 
 
 static void
-pppossl_send_config_cb(ppp_pcb* ppp, void* ctx, u32_t accm, int pcomp, int accomp)
+ppp_send_config_cb(ppp_pcb* ppp, void* ctx, u32_t accm, int pcomp, int accomp)
 {
 	LWIP_UNUSED_ARG(ctx);
 	LWIP_UNUSED_ARG(accm);
@@ -282,25 +329,13 @@ pppossl_send_config_cb(ppp_pcb* ppp, void* ctx, u32_t accm, int pcomp, int accom
 
 
 static void
-pppossl_recv_config_cb(ppp_pcb* ppp, void* ctx, u32_t accm, int pcomp, int accomp)
+ppp_recv_config_cb(ppp_pcb* ppp, void* ctx, u32_t accm, int pcomp, int accomp)
 {
 	LWIP_UNUSED_ARG(ctx);
 	LWIP_UNUSED_ARG(accm);
 	LWIP_UNUSED_ARG(ppp);
 	LWIP_UNUSED_ARG(pcomp);
 	LWIP_UNUSED_ARG(accomp);
-}
-
-
-static void
-pppossl_netif_removed_cb(struct netif* netif)
-{
-	if (netif && netif->state) {
-		pppossl_context* const ppp_ctx = netif->state;
-		if (ppp_ctx->ppp_pcb)
-			ppp_free(ppp_ctx->ppp_pcb);
-		mem_free(netif->state);
-	}
 }
 
 
