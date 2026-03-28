@@ -73,6 +73,7 @@
     <ClCompile Include="..\..\src\util\Logger.cpp" />
     <ClCompile Include="..\..\src\util\Mutex.cpp" />
     <ClCompile Include="..\..\src\util\ObfuscatedString.cpp" />
+    <ClCompile Include="..\..\src\util\PasswordStore.cpp" />
     <ClCompile Include="..\..\src\util\Path.cpp" />
     <ClCompile Include="..\..\src\util\PBufQueue.cpp" />
     <ClCompile Include="..\..\src\util\PrivateKey.cpp" />
@@ -152,6 +153,7 @@
     <ClInclude Include="..\..\src\util\Logger.h" />
     <ClInclude Include="..\..\src\util\Mutex.h" />
     <ClInclude Include="..\..\src\util\ObfuscatedString.h" />
+    <ClInclude Include="..\..\src\util\PasswordStore.h" />
     <ClInclude Include="..\..\src\util\Path.h" />
     <ClInclude Include="..\..\src\util\PBufQueue.h" />
     <ClInclude Include="..\..\src\util\PrivateKey.h" />

@@ -234,6 +234,9 @@
     <ClCompile Include="..\..\src\util\gzip.cpp">
       <Filter>sources\utl</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\util\PasswordStore.cpp">
+      <Filter>sources\utl</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\ui\AboutDialog.h">
@@ -468,6 +471,9 @@
       <Filter>sources\utl</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\util\gzip.h">
+      <Filter>sources\utl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\util\PasswordStore.h">
       <Filter>sources\utl</Filter>
     </ClInclude>
   </ItemGroup>
