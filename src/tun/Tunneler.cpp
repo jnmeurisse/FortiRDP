@@ -14,7 +14,7 @@
 #include <lwip/timeouts.h>
 #include "net/DnsClient.h"
 #include "tun/PortForwarders.h"
-#include "tun/PPInterface.h"
+#include "tun/PPPInterface.h"
 #include "tun/TUInterface.h"
 #include "util/ErrUtil.h"
 
@@ -33,7 +33,7 @@ namespace tun {
 	std::unique_ptr<InnerInterface> create_inner_interface(net::TlsSocket& tunnel, const tunneler_config& config)
 	{
 		if (config.tunnel_type == TunnelType::PPP) {
-			return std::make_unique<PPInterface>(tunnel, config.inner_addr);
+			return std::make_unique<PPPInterface>(tunnel, config.inner_addr);
 		}
 		else if (config.tunnel_type == TunnelType::TUN) {
 			return std::make_unique<TUInterface>(tunnel, config.inner_addr);
@@ -147,9 +147,9 @@ namespace tun {
 				// always check if data is available from the tunnel.
 				FD_SET(_tunnel.get_fd(), &read_set);
 
-				if (_interface->is_if_up() && !connecting && 
+				if (_interface->is_netif_up() && !connecting &&
 					active_port_forwarders.connected_count() < _config.max_clients) {
-					// We are ready to accept a new connection only if the PPP interface
+					// We are ready to accept a new connection only if the Inner interface
 					// is up, if we are not currently accepting a connection and the 
 					// max number of connected forwarders is not reached.
 					FD_SET(_listener.get_fd(), &read_set);
@@ -280,7 +280,7 @@ namespace tun {
 				if (_terminate) {
 					_state = State::CLOSING;
 				}
-				else if (_interface->is_if_up()) {
+				else if (_interface->is_netif_up()) {
 					// The listener is now accepting inbound connection.
 					_listening_status.set();
 
@@ -325,13 +325,13 @@ namespace tun {
 
 			case State::CLOSING:
 				if (active_port_forwarders.empty() || abort_timeout) {
-					// All connections are closed, shutdown the ppp interface
+					// All connections are closed, shutdown the interface
 					_state = State::DISCONNECTING;
-					_interface->close(!_tunnel.is_connected());
+					_interface->close();
 
 					// Set a timer to ensure the thread exits. The timeout is deliberately
 					// longer than SyncDisconnect's timeout. If the interface remains active,
-					// a PPP memory descriptor could be leaked, preventing the PPP interface
+					// a PPP memory descriptor could be leaked, preventing the interface
 					// from being restarted.
 					disconnect_timeout = false;
 					sys_timeout(50 * 1000, timeout_cb, &disconnect_timeout);
@@ -340,7 +340,7 @@ namespace tun {
 
 			case State::DISCONNECTING:
 				// Wait until PPP interface is in dead state.
-				if (_interface->is_if_dead() || disconnect_timeout) {
+				if (!_interface->is_netif_up() || disconnect_timeout) {
 					_logger->info(">> tunnel is down");
 					stop = true;
 				}
@@ -355,7 +355,6 @@ namespace tun {
 		}
 
 		// Free all resources used by the PPP interface.
-		_interface->release();
 		sys_untimeout(timeout_cb, &abort_timeout);
 		sys_untimeout(timeout_cb, &disconnect_timeout);
 

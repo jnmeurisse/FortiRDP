@@ -27,45 +27,13 @@ namespace tun {
 		/**
 		 * Initiates the end of the TUN over SSL interface.
 		*/
-		void close(bool nocarrier) override;
+		void close() override;
 
-		/**
-		 * Releases all resources.
-		*/
-		void release() override;
-
-		/**
-		 * Returns true if the TUN interface is up.
-		*/
-		bool is_if_up() const noexcept override;
-
-		/**
-		 * Returns true if the TUN interface is dead.
-		*/
-		bool is_if_dead() const noexcept override;
 
 		/**
 		 * Returns the net mask assigned to this interface.
 		*/
 		//int netmask() const override;
-
-		/**
-		 * Writes TUN data available in the output queue to the tunnel.
-		 *
-		 * The internal counters are updated with the amount of bytes written
-		 * to the socket. The function returns false if the socket was closed
-		 * or if an error occurred.
-		*/
-		bool send() override;
-
-		/**
-		 * Reads any data from the tunnel and pass it to the TUN stack.
-		 *
-		 * The internal counters are updated  with the amount of bytes read
-		 * from the socket. The function returns false if the socket was closed
-		 * or if an error occurred.
-		*/
-		bool recv() override;
 
 		/**
 		 * Sends a keep alive packet.

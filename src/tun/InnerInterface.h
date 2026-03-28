@@ -7,13 +7,13 @@
 */
 #pragma once
 
-#include <string>
 #include <lwip/netif.h>
+#include <lwip/pbuf.h>
 #include "net/IpAddress.h"
 #include "net/TlsSocket.h"
 #include "tun/OutputQueue.h"
-#include "util/Logger.h"
 #include "util/Counters.h"
+#include "util/Logger.h"
 
 
 namespace tun {
@@ -32,22 +32,12 @@ namespace tun {
 		/**
 		 * Closes the interface.
 		*/
-		virtual void close(bool nocarrier) = 0;
-
-		/**
-		 * Releases all resources.
-		*/
-		virtual void release() = 0;
+		virtual void close() = 0;
 
 		/**
 		* Returns true if the interface is up.
 		*/
-		virtual bool is_if_up() const noexcept = 0;
-
-		/**
-		 * Returns true if the interface is dead.
-		*/
-		virtual bool is_if_dead() const noexcept = 0;
+		inline bool is_netif_up() const { return netif_is_up(&_netif); }
 
 		/**
 		 * Returns true when data is available in the output queue and must be transmitted
@@ -82,7 +72,7 @@ namespace tun {
 		 * to the socket. The function returns false if the socket was closed
 		 * or if an error occurred.
 		*/
-		virtual bool send();
+		bool send();
 
 		/**
 		 * Reads any data from the tunnel and pass it to the IP stack.
@@ -91,7 +81,7 @@ namespace tun {
 		 * from the socket. The function returns false if the socket was closed
 		 * or if an error occurred.
 		*/
-		virtual bool recv() = 0;
+		bool recv();
 
 		/**
 		 * Sends a keep alive packet.
@@ -110,23 +100,27 @@ namespace tun {
 		// The class name
 		static const char* __class__;
 
+		// The output queue.
+		// All data in this queue are sent through the tunnel. 
+		tun::OutputQueue _output_queue;
+
+		// socket connected to the firewall.
+		net::TlsSocket& _tunnel;
+
 	protected:
 		// A reference to the application logger.
 		utl::Logger* const _logger;
 
 		// The lwIP internal network interface.
-		// Received data are passed to that interface.
-		struct ::netif _nif;
-
-		// socket connected to the firewall.
-		net::TlsSocket& _tunnel;
+		// Received data from the tunnel are passed to that interface.
+		// Sent data to the tunnel are received from that interface.
+		struct ::netif _netif;
 
 		// Counters of bytes sent to / received from the tunnel.
 		utl::Counters _counters;
 
-		// The output queue.
-		// All data in this queue are sent through the tunnel. 
-		tun::OutputQueue _output_queue;
+		friend err_t netif_linkoutput_cb(struct netif* netif, struct pbuf* p);
+		virtual err_t input_bytes(uint8_t* data, size_t size) = 0;
 	};
 
 }

@@ -5,7 +5,7 @@
 * SPDX-License-Identifier: Apache-2.0
 *
 */
-#include "net/if/tunif.h"
+#include "tunif.h"
 #include <lwip/arch.h>
 #include <lwip/err.h>
 

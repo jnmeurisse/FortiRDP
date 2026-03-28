@@ -64,7 +64,7 @@ namespace tun {
 	}
 
 
-	void TUInterface::close(bool nocarrier)
+	void TUInterface::close()
 	{
 		DEBUG_ENTER(_logger);
 

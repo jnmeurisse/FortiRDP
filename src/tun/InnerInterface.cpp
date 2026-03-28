@@ -5,21 +5,33 @@
 * SPDX-License-Identifier: Apache-2.0
 *
 */
-#include "tun/InnerInterface.h"
+#include "InnerInterface.h"
+
+#include <array>
 #include "util/Logger.h"
 
 namespace tun {
 	using namespace utl;
 
 
+	err_t netif_linkoutput_cb(struct netif* netif, struct pbuf* p)
+	{
+		InnerInterface* itf = static_cast<InnerInterface*>(netif->state);
+		return itf->_output_queue.push(p) ? ERR_OK : ERR_IF;
+	}
+
+
 	InnerInterface::InnerInterface(net::TlsSocket& tunnel):
 		_logger(Logger::get_logger()),
 		_tunnel(tunnel),
 		_counters(),
-		_nif(),
+		_netif(),
 		_output_queue(32 * 1024)
 	{
 		DEBUG_CTOR(_logger);
+
+		_netif.state = this;
+		_netif.linkoutput = netif_linkoutput_cb;
 	}
 
 
@@ -31,25 +43,25 @@ namespace tun {
 
 	net::IpAddress InnerInterface::addr() const
 	{
-		return net::IpAddress(_nif.ip_addr);
+		return net::IpAddress(_netif.ip_addr);
 	}
 
 
 	net::IpAddress InnerInterface::netmask() const
 	{
-		return net::IpAddress(_nif.netmask);
+		return net::IpAddress(_netif.netmask);
 	}
 
 
 	net::IpAddress InnerInterface::gateway() const
 	{
-		return net::IpAddress(_nif.gw);
+		return net::IpAddress(_netif.gw);
 	}
 
 
 	int InnerInterface::mtu() const
 	{
-		return _nif.mtu;
+		return _netif.mtu;
 	}
 
 
@@ -77,5 +89,58 @@ namespace tun {
 	}
 
 
+	bool InnerInterface::recv()
+	{
+		TRACE_ENTER(_logger);
+
+		std::array<unsigned char, 4096> buffer = {};
+		bool rc;
+
+		// Read data available in the tunnel.
+		const net::rcv_status status{ _tunnel.recv_data(buffer.data(), buffer.size()) };
+		LOG_TRACE(_logger, "code=%d rc=%d rbytes=%zu",
+			status.code,
+			status.rc,
+			status.rbytes
+		);
+
+		switch (status.code) {
+		case net::rcv_status_code::NETCTX_RCV_OK: {
+			rc = true;
+			_counters.rcvd += status.rbytes;
+
+			// data available, pass it to the lwIP stack.
+			const lwip_err lwip_rc = input_bytes(buffer.data(), status.rbytes);
+			if (lwip_rc) {
+				_logger->error("ERROR: %s - input failure (%s)",
+					__class__,
+					lwip_errmsg(lwip_rc).c_str());
+
+				rc = false;
+			}
+		}
+		break;
+
+		case net::rcv_status_code::NETCTX_RCV_RETRY:
+			rc = true;
+			break;
+
+		case net::rcv_status_code::NETCTX_RCV_EOF:
+			// the tunnel socket was closed by peer.
+			rc = false;
+			break;
+
+		case net::rcv_status_code::NETCTX_RCV_ERROR:
+		default:
+			rc = false;
+			_logger->error("ERROR: %s - tunnel receive failure", __class__);
+			_logger->error(mbed_errmsg(status.rc).c_str());
+			break;
+		}
+
+		LOG_TRACE(_logger, "socket fd=%d rc=%d", _tunnel.get_fd(), rc);
+
+		return rc;
+	}
 
 }
