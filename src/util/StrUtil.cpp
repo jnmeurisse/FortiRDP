@@ -354,25 +354,38 @@ namespace utl {
 
 		std::string wstr2str(const std::wstring& wstr)
 		{
-			if (wstr.empty()) return {};
+			std::string result;
+			wstr2str(wstr, result);
 
-			const int size = ::WideCharToMultiByte(
-				CP_UTF8, 0,
-				wstr.data(), (int)wstr.size(),
-				nullptr, 0,
-				nullptr, nullptr
-			);
+			return result;
+		}
 
-			std::vector<char> result(size, 0);
 
-			::WideCharToMultiByte(
-				CP_UTF8, 0,
-				wstr.data(), (int)wstr.size(),
-				result.data(), (int)result.size(),
-				nullptr, nullptr
-			);
+		void wstr2str(const std::wstring& wstr, std::string& out)
+		{
+			if (wstr.empty()) {
+				out.clear();
+			}
+			else {
+				// Determine the required buffer size for UTF-8
+				const int size = ::WideCharToMultiByte(
+					CP_UTF8, 0,
+					wstr.data(), (int)wstr.size(),
+					nullptr, 0,
+					nullptr, nullptr
+				);
 
-			return std::string(result.data(), result.size());
+				// Allocate enough memory
+				out.assign(size, '\0');
+
+				// Perform the actual conversion
+				::WideCharToMultiByte(
+					CP_UTF8, 0,
+					wstr.data(), (int)wstr.size(),
+					&out[0], (int)out.size(),
+					nullptr, nullptr
+				);
+			}
 		}
 
 
