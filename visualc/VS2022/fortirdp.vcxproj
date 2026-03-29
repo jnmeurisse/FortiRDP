@@ -66,6 +66,7 @@
     <ClCompile Include="..\..\src\ui\SyncWaitTunnel.cpp" />
     <ClCompile Include="..\..\src\util\ByteBuffer.cpp" />
     <ClCompile Include="..\..\src\util\Counters.cpp" />
+    <ClCompile Include="..\..\src\util\Credential.cpp" />
     <ClCompile Include="..\..\src\util\ErrUtil.cpp" />
     <ClCompile Include="..\..\src\util\Event.cpp" />
     <ClCompile Include="..\..\src\util\gzip.cpp" />
@@ -73,7 +74,7 @@
     <ClCompile Include="..\..\src\util\Logger.cpp" />
     <ClCompile Include="..\..\src\util\Mutex.cpp" />
     <ClCompile Include="..\..\src\util\ObfuscatedString.cpp" />
-    <ClCompile Include="..\..\src\util\PasswordStore.cpp" />
+    <ClCompile Include="..\..\src\util\CredentialStore.cpp" />
     <ClCompile Include="..\..\src\util\Path.cpp" />
     <ClCompile Include="..\..\src\util\PBufQueue.cpp" />
     <ClCompile Include="..\..\src\util\PrivateKey.cpp" />
@@ -146,6 +147,7 @@
     <ClInclude Include="..\..\src\ui\SyncWaitTunnel.h" />
     <ClInclude Include="..\..\src\util\ByteBuffer.h" />
     <ClInclude Include="..\..\src\util\Counters.h" />
+    <ClInclude Include="..\..\src\util\Credential.h" />
     <ClInclude Include="..\..\src\util\ErrUtil.h" />
     <ClInclude Include="..\..\src\util\Event.h" />
     <ClInclude Include="..\..\src\util\gzip.h" />
@@ -153,7 +155,7 @@
     <ClInclude Include="..\..\src\util\Logger.h" />
     <ClInclude Include="..\..\src\util\Mutex.h" />
     <ClInclude Include="..\..\src\util\ObfuscatedString.h" />
-    <ClInclude Include="..\..\src\util\PasswordStore.h" />
+    <ClInclude Include="..\..\src\util\CredentialStore.h" />
     <ClInclude Include="..\..\src\util\Path.h" />
     <ClInclude Include="..\..\src\util\PBufQueue.h" />
     <ClInclude Include="..\..\src\util\PrivateKey.h" />

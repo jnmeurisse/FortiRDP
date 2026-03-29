@@ -234,7 +234,10 @@
     <ClCompile Include="..\..\src\util\gzip.cpp">
       <Filter>sources\utl</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\util\PasswordStore.cpp">
+    <ClCompile Include="..\..\src\util\CredentialStore.cpp">
+      <Filter>sources\utl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\util\Credential.cpp">
       <Filter>sources\utl</Filter>
     </ClCompile>
   </ItemGroup>
@@ -473,7 +476,10 @@
     <ClInclude Include="..\..\src\util\gzip.h">
       <Filter>sources\utl</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\util\PasswordStore.h">
+    <ClInclude Include="..\..\src\util\CredentialStore.h">
+      <Filter>sources\utl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\util\Credential.h">
       <Filter>sources\utl</Filter>
     </ClInclude>
   </ItemGroup>
