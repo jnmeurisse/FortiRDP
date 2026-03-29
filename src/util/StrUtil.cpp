@@ -229,15 +229,15 @@ namespace utl {
 
 		void serase(std::string& str)
 		{
-			for (char& c : str)
-				c = ' ';
+			if (!str.empty())
+				SecureZeroMemory(&str[0], str.size());
 		}
 
 
 		void serase(std::wstring& str)
 		{
-			for (wchar_t& c : str)
-				c = ' ';
+			if (!str.empty())
+				SecureZeroMemory(&str[0], str.size() * sizeof(wchar_t));
 		}
 
 
