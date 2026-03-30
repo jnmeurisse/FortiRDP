@@ -19,20 +19,16 @@ namespace ui {
 		explicit PinCodeDialog(HINSTANCE hInstance, HWND hParent);
 		~PinCodeDialog() override;
 
-		/**
-		 * Initializes the information text.
+		/* Login dialog header.
 		*/
-		void setText(const std::wstring& text);
+		std::wstring header;
 
 		/**
-		 * Returns the pin code.
+		 * The pin code.
 		*/
-		const std::wstring& getCode() const;
+		std::wstring code;
 
 	private:
-		std::wstring _text;
-		std::wstring _code;
-
 		INT_PTR onCreateDialogMessage(WPARAM wParam, LPARAM lParam) override;
 		INT_PTR onButtonClick(int control_id, LPARAM lParam) override;
 		INT_PTR onTextChange(int control_id, LPARAM lParam) override;

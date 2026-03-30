@@ -40,10 +40,10 @@ namespace ui {
 		bool confirm_certificate(const mbedtls_x509_crt* crt, int status);
 
 		// callback called to ask user to provide a user name/password.
-		bool ask_credentials(fw::AuthCredentials& credentials);
+		bool ask_credentials(fw::AuthCredentialRequest& credential);
 
 		// callback called to ask user to provide a pin code.
-		bool ask_pincode(fw::AuthCode& code2fa);
+		bool ask_pincode(fw::AuthCodeRequest& code2fa);
 
 		// callback called when authenticating a user with SAML.
 		bool ask_saml_auth(fw::AuthSamlInfo& saml_info);
