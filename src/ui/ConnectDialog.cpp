@@ -950,18 +950,18 @@ namespace ui {
 
 		}
 		else if (eventId == AsyncMessage::DisconnectFromFirewallRequest->id()) {
-			disconnectFromFirewall(param != 0);
+			disconnectFromFirewall(param != nullptr);
 
 		}
 		else if (eventId == AsyncMessage::ConnectedEvent->id()) {
-			onConnectedEvent(param != 0);
+			onConnectedEvent(param != nullptr);
 		}
 		else if (eventId == AsyncMessage::DisconnectedEvent->id()) {
-			onDisconnectedEvent(param != 0);
+			onDisconnectedEvent(param != nullptr);
 
 		}
 		else if (eventId == AsyncMessage::TunnelListeningEvent->id()) {
-			onTunnelListeningEvent(param != 0);
+			onTunnelListeningEvent(param != nullptr);
 
 		}
 		else if (eventId == AsyncMessage::OutputInfoEvent->id()) {
