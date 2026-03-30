@@ -78,7 +78,7 @@ namespace ui {
 	}
 
 
-	bool AsyncController::load_user_crt(const utl::Path& filename, ask_crt_passcode_fn ask_passcode)
+	bool AsyncController::load_user_crt(const utl::Path& filename, const ask_crt_passcode_fn& ask_passcode)
 	{
 		DEBUG_ENTER(_logger);
 		bool init_status = true;
