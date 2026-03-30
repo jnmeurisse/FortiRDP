@@ -49,7 +49,7 @@
     <ClCompile Include="..\..\src\ui\AsyncMessage.cpp" />
     <ClCompile Include="..\..\src\ui\CmdlineParams.cpp" />
     <ClCompile Include="..\..\src\ui\ConnectDialog.cpp" />
-    <ClCompile Include="..\..\src\ui\CredentialDialog.cpp" />
+    <ClCompile Include="..\..\src\ui\LoginDialog.cpp" />
     <ClCompile Include="..\..\src\ui\Dialog.cpp" />
     <ClCompile Include="..\..\src\ui\fortirdp.cpp" />
     <ClCompile Include="..\..\src\ui\InfoLogWriter.cpp" />
@@ -129,7 +129,7 @@
     <ClInclude Include="..\..\src\ui\AsyncMessage.h" />
     <ClInclude Include="..\..\src\ui\CmdlineParams.h" />
     <ClInclude Include="..\..\src\ui\ConnectDialog.h" />
-    <ClInclude Include="..\..\src\ui\CredentialDialog.h" />
+    <ClInclude Include="..\..\src\ui\LoginDialog.h" />
     <ClInclude Include="..\..\src\ui\Dialog.h" />
     <ClInclude Include="..\..\src\ui\fortirdp.h" />
     <ClInclude Include="..\..\src\ui\InfoLogWriter.h" />
