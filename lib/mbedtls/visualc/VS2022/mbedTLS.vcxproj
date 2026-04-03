@@ -164,6 +164,7 @@
     <ClInclude Include="..\..\library\psa_crypto_its.h" />
     <ClInclude Include="..\..\library\psa_crypto_mac.h" />
     <ClInclude Include="..\..\library\psa_crypto_pake.h" />
+    <ClInclude Include="..\..\library\psa_crypto_random.h" />
     <ClInclude Include="..\..\library\psa_crypto_random_impl.h" />
     <ClInclude Include="..\..\library\psa_crypto_rsa.h" />
     <ClInclude Include="..\..\library\psa_crypto_se.h" />
@@ -250,6 +251,7 @@
     <ClCompile Include="..\..\library\psa_crypto_hash.c" />
     <ClCompile Include="..\..\library\psa_crypto_mac.c" />
     <ClCompile Include="..\..\library\psa_crypto_pake.c" />
+    <ClCompile Include="..\..\library\psa_crypto_random.c" />
     <ClCompile Include="..\..\library\psa_crypto_rsa.c" />
     <ClCompile Include="..\..\library\psa_crypto_se.c" />
     <ClCompile Include="..\..\library\psa_crypto_slot_management.c" />
