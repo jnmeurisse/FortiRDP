@@ -54,7 +54,7 @@ namespace ui {
 		/**
 		 * Initialize the user certificate.
 		*/
-		bool load_user_crt(const utl::Path& filename, ask_crt_passcode_fn ask_passcode);
+		bool load_user_crt(const utl::Path& filename, const ask_crt_passcode_fn& ask_passcode);
 
 		/**
 		 * Configure the authentication method.

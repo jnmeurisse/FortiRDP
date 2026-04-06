@@ -11,6 +11,9 @@
 #include <functional>
 #include "http/Url.h"
 #include "http/cookies.h"
+#include "net/Endpoint.h"
+#include "util/Credential.h"
+
 
 namespace fw {
 
@@ -22,18 +25,50 @@ namespace fw {
 		SAML            // SSL VPN with SAML IdP
 	};
 
-	// SSL VPN User Credentials
-	struct AuthCredentials
+
+	class AuthRequest
 	{
-		std::string username;
-		std::string password;
+	protected:
+		explicit AuthRequest(const std::wstring prompt, const net::Endpoint& endpoint) :
+			prompt(prompt),
+			endpoint(endpoint)
+		{
+		}
+
+	public:
+		// Prompt to show when requesting an authentication code.
+		const std::wstring prompt;
+
+		// Endpoint for which credentials are requested.
+		const net::Endpoint& endpoint;
 	};
 
-	// SSL VPN MFA authentication code.
-	struct AuthCode
+
+	// SSL VPN User's Credential Request
+	class AuthCredentialRequest : public AuthRequest
 	{
-		std::string prompt;
-		std::string code;
+	public:
+		explicit AuthCredentialRequest(const std::wstring prompt, const net::Endpoint& endpoint) :
+			AuthRequest(prompt, endpoint)
+		{}
+
+		void clear() {
+			credentials.clear();
+		}
+
+		// Credentials provided by the user
+		utl::Credential credentials;
+	};
+
+	// SSL VPN MFA authentication code request
+	class AuthCodeRequest : public AuthRequest
+	{
+	public:
+		explicit AuthCodeRequest(const std::wstring prompt, const net::Endpoint& endpoint) :
+			AuthRequest(prompt, endpoint)
+		{}
+
+		std::wstring code;
 	};
 
 	// SSL VPN SAML authentication configuration.

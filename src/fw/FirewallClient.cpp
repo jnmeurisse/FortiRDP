@@ -179,7 +179,7 @@ namespace fw {
 	}
 
 
-	fw::portal_err FirewallClient::login_basic(const ask_credentials_fn& ask_credential, const ask_pincode_fn& ask_code)
+	fw::portal_err FirewallClient::login_basic(const ask_credentials_fn& ask_credentials, const ask_pincode_fn& ask_code)
 	{
 		DEBUG_ENTER(_logger);
 		utl::Mutex::Lock lock{ _mutex };
@@ -187,9 +187,8 @@ namespace fw {
 		// Misc initializations.
 		http::Answer answer;
 		utl::StringMap params_query;
-		AuthCredentials credentials;
-		_portal_info.clear();
-		_tunnel_config.clear();
+		const std::wstring login_prompt{ L"Enter user name and password to access firewall " + utl::str::str2wstr(host().to_string())};
+		AuthCredentialRequest credentials_request(login_prompt, host());
 
 		/*
 			Fetch the login page. This operation obtains the cookies
@@ -219,19 +218,26 @@ namespace fw {
 
 		// Show login prompt and ask credentials.
 		_logger->info(">> auth mode : basic");
-		if (!ask_credential(credentials))
+		if (!ask_credentials(credentials_request))
 			return portal_err::LOGIN_CANCELLED;
+
+		//.. convert to UTF8 username and password
+		std::string utf8_username;
+		std::string utf8_password;
+		utl::str::wstr2str(credentials_request.credentials.username, utf8_username);
+		utl::str::wstr2str(credentials_request.credentials.password, utf8_password);
 
 		// Prepare the HTML login form.
 		params_query.serase();
 		params_query.set("ajax", "1");
-		params_query.set("username", HttpsClient::encode_url(credentials.username));
+		params_query.set("username", HttpsClient::encode_url(utf8_username));
 		if (!_realm.empty())
 			params_query.set("realm", HttpsClient::encode_url(_realm));
-		params_query.set("credential", HttpsClient::encode_url(credentials.password));
+		params_query.set("credential", HttpsClient::encode_url(utf8_password));
 
 		// Safe erase password stored in memory.
-		utl::str::serase(credentials.password);
+		utl::str::serase(utf8_password);
+		credentials_request.clear();
 
 		// Loop until code returns with access denied, login canceled or an error
 		// is detected.
@@ -297,22 +303,22 @@ namespace fw {
 					/*4: */ "Enter authentication code sent to SMS "
 				};
 
-				AuthCode code;
-				std::string device;
+				std::wstring mfa_prompt;
 
+				std::string device;
 				if (params_result.get_str("tokeninfo", device)) {
 					const int message_index = retcode - 2;
 					device = http::HttpsClient::decode_url(device);
-					code.prompt = messages[message_index] + device;
+					mfa_prompt = utl::str::str2wstr(messages[message_index] + device);
 				}
 				else {
-					code.prompt = "Enter authentication code";
+					mfa_prompt = L"Enter authentication code";
 				}
-				code.code = "";
-				if (!ask_code(code))
+				AuthCodeRequest mfa_code{ mfa_prompt, host() };
+				if (!ask_code(mfa_code))
 					return portal_err::LOGIN_CANCELLED;
 
-				params_query.set("code", code.code);
+				params_query.set("code", encode_url(utl::str::wstr2str(mfa_code.code)));
 				params_query.set("code2", "");
 				params_query.set("reqid", params_result.get_str_value("reqid", ""));
 				params_query.set("polid", params_result.get_str_value("polid", ""));
@@ -325,12 +331,12 @@ namespace fw {
 				// 5: FotiToken drifted, require next code
 				//    ** Never tested **
 				// ********************************
-				AuthCode code{ "Wait next code", "" };
-				if (!ask_code(code))
+				AuthCodeRequest next_code{ L"Wait next code", host()};
+				if (!ask_code(next_code))
 					return portal_err::LOGIN_CANCELLED;
 
 				params_query.set("code", "");
-				params_query.set("code2", code.code);
+				params_query.set("code2", encode_url(utl::str::wstr2str(next_code.code)));
 				params_query.set("reqid", params_result.get_str_value("reqid", ""));
 				params_query.set("polid", params_result.get_str_value("polid", ""));
 				params_query.set("grp", params_result.get_str_value("grp", ""));
@@ -348,12 +354,11 @@ namespace fw {
 				}
 
 				// there is a challenge message
-				AuthCode challenge;
-
-				// .. assign a default prompt
-				challenge.prompt = params_result.get_str_value("chal_msg", "enter code");
+				const std::string chal_msg{ params_result.get_str_value("chal_msg", "enter code") };
 
 				// .. ask a code to the user
+				const std::wstring challenge_prompt{ utl::str::str2wstr(decode_url(chal_msg)) };
+				AuthCodeRequest challenge{ challenge_prompt, host() };
 				if (!ask_code(challenge))
 					return portal_err::LOGIN_CANCELLED;
 
@@ -374,7 +379,7 @@ namespace fw {
 						params_result.get_str_value("pid", "").c_str(),
 						params_result.get_str_value("is_chal_rsp", "").c_str()
 					));
-				params_query.set("credential2", challenge.code);
+				params_query.set("credential2", encode_url(utl::str::wstr2str(challenge.code)));
 			}
 			break;
 

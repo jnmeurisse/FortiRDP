@@ -82,6 +82,7 @@ namespace utl {
 
 		// Converts wstring to utf8-string.
 		std::string wstr2str(const std::wstring& wstr);
+		void wstr2str(const std::wstring& wstr, std::string& out);
 
 		// Converts utf8-string to wstring.
 		std::wstring str2wstr(const std::string& str);

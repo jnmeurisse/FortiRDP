@@ -59,9 +59,9 @@ namespace ui {
 		*/
 		static AsyncMessagePtr ShowInvalidCertificateDialogRequest;
 
-		/* request to display a dialog that ask for credentials.
+		/* request to display a dialog that ask for credential.
 		*/
-		static AsyncMessagePtr ShowCredentialsDialogRequest;
+		static AsyncMessagePtr ShowCredentialDialogRequest;
 
 		/* request to display a dialog that ask for an additional code (pin code
 		 * for example).

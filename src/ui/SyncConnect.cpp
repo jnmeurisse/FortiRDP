@@ -51,13 +51,13 @@ namespace ui {
 	}
 
 
-	bool SyncConnect::ask_credentials(fw::AuthCredentials& credentials)
+	bool SyncConnect::ask_credentials(fw::AuthCredentialRequest& credential)
 	{
-		return AsyncMessage::ShowCredentialsDialogRequest->send_message(_hwnd, &credentials) == TRUE;
+		return AsyncMessage::ShowCredentialDialogRequest->send_message(_hwnd, &credential) == TRUE;
 	}
 
 
-	bool SyncConnect::ask_pincode(fw::AuthCode& code2fa)
+	bool SyncConnect::ask_pincode(fw::AuthCodeRequest& code2fa)
 	{
 		return AsyncMessage::ShowPinCodeDialogRequest->send_message(_hwnd, &code2fa) == TRUE;
 	}
@@ -97,18 +97,18 @@ namespace ui {
 				case fw::AuthMethod::BASIC:
 				case fw::AuthMethod::DEFAULT:
 				{
-					auto ask_credentials_callback = [this](fw::AuthCredentials& credential) {
+					auto ask_credential_callback = [this](fw::AuthCredentialRequest& credential) {
 						return ask_credentials(credential);
 					};
 
-					auto ask_pincode_callback = [this](fw::AuthCode& code) {
+					auto ask_pincode_callback = [this](fw::AuthCodeRequest& code) {
 						return ask_pincode(code);
 					};
 
 					// Loop while user enter wrong credentials.
 					fw::portal_err rc;
 					do {
-						rc = _portal_client.login_basic(ask_credentials_callback, ask_pincode_callback);
+						rc = _portal_client.login_basic(ask_credential_callback, ask_pincode_callback);
 						if (rc != fw::portal_err::NONE) {
 							if (rc != fw::portal_err::LOGIN_CANCELLED) {
 								showErrorMessageDialog(L"Login error");

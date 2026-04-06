@@ -214,7 +214,7 @@ namespace http {
 	{
 		DEBUG_ENTER(_logger);
 
-;		answer_status status;
+		answer_status status;
 		ByteBuffer buffer(MAX_HEADER_SIZE);
 
 		while ((status = read_line(socket, buffer, timer)) == answer_status::ERR_NONE && !buffer.empty()) {
