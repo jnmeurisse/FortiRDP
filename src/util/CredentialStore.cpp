@@ -12,7 +12,7 @@
 
 namespace utl {
 
-	static std::wstring make_target(const std::wstring host)
+	static std::wstring make_target(const std::wstring& host)
 	{
 		static std::wstring target_prefix = L"fortirdp:";
 		return target_prefix + host;
