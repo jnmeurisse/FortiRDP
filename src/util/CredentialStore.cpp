@@ -57,6 +57,8 @@ namespace utl {
 			pcred->CredentialBlobSize / sizeof(wchar_t)
 		);
 
+		credential.username.assign(pcred->UserName);
+
 		CredFree(pcred);
 
 		return true;
