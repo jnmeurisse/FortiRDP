@@ -49,7 +49,7 @@
     <ClCompile Include="..\..\src\ui\AsyncMessage.cpp" />
     <ClCompile Include="..\..\src\ui\CmdlineParams.cpp" />
     <ClCompile Include="..\..\src\ui\ConnectDialog.cpp" />
-    <ClCompile Include="..\..\src\ui\CredentialDialog.cpp" />
+    <ClCompile Include="..\..\src\ui\LoginDialog.cpp" />
     <ClCompile Include="..\..\src\ui\Dialog.cpp" />
     <ClCompile Include="..\..\src\ui\fortirdp.cpp" />
     <ClCompile Include="..\..\src\ui\InfoLogWriter.cpp" />
@@ -66,6 +66,7 @@
     <ClCompile Include="..\..\src\ui\SyncWaitTunnel.cpp" />
     <ClCompile Include="..\..\src\util\ByteBuffer.cpp" />
     <ClCompile Include="..\..\src\util\Counters.cpp" />
+    <ClCompile Include="..\..\src\util\Credential.cpp" />
     <ClCompile Include="..\..\src\util\ErrUtil.cpp" />
     <ClCompile Include="..\..\src\util\Event.cpp" />
     <ClCompile Include="..\..\src\util\gzip.cpp" />
@@ -73,6 +74,7 @@
     <ClCompile Include="..\..\src\util\Logger.cpp" />
     <ClCompile Include="..\..\src\util\Mutex.cpp" />
     <ClCompile Include="..\..\src\util\ObfuscatedString.cpp" />
+    <ClCompile Include="..\..\src\util\CredentialStore.cpp" />
     <ClCompile Include="..\..\src\util\Path.cpp" />
     <ClCompile Include="..\..\src\util\PBufQueue.cpp" />
     <ClCompile Include="..\..\src\util\PrivateKey.cpp" />
@@ -127,7 +129,7 @@
     <ClInclude Include="..\..\src\ui\AsyncMessage.h" />
     <ClInclude Include="..\..\src\ui\CmdlineParams.h" />
     <ClInclude Include="..\..\src\ui\ConnectDialog.h" />
-    <ClInclude Include="..\..\src\ui\CredentialDialog.h" />
+    <ClInclude Include="..\..\src\ui\LoginDialog.h" />
     <ClInclude Include="..\..\src\ui\Dialog.h" />
     <ClInclude Include="..\..\src\ui\fortirdp.h" />
     <ClInclude Include="..\..\src\ui\InfoLogWriter.h" />
@@ -145,6 +147,7 @@
     <ClInclude Include="..\..\src\ui\SyncWaitTunnel.h" />
     <ClInclude Include="..\..\src\util\ByteBuffer.h" />
     <ClInclude Include="..\..\src\util\Counters.h" />
+    <ClInclude Include="..\..\src\util\Credential.h" />
     <ClInclude Include="..\..\src\util\ErrUtil.h" />
     <ClInclude Include="..\..\src\util\Event.h" />
     <ClInclude Include="..\..\src\util\gzip.h" />
@@ -152,6 +155,7 @@
     <ClInclude Include="..\..\src\util\Logger.h" />
     <ClInclude Include="..\..\src\util\Mutex.h" />
     <ClInclude Include="..\..\src\util\ObfuscatedString.h" />
+    <ClInclude Include="..\..\src\util\CredentialStore.h" />
     <ClInclude Include="..\..\src\util\Path.h" />
     <ClInclude Include="..\..\src\util\PBufQueue.h" />
     <ClInclude Include="..\..\src\util\PrivateKey.h" />

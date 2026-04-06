@@ -9,29 +9,38 @@
 
 #include <Windows.h>
 #include <string>
+
 #include "ui/ModalDialog.h"
+#include "util/Credential.h"
 
 namespace ui {
 
-	class PinCodeDialog final : public ModalDialog
+	class LoginDialog final : public ModalDialog
 	{
 	public:
-		explicit PinCodeDialog(HINSTANCE hInstance, HWND hParent);
-		~PinCodeDialog() override;
+		explicit LoginDialog(HINSTANCE hInstance, HWND hParent);
+		~LoginDialog() override;
 
 		/* Login dialog header.
 		*/
 		std::wstring header;
 
-		/**
-		 * The pin code.
+		/* User's credential.
 		*/
-		std::wstring code;
+		utl::Credential credential;
+
+		/* Save password flag.
+		*/
+		bool save_password;
 
 	private:
+		/* set to true if the password was updated.
+		*/
+		bool _password_updated;
+
 		INT_PTR onCreateDialogMessage(WPARAM wParam, LPARAM lParam) override;
-		INT_PTR onButtonClick(int control_id, LPARAM lParam) override;
 		INT_PTR onTextChange(int control_id, LPARAM lParam) override;
+		INT_PTR onButtonClick(int control_id, LPARAM lParam) override;
 	};
 
 }

@@ -88,7 +88,7 @@ namespace ui {
 
 	std::unique_ptr<AsyncMessage> AsyncMessage::ShowErrorMessageDialogRequest(new AsyncRequestMessage(1));
 	std::unique_ptr<AsyncMessage> AsyncMessage::ShowInvalidCertificateDialogRequest(new AsyncRequestMessage(2));
-	std::unique_ptr<AsyncMessage> AsyncMessage::ShowCredentialsDialogRequest(new AsyncRequestMessage(3));
+	std::unique_ptr<AsyncMessage> AsyncMessage::ShowCredentialDialogRequest(new AsyncRequestMessage(3));
 	std::unique_ptr<AsyncMessage> AsyncMessage::ShowPinCodeDialogRequest(new AsyncRequestMessage(4));
 	std::unique_ptr<AsyncMessage> AsyncMessage::ShowSamlAuthDialogRequest(new AsyncRequestMessage(5));
 	std::unique_ptr<AsyncMessage> AsyncMessage::DisconnectFromFirewallRequest(new AsyncRequestMessage(6));

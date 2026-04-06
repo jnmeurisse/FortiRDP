@@ -119,9 +119,9 @@ namespace ui {
 		void showAboutDialog();
 		void showOptionsDialog();
 		void showErrorMessageDialog(const std::wstring& text);
-		void showCredentialsDialog(fw::AuthCredentials* pCredential);
+		void showLoginDialog(fw::AuthCredentialRequest* pCredentialsRequest);
 		void showSamlDialog(fw::AuthSamlInfo* pSamlInfo);
-		void showPinCodeDialog(fw::AuthCode* pCode);
+		void showPinCodeDialog(fw::AuthCodeRequest* pCodeRequest);
 		void showInvalidCertificateDialog(const std::wstring& text);
 		void disconnectFromFirewall(bool success);
 

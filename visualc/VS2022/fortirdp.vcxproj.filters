@@ -42,7 +42,7 @@
     <ClCompile Include="..\..\src\ui\ConnectDialog.cpp">
       <Filter>sources\ui</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\ui\CredentialDialog.cpp">
+    <ClCompile Include="..\..\src\ui\LoginDialog.cpp">
       <Filter>sources\ui</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\ui\Dialog.cpp">
@@ -234,6 +234,12 @@
     <ClCompile Include="..\..\src\util\gzip.cpp">
       <Filter>sources\utl</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\util\CredentialStore.cpp">
+      <Filter>sources\utl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\util\Credential.cpp">
+      <Filter>sources\utl</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\ui\AboutDialog.h">
@@ -254,7 +260,7 @@
     <ClInclude Include="..\..\src\ui\ConnectDialog.h">
       <Filter>sources\ui</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\ui\CredentialDialog.h">
+    <ClInclude Include="..\..\src\ui\LoginDialog.h">
       <Filter>sources\ui</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\ui\Dialog.h">
@@ -468,6 +474,12 @@
       <Filter>sources\utl</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\util\gzip.h">
+      <Filter>sources\utl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\util\CredentialStore.h">
+      <Filter>sources\utl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\util\Credential.h">
       <Filter>sources\utl</Filter>
     </ClInclude>
   </ItemGroup>
