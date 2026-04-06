@@ -185,7 +185,7 @@ namespace fw {
 		// Misc initializations.
 		http::Answer answer;
 		utl::StringMap params_query;
-		const std::wstring login_prompt{ L"Enter user name and password to access firewall " + utl::str::str2wstr(host().hostname())};
+		const std::wstring login_prompt{ L"Enter user name and password to access firewall " + utl::str::str2wstr(host().to_string())};
 		AuthCredentialRequest credentials_request(login_prompt, host());
 
 		/*

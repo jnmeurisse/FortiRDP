@@ -401,7 +401,7 @@ namespace ui {
 		using namespace utl;
 
 		DEBUG_ENTER(_logger);
-		const std::wstring& hostname{ str::str2wstr(pCredentialsRequest->endpoint.hostname()) };
+		const std::wstring& hostname{ str::str2wstr(pCredentialsRequest->endpoint.to_string()) };
 
 
 		LoginDialog login_dialog(instance_handle(), window_handle());
