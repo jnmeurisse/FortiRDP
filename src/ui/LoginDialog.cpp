@@ -38,6 +38,7 @@ namespace ui {
 		if (save_password)
 			set_control_text(IDC_PASSWORD, L"********");
 
+		_password_updated = false;
 		center_window();
 
 		const HWND control = reinterpret_cast<HWND>(wParam);
