@@ -52,10 +52,14 @@ namespace utl {
 		if (!::CredRead(target.c_str(), CRED_TYPE_GENERIC, 0, &pcred))
 			return false;
 
-		credential.password.assign(
-			reinterpret_cast<wchar_t*>(pcred->CredentialBlob),
-			pcred->CredentialBlobSize / sizeof(wchar_t)
-		);
+		if (pcred->CredentialBlob)
+			credential.password.assign(
+				reinterpret_cast<wchar_t*>(pcred->CredentialBlob),
+				pcred->CredentialBlobSize / sizeof(wchar_t)
+			);
+
+		if (pcred->UserName)
+			credential.username = pcred->UserName;
 
 		credential.username.assign(pcred->UserName);
 
