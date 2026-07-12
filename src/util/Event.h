@@ -83,7 +83,7 @@ namespace utl {
 		utl::Logger* const _logger;
 
 		// The event handle.
-		HANDLE _handle = INVALID_HANDLE_VALUE;
+		HANDLE _handle = nullptr;
 	};
 
 }
