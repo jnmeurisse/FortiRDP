@@ -41,13 +41,16 @@ namespace ui {
 		_password_updated = false;
 		center_window();
 
-		const HWND control = reinterpret_cast<HWND>(wParam);
-		if (::GetDlgCtrlID(control) != IDC_PASSWORD) {
+		// Set keyboard focus and return FALSE to prevent the system 
+		// from setting the default keyboard focus to the username
+		// control if already filled.
+		if (credential.username.empty())
+			set_focus(IDC_USERNAME);
+		else if (credential.password.empty())
 			set_focus(IDC_PASSWORD);
-			return FALSE;
-		}
-
-		return TRUE;
+		else
+			set_focus(IDOK);
+		return FALSE;
 	}
 
 
@@ -55,11 +58,10 @@ namespace ui {
 	{
 		LPARAM_UNUSED();
 
-		INT_PTR rc = FALSE;
 		if (control_id == IDC_PASSWORD)
 			_password_updated = true;
 
-		return rc;
+		return FALSE;
 	}
 
 
