@@ -228,9 +228,6 @@
     <ClCompile Include="..\..\src\util\XGetopt.cpp">
       <Filter>sources\utl</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\util\gzip.cpp">
-      <Filter>sources\utl</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\util\CredentialStore.cpp">
       <Filter>sources\utl</Filter>
     </ClCompile>
@@ -465,9 +462,6 @@
       <Filter>sources\utl</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\util\XGetopt.h">
-      <Filter>sources\utl</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\util\gzip.h">
       <Filter>sources\utl</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\util\CredentialStore.h">
