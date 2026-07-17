@@ -72,7 +72,6 @@
     <ClCompile Include="..\..\src\util\gzip.cpp" />
     <ClCompile Include="..\..\src\util\Json11.cpp" />
     <ClCompile Include="..\..\src\util\Logger.cpp" />
-    <ClCompile Include="..\..\src\util\Mutex.cpp" />
     <ClCompile Include="..\..\src\util\ObfuscatedString.cpp" />
     <ClCompile Include="..\..\src\util\CredentialStore.cpp" />
     <ClCompile Include="..\..\src\util\Path.cpp" />
@@ -153,7 +152,6 @@
     <ClInclude Include="..\..\src\util\gzip.h" />
     <ClInclude Include="..\..\src\util\Json11.h" />
     <ClInclude Include="..\..\src\util\Logger.h" />
-    <ClInclude Include="..\..\src\util\Mutex.h" />
     <ClInclude Include="..\..\src\util\ObfuscatedString.h" />
     <ClInclude Include="..\..\src\util\CredentialStore.h" />
     <ClInclude Include="..\..\src\util\Path.h" />

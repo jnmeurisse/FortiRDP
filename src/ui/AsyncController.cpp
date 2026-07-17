@@ -8,12 +8,12 @@
 #include "AsyncController.h"
 
 #include <array>
+#include <mutex>
 #include "ui/SyncConnect.h"
 #include "ui/SyncWaitTunnel.h"
 #include "ui/SyncDisconnect.h"
 #include "ui/SyncWaitTask.h"
 #include "util/Logger.h"
-#include "util/Mutex.h"
 #include "util/Path.h"
 #include "util/StrUtil.h"
 #include <mbedtls/pk.h>
@@ -227,8 +227,7 @@ namespace ui {
 	{
 		DEBUG_ENTER_FMT(_logger, "action=%s", action_name(action));
 
-		// Only one thread can send_request an action.
-		utl::Mutex::Lock lock(_mutex);
+		std::lock_guard<std::mutex> lock(_mutex);
 
 		// Wait that the controller thread is ready
 		LOG_DEBUG(_logger, "wait for action=%s", action_name(action));

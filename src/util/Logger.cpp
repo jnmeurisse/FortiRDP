@@ -11,9 +11,9 @@
 #include <cstdarg>
 #include <ctime>
 #include <iomanip>
+#include <mutex>
 #include <ostream>
 #include <thread>
-#include "util/Mutex.h"
 #include "util/StrUtil.h"
 
 
@@ -115,7 +115,7 @@ namespace utl {
 	void Logger::add_writer(LogWriter* writer)
 	{
 		if (writer) {
-			Mutex::Lock lock{ _mutex };
+			std::lock_guard<std::mutex> lock(_mutex);
 
 			_writers.push_back(writer);
 			_writers.unique();
@@ -126,7 +126,7 @@ namespace utl {
 	void Logger::remove_writer(LogWriter* writer)
 	{
 		if (writer) {
-			Mutex::Lock lock{ _mutex };
+			std::lock_guard<std::mutex> lock(_mutex);
 
 			_writers.remove(writer);
 		}
@@ -136,7 +136,7 @@ namespace utl {
 	void Logger::write(LogLevel level, const std::string& text) noexcept
 	{
 		try {
-			Mutex::Lock lock{ _mutex };
+			std::lock_guard<std::mutex> lock(_mutex);
 
 			const int indent = _indent_level;
 			const void* object = _this_stack.top();
@@ -281,14 +281,15 @@ namespace utl {
 
 	void LogQueue::push(const std::string& text)
 	{
-		Mutex::Lock lock(_mutex);
+		std::lock_guard<std::mutex> lock(_mutex);
+
 		_queue.push(text);
 	}
 
 	
 	std::string LogQueue::pop()
 	{
-		Mutex::Lock lock(_mutex);
+		std::lock_guard<std::mutex> lock(_mutex);
 
 		std::string text = _queue.front();
 		_queue.pop();

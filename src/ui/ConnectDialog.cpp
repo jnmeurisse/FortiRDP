@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <stdexcept>
 #include <system_error>
+#include <mutex>
 #include <vector>
 #include "ui/AboutDialog.h"
 #include "ui/AsyncMessage.h"
@@ -18,7 +19,6 @@
 #include "ui/PinCodeDialog.h"
 #include "ui/SamlAuthDialog.h"
 #include "util/CredentialStore.h"
-#include "util/Mutex.h"
 #include "util/StrUtil.h"
 #include "util/SysUtil.h"
 #include "resources/resource.h"
@@ -180,7 +180,7 @@ namespace ui {
 
 	void ConnectDialog::clearInfo()
 	{
-		utl::Mutex::Lock lock{ _msg_mutex };
+		std::lock_guard<std::mutex> lock(_msg_mutex);
 
 		_msg_buffer.clear();
 		set_control_text(IDC_STATUSTEXT, L"");
@@ -189,7 +189,8 @@ namespace ui {
 
 	void ConnectDialog::writeInfo(const std::wstring& message)
 	{
-		utl::Mutex::Lock lock{ _msg_mutex };
+		std::lock_guard<std::mutex> lock(_msg_mutex);
+
 		const int max_lines = std::max(get_control_text_max_lines(IDC_STATUSTEXT) - 2, MAX_INFO_MESSAGE);
 
 		// Add the new message and remove old one.
@@ -916,7 +917,8 @@ namespace ui {
 	void ConnectDialog::onOutputInfoEvent(utl::LogQueue* pLogQueue)
 	{
 		if (pLogQueue) {
-			utl::Mutex::Lock lock{ pLogQueue->mutex() };
+			std::lock_guard<std::mutex> lock(pLogQueue->mutex());
+
 			while (pLogQueue->size() > 0)
 				writeInfo(utl::str::str2wstr(pLogQueue->pop()));
 		}

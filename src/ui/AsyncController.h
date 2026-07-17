@@ -11,6 +11,7 @@
 #include <cstdint>
 #include <functional>
 #include <memory>
+#include <mutex>
 #include <string>
 #include "fw/FirewallClient.h"
 #include "fw/FirewallTunnel.h"
@@ -18,7 +19,6 @@
 #include "net/Endpoint.h"
 #include "util/Event.h"
 #include "util/Logger.h"
-#include "util/Mutex.h"
 #include "util/Path.h"
 #include "util/Thread.h"
 #include "util/TaskInfo.h"
@@ -126,7 +126,7 @@ namespace ui {
 		volatile ControllerAction _action;
 
 		// A mutex to serialize execution of actions.
-		utl::Mutex _mutex;
+		std::mutex _mutex;
 
 		// An event set to execute an action.
 		utl::Event _requestEvent;

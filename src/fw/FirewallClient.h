@@ -7,6 +7,7 @@
 */
 #pragma once
 
+#include <mutex>
 #include <functional>
 #include <string>
 #include <mbedtls/x509_crt.h>
@@ -20,7 +21,6 @@
 #include "fw/CrtDigest.h"
 #include "fw/FirewallTunnel.h"
 #include "net/Endpoint.h"
-#include "util/Mutex.h"
 #include "util/StringMap.h"
 
 
@@ -206,7 +206,7 @@ namespace fw {
 		http::Cookies _cookie_jar;
 
 		// Mutex to serialize calls.
-		utl::Mutex _mutex;
+		std::mutex _mutex;
 
 		// The fortiGate realm.
 		const std::string _realm;

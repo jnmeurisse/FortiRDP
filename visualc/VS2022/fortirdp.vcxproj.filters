@@ -177,9 +177,6 @@
     <ClCompile Include="..\..\src\util\Logger.cpp">
       <Filter>sources\utl</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\util\Mutex.cpp">
-      <Filter>sources\utl</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\util\ObfuscatedString.cpp">
       <Filter>sources\utl</Filter>
     </ClCompile>
@@ -414,9 +411,6 @@
       <Filter>sources\utl</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\util\Logger.h">
-      <Filter>sources\utl</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\util\Mutex.h">
       <Filter>sources\utl</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\util\ObfuscatedString.h">

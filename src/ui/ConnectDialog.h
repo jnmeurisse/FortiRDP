@@ -11,11 +11,11 @@
 #include <list>
 #include <string>
 #include <memory>
+#include <mutex>
 #include <chrono>
 #include "fw/AuthTypes.h"
 #include "net/Endpoint.h"
 #include "util/Logger.h"
-#include "util/Mutex.h"
 #include "util/TaskInfo.h"
 #include "ui/CmdlineParams.h"
 #include "ui/RegistrySettings.h"
@@ -98,7 +98,7 @@ namespace ui {
 		HBRUSH _bg_brush;
 		HFONT _msg_font;
 		std::list<std::wstring> _msg_buffer;
-		utl::Mutex _msg_mutex;
+		std::mutex _msg_mutex;
 
 		void connect(bool clear_log);
 		void disconnect();

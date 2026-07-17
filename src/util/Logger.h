@@ -10,10 +10,11 @@
 #include <cstdarg>
 #include <fstream>
 #include <list>
+#include <mutex>
 #include <queue>
 #include <string>
 #include <stack>
-#include "util/Mutex.h"
+
 
 #define PTR_VAL(ptr) (reinterpret_cast<std::uintptr_t>(ptr))
 
@@ -116,7 +117,7 @@ namespace utl {
 		std::list<LogWriter *> _writers;
 
 		// A mutex to protect access to the list of writers.
-		utl::Mutex _mutex;
+		std::mutex _mutex;
 
 		// The current logger level.
 		LogLevel _level;
@@ -207,11 +208,11 @@ namespace utl {
 		void push(const std::string& text);
 		std::string pop();
 
-		inline utl::Mutex& mutex() noexcept { return _mutex; }
+		inline std::mutex& mutex() noexcept { return _mutex; }
 
 	private:
 		std::queue<std::string> _queue;
-		utl::Mutex _mutex;
+		std::mutex _mutex;
 	};
 
 }

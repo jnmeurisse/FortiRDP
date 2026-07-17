@@ -47,7 +47,8 @@ namespace fw {
 	fw::portal_err FirewallClient::open(const confirm_crt_fn& confirm_crt)
 	{
 		DEBUG_ENTER(_logger);
-		utl::Mutex::Lock lock{ _mutex };
+
+		std::lock_guard<std::mutex> lock(_mutex);
 		http::Answer answer;
 
 		_logger.info(">> connecting to %s", host().to_string().c_str());
@@ -180,7 +181,7 @@ namespace fw {
 	fw::portal_err FirewallClient::login_basic(const ask_credentials_fn& ask_credentials, const ask_pincode_fn& ask_code)
 	{
 		DEBUG_ENTER(_logger);
-		utl::Mutex::Lock lock{ _mutex };
+		std::lock_guard<std::mutex> lock(_mutex);
 
 		// Misc initializations.
 		http::Answer answer;
@@ -398,7 +399,7 @@ namespace fw {
 	fw::portal_err FirewallClient::login_saml(const ask_samlauth_fn& ask_samlauth)
 	{
 		DEBUG_ENTER(_logger);
-		utl::Mutex::Lock lock{ _mutex };
+		std::lock_guard<std::mutex> lock(_mutex);
 
 		std::string service_provider_crt;
 		if (!utl::X509crt_to_pem(get_peer_crt(), service_provider_crt))
@@ -428,7 +429,7 @@ namespace fw {
 	bool FirewallClient::logout()
 	{
 		DEBUG_ENTER(_logger);
-		utl::Mutex::Lock lock{ _mutex };
+		std::lock_guard<std::mutex> lock(_mutex);
 
 		http::Headers headers;
 		http::Answer answer;
@@ -447,7 +448,7 @@ namespace fw {
 	bool FirewallClient::get_info(fw::PortalInfo& portal_info)
 	{
 		DEBUG_ENTER(_logger);
-		utl::Mutex::Lock lock{ _mutex };
+		std::lock_guard<std::mutex> lock(_mutex);
 
 		if (!is_authenticated())
 			return false;
@@ -490,7 +491,7 @@ namespace fw {
 	bool FirewallClient::get_config(fw::SslvpnConfig& sslvpn_config)
 	{
 		DEBUG_ENTER(_logger);
-		utl::Mutex::Lock lock{ _mutex };
+		std::lock_guard<std::mutex> lock(_mutex);
 
 		if (!is_authenticated())
 			return false;

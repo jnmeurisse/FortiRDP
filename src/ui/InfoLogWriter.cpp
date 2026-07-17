@@ -8,7 +8,7 @@
 #include "InfoLogWriter.h"
 
 #include "ui/AsyncMessage.h"
-#include "util/Mutex.h"
+
 
 namespace ui {
 
@@ -23,7 +23,8 @@ namespace ui {
 	void InfoLogWriter::write(utl::LogLevel level, int indent, const void* object, const std::string& text)
 	{
 		if (is_enabled(level)) {
-			utl::Mutex::Lock lock{ _logQueue.mutex() };
+			std::lock_guard<std::mutex> lock(_logQueue.mutex());
+
 			_logQueue.push(text);
 			AsyncMessage::OutputInfoEvent->send_message(_hWnd, &_logQueue);
 		}
@@ -32,7 +33,8 @@ namespace ui {
 
 	void InfoLogWriter::flush()
 	{
-		utl::Mutex::Lock lock{ _logQueue.mutex() };
+		std::lock_guard<std::mutex> lock(_logQueue.mutex());
+
 		if (_logQueue.size() > 0)
 			AsyncMessage::OutputInfoEvent->send_message(_hWnd, &_logQueue);
 	}
