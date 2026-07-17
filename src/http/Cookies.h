@@ -34,7 +34,7 @@ namespace http {
 		/**
 		 * Clears this cookies collection.
 		*/
-		void clear();
+		void clear() noexcept;
 
 		/**
 		 * Copies all cookies from the specified collection to this collection.
@@ -60,7 +60,7 @@ namespace http {
 		 *
 		 * @param name The name of the cookie to be removed.
 		 */
-		void remove(const std::string& name);
+		void remove(const std::string& name) noexcept;
 
 		/**
 		 * Gets the cookie with the specified name.

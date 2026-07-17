@@ -20,18 +20,18 @@ namespace http {
 
 
 	// HTTP status code
-	const int HttpsClient::STATUS_OK = 200;
-	const int HttpsClient::STATUS_MOVED_PERMANENTLY = 301;
-	const int HttpsClient::STATUS_FOUND = 302;
-	const int HttpsClient::STATUS_SEE_OTHER = 303;
-	const int HttpsClient::STATUS_TEMPORARY_REDIRECT = 307;
-	const int HttpsClient::STATUS_UNAUTHORIZED = 401;
-	const int HttpsClient::STATUS_FORBIDDEN = 403;
+	constexpr int HttpsClient::STATUS_OK = 200;
+	constexpr int HttpsClient::STATUS_MOVED_PERMANENTLY = 301;
+	constexpr int HttpsClient::STATUS_FOUND = 302;
+	constexpr int HttpsClient::STATUS_SEE_OTHER = 303;
+	constexpr int HttpsClient::STATUS_TEMPORARY_REDIRECT = 307;
+	constexpr int HttpsClient::STATUS_UNAUTHORIZED = 401;
+	constexpr int HttpsClient::STATUS_FORBIDDEN = 403;
 
-	const int DEFAULT_KEEP_ALIVE_TIMEOUT = 60;
-	const int DEFAULT_CONNECT_TIMEOUT = 10;
-	const int DEFAULT_SND_TIMEOUT = 10;
-	const int DEFAULT_RCV_TIMEOUT = 10;
+	constexpr int DEFAULT_KEEP_ALIVE_TIMEOUT = 60;
+	constexpr int DEFAULT_CONNECT_TIMEOUT = 10;
+	constexpr int DEFAULT_SND_TIMEOUT = 10;
+	constexpr int DEFAULT_RCV_TIMEOUT = 10;
 
 	HttpsClient::HttpsClient(const net::Endpoint& ep, const net::TlsConfig& config) :
 		TlsSocket(config),
@@ -54,7 +54,7 @@ namespace http {
 	}
 
 
-	bool HttpsClient::set_timeouts(uint32_t connect_timeout, uint32_t send_timeout, uint32_t receive_timeout)
+	bool HttpsClient::set_timeouts(uint32_t connect_timeout, uint32_t send_timeout, uint32_t receive_timeout) noexcept
 	{
 		DEBUG_DTOR(_logger);
 		bool rc = false;
@@ -71,7 +71,7 @@ namespace http {
 	}
 
 
-	bool HttpsClient::is_reconnection_required() const
+	bool HttpsClient::is_reconnection_required() const noexcept
 	{
 		return (!TlsSocket::is_connected())
 			|| _keepalive_timer.is_elapsed()

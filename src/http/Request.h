@@ -46,7 +46,7 @@ namespace http {
 		 *
 		 *  This function erases all headers and body.
 		*/
-		void clear();
+		void clear() noexcept;
 
 		/**
 		 * Sets the body of the HTTP request.

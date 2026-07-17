@@ -44,7 +44,7 @@ namespace http {
 	}
 
 
-	void Request::clear()
+	void Request::clear() noexcept
 	{
 		DEBUG_ENTER(_logger);
 
