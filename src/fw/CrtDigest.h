@@ -8,6 +8,7 @@
 #pragma once
 
 #include <mbedtls/x509_crt.h>
+#include <array>
 
 
 namespace fw {
@@ -45,7 +46,7 @@ namespace fw {
 
 	private:
 		// A SHA256 hash of a certificate
-		unsigned char _digest[32];
+		std::array<unsigned char, 32> _digest;
 	};
 
 }
