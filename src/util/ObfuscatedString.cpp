@@ -50,15 +50,17 @@ namespace utl {
 
 	obfstring& obfstring::append(const char* str, size_t n)
 	{
-		const size_t old_size = _obfuscated_text.size();
+		if (str && n > 0) {
+			const size_t old_size = _obfuscated_text.size();
 
-		// Extend the buffer to hold the concatenated string.
-		_obfuscated_text.resize(old_size + n, 0x00);
+			// Extend the buffer to hold the concatenated string.
+			_obfuscated_text.resize(old_size + n, 0x00);
 
-		// Concatenate : obfuscate the string that it is appended.
-		char *p = &_obfuscated_text[old_size];
-		for (int index = 0; index < n; index++, p++) {
-			*p = encode(str[index], _key);
+			// Concatenate : obfuscate the string that it is appended.
+			char* p = &_obfuscated_text[old_size];
+			for (int index = 0; index < n; index++, p++) {
+				*p = encode(str[index], _key);
+			}
 		}
 
 		return *this;
