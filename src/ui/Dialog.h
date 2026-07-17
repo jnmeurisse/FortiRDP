@@ -43,7 +43,7 @@ namespace ui {
 		/**
 		 * Returns the handle of the given control.
 		 */
-		HWND control_handle(int control_id) const;
+		HWND control_handle(int control_id) const noexcept;
 
 		/**
 		 * Centers the dialog window relative to the given window.
@@ -51,17 +51,17 @@ namespace ui {
 		 * If not specified the function centers the dialog window relative to the
 		 * screen.
 		*/
-		bool center_window(HWND hRelWindow = NULL_HWND) const;
+		bool center_window(HWND hRelWindow = NULL_HWND) const noexcept;
 
 		/**
 		 * Shows the window.
 		*/
-		bool show_window(int cmd_show) const;
+		bool show_window(int cmd_show) const noexcept;
 
 		/**
 		 * Returns true if this dialog window is minimized.
 		*/
-		bool is_minimized() const;
+		bool is_minimized() const noexcept;
 
 		/**
 		 * Returns the dialog window title.
@@ -73,14 +73,14 @@ namespace ui {
 		 * 
 		 * @return true if the function succeeds.
 		*/
-		bool set_title(const std::wstring& title) const;
+		bool set_title(const std::wstring& title) const noexcept;
 
 		/**
 		 * Sets the text of a the given dialog control.
 		 * 
  		 * @return true if the function succeeds.
 		*/
-		bool set_control_text(int control_id, const std::wstring& text) const;
+		bool set_control_text(int control_id, const std::wstring& text) const noexcept;
 
 		/**
 		 * Returns the text from a specified dialog control.
@@ -90,90 +90,90 @@ namespace ui {
 		/**
 		 * Sets the text length limit for the specified dialog control.
 		*/
-		void set_control_textlen(int control_id, int length) const;
+		void set_control_textlen(int control_id, int length) const noexcept;
 
 		/**
 		 * Computes the maximum number of lines visible in a text box.
 		 * 
 		 * @returns the number of lines or -1 in case of error.
 		 */
-		int get_control_text_max_lines(int control_id) const;
+		int get_control_text_max_lines(int control_id) const noexcept;
 
 		/**
 		 * Enables or disables a dialog control.
 		*/
-		void set_control_enable(int control_id, bool enable) const;
+		void set_control_enable(int control_id, bool enable) const noexcept;
 
 		/**
 		 * Checks if a dialog control is enabled.
 		*/
-		bool is_control_enabled(int control_id) const;
+		bool is_control_enabled(int control_id) const noexcept;
 
 		/**
 		 * Shows or hides a dialog control.
 		*/
-		void set_control_visible(int control_id, bool visible) const;
+		void set_control_visible(int control_id, bool visible) const noexcept;
 
 		/**
 		 * Assigns a font to a dialog control.
 		*/
-		void set_control_font(int control_id, HFONT font) const;
+		void set_control_font(int control_id, HFONT font) const noexcept;
 
 		/**
 		 * Sets the mouse focus to the specified control.
 		*/
-		bool set_focus(int control_id) const;
+		bool set_focus(int control_id) const noexcept;
 
 		/**
 		 * Sets a check box state.
 		*/
-		void set_checkbox_state(int control_id, int state) const;
+		void set_checkbox_state(int control_id, int state) const noexcept;
 
 		/**
 		 * Gets a check box state.
 		 * 
 		 * @return true of the box is checked.
 		*/
-		bool get_checkbox_state(int control_id) const;
+		bool get_checkbox_state(int control_id) const noexcept;
 
 		/**
 		 * Adds a text to the specified combo box.
 		 * 
 		 * @return true if the function succeeds.
 		*/
-		bool add_combo_text(int control_id, const std::wstring& text) const;
+		bool add_combo_text(int control_id, const std::wstring& text) const noexcept;
 
 		/**
 		 * Selects a string at position 'index' in the combo box.
 		 * 
 		 * @return true if the function succeeds.
 		*/
-		bool set_combo_index(int control_id, int index) const;
+		bool set_combo_index(int control_id, int index) const noexcept;
 
 		/**
 		 * Returns the selected string in the combo box.
 		*/
-		int get_combo_index(int control_id) const;
+		int get_combo_index(int control_id) const noexcept;
 
 		/**
 		 * Returns the dialog control rectangle.
 		*/
-		RECT get_control_rect(int control_id) const;
+		RECT get_control_rect(int control_id) const noexcept;
 
 		/**
 		 * Returns the dialog window client rectangle.
 		*/
-		RECT get_client_rect() const;
+		RECT get_client_rect() const noexcept;
 
 		/**
 		 * Returns the system menu handle.
 		*/
-		HMENU get_sys_menu(bool reset) const;
+		HMENU get_sys_menu(bool reset) const noexcept;
 
 		/**
 		 * Shows a message box.
 		*/
-		int show_message_box(const std::wstring& message, UINT type) const;
+		int show_message_box(const std::wstring& message, UINT type) const noexcept;
 
 	protected:
 		/**
@@ -181,7 +181,7 @@ namespace ui {
 		* 
 		* @return a window handle to the dialog box.
 		*/
-		HWND create_modeless_dialog();
+		HWND create_modeless_dialog() noexcept;
 
 		/**
 		* Creates a modal dialog.
@@ -189,7 +189,7 @@ namespace ui {
 		* @return the value of the result parameter specified in the call to the 
 		* EndDialog function used to terminate the dialog box.
 		*/
-		INT_PTR create_modal_dialog();
+		INT_PTR create_modal_dialog() noexcept;
 
 		/**
 		* Create a font.
@@ -232,7 +232,7 @@ namespace ui {
 
 		// Helper functions to get and set a window text.
 		static std::wstring get_window_text(HWND hWnd);
-		static bool set_window_text(HWND hWnd, const std::wstring& text);
+		static bool set_window_text(HWND hWnd, const std::wstring& text) noexcept;
 	};
 
 }

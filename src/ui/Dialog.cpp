@@ -36,13 +36,13 @@ namespace ui {
 	}
 
 
-	HWND Dialog::control_handle(int control_id) const
+	HWND Dialog::control_handle(int control_id) const noexcept
 	{
 		return ::GetDlgItem(window_handle(), control_id);
 	}
 
 
-	bool Dialog::center_window(HWND hRelWindow) const
+	bool Dialog::center_window(HWND hRelWindow) const noexcept
 	{
 		RECT rRelWindow;
 		RECT rThisWindow;
@@ -72,13 +72,13 @@ namespace ui {
 	}
 
 
-	bool Dialog::show_window(int cmd_show) const
+	bool Dialog::show_window(int cmd_show) const noexcept
 	{
 		return ::ShowWindow(window_handle(), cmd_show) != 0;
 	}
 
 
-	bool Dialog::is_minimized() const
+	bool Dialog::is_minimized() const noexcept
 	{
 		return ::IsIconic(window_handle()) != 0;
 	}
@@ -90,13 +90,13 @@ namespace ui {
 	}
 
 
-	bool Dialog::set_title(const std::wstring& title) const
+	bool Dialog::set_title(const std::wstring& title) const noexcept
 	{
 		return Dialog::set_window_text(window_handle(), title);
 	}
 
 
-	bool Dialog::set_control_text(int control_id, const std::wstring& text) const
+	bool Dialog::set_control_text(int control_id, const std::wstring& text) const noexcept
 	{
 		return Dialog::set_window_text(control_handle(control_id), text);
 	}
@@ -108,13 +108,13 @@ namespace ui {
 	}
 
 
-	void Dialog::set_control_textlen(int control_id, int length) const
+	void Dialog::set_control_textlen(int control_id, int length) const noexcept
 	{
 		::SendMessage(control_handle(control_id), EM_SETLIMITTEXT, length, 0);
 	}
 
 
-	int Dialog::get_control_text_max_lines(int control_id) const
+	int Dialog::get_control_text_max_lines(int control_id) const noexcept
 	{
 		HWND hwnd = control_handle(control_id);
 		if (!hwnd)
@@ -146,25 +146,25 @@ namespace ui {
 	}
 
 
-	void Dialog::set_control_enable(int control_id, bool enable) const
+	void Dialog::set_control_enable(int control_id, bool enable) const noexcept
 	{
 		::EnableWindow(control_handle(control_id), enable);
 	}
 
 
-	bool Dialog::is_control_enabled(int control_id) const
+	bool Dialog::is_control_enabled(int control_id) const noexcept
 	{
 		return ::IsWindowEnabled(control_handle(control_id)) == TRUE;
 	}
 
 
-	void Dialog::set_control_visible(int control_id, bool visible) const
+	void Dialog::set_control_visible(int control_id, bool visible) const noexcept
 	{
 		::ShowWindow(control_handle(control_id), visible ? SW_SHOW : SW_HIDE);
 	}
 
 
-	void Dialog::set_control_font(int control_id, HFONT font) const
+	void Dialog::set_control_font(int control_id, HFONT font) const noexcept
 	{
 		::SendMessage(control_handle(control_id), WM_SETFONT, (WPARAM)font, TRUE);
 	}
@@ -184,49 +184,49 @@ namespace ui {
 	}
 
 
-	bool Dialog::set_window_text(HWND hWnd, const std::wstring& text)
+	bool Dialog::set_window_text(HWND hWnd, const std::wstring& text) noexcept
 	{
 		return ::SetWindowText(hWnd, text.c_str()) != 0;
 	}
 
 
-	bool Dialog::set_focus(int control_id) const
+	bool Dialog::set_focus(int control_id) const noexcept
 	{
 		return ::SetFocus(control_handle(control_id)) != NULL_HWND;
 	}
 
 
-	void Dialog::set_checkbox_state(int control_id, int state) const
+	void Dialog::set_checkbox_state(int control_id, int state) const noexcept
 	{
 		::SendMessage(control_handle(control_id), BM_SETCHECK, state, 0);
 	}
 
 
-	bool Dialog::get_checkbox_state(int control_id) const
+	bool Dialog::get_checkbox_state(int control_id) const noexcept
 	{
 		return ::SendMessage(control_handle(control_id), BM_GETCHECK, 0, 0) == BST_CHECKED;
 	}
 
 
-	bool Dialog::add_combo_text(int control_id, const std::wstring& text) const
+	bool Dialog::add_combo_text(int control_id, const std::wstring& text) const noexcept
 	{
 		return ::SendMessage(control_handle(control_id), CB_ADDSTRING, 0, (LPARAM)text.c_str()) >= 0;
 	}
 
 
-	bool Dialog::set_combo_index(int control_id, int index) const
+	bool Dialog::set_combo_index(int control_id, int index) const noexcept
 	{
 		return ::SendMessage(control_handle(control_id), CB_SETCURSEL, index, 0) == index;
 	}
 
 
-	int Dialog::get_combo_index(int control_id) const
+	int Dialog::get_combo_index(int control_id) const noexcept
 	{
 		return static_cast<int>(::SendMessage(control_handle(control_id), CB_GETCURSEL, 0, 0));
 	}
 
 
-	RECT Dialog::get_control_rect(int control_id) const
+	RECT Dialog::get_control_rect(int control_id) const noexcept
 	{
 		RECT bounds;
 
@@ -235,7 +235,7 @@ namespace ui {
 	}
 
 
-	RECT Dialog::get_client_rect() const
+	RECT Dialog::get_client_rect() const noexcept
 	{
 		RECT bounds;
 
@@ -244,19 +244,19 @@ namespace ui {
 	}
 
 
-	HMENU Dialog::get_sys_menu(bool reset) const
+	HMENU Dialog::get_sys_menu(bool reset) const noexcept
 	{
 		return ::GetSystemMenu(window_handle(), reset);
 	}
 
 
-	int Dialog::show_message_box(const std::wstring& message, UINT type) const
+	int Dialog::show_message_box(const std::wstring& message, UINT type) const noexcept
 	{
 		return ::MessageBox(window_handle(), message.c_str(), get_title().c_str(), type);
 	}
 
 
-	HWND Dialog::create_modeless_dialog()
+	HWND Dialog::create_modeless_dialog() noexcept
 	{
 		return ::CreateDialogParam(
 			_hInstance,
@@ -267,7 +267,7 @@ namespace ui {
 	}
 
 
-	INT_PTR Dialog::create_modal_dialog()
+	INT_PTR Dialog::create_modal_dialog() noexcept
 	{
 		return ::DialogBoxParam(
 			_hInstance,
