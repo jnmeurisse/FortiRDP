@@ -18,7 +18,7 @@ namespace utl {
 
 	bool file_exists(const std::wstring& path) noexcept
 	{
-		DWORD dwAttrib = ::GetFileAttributes(path.c_str());
+		const DWORD dwAttrib = ::GetFileAttributes(path.c_str());
 
 		return (dwAttrib != INVALID_FILE_ATTRIBUTES &&
 			!(dwAttrib & FILE_ATTRIBUTE_DIRECTORY));

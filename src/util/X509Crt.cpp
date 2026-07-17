@@ -37,7 +37,7 @@ namespace utl {
 
 	utl::mbed_err X509Crt::get_info(char* buf, size_t size, const char* prefix) const
 	{
-		mbed_err errnum = ::mbedtls_x509_crt_info(buf, size, prefix, &_crt);
+		const mbed_err errnum = ::mbedtls_x509_crt_info(buf, size, prefix, &_crt);
 
 		return errnum >= 0 ? 0 : errnum;
 	}
@@ -92,7 +92,7 @@ namespace utl {
 		chainParameter.RequestedUsage.Usage.rgpszUsageIdentifier = usage;
 
 		// Try offline revocation check
-		DWORD flags = CERT_CHAIN_REVOCATION_CHECK_CACHE_ONLY;
+		constexpr DWORD flags = CERT_CHAIN_REVOCATION_CHECK_CACHE_ONLY;
 
 		PCCERT_CHAIN_CONTEXT chainContext = nullptr;
 		if (::CertGetCertificateChain(NULL, certContext, nullptr, nullptr, &chainParameter, flags, nullptr, &chainContext) &&

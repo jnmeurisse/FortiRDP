@@ -94,7 +94,7 @@ namespace ui {
 	{
 		DEBUG_CTOR(_logger);
 
-		HRESULT hr = ::CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
+		const HRESULT hr = ::CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
 		if (FAILED(hr)) {
 			_logger.error("ERROR: CoInitializeEx error=%x", hr);
 			throw utl::win_err(hr);
@@ -136,7 +136,7 @@ namespace ui {
 
 					// Set up WebView bounds
 					RECT webview_bounds = get_client_rect();
-					RECT status_rect = get_control_rect(IDC_SAML_STATUS);
+					const RECT status_rect = get_control_rect(IDC_SAML_STATUS);
 					webview_bounds.bottom -= (status_rect.bottom - status_rect.top);
 					hr = _web_controller->put_Bounds(webview_bounds);
 					if (FAILED(hr))
@@ -238,7 +238,7 @@ namespace ui {
 						throw webview2_error(hr, "Navigate");
 
 				}
-				catch (webview2_error& e) {
+				catch (const webview2_error& e) {
 					_last_saml_error = ui::saml_err::WEBVIEW_ERROR;
 					_logger.error(
 						"ERROR: unable to create WebView2 SAML dialog hr=%x function=%s",
@@ -261,7 +261,7 @@ namespace ui {
 			}
 			else {
 				// Create WebView2 controller
-				HRESULT hr = env->CreateCoreWebView2Controller(
+				const HRESULT hr = env->CreateCoreWebView2Controller(
 					window_handle(),
 					Callback<ICoreWebView2CreateCoreWebView2ControllerCompletedHandler>(web_core_created).Get()
 				);
@@ -282,7 +282,7 @@ namespace ui {
 
 
 		set_control_text(IDC_SAML_STATUS, L"Initializing a web browser");
-		HRESULT hr = CreateCoreWebView2EnvironmentWithOptions(
+		const HRESULT hr = CreateCoreWebView2EnvironmentWithOptions(
 			nullptr,
 			app_data_path.c_str(),
 			nullptr,
@@ -333,7 +333,7 @@ namespace ui {
 		}
 		else {
 			wil::unique_cotaskmem_string uri;
-			HRESULT hr = args->get_Uri(&uri);
+			const HRESULT hr = args->get_Uri(&uri);
 			if (FAILED(hr))
 				return S_FALSE;
 			set_control_text(IDC_SAML_STATUS, uri.get());
@@ -436,7 +436,7 @@ namespace ui {
 					}
 				}
 			}
-			catch (webview2_error& e) {
+			catch (const webview2_error& e) {
 				_last_saml_error = ui::saml_err::WEBVIEW_ERROR;
 				_logger.error(
 					"ERROR: WebView2 Navigate callback error hr=%x function=%s",
@@ -460,7 +460,7 @@ namespace ui {
 		}
 		else {
 			wil::unique_cotaskmem_string uri;
-			HRESULT hr = sender->get_Source(&uri);
+			const HRESULT hr = sender->get_Source(&uri);
 			if (FAILED(hr))
 				return S_FALSE;
 			set_control_text(IDC_SAML_STATUS, uri.get());
@@ -516,7 +516,7 @@ namespace ui {
 					}
 				}
 			}
-			catch (webview2_error& e) {
+			catch (const webview2_error& e) {
 				_last_saml_error = ui::saml_err::WEBVIEW_ERROR;
 				_logger.error(
 					"ERROR: WebView2 Certificate Error callback error hr=%x function=%s",

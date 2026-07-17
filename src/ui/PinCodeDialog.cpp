@@ -72,7 +72,7 @@ namespace ui {
 	{
 		LPARAM_UNUSED();
 
-		INT_PTR rc = FALSE;
+		const INT_PTR rc = FALSE;
 		if (control_id == IDC_CODE)
 			set_control_enable(IDOK, get_control_text(IDC_CODE).size() > 0);
 		return rc;

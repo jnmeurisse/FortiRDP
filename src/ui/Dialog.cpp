@@ -328,7 +328,7 @@ namespace ui {
 	INT_PTR Dialog::onCommandMessage(WPARAM wParam, LPARAM lParam)
 	{
 		LPARAM_UNUSED();
-		int control_id = LOWORD(wParam);
+		const int control_id = LOWORD(wParam);
 
 		switch (HIWORD(wParam)) {
 		case BN_CLICKED:		// Button or menu clicked

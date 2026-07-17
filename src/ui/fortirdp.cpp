@@ -58,7 +58,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 #endif
 
 	// load command line arguments 
-	bool invalid_args = !cmdline_params.initialize();
+	const bool invalid_args = !cmdline_params.initialize();
 	
 	if (invalid_args) {
 		// Display command line syntax if an invalid argument was specified.
@@ -127,8 +127,8 @@ static void RedirectStdioToConsole()
 	if (AllocConsole()) {
 
 		HANDLE hStdOut = GetStdHandle(STD_OUTPUT_HANDLE);
-		COORD size = { 120, 1000 };
-		SMALL_RECT position = { 0, 0, 119, 50 };
+		constexpr COORD size = { 120, 1000 };
+		constexpr SMALL_RECT position = { 0, 0, 119, 50 };
 
 		// Set the screen buffer large enough
 		SetConsoleScreenBufferSize(hStdOut, size);

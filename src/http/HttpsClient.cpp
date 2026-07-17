@@ -173,7 +173,7 @@ namespace http {
 		// Allocate output buffer
 		std::stringstream escaped;
 
-		for (unsigned char c : str) {
+		for (const unsigned char c : str) {
 			// RFC 3986 unreserved characters
 			if (std::isalnum(c) || c == '-' || c == '_' || c == '.' || c == '~') {
 				escaped << static_cast<char>(c);

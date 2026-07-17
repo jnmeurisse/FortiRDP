@@ -319,7 +319,7 @@ namespace net {
 
 		// send what we can
 		size_t written;
-		lwip_err rc = _forward_queue.write(_local_client, written);
+		const lwip_err rc = _forward_queue.write(_local_client, written);
 
 		// Stop to forward data 
 		//        if an error has occurred, 
@@ -397,7 +397,7 @@ namespace net {
 			return;
 		}
 
-		lwip_err rc_con = ::tcp_connect(pf->_local_client, ipaddr, pf->_endpoint.port(), tcp_connected_cb);
+		const lwip_err rc_con = ::tcp_connect(pf->_local_client, ipaddr, pf->_endpoint.port(), tcp_connected_cb);
 		if (rc_con == ERR_OK) {
 			// Start a connection timer
 			::sys_timeout(10 * 1000, timeout_cb, &pf->_connect_timeout);
