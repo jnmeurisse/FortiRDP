@@ -45,7 +45,7 @@ namespace utl {
 	bool Thread::start()
 	{
 		DEBUG_ENTER_FMT(_logger, "handle=%x id=%d", _handle, _id);
-		DWORD status = ::ResumeThread(_handle);
+		const DWORD status = ::ResumeThread(_handle);
 		
 		return status != (DWORD)-1;
 	}

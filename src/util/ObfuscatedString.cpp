@@ -153,7 +153,8 @@ namespace utl {
 
 	uint8_t obfstring::create_obfuscation_key() noexcept
 	{
-		clock_t value = std::clock();
+		const clock_t value = std::clock();
+
 		return (value % 7) + 1;
 	}
 
