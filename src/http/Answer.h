@@ -28,7 +28,7 @@ namespace http {
 		/**
 		* Allocates an HTTP answer
 		*/
-		Answer() noexcept;
+		Answer();
 
 		/**
 		* Destroys this HTTP answer

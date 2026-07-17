@@ -26,10 +26,10 @@ namespace http {
 	using namespace net;
 
 
-	const int default_code = 400;
+	constexpr int default_code = 400;
 	const std::string default_reason = "Bad Request";
 
-	Answer::Answer() noexcept:
+	Answer::Answer():
 		_logger(Logger::instance()),
 		_status_code(default_code),
 		_reason_phrase(default_reason),
@@ -171,7 +171,7 @@ namespace http {
 
 		// Convert status code text to an integer.
 		_status_code = 0;
-		for (unsigned char c : status_code) {
+		for (const unsigned char c : status_code) {
 			if (!std::isdigit(c))
 				return answer_status::ERR_INVALID_STATUS_CODE;
 			_status_code = (_status_code * 10) + (c - '0');
@@ -183,7 +183,7 @@ namespace http {
 
 		// Read the reason phrase
 		ByteBuffer buffer(1024);
-		answer_status status = read_line(socket, buffer, timer);
+		const answer_status status = read_line(socket, buffer, timer);
 		if (status == answer_status::ERR_NONE  && !buffer.empty()) {
 			_reason_phrase = str::trim(buffer.to_string());
 		}
