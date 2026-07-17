@@ -46,7 +46,7 @@ namespace utl {
 	 * 
 	 * @return True if the conversion succeeded, false if not.
 	*/
-	bool X509crt_to_pem(const mbedtls_x509_crt* crt, std::string& pem) noexcept;
+	bool X509crt_to_pem(const mbedtls_x509_crt* crt, std::string& pem);
 
 	/**
 	 * Checks if the x509 is signed by a trusted CA stored in Windows.

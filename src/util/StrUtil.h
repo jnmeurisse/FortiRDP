@@ -37,13 +37,13 @@ namespace utl {
 		size_t split(const obfstring& str, const char delim, std::vector<obfstring>& parts);
 
 		// Performs a case insensitive string comparison.
-		bool iequal(std::string const& s1, std::string const& s2) noexcept;
+		bool iequal(std::string const& s1, std::string const& s2);
 
 		// Converts a string to an integer. The function returns true if the conversion
 		// succeeds. The value parameter remains untouched if an error was detected.
-		bool str2num(const std::string& numstr, const int radix, const long minval, const long maxval, long& value) noexcept;
-		bool str2i(const std::string& numstr, int& value) noexcept;
-		bool str2i(const std::wstring& numstr, int& value) noexcept;
+		bool str2num(const std::string& numstr, const int radix, const long minval, const long maxval, long& value);
+		bool str2i(const std::string& numstr, int& value);
+		bool str2i(const std::wstring& numstr, int& value);
 
 		// Trims string.
 		std::wstring trimright(const std::wstring& str);

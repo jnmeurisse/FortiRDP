@@ -84,7 +84,7 @@ namespace utl {
 		}
 
 
-		bool str2num(const std::string& numstr, const int radix, const long minval, const long maxval, long& value) noexcept
+		bool str2num(const std::string& numstr, const int radix, const long minval, const long maxval, long& value)
 		{
 			if (minval > maxval) {
 				errno = EINVAL;
@@ -108,13 +108,13 @@ namespace utl {
 		}
 
 
-		bool str2i(const std::wstring& str, int& value) noexcept
+		bool str2i(const std::wstring& str, int& value)
 		{
 			return str2i(wstr2str(str), value);
 		}
 
 
-		bool str2i(const std::string& str, int& value) noexcept
+		bool str2i(const std::string& str, int& value)
 		{
 			long tmp;
 			const bool ok = str2num(str, 10, INT_MIN, INT_MAX, tmp);
@@ -131,7 +131,7 @@ namespace utl {
 		}
 
 
-		bool iequal(std::string const& s1, std::string const& s2) noexcept
+		bool iequal(std::string const& s1, std::string const& s2)
 		{
 			return (s1.length() == s2.length()) && std::equal(s2.begin(), s2.end(), s1.begin(), icheq);
 		}

@@ -43,7 +43,7 @@ namespace utl {
 	}
 
 
-	bool X509crt_to_pem(const mbedtls_x509_crt* crt, std::string& pem) noexcept
+	bool X509crt_to_pem(const mbedtls_x509_crt* crt, std::string& pem)
 	{
 		constexpr auto pem_begin_crt{ "-----BEGIN CERTIFICATE-----\n" };
 		constexpr auto pem_end_crt{ "-----END CERTIFICATE-----\n" };
