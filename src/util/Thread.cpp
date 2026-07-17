@@ -76,14 +76,18 @@ namespace utl {
 	*/
 	unsigned __stdcall thread_entry_point(void* data)
 	{
-		auto thread = static_cast<Thread*>(data);
-		unsigned int rc = thread->run();
-
-		if (thread->_auto_delete) {
-			delete thread;
-		}
+		const auto thread = static_cast<Thread*>(data);
 		
-		::_endthreadex(rc);
+		if (thread) {
+			const unsigned int rc = thread->run();
+
+			if (thread->_auto_delete) {
+				delete thread;
+			}
+
+			::_endthreadex(rc);
+		}
+
 		return 0;
 	}
 
