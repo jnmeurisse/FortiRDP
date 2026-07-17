@@ -146,8 +146,10 @@ namespace utl {
 
 	void obfstring::uncrypt(char* buffer, size_t size, size_t offset) const noexcept
 	{
-		for (int index = 0; (index < _obfuscated_text.size()) && (index + offset < size); index++)
-			buffer[offset + index] = decode(_obfuscated_text[index], _key);
+		if (buffer) {
+			for (int index = 0; (index < _obfuscated_text.size()) && (index + offset < size); index++)
+				buffer[offset + index] = decode(_obfuscated_text[index], _key);
+		}
 	}
 
 
