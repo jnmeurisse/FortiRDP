@@ -17,7 +17,7 @@
 
 namespace utl {
 	
-	X509Crt::X509Crt()
+	X509Crt::X509Crt() noexcept
 	{
 		::mbedtls_x509_crt_init(&_crt);
 	}
@@ -29,13 +29,13 @@ namespace utl {
 	}
 
 
-	utl::mbed_err X509Crt::load(const char* filename)
+	utl::mbed_err X509Crt::load(const char* filename) noexcept
 	{
 		return ::mbedtls_x509_crt_parse_file(&_crt, filename);
 	}
 
 
-	utl::mbed_err X509Crt::get_info(char* buf, size_t size, const char* prefix) const
+	utl::mbed_err X509Crt::get_info(char* buf, size_t size, const char* prefix) const noexcept
 	{
 		const mbed_err errnum = ::mbedtls_x509_crt_info(buf, size, prefix, &_crt);
 
@@ -43,7 +43,7 @@ namespace utl {
 	}
 
 
-	bool X509crt_to_pem(const mbedtls_x509_crt* crt, std::string& pem)
+	bool X509crt_to_pem(const mbedtls_x509_crt* crt, std::string& pem) noexcept
 	{
 		constexpr auto pem_begin_crt{ "-----BEGIN CERTIFICATE-----\n" };
 		constexpr auto pem_end_crt{ "-----END CERTIFICATE-----\n" };
@@ -76,7 +76,8 @@ namespace utl {
 	}
 
 
-	static DWORD WinVerifySslCert(PCCERT_CONTEXT certContext) {
+	static DWORD WinVerifySslCert(PCCERT_CONTEXT certContext) noexcept 
+	{
 		DWORD errorStatus = (DWORD) - 1;
 
 		static char* usage[3] = {
@@ -105,7 +106,7 @@ namespace utl {
 	}
 
 
-	bool x509crt_is_trusted(const mbedtls_x509_crt* crt)
+	bool x509crt_is_trusted(const mbedtls_x509_crt* crt) noexcept
 	{
 		bool status = false;
 
