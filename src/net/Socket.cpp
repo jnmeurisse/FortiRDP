@@ -15,7 +15,7 @@
 namespace net {
 	using namespace utl;
 
-	Socket::Socket() :
+	Socket::Socket() noexcept :
 		_logger(Logger::instance()),
 		_netctx{}
 	{

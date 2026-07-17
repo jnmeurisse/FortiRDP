@@ -212,7 +212,7 @@ namespace fw {
 		const std::string _realm;
 
 		// Logs an HTTP error message.
-		void log_http_error(const char* msg, const http::Answer& answer);
+		void log_http_error(const char* msg, const http::Answer& answer) noexcept;
 
 		// Sends a send_request and wait for a response.
 		bool send_and_receive(http::Request& request, http::Answer& answer);

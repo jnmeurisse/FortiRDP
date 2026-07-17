@@ -66,7 +66,7 @@ namespace net {
 		/**
 		 * Starts the tunnel listener
 		*/
-		bool start() override;
+		bool start() noexcept override;
 
 		/**
 		 * Terminates the tunnel listener.
@@ -96,7 +96,7 @@ namespace net {
 		/**
 		 * Returns the local endpoint address and port.
 		*/
-		inline const net::Endpoint& local_endpoint() const { return _listener.endpoint(); }
+		inline const net::Endpoint& local_endpoint() const noexcept { return _listener.endpoint(); }
 
 	protected:
 		unsigned int run() override;

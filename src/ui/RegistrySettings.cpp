@@ -12,7 +12,7 @@
 
 
 namespace ui {
-	RegistrySettings::RegistrySettings() :
+	RegistrySettings::RegistrySettings() noexcept :
 		_key(HKEY_CURRENT_USER, L"Software\\Fortigate\\fortirdp")
 	{
 	}

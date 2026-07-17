@@ -23,7 +23,7 @@ namespace net {
 		/**
 		 * Allocates an empty forwarder list.
 		*/
-		PortForwarders();
+		PortForwarders() noexcept;
 
 		/**
 		 * Deletes all existing forwarders in that list.

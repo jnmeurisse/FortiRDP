@@ -13,7 +13,7 @@ namespace net {
 	using namespace utl;
 
 
-	Listener::Listener() :
+	Listener::Listener() noexcept :
 		Socket(),
 		_endpoint()
 	{

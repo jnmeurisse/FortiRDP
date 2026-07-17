@@ -23,7 +23,7 @@ namespace net {
 		/**
 		 * Allocates a default endpoint mapped to 0.0.0.0:0.
 		*/
-		Endpoint();
+		Endpoint() noexcept;
 
 		/**
 		 * Allocates an endpoint from an address.

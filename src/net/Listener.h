@@ -20,7 +20,7 @@ namespace net {
 	class Listener : public Socket
 	{
 	public:
-		Listener();
+		Listener() noexcept;
 		~Listener() override;
 
 		/**

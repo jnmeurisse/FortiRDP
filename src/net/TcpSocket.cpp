@@ -11,7 +11,7 @@ namespace net {
 	using namespace utl;
 
 
-	TcpSocket::TcpSocket() :
+	TcpSocket::TcpSocket() noexcept :
 		Socket()
 	{
 		DEBUG_CTOR(_logger);

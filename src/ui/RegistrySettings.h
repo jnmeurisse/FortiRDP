@@ -21,7 +21,7 @@ namespace ui {
 	class RegistrySettings
 	{
 	public:
-		explicit RegistrySettings();
+		explicit RegistrySettings() noexcept;
 		virtual ~RegistrySettings();
 
 		/**

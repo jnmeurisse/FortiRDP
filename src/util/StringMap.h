@@ -105,17 +105,17 @@ namespace utl {
 		/**
 		 * Returns the number of named pairs in this collection.
 		*/
-		inline size_t size() const { return _strmap.size(); }
+		inline size_t size() const noexcept { return _strmap.size(); }
 
 		/**
 		 * Returns an iterator referring to the first element in the collection.
 		*/
-		inline const_iterator cbegin() const { return _strmap.cbegin(); }
+		inline const_iterator cbegin() const noexcept { return _strmap.cbegin(); }
 
 		/**
 		 * Returns an iterator referring to the last element in the collection.
 		*/
-		inline const_iterator cend() const { return _strmap.cend(); }
+		inline const_iterator cend() const noexcept { return _strmap.cend(); }
 		
 	private:
 		strimap _strmap;

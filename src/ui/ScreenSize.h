@@ -16,7 +16,7 @@ namespace ui {
 		int height;
 		int width;
 
-		bool is_valid() const {
+		bool is_valid() const noexcept {
 			return (height >= 0 && height <= ScreenSize::max_height && width >= 0 && width <= ScreenSize::max_width);
 		}
 	};

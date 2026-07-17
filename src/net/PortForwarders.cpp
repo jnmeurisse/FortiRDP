@@ -12,7 +12,7 @@ namespace net {
 	using namespace utl;
 
 
-	PortForwarders::PortForwarders() :
+	PortForwarders::PortForwarders() noexcept :
 		_logger(Logger::instance())
 	{
 		DEBUG_CTOR(_logger);

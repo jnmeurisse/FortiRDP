@@ -51,7 +51,7 @@ namespace net {
 	}
 
 
-	bool Tunneler::start()
+	bool Tunneler::start() noexcept
 	{
 		DEBUG_ENTER(_logger);
 		bool started = true;

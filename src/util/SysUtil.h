@@ -13,7 +13,7 @@
 namespace utl {
 
 	// Returns true if a file exists
-	bool file_exists(const std::wstring& path);
+	bool file_exists(const std::wstring& path) noexcept;
 
 	// Returns the name of the user associated with this application
 	std::wstring get_windows_username();

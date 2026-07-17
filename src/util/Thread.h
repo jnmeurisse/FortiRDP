@@ -40,7 +40,7 @@ namespace utl {
 		 * The method returns true if the function succeed to start the
 		 * execution of this thread.
 		*/
-		virtual bool start();
+		virtual bool start() noexcept;
 
 		/**
 		 * Waits 'timeout' milliseconds for the thread to finish.

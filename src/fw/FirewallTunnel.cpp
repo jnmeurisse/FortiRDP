@@ -31,7 +31,7 @@ namespace fw {
 	}
 
 
-	bool FirewallTunnel::start()
+	bool FirewallTunnel::start() noexcept
 	{
 		DEBUG_ENTER(_logger);
 

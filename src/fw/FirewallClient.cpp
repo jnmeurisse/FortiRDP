@@ -125,7 +125,7 @@ namespace fw {
 	}
 
 
-	void FirewallClient::log_http_error(const char* msg, const http::Answer& answer)
+	void FirewallClient::log_http_error(const char* msg, const http::Answer& answer) noexcept
 	{
 		_logger.error("ERROR: %s", msg);
 		_logger.error(

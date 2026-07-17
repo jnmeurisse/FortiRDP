@@ -13,13 +13,13 @@
 
 namespace fw {
 
-	CrtDigest::CrtDigest() :
+	CrtDigest::CrtDigest() noexcept :
 		_digest{ 0 }
 	{
 	}
 
 
-	CrtDigest::CrtDigest(const mbedtls_x509_crt* crt) :
+	CrtDigest::CrtDigest(const mbedtls_x509_crt* crt) noexcept :
 		CrtDigest()
 	{
 		if (crt)
@@ -27,13 +27,13 @@ namespace fw {
 	}
 
 
-	bool CrtDigest::operator== (const CrtDigest& other) const
+	bool CrtDigest::operator== (const CrtDigest& other) const noexcept
 	{
 		return std::memcmp(_digest, other._digest, sizeof(_digest)) == 0;
 	}
 
 
-	bool CrtDigest::operator!= (const CrtDigest& other) const
+	bool CrtDigest::operator!= (const CrtDigest& other) const noexcept
 	{
 		return !(*this == other);
 	}

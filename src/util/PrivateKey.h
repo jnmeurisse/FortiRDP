@@ -33,7 +33,7 @@ namespace utl {
 		/**
 		* Returns a reference to the private key.
 		*/
-		mbedtls_pk_context& get_pk() { return _key; }
+		mbedtls_pk_context& get_pk() noexcept { return _key; }
 
 	private:
 		mbedtls_ctr_drbg_context _ctr_drbg;

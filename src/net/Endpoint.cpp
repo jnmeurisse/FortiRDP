@@ -16,7 +16,7 @@ namespace net {
 	using namespace utl;
 
 
-	Endpoint::Endpoint() :
+	Endpoint::Endpoint() noexcept:
 		_hostname("0.0.0.0"),
 		_port(0)
 	{

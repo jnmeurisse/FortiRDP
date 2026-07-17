@@ -40,7 +40,7 @@ namespace fw {
 		 * 
 		 * The function opens an encrypted TLS socket and starts the tunnel.
 		 */
-		bool start() override;
+		bool start() noexcept override;
 
 	private:
 		// The class name

@@ -89,7 +89,7 @@ namespace net {
 		/**
 		 * Constructs and initialize a TlContext.
 		*/
-		TlsContext();
+		TlsContext() noexcept;
 
 		/**
 		 * Destroys a TlsContext object.

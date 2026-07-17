@@ -9,7 +9,7 @@
 
 namespace net {
 
-	TlsContext::TlsContext() :
+	TlsContext::TlsContext() noexcept :
 		_sslctx{}
 	{
 		::mbedtls_ssl_init(&_sslctx);

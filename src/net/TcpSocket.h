@@ -19,7 +19,7 @@ namespace net {
 		/**
 		 * Constructs a TcpSocket.
 		*/
-		explicit TcpSocket();
+		explicit TcpSocket() noexcept;
 
 		/**
 		 * Destroys a TcpSocket object.

@@ -241,7 +241,7 @@ namespace net {
 
 		/* Allocates a disconnected socket.
 		*/
-		Socket();
+		Socket() noexcept;
 
 		/* Returns the mbedtls network context.
 		*/

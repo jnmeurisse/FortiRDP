@@ -29,7 +29,7 @@ namespace http {
 	const int default_code = 400;
 	const std::string default_reason = "Bad Request";
 
-	Answer::Answer() :
+	Answer::Answer() noexcept:
 		_logger(Logger::instance()),
 		_status_code(default_code),
 		_reason_phrase(default_reason),

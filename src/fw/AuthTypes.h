@@ -52,7 +52,7 @@ namespace fw {
 			AuthRequest(prompt, endpoint)
 		{}
 
-		void clear() {
+		void clear() noexcept {
 			credentials.clear();
 		}
 
