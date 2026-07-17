@@ -16,7 +16,7 @@ namespace net {
 	using namespace utl;
 
 	Socket::Socket() :
-		_logger(Logger::get_logger()),
+		_logger(Logger::instance()),
 		_netctx{}
 	{
 		DEBUG_CTOR(_logger);
@@ -68,7 +68,7 @@ namespace net {
 			* int option = 1;
 			* if (setsockopt(_netctx.fd, SOL_SOCKET,
 			* 	SO_EXCLUSIVEADDRUSE, (char *)&option, sizeof(option)) == SOCKET_ERROR) {
-			* 	_logger->error("ERROR: Listener::bind setsockopt failed, error=%d", WSAGetLastError());
+			* 	_logger.error("ERROR: Listener::bind setsockopt failed, error=%d", WSAGetLastError());
 			*
 			* 	rc = MBEDTLS_ERR_NET_BIND_FAILED;
 			* 	goto terminate;

@@ -117,7 +117,7 @@ namespace net {
 		static const char* __class__;
 
 		// A reference to the application logger.
-		utl::Logger* const _logger;
+		utl::Logger& _logger;
 
 		// socket connected to the firewall.
 		net::TlsSocket&  _tunnel;

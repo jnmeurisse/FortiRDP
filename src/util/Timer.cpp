@@ -17,7 +17,7 @@ namespace utl {
 
 
 	Timer::Timer(uint32_t duration) :
-		_logger(Logger::get_logger())
+		_logger(Logger::instance())
 	{
 		DEBUG_CTOR(_logger);
 

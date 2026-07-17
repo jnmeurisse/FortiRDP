@@ -36,7 +36,7 @@ namespace ui {
 		char buffer[4096];
 
 		mbedtls_x509_crt_verify_info(buffer, sizeof(buffer), " * ", status);
-		_logger->info(buffer);
+		_logger.info(buffer);
 
 		std::string message("The security certificate is not valid.\n");
 		message.append(buffer);
@@ -148,9 +148,9 @@ namespace ui {
 					goto exit;
 				}
 
-				_logger->info(">> portal info");
-				_logger->info("     user: %s", portal_info.user.c_str());
-				_logger->info("     group: %s", portal_info.group.c_str());
+				_logger.info(">> portal info");
+				_logger.info("     user: %s", portal_info.user.c_str());
+				_logger.info("     group: %s", portal_info.group.c_str());
 			}
 		}
 
@@ -160,7 +160,7 @@ namespace ui {
 			_portal_client.is_authenticated();
 
 		if (!connected)
-			_logger->info(">> disconnected");
+			_logger.info(">> disconnected");
 
 		return connected;
 	}

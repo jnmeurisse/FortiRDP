@@ -22,7 +22,7 @@
 namespace ui {
 	AsyncController::AsyncController(HWND hwnd) :
 		Thread(),
-		_logger(utl::Logger::get_logger()),
+		_logger(utl::Logger::instance()),
 		_action(NONE),
 		_mutex(),
 		_requestEvent(false),
@@ -59,17 +59,17 @@ namespace ui {
 				utl::mbed_err rc = _ca_crt->load(crt_filename.c_str());
 
 				if (rc != 0) {
-					_logger->info("WARNING: failed to load CA cert file %s ", compacted.c_str());
-					_logger->info("%s", utl::mbed_errmsg(rc).c_str());
+					_logger.info("WARNING: failed to load CA cert file %s ", compacted.c_str());
+					_logger.info("%s", utl::mbed_errmsg(rc).c_str());
 					init_status = false;
 				}
 				else {
-					_logger->info(">> CA cert loaded from file '%s'", compacted.c_str());
+					_logger.info(">> CA cert loaded from file '%s'", compacted.c_str());
 					init_status = true;
 				}
 			}
 			else {
-				_logger->info("WARNING: can't find CA cert file %s", compacted.c_str());
+				_logger.info("WARNING: can't find CA cert file %s", compacted.c_str());
 				init_status = false;
 			}
 		}
@@ -94,8 +94,8 @@ namespace ui {
 				utl::mbed_err rc = _user_crt->crt.load(crt_filename.c_str());
 
 				if (rc != 0) {
-					_logger->error("ERROR: failed to load user cert file %s ", compacted.c_str());
-					_logger->info("%s", utl::mbed_errmsg(rc).c_str());
+					_logger.error("ERROR: failed to load user cert file %s ", compacted.c_str());
+					_logger.info("%s", utl::mbed_errmsg(rc).c_str());
 					init_status = false;
 				}
 				else {
@@ -110,13 +110,13 @@ namespace ui {
 						}
 					}
 					if (rc) {
-						_logger->error("ERROR: can't load private key from file %s", compacted.c_str());
+						_logger.error("ERROR: can't load private key from file %s", compacted.c_str());
 						init_status = false;
 					}
 				}
 			}
 			else {
-				_logger->error("ERROR: can't find user cert file %s", compacted.c_str());
+				_logger.error("ERROR: can't find user cert file %s", compacted.c_str());
 				init_status = false;
 			}
 		}
@@ -238,7 +238,7 @@ namespace ui {
 		LOG_DEBUG(_logger, "set event for action=%s", action_name(action));
 		_action = action;
 		if (!_requestEvent.set()) {
-			_logger->error("ERROR: %s::%s set event error=%x",
+			_logger.error("ERROR: %s::%s set event error=%x",
 				__class__,
 				__func__,
 				::GetLastError()
@@ -274,7 +274,7 @@ namespace ui {
 
 			// We are ready to accept a new event.
 			if (!_readyEvent.set()) {
-				_logger->error("ERROR: %s::%s set event error=%x",
+				_logger.error("ERROR: %s::%s set event error=%x",
 					__class__,
 					__func__,
 					::GetLastError()
@@ -289,14 +289,14 @@ namespace ui {
 			const DWORD event = ::WaitForMultipleObjects(eventCount, hEvents.data(), false, INFINITE);
 
 			// Wait that a new action is requested or that a task ended.
-			_logger->debug("%s::%s waiting event=%x",
+			_logger.debug("%s::%s waiting event=%x",
 				__class__,
 				__func__,
 				event
 			);
 			switch (event) {
 			case (WAIT_OBJECT_0 + 0):
-				_logger->debug("%s::%s start action=%s",
+				_logger.debug("%s::%s start action=%s",
 					__class__,
 					__func__,
 					action_name(_action)
@@ -340,7 +340,7 @@ namespace ui {
 				break;
 
 			case WAIT_FAILED:
-				_logger->error("ERROR: %s::%s wait failed error=%x",
+				_logger.error("ERROR: %s::%s wait failed error=%x",
 					__class__,
 					__func__,
 					::GetLastError()
@@ -358,7 +358,7 @@ namespace ui {
 					procedure->run();
 				}
 				catch (const std::exception& e) {
-					_logger->error("ERROR: %s::%s action run failed exception=%s",
+					_logger.error("ERROR: %s::%s action run failed exception=%s",
 						__class__,
 						__func__,
 						e.what()

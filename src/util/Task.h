@@ -56,7 +56,7 @@ namespace utl {
 		static const char* __class__;
 
 		// A reference to the application logger.
-		utl::Logger* const _logger;
+		utl::Logger& _logger;
 
 		std::wstring _cmdline;
 		PROCESS_INFORMATION _pi;

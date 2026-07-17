@@ -30,7 +30,7 @@ namespace http {
 	const std::string default_reason = "Bad Request";
 
 	Answer::Answer() :
-		_logger(Logger::get_logger()),
+		_logger(Logger::instance()),
 		_status_code(default_code),
 		_reason_phrase(default_reason),
 		_headers(),
@@ -237,7 +237,7 @@ namespace http {
 						_cookies.add(Cookie::parse(field_value));
 					}
 					catch (const cookie_error& e) {
-						_logger->debug("ERROR: %s", e.what());
+						_logger.debug("ERROR: %s", e.what());
 					}
 				}
 				else {

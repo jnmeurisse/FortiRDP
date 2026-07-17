@@ -14,7 +14,7 @@ namespace net {
 
 	OutputQueue::OutputQueue(uint16_t capacity) :
 		PBufQueue(capacity),
-		_logger(Logger::get_logger())
+		_logger(Logger::instance())
 	{
 		DEBUG_CTOR(_logger);
 	}
@@ -46,7 +46,7 @@ namespace net {
 			if (snd_status.code == snd_status_code::NETCTX_SND_OK) {
 				// Move the pointer into the queue if bytes have been sent.
 				if (!move(snd_status.sbytes)) {
-					_logger->error("INTERNAL ERROR: OutputQueue::move failed");
+					_logger.error("INTERNAL ERROR: OutputQueue::move failed");
 					snd_status.code = snd_status_code::NETCTX_SND_ERROR;
 					snd_status.rc = MBEDTLS_ERR_NET_SOCKET_FAILED;
 				}
@@ -106,7 +106,7 @@ namespace net {
 			if (rc == ERR_OK) {
 				// Move the pointer into the queue if bytes have been copied to the TCP queue.
 				if (!move(data_cblock.len)) {
-					_logger->error("INTERNAL ERROR: OutputQueue::move failed");
+					_logger.error("INTERNAL ERROR: OutputQueue::move failed");
 					rc = ERR_VAL;
 				}
 				else

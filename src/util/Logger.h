@@ -18,8 +18,8 @@
 #define PTR_VAL(ptr) (reinterpret_cast<std::uintptr_t>(ptr))
 
 
-#define DEBUG_CTOR(logger)	(logger)->debug("* ctor::%s", __class__)
-#define DEBUG_DTOR(logger)	(logger)->debug("* dtor::%s", __class__)
+#define DEBUG_CTOR(logger)	logger.debug("* ctor::%s", __class__)
+#define DEBUG_DTOR(logger)	logger.debug("* dtor::%s", __class__)
 
 
 #define DEBUG_ENTER_FMT(logger, fmt, ...) \
@@ -33,12 +33,12 @@
 			utl::LogScope __scope(logger, utl::LogLevel::LL_TRACE, this, __class__, __func__)
 
 #define LOG_DEBUG(_logger, fmt, ...) \
-			if ((_logger)->is_debug_enabled()) \
-				(_logger)->log(utl::LogLevel::LL_DEBUG, "= %s::%s - "##fmt, __class__, __func__, __VA_ARGS__)
+			if (_logger.is_debug_enabled()) \
+				_logger.log(utl::LogLevel::LL_DEBUG, "= %s::%s - "##fmt, __class__, __func__, __VA_ARGS__)
 
 #define LOG_TRACE(_logger, fmt, ...) \
-			if ((_logger)->is_trace_enabled()) \
-				(_logger)->log(utl::LogLevel::LL_TRACE, "= %s::%s - "##fmt, __class__, __func__, __VA_ARGS__)
+			if (_logger.is_trace_enabled()) \
+				_logger.log(utl::LogLevel::LL_TRACE, "= %s::%s - "##fmt, __class__, __func__, __VA_ARGS__)
 
 
 
@@ -54,25 +54,33 @@ namespace utl {
 	class Logger final
 	{
 	public:
-		Logger();
+		/**
+		 * Returns the instance of the logger.
+		*/
+		static Logger& instance() noexcept;
+
+		Logger(const Logger&) = delete;
+		Logger& operator=(const Logger&) = delete;
+		Logger(Logger&&) = delete;
+		Logger& operator=(Logger&&) = delete;
 
 		/**
 		 * Logs a message.
 		*/
-		void log(LogLevel level, const std::string& text);
-		void log(LogLevel level, const char* format, ...);
-		void log(LogLevel level, const char* format, va_list args);
-		void trace(const char* format, ...);
-		void debug(const char* format, ...);
-		void info(const char* format, ...);
-		void error(const char* format, ...);
+		void log(LogLevel level, const std::string& text) noexcept;
+		void log(LogLevel level, const char* format, ...) noexcept;
+		void log(LogLevel level, const char* format, va_list args) noexcept;
+		void trace(const char* format, ...) noexcept;
+		void debug(const char* format, ...) noexcept;
+		void info(const char* format, ...) noexcept;
+		void error(const char* format, ...) noexcept;
 
 		/**
 		 * Sets the threshold to 'level'.
 		 *
 		 * Logging message than are less severe than the specified level are ignored.
 		*/
-		void set_level(LogLevel level);
+		void set_level(LogLevel level) noexcept;
 		
 		/**
 		 * Returns the current level.
@@ -92,7 +100,7 @@ namespace utl {
 		inline bool is_trace_enabled() const noexcept { return is_enabled(LogLevel::LL_TRACE); }
 
 		/**
-		 * Adds a writer to this logger.
+		 * Adds a writer to this logger.33
 		*/
 		void add_writer(LogWriter* writer);
 
@@ -101,15 +109,9 @@ namespace utl {
 		*/
 		void remove_writer(LogWriter* writer);
 
-		/**
-		 * Returns the instance of the logger.
-		*/
-		static Logger* get_logger();
-
 	private:
-		// A reference to the application logger (singleton).
-		static Logger* _logger;
-
+		Logger::Logger() noexcept;
+		
 		// A list of writers.
 		std::list<LogWriter *> _writers;
 
@@ -129,22 +131,25 @@ namespace utl {
 		/**
 		 * Writes a message to the log writers.
 		*/
-		void write(LogLevel level, const std::string& text);
-		void write(LogLevel level, const char* format, va_list args);
+		void write(LogLevel level, const std::string& text) noexcept;
+		void write(LogLevel level, const char* format, va_list args) noexcept;
 	};
 
 
 	class LogScope final
 	{
 	public:
-		explicit LogScope(Logger *logger, LogLevel level,
-			const void *this_address, const char* class_name, const char* func_name, const char* fmt, ...);
-		explicit LogScope(Logger* logger, LogLevel level,
-			const void* this_address, const char* class_name, const char* func_name);
+		LogScope() = delete;
+		explicit LogScope(Logger& logger, LogLevel level,
+			const void *this_address, const char* class_name, const char* func_name, const char* fmt, ...) noexcept;
+		explicit LogScope(Logger& logger, LogLevel level,
+			const void* this_address, const char* class_name, const char* func_name) noexcept;
 		~LogScope();
 
+
+
 	private:
-		Logger* _logger;
+		Logger& _logger;
 		const LogLevel _level;
 		const char* _class_name;
 		const char* _func_name;
@@ -157,10 +162,10 @@ namespace utl {
 	class LogWriter
 	{
 	public:
-		explicit LogWriter(LogLevel level);
+		explicit LogWriter(LogLevel level) noexcept;
 		virtual ~LogWriter() = default;
 
-		virtual void write(LogLevel level, int indent, const void* object, const std::string& text) = 0;
+		virtual void write(LogLevel level, int indent, const void* object, const std::string& text) = 0 ;
 		virtual void flush() { return; }
 
 		/**
@@ -183,7 +188,7 @@ namespace utl {
 	class FileLogWriter final: public LogWriter
 	{
 	public:
-		explicit FileLogWriter(LogLevel level);
+		explicit FileLogWriter(LogLevel level) noexcept;
 		~FileLogWriter() override = default;
 
 		bool open(const std::wstring& filename);
@@ -198,11 +203,11 @@ namespace utl {
 	class LogQueue final
 	{
 	public:
-		inline size_t size() const { return _queue.size(); }
+		inline size_t size() const noexcept { return _queue.size(); }
 		void push(const std::string& text);
 		std::string pop();
 
-		inline utl::Mutex& mutex() { return _mutex; }
+		inline utl::Mutex& mutex() noexcept { return _mutex; }
 
 	private:
 		std::queue<std::string> _queue;

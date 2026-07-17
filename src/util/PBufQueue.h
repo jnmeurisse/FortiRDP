@@ -166,7 +166,7 @@ namespace utl {
 		static const char* __class__;
 
 		// A reference to the application logger.
-		utl::Logger* const _logger;
+		utl::Logger& _logger;
 
 		// The capacity of this queue.
 		const size_t _capacity;

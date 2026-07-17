@@ -55,8 +55,8 @@ namespace ui {
 		// The class name.
 		static const char* __class__;
 
-		// The application logger.
-		utl::Logger* const _logger;
+		// A reference to the application logger.
+		utl::Logger& _logger;
 
 		// Command line parameters.
 		const ui::CmdlineParams _params;

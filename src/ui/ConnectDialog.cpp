@@ -36,7 +36,7 @@ namespace ui {
 
 	ConnectDialog::ConnectDialog(HINSTANCE hInstance, const ui::CmdlineParams& params) :
 		ModelessDialog(hInstance, NULL_HWND, IDD_CONNECT_DIALOG),
-		_logger(utl::Logger::get_logger()),
+		_logger(utl::Logger::instance()),
 		_params(params),
 		_settings(),
 		_writer(window_handle(), utl::LogLevel::LL_INFO)
@@ -79,7 +79,7 @@ namespace ui {
 
 		// Link a new log writer to the logger. This log writer sends OutputInfoMessage
 		// to this dialog window.
-		_logger->add_writer(&_writer);
+		_logger.add_writer(&_writer);
 
 		// Configure the maximum length for address text fields.
 		set_control_textlen(IDC_ADDR_FW, MAX_ADDR_LENGTH);
@@ -150,7 +150,7 @@ namespace ui {
 		_controller->terminate();
 		_controller->wait(1000);
 
-		_logger->remove_writer(&_writer);
+		_logger.remove_writer(&_writer);
 	}
 
 
@@ -794,7 +794,7 @@ namespace ui {
 				rdp_server.del_value(L"UsernameHint");
 			}
 			catch (const std::system_error& err) {
-				_logger->debug("ERROR: ClearRdpHistory %s", err.what());
+				_logger.debug("ERROR: ClearRdpHistory %s", err.what());
 			}
 		}
 
@@ -815,7 +815,7 @@ namespace ui {
 				}
 			}
 			catch (const std::system_error& err) {
-				_logger->debug("ERROR: ClearRdpHistory %s", err.what());
+				_logger.debug("ERROR: ClearRdpHistory %s", err.what());
 			}
 		}
 	}
@@ -836,7 +836,7 @@ namespace ui {
 			if (_params.host_address().empty())
 				_settings.set_host_address(getHostAddress());
 
-			_logger->info(">> successfully logged in portal %s", _firewall_endpoint.to_string().c_str());
+			_logger.info(">> successfully logged in portal %s", _firewall_endpoint.to_string().c_str());
 
 			// create the tunnel.
 			_controller->create_tunnel(

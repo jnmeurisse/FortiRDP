@@ -16,7 +16,7 @@
 namespace utl {
 
 	Task::Task(const std::wstring& path) :
-		_logger(Logger::get_logger()),
+		_logger(Logger::instance()),
 		_cmdline(str::quote(path))
 	{
 		DEBUG_CTOR(_logger);
@@ -57,7 +57,7 @@ namespace utl {
 			STARTUPINFO si = { 0 };
 			si.cb = sizeof(si);
 
-			_logger->debug(">> start task cmd=%s", str::wstr2str(_cmdline).c_str());
+			_logger.debug(">> start task cmd=%s", str::wstr2str(_cmdline).c_str());
 
 			std::vector<wchar_t> cmdline_buffer(_cmdline.begin(), _cmdline.end());
 			cmdline_buffer.push_back(L'\0');
@@ -74,11 +74,11 @@ namespace utl {
 				&si,
 				&_pi)) {
 
-				_logger->error("ERROR: unable to create process, error=%x", ::GetLastError());
+				_logger.error("ERROR: unable to create process, error=%x", ::GetLastError());
 				rc = false;
 			}
 			else {
-				_logger->debug("... task pid=%d started", _pi.dwProcessId);
+				_logger.debug("... task pid=%d started", _pi.dwProcessId);
 				rc = true;
 			}
 
@@ -95,14 +95,14 @@ namespace utl {
 
 		switch (::WaitForSingleObject(_pi.hProcess, millis)) {
 		case WAIT_OBJECT_0:
-			_logger->debug("... task pid=%d is stopped", _pi.dwProcessId);
+			_logger.debug("... task pid=%d is stopped", _pi.dwProcessId);
 			return true;
 
 		case WAIT_TIMEOUT: // the thread is still running
 			return false;
 
 		default:
-			_logger->error("ERROR: error waiting for end of task pid=%d, error=%x", _pi.dwProcessId, GetLastError());
+			_logger.error("ERROR: error waiting for end of task pid=%d, error=%x", _pi.dwProcessId, GetLastError());
 			return false;
 		}
 	}

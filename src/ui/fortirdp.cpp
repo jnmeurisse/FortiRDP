@@ -42,7 +42,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	UNREFERENCED_PARAMETER(hPrevInstance);
 	UNREFERENCED_PARAMETER(lpCmdLine);
 
-	utl::Logger* const logger = utl::Logger::get_logger();
+	utl::Logger& logger = utl::Logger::instance();
 	MSG msg;
 	ui::CmdlineParams cmdline_params;
 	utl::FileLogWriter writer(utl::LogLevel::LL_TRACE);
@@ -82,17 +82,17 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	if (cmdline_params.verbose()) {
 		// The log file is created on the desktop of the current user.
 		writer.open(utl::Path(desktop_path.folder(), L"fortirpd.log").to_string());
-		logger->add_writer(&writer);
+		logger.add_writer(&writer);
 
-		logger->set_level(utl::LogLevel::LL_DEBUG);
+		logger.set_level(utl::LogLevel::LL_DEBUG);
 		if (cmdline_params.trace()) 
-			logger->set_level(utl::LogLevel::LL_TRACE);
+			logger.set_level(utl::LogLevel::LL_TRACE);
 	}
 
 	// Initialize lwIP stack
 	lwip_init();
 	dns_init();
-	sys_set_logger(lwip_log_cb, logger);
+	sys_set_logger(lwip_log_cb, &logger);
 
 	// Create the main dialog in a reduced scope.  This forces the
 	// compiler to destroy the ConnectDialog when the application loop
@@ -112,9 +112,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	}
 
 	if (cmdline_params.verbose()) {
-		logger->debug("End.");
+		logger.debug("End.");
 		writer.flush();
-		logger->remove_writer(&writer);
+		logger.remove_writer(&writer);
 	}
 
 	return 0;

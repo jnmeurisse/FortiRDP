@@ -50,20 +50,20 @@ namespace fw {
 		utl::Mutex::Lock lock{ _mutex };
 		http::Answer answer;
 
-		_logger->info(">> connecting to %s", host().to_string().c_str());
+		_logger.info(">> connecting to %s", host().to_string().c_str());
 
 		try {
 			HttpsClient::connect();
 		}
 		catch (const std::runtime_error& e) {
-			_logger->error("ERROR: failed to connect to %s", host().to_string().c_str());
-			_logger->error("ERROR: %s", e.what());
+			_logger.error("ERROR: failed to connect to %s", host().to_string().c_str());
+			_logger.error("ERROR: %s", e.what());
 
 			return portal_err::COMM_ERROR;
 		}
 
-		_logger->info(">> protocol : %s", get_tls_version().c_str());
-		_logger->info(">> cipher : %s", get_ciphersuite().c_str());
+		_logger.info(">> protocol : %s", get_tls_version().c_str());
+		_logger.info(">> cipher : %s", get_ciphersuite().c_str());
 
 		/*
 			Checks whether the server certificate is trusted.
@@ -84,16 +84,16 @@ namespace fw {
 		}
 
 		if (crt_status == 0) {
-			_logger->info(">> peer X.509 certificate valid");
+			_logger.info(">> peer X.509 certificate valid");
 
 		}
 		else {
-			_logger->info(">> peer X.509 certificate error");
+			_logger.info(">> peer X.509 certificate error");
 
-			if (_logger->is_debug_enabled()) {
+			if (_logger.is_debug_enabled()) {
 				std::array<char, 4096> buffer = { 0 };
 				mbedtls_x509_crt_info(buffer.data(), buffer.size() - 1, "   ", get_peer_crt());
-				_logger->debug(buffer.data());
+				_logger.debug(buffer.data());
 			}
 
 			if (!confirm_crt(get_peer_crt(), crt_status)) {
@@ -126,8 +126,8 @@ namespace fw {
 
 	void FirewallClient::log_http_error(const char* msg, const http::Answer& answer)
 	{
-		_logger->error("ERROR: %s", msg);
-		_logger->error(
+		_logger.error("ERROR: %s", msg);
+		_logger.error(
 			"ERROR: %s (HTTP code %d)",
 			answer.get_reason_phrase().c_str(),
 			answer.get_status_code()
@@ -169,7 +169,7 @@ namespace fw {
 
 		int retcode;
 		if (!out_params.get_int("ret", retcode)) {
-			_logger->error("ERROR: invalid firewall answer, ret code missing");
+			_logger.error("ERROR: invalid firewall answer, ret code missing");
 			return portal_err::ACCESS_DENIED;
 		}
 
@@ -215,7 +215,7 @@ namespace fw {
 		}
 
 		// Show login prompt and ask credentials.
-		_logger->info(">> auth mode : basic");
+		_logger.info(">> auth mode : basic");
 		if (!ask_credentials(credentials_request))
 			return portal_err::LOGIN_CANCELLED;
 
@@ -256,12 +256,12 @@ namespace fw {
 				// Show the error message received from the firewall.
 				http::Url redir_url;
 				if (!get_redir_url(params_result, redir_url)) {
-					_logger->error("ERROR: invalid firewall answer, redir missing");
+					_logger.error("ERROR: invalid firewall answer, redir missing");
 				}
 
 				std::string msg = "access denied";
 				redir_url.get_query_map().get_str("err", msg);
-				_logger->error("ERROR: %s", msg.c_str());
+				_logger.error("ERROR: %s", msg.c_str());
 
 				return portal_err::ACCESS_DENIED;
 			}
@@ -276,7 +276,7 @@ namespace fw {
 				// the tunnel mode.
 				http::Url redir_url;
 				if (!get_redir_url(params_result, redir_url)) {
-					_logger->error("ERROR: invalid firewall answer, redir missing");
+					_logger.error("ERROR: invalid firewall answer, redir missing");
 				}
 
 				redir_url = make_url(redir_url.get_path(), redir_url.get_query());
@@ -347,7 +347,7 @@ namespace fw {
 				// ********************************
 				if (params_result.get_int_value("pass_renew", 0) == 1) {
 					// password renewal not supported.
-					_logger->error("ERROR: password expired");
+					_logger.error("ERROR: password expired");
 					return portal_err::LOGIN_CANCELLED;
 				}
 
@@ -382,7 +382,7 @@ namespace fw {
 			break;
 
 			default:
-				_logger->error("ERROR: unknown return code %d during authentication", retcode);
+				_logger.error("ERROR: unknown return code %d during authentication", retcode);
 				return portal_err::ACCESS_DENIED;
 			}
 
@@ -414,7 +414,7 @@ namespace fw {
 			[this]() -> bool { return this->is_authenticated(); }
 		};
 
-		_logger->info(">> auth mode : saml");
+		_logger.info(">> auth mode : saml");
 		if (!ask_samlauth(saml_auth_info))
 			goto terminate;
 
@@ -458,7 +458,7 @@ namespace fw {
 		const http::Url portal_url = make_url("/remote/portal", "access");
 		if (!send_request(http::Request::GET_VERB, portal_url, "", headers, answer, 0))
 		{
-			_logger->error("ERROR: get portal info failure");
+			_logger.error("ERROR: get portal info failure");
 			return false;
 		}
 
@@ -505,7 +505,7 @@ namespace fw {
 		const http::Url vpninfo_url = make_url("/remote/fortisslvpn_xml");
 		if (!send_request(http::Request::GET_VERB, vpninfo_url, "", headers, answer, 0))
 		{
-			_logger->error("ERROR: get portal configuration failure");
+			_logger.error("ERROR: get portal configuration failure");
 			return false;
 		}
 
@@ -521,13 +521,13 @@ namespace fw {
 		pugi::xml_parse_result parse_result = doc.load_string(data.c_str());
 
 		if (parse_result.status != pugi::xml_parse_status::status_ok) {
-			_logger->error("ERROR: portal configuration - XML parse error");
+			_logger.error("ERROR: portal configuration - XML parse error");
 			return false;
 		}
 
 		const pugi::xml_node& root = doc.child("sslvpn-tunnel");
 		if (root.empty()) {
-			_logger->error("ERROR: portal configuration - XML decode error");
+			_logger.error("ERROR: portal configuration - XML decode error");
 			return false;
 		}
 
@@ -577,8 +577,8 @@ namespace fw {
 				connect();
 			}
 			catch (const std::runtime_error& e) {
-				_logger->error("ERROR: failed to connect to %s", host().to_string().c_str());
-				_logger->error("ERROR: %s", e.what());
+				_logger.error("ERROR: failed to connect to %s", host().to_string().c_str());
+				_logger.error("ERROR: %s", e.what());
 
 				return false;
 			}
@@ -600,7 +600,7 @@ namespace fw {
 				and costly full-chain validation operations.
 			*/
 			if (_peer_crt_digest != CrtDigest(get_peer_crt())) {
-				_logger->error("ERROR: invalid certificate digest");
+				_logger.error("ERROR: invalid certificate digest");
 
 				return false;
 			}
@@ -610,8 +610,8 @@ namespace fw {
 			HttpsClient::send_request(request);
 		}
 		catch (const std::runtime_error& e) {
-			_logger->error("ERROR: failed to send HTTP request to %s", host().to_string().c_str());
-			_logger->error("ERROR: %s", e.what());
+			_logger.error("ERROR: failed to send HTTP request to %s", host().to_string().c_str());
+			_logger.error("ERROR: %s", e.what());
 
 			return false;
 		}
@@ -620,8 +620,8 @@ namespace fw {
 			recv_answer(answer);
 		}
 		catch (const std::runtime_error& e) {
-			_logger->error("ERROR: failed to receive HTTP data from %s", host().to_string().c_str());
-			_logger->error("ERROR: %s", e.what());
+			_logger.error("ERROR: failed to receive HTTP data from %s", host().to_string().c_str());
+			_logger.error("ERROR: %s", e.what());
 
 			return false;
 		}
@@ -721,7 +721,7 @@ namespace fw {
 		DEBUG_ENTER(_logger);
 
 		if (allow_redir < 0) {
-			_logger->error("ERROR: Redirect failed");
+			_logger.error("ERROR: Redirect failed");
 			return false;
 		}
 

@@ -19,7 +19,7 @@ namespace utl {
 
 
 	Event::Event(bool manual_reset) :
-		_logger(Logger::get_logger())
+		_logger(Logger::instance())
 	{
 		DEBUG_CTOR(_logger);
 
@@ -32,7 +32,7 @@ namespace utl {
 
 
 	Event::Event(const Event& event):
-		_logger(Logger::get_logger())
+		_logger(Logger::instance())
 	{
 		DEBUG_CTOR(_logger);
 

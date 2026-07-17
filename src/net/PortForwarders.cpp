@@ -13,7 +13,7 @@ namespace net {
 
 
 	PortForwarders::PortForwarders() :
-		_logger(Logger::get_logger())
+		_logger(Logger::instance())
 	{
 		DEBUG_CTOR(_logger);
 	}

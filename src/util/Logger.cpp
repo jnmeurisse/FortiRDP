@@ -11,7 +11,6 @@
 #include <cstdarg>
 #include <ctime>
 #include <iomanip>
-#include <memory>
 #include <ostream>
 #include <thread>
 #include "util/Mutex.h"
@@ -20,12 +19,18 @@
 
 namespace utl {
 
-	static const std::unique_ptr<Logger> LOGGER = std::make_unique<Logger>();
 	thread_local int Logger::_indent_level = 0;
 	thread_local std::stack<const void*> Logger::_this_stack({ nullptr });
 
+	Logger& Logger::instance() noexcept
+	{
+		static Logger logger;
+		return logger;
+	}
 
-	Logger::Logger() :
+
+
+	Logger::Logger() noexcept :
 		_writers(),
 		_mutex(),
 		_level(LogLevel::LL_INFO)
@@ -33,7 +38,7 @@ namespace utl {
 	}
 
 
-	void Logger::log(LogLevel level, const std::string& text)
+	void Logger::log(LogLevel level, const std::string& text) noexcept
 	{
 		if (is_enabled(level)) {
 			write(level, text);
@@ -41,7 +46,7 @@ namespace utl {
 	}
 
 
-	void Logger::log(LogLevel level, const char* format, ...)
+	void Logger::log(LogLevel level, const char* format, ...) noexcept
 	{
 		if (is_enabled(level)) {
 			va_list args;
@@ -52,14 +57,14 @@ namespace utl {
 	}
 
 
-	void Logger::log(LogLevel level, const char* format, va_list args)
+	void Logger::log(LogLevel level, const char* format, va_list args) noexcept
 	{
 		if (is_enabled(level))
 			write(level, format, args);
 	}
 
 
-	void Logger::trace(const char* format, ...)
+	void Logger::trace(const char* format, ...) noexcept
 	{
 		if (is_trace_enabled()) {
 			va_list args;
@@ -70,7 +75,7 @@ namespace utl {
 	}
 
 
-	void Logger::debug(const char* format, ...)
+	void Logger::debug(const char* format, ...) noexcept
 	{
 		if (is_debug_enabled()) {
 			va_list args;
@@ -81,7 +86,7 @@ namespace utl {
 	}
 
 
-	void Logger::info(const char* format, ...)
+	void Logger::info(const char* format, ...) noexcept
 	{
 		if (is_info_enabled()) {
 			va_list args;
@@ -92,7 +97,7 @@ namespace utl {
 	}
 
 
-	void Logger::error(const char* format, ...)
+	void Logger::error(const char* format, ...) noexcept
 	{
 		va_list args;
 		va_start(args, format);
@@ -101,7 +106,7 @@ namespace utl {
 	}
 
 
-	void Logger::set_level(LogLevel level)
+	void Logger::set_level(LogLevel level) noexcept
 	{
 		_level = level;
 	}
@@ -128,60 +133,68 @@ namespace utl {
 	}
 
 
-	Logger* Logger::get_logger()
+	void Logger::write(LogLevel level, const std::string& text) noexcept
 	{
-		return LOGGER.get();
-	}
+		try {
+			Mutex::Lock lock{ _mutex };
 
-
-	void Logger::write(LogLevel level, const std::string& text)
-	{
-		Mutex::Lock lock{ _mutex };
-
-		const int indent = _indent_level;
-		const void* object = _this_stack.top();
-		for (auto& writer : _writers) {
-			writer->write(level, indent, object, text);
-			writer->flush();
+			const int indent = _indent_level;
+			const void* object = _this_stack.top();
+			for (auto& writer : _writers) {
+				writer->write(level, indent, object, text);
+				writer->flush();
+			}
+		}
+		catch (...) {
+			return;
 		}
 	}
 
 
-	void Logger::write(LogLevel level, const char* format, va_list args)
+	void Logger::write(LogLevel level, const char* format, va_list args) noexcept
 	{
-		write(level, str::string_format(format, args));
+		try {
+			write(level, str::string_format(format, args));
+		}
+		catch (...) {
+			return;
+		}
 	}
 
 
-	LogScope::LogScope(Logger* logger, LogLevel level,
+	LogScope::LogScope(Logger& logger, LogLevel level,
 		const void* this_address, const char* class_name,
-		const char* func_name, const char* format, ...) :
+		const char* func_name, const char* format, ...) noexcept :
 		_logger(logger),
 		_level(level),
 		_class_name(class_name),
 		_func_name(func_name)
 	{
-		if (_logger->is_enabled(_level)) {
-			if (format) {
-				va_list args;
-				va_start(args, format);
-				const std::string message = str::string_format(format, args);
-				va_end(args);
-				_logger->log(_level, "> %s::%s - %s", _class_name, _func_name, message.c_str());
+		try {
+			if (_logger.is_enabled(_level)) {
+				if (format) {
+					va_list args;
+					va_start(args, format);
+					const std::string message = str::string_format(format, args);
+					va_end(args);
+					_logger.log(_level, "> %s::%s - %s", _class_name, _func_name, message.c_str());
+				}
+				else {
+					_logger.log(_level, "> %s::%s", _class_name, _func_name);
+				}
 			}
-			else {
-				_logger->log(_level, "> %s::%s", _class_name, _func_name);
-			}
-		}
 
-		Logger::_indent_level++;
-		Logger::_this_stack.push(this_address);
+			Logger::_indent_level++;
+			Logger::_this_stack.push(this_address);
+		}
+		catch (...) {
+		}
 	}
 
 
-	LogScope::LogScope(Logger* logger, LogLevel level,
-		const void* this_address, const char* class_name, const char* func_name) :
-		LogScope(logger, level, this_address, class_name, func_name, nullptr)
+	LogScope::LogScope(Logger& logger, LogLevel level,
+		const void* this_address, const char* class_name, const char* func_name) noexcept :
+		LogScope(logger, level, this_address, class_name, func_name, nullptr) 
 	{
 	}
 
@@ -190,13 +203,13 @@ namespace utl {
 		Logger::_indent_level--;
 		Logger::_this_stack.pop();
 
-		if (_logger->is_enabled(_level))
-			_logger->log(_level, "< %s::%s", _class_name, _func_name);
+		if (_logger.is_enabled(_level))
+			_logger.log(_level, "< %s::%s", _class_name, _func_name);
 	}
 
 
 
-	LogWriter::LogWriter(LogLevel level) :
+	LogWriter::LogWriter(LogLevel level) noexcept :
 		_level(level)
 	{
 	}
@@ -228,7 +241,7 @@ namespace utl {
 	}
 
 
-	FileLogWriter::FileLogWriter(LogLevel level) :
+	FileLogWriter::FileLogWriter(LogLevel level) noexcept :
 		LogWriter(level),
 		_ofs()
 	{
@@ -238,7 +251,6 @@ namespace utl {
 	bool FileLogWriter::open(const std::wstring& filename)
 	{
 		_ofs.open(filename, std::ostream::out);
-
 		return _ofs.is_open();
 	}
 
@@ -246,7 +258,7 @@ namespace utl {
 	void FileLogWriter::write(LogLevel level, int indent, const void* object, const std::string& text)
 	{
 		if (_ofs.is_open() && is_enabled(level)) {
-			_ofs 
+			_ofs
 				<< '[' << datetime() << "] "
 				<< '[' << get_level_char(level) << "] "
 				<< '[' << std::setw(5) << std::setfill('0') << std::this_thread::get_id() << "] "

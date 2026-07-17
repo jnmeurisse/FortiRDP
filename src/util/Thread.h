@@ -73,7 +73,7 @@ namespace utl {
 		static const char* __class__;
 
 		// A reference to the application logger.
-		utl::Logger* const _logger;
+		utl::Logger& _logger;
 
 		// Handle to the windows thread.
 		HANDLE _handle;

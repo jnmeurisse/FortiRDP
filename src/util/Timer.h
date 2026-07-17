@@ -51,7 +51,7 @@ namespace utl {
 		static const char* __class__;
 
 		// A reference to the application logger.
-		Logger* const _logger;
+		Logger& _logger;
 		
 		// End time of the timer.
 		uint64_t _due_time;

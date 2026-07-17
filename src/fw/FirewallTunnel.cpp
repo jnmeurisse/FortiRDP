@@ -17,7 +17,7 @@ namespace fw {
 		const net::tunneler_config& config, const http::Cookies& cookie_jar
 	) :
 		net::Tunneler(*tunnel_socket, local_ep, remote_ep, config),
-		_logger(utl::Logger::get_logger()),
+		_logger(utl::Logger::instance()),
 		_tunnel_socket{ std::move(tunnel_socket) },
 		_cookie_jar{ cookie_jar }
 	{
@@ -40,8 +40,8 @@ namespace fw {
 			start_tunnel_mode();
 		}
 		catch (const std::runtime_error& e) {
-			_logger->error("ERROR: failed to open the tunnel");
-			_logger->error("ERROR: %s", e.what());
+			_logger.error("ERROR: failed to open the tunnel");
+			_logger.error("ERROR: %s", e.what());
 
 			return false;
 		}

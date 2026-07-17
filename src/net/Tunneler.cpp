@@ -28,7 +28,7 @@ namespace net {
 	Tunneler::Tunneler(net::TlsSocket& tunnel, const net::Endpoint& local_ep, const net::Endpoint& remote_ep,
 		const tunneler_config& config) :
 		Thread(),
-		_logger(Logger::get_logger()),
+		_logger(Logger::instance()),
 		_config(config),
 		_state(State::READY),
 		_terminate(false),
@@ -59,8 +59,8 @@ namespace net {
 		mbed_err rc = _listener.bind(_local_endpoint, net_protocol::NETCTX_PROTO_TCP);
 
 		if (rc < 0) {
-			_logger->error("ERROR: listener error on %s", _local_endpoint.to_string().c_str());
-			_logger->error("%s", mbed_errmsg(rc).c_str());
+			_logger.error("ERROR: listener error on %s", _local_endpoint.to_string().c_str());
+			_logger.error("%s", mbed_errmsg(rc).c_str());
 		
 			started = false;
 		}
@@ -103,7 +103,7 @@ namespace net {
 		bool abort_timeout = false;
 		bool disconnect_timeout = false;
 
-		_logger->info(">> starting tunnel");
+		_logger.info(">> starting tunnel");
 		_state = State::CONNECTING;
 
 
@@ -172,7 +172,7 @@ namespace net {
 					if (FD_ISSET(_tunnel.get_fd(), &read_set)) {
 						// Receive PPP data from the tunnel.
 						if (!_pp_interface.recv()) {
-							_logger->info(">> tunnel closed by peer");
+							_logger.info(">> tunnel closed by peer");
 							shutdown_tunnel();
 							terminate();
 						}
@@ -222,7 +222,7 @@ namespace net {
 				}
 				else if (rc == SOCKET_ERROR) {
 					// an error in the select has been detected, it is a fatal error
-					_logger->error("ERROR: socket select error=%d", WSAGetLastError());
+					_logger.error("ERROR: socket select error=%d", WSAGetLastError());
 					terminate();
 				}
 			}
@@ -267,16 +267,16 @@ namespace net {
 					_listening_status.set();
 
 					_state = State::RUNNING;
-					_logger->info(">> tunnel is up, listening on %s",
+					_logger.info(">> tunnel is up, listening on %s",
 						_listener.endpoint().to_string().c_str());
-					_logger->info("     IP=%s/%d GW=%s MTU=%d",
+					_logger.info("     IP=%s/%d GW=%s MTU=%d",
 						_pp_interface.addr().c_str(),
 						_pp_interface.netmask(),
 						_pp_interface.gateway().c_str(),
 						_pp_interface.mtu());
 
 					if (DnsClient::is_configured()) {
-						_logger->info("     DNS=%s", DnsClient::dns().c_str());
+						_logger.info("     DNS=%s", DnsClient::dns().c_str());
 					}
 				}
 				break;
@@ -323,7 +323,7 @@ namespace net {
 			case State::DISCONNECTING:
 				// Wait until PPP interface is in dead state.
 				if (_pp_interface.dead() || disconnect_timeout) {
-					_logger->info(">> tunnel is down");
+					_logger.info(">> tunnel is down");
 					stop = true;
 				}
 
@@ -374,7 +374,7 @@ namespace net {
 	{
 		const mbed_err rc = _tunnel.shutdown();
 		if (rc)
-			_logger->error("ERROR: close notify error (%d)", rc);
+			_logger.error("ERROR: close notify error (%d)", rc);
 	}
 
 

@@ -109,8 +109,8 @@ namespace ui {
 		// The class name.
 		static const char* __class__;
 
-		// The application logger.
-		utl::Logger* const _logger;
+		// A reference to the application logger.
+		utl::Logger& _logger;
 
 		// The list of actions performed by the AsyncController in a background thread.
 		enum ControllerAction {

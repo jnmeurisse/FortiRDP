@@ -237,7 +237,7 @@ namespace net {
 
 	protected:
 		// A reference to the application logger.
-		utl::Logger* const _logger;
+		utl::Logger& _logger;
 
 		/* Allocates a disconnected socket.
 		*/

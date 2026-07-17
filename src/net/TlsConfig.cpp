@@ -74,7 +74,7 @@ namespace net {
 
 
 	TlsConfig::TlsConfig() :
-		_logger(Logger::get_logger())
+		_logger(Logger::instance())
 	{
 		DEBUG_CTOR(_logger);
 		::mbedtls_entropy_init(&_entropy_ctx);
@@ -99,13 +99,13 @@ namespace net {
 		// configured or disabled.
 		for (int idx = 0; default_ciphers[idx] != 0; idx++) {
 			if (!::mbedtls_ssl_ciphersuite_from_id(default_ciphers[idx]))
-				_logger->error("INTERNAL ERROR: missing cipher index=%d id=%d", idx, default_ciphers[idx]);
+				_logger.error("INTERNAL ERROR: missing cipher index=%d id=%d", idx, default_ciphers[idx]);
 		}
 #endif
 
-		if (_logger->is_trace_enabled()) {
+		if (_logger.is_trace_enabled()) {
 			// define a debug callback
-			::mbedtls_ssl_conf_dbg(&_ssl_config, mbedtls_debug_fn, _logger);
+			::mbedtls_ssl_conf_dbg(&_ssl_config, mbedtls_debug_fn, &_logger);
 #ifndef _DEBUG
 			::mbedtls_debug_set_threshold(0);
 #else

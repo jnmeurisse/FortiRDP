@@ -58,7 +58,7 @@ namespace net {
 		static const char* __class__;
 
 		// a reference to the application logger
-		utl::Logger* const _logger;
+		utl::Logger& _logger;
 	};
 
 }

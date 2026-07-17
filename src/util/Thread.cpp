@@ -17,7 +17,7 @@ namespace utl {
 	unsigned __stdcall thread_entry_point(void *);
 
 	Thread::Thread(bool auto_delete) : 
-		_logger(Logger::get_logger()),
+		_logger(Logger::instance()),
 		_auto_delete(auto_delete)
 	{
 		DEBUG_CTOR(_logger);

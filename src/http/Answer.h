@@ -94,7 +94,7 @@ namespace http {
 		static const char* __class__;
 
 		// A reference to the application logger
-		utl::Logger* const _logger;
+		utl::Logger& _logger;
 
 		// The HTTP status code
 		int _status_code;

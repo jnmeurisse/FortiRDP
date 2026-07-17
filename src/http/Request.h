@@ -107,7 +107,7 @@ namespace http {
 		static const char* __class__;
 
 		// A reference to the application logger.
-		utl::Logger* const _logger;
+		utl::Logger& _logger;
 
 		// All cookies (a reference to the cookie jar).
 		const http::Cookies& _cookies;
