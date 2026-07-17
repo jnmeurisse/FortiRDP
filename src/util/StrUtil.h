@@ -81,10 +81,10 @@ namespace utl {
 		std::string string_format(const char* fmt, va_list args);
 
 		// Converts wstring to utf8-string.
-		std::string wstr2str(const std::wstring& wstr) noexcept;
-		void wstr2str(const std::wstring& wstr, std::string& out) noexcept;
+		std::string wstr2str(const std::wstring& wstr);
+		void wstr2str(const std::wstring& wstr, std::string& out);
 
 		// Converts utf8-string to wstring.
-		std::wstring str2wstr(const std::string& str) noexcept;
+		std::wstring str2wstr(const std::string& str);
 	}
 }

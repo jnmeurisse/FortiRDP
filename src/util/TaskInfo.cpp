@@ -10,14 +10,14 @@
 
 namespace utl {
 
-	TaskInfo::TaskInfo(const std::wstring& path, const std::vector<std::wstring>& params) noexcept :
+	TaskInfo::TaskInfo(const std::wstring& path, const std::vector<std::wstring>& params) :
 		_task_path(path),
 		_task_params(params)
 	{
 	}
 
 	
-	TaskInfo::TaskInfo(const std::wstring & path) noexcept :
+	TaskInfo::TaskInfo(const std::wstring & path) :
 		_task_path(path),
 		_task_params(std::vector<std::wstring>())
 	{

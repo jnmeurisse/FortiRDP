@@ -15,7 +15,7 @@
 
 namespace utl {
 
-	Task::Task(const std::wstring& path) noexcept :
+	Task::Task(const std::wstring& path) :
 		_logger(Logger::instance()),
 		_cmdline(str::quote(path))
 	{

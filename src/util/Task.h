@@ -17,7 +17,7 @@ namespace utl {
 	class Task final
 	{
 	public:
-		explicit Task(const std::wstring& path) noexcept;
+		explicit Task(const std::wstring& path);
 		~Task();
 
 		/**

@@ -353,7 +353,7 @@ namespace utl {
 		}
 
 
-		std::string wstr2str(const std::wstring& wstr) noexcept
+		std::string wstr2str(const std::wstring& wstr)
 		{
 			std::string result;
 			wstr2str(wstr, result);
@@ -362,7 +362,7 @@ namespace utl {
 		}
 
 
-		void wstr2str(const std::wstring& wstr, std::string& out) noexcept
+		void wstr2str(const std::wstring& wstr, std::string& out)
 		{
 			if (wstr.empty()) {
 				out.clear();
@@ -390,7 +390,7 @@ namespace utl {
 		}
 
 
-		std::wstring str2wstr(const std::string& str) noexcept
+		std::wstring str2wstr(const std::string& str)
 		{
 			const int size = ::MultiByteToWideChar(
 				CP_UTF8, 0,

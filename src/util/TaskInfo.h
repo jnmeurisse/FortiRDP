@@ -16,8 +16,8 @@ namespace utl {
 	class TaskInfo final
 	{
 	public:
-		explicit TaskInfo(const std::wstring& path, const std::vector<std::wstring>& params) noexcept;
-		explicit TaskInfo(const std::wstring& path) noexcept;
+		explicit TaskInfo(const std::wstring& path, const std::vector<std::wstring>& params);
+		explicit TaskInfo(const std::wstring& path);
 		~TaskInfo() = default;
 
 		/**
