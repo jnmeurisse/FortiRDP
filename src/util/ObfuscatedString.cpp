@@ -96,14 +96,14 @@ namespace utl {
 	}
 
 
-	void obfstring::clear()
+	void obfstring::clear() noexcept
 	{
 		_key = obfstring::create_obfuscation_key();
 		_obfuscated_text.clear();
 	}
 
 	
-	size_t obfstring::find(const char ch) const
+	size_t obfstring::find(const char ch) const noexcept
 	{	
 		return _obfuscated_text.find(encode(ch, _key));
 	}
@@ -133,7 +133,7 @@ namespace utl {
 	}
 
 	
-	std::string obfstring::uncrypt() const
+	std::string obfstring::uncrypt() const noexcept
 	{
 		std::string plain_text(_obfuscated_text);
 

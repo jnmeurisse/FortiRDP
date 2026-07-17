@@ -84,7 +84,7 @@ namespace utl {
 		}
 
 
-		bool str2num(const std::string& numstr, const int radix, const long minval, const long maxval, long& value)
+		bool str2num(const std::string& numstr, const int radix, const long minval, const long maxval, long& value) noexcept
 		{
 			if (minval > maxval) {
 				errno = EINVAL;
@@ -108,13 +108,13 @@ namespace utl {
 		}
 
 
-		bool str2i(const std::wstring& str, int& value)
+		bool str2i(const std::wstring& str, int& value) noexcept
 		{
 			return str2i(wstr2str(str), value);
 		}
 
 
-		bool str2i(const std::string& str, int& value)
+		bool str2i(const std::string& str, int& value) noexcept
 		{
 			long tmp;
 			const bool ok = str2num(str, 10, INT_MIN, INT_MAX, tmp);
@@ -125,13 +125,13 @@ namespace utl {
 		}
 
 
-		static bool icheq(unsigned char a, unsigned char b)
+		static bool icheq(unsigned char a, unsigned char b) noexcept
 		{
 			return std::tolower(a) == std::tolower(b);
 		}
 
 
-		bool iequal(std::string const& s1, std::string const& s2)
+		bool iequal(std::string const& s1, std::string const& s2) noexcept
 		{
 			return (s1.length() == s2.length()) && std::equal(s2.begin(), s2.end(), s1.begin(), icheq);
 		}
@@ -227,14 +227,14 @@ namespace utl {
 		}
 
 
-		void serase(std::string& str)
+		void serase(std::string& str) noexcept
 		{
 			if (!str.empty())
 				SecureZeroMemory(&str[0], str.size());
 		}
 
 
-		void serase(std::wstring& str)
+		void serase(std::wstring& str) noexcept
 		{
 			if (!str.empty())
 				SecureZeroMemory(&str[0], str.size() * sizeof(wchar_t));
@@ -353,7 +353,7 @@ namespace utl {
 		}
 
 
-		std::string wstr2str(const std::wstring& wstr)
+		std::string wstr2str(const std::wstring& wstr) noexcept
 		{
 			std::string result;
 			wstr2str(wstr, result);
@@ -362,7 +362,7 @@ namespace utl {
 		}
 
 
-		void wstr2str(const std::wstring& wstr, std::string& out)
+		void wstr2str(const std::wstring& wstr, std::string& out) noexcept
 		{
 			if (wstr.empty()) {
 				out.clear();
@@ -390,7 +390,7 @@ namespace utl {
 		}
 
 
-		std::wstring str2wstr(const std::string& str)
+		std::wstring str2wstr(const std::string& str) noexcept
 		{
 			const int size = ::MultiByteToWideChar(
 				CP_UTF8, 0,
@@ -405,4 +405,5 @@ namespace utl {
 			return std::wstring(result.data(), result.size());
 		}
 	}
+
 }

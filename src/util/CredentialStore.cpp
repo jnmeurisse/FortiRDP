@@ -19,7 +19,7 @@ namespace utl {
 	}
 
 
-	CredentialStore& CredentialStore::instance()
+	CredentialStore& CredentialStore::instance() noexcept
 	{
 		static CredentialStore instance;
 		return instance;
@@ -60,8 +60,6 @@ namespace utl {
 
 		if (pcred->UserName)
 			credential.username = pcred->UserName;
-
-		credential.username.assign(pcred->UserName);
 
 		CredFree(pcred);
 

@@ -30,7 +30,7 @@ namespace ui {
 		/**
 		 * Returns the handle to the current instance of this application.
 		*/
-		inline HINSTANCE instance_handle() const { return _hInstance; }
+		inline HINSTANCE instance_handle() const noexcept { return _hInstance; }
 
 		/**
 		 * Returns the handle to this dialog window.
@@ -38,7 +38,7 @@ namespace ui {
 		 * This handle is available only after the dialog processed the 
 		 * OnCreateDialogMessage windows event.
 		*/
-		inline HWND window_handle() const { return _hWindow; }
+		inline HWND window_handle() const noexcept { return _hWindow; }
 
 		/**
 		 * Returns the handle of the given control.

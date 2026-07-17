@@ -77,17 +77,17 @@ namespace http {
 		 * Returns the headers collection.  The cookies are stored apart in
 		 * obfuscated strings
 		*/
-		inline const Headers& headers() const { return _headers; }
+		inline const Headers& headers() const noexcept { return _headers; }
 
 		/**
 		 * Returns the cookies collection.
 		*/
-		inline const Cookies& cookies() const { return _cookies; }
+		inline const Cookies& cookies() const noexcept { return _cookies; }
 
 		/**
 		 * Returns the body of the answer.
 		*/
-		inline const utl::ByteBuffer& body() const { return _body; }
+		inline const utl::ByteBuffer& body() const noexcept { return _body; }
 
 	private:
 		// The class name

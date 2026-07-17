@@ -16,7 +16,7 @@ namespace utl {
 
 	class PrivateKey {
 	public:
-		explicit PrivateKey();
+		explicit PrivateKey() noexcept;
 		~PrivateKey();
 
 		/**
@@ -28,7 +28,7 @@ namespace utl {
 		/**
 		 * Loads the private key from the file.
 		*/
-		utl::mbed_err load(const char* filename, const char* passcode);
+		utl::mbed_err load(const char* filename, const char* passcode) noexcept;
 
 		/**
 		* Returns a reference to the private key.

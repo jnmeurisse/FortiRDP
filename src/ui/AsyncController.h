@@ -96,14 +96,14 @@ namespace ui {
 		 * 
 		 * The method returns a null pointer if the client is not yet allocated.
 		*/
-		inline fw::FirewallClient* portal_client() const { return _portal_client.get(); };
+		inline fw::FirewallClient* portal_client() const noexcept { return _portal_client.get(); };
 
 		/**
 		 * Returns a reference to the tunnel.
 		 * 
 		 * The method returns a null pointer if the tunnel is not yet allocated.
 		*/
-		inline fw::FirewallTunnel* tunnel() const { return _tunnel.get(); }
+		inline fw::FirewallTunnel* tunnel() const noexcept { return _tunnel.get(); }
 
 	private:
 		// The class name.

@@ -72,7 +72,7 @@ namespace http {
 		/**
 		 * Returns the request's headers
 		*/
-		inline http::Headers& headers() { return _headers; }
+		inline http::Headers& headers() noexcept { return _headers; }
 		
 		/**
 		 * Sends this HTTP request to the server.

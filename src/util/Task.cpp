@@ -15,7 +15,7 @@
 
 namespace utl {
 
-	Task::Task(const std::wstring& path) :
+	Task::Task(const std::wstring& path) noexcept :
 		_logger(Logger::instance()),
 		_cmdline(str::quote(path))
 	{
@@ -89,7 +89,7 @@ namespace utl {
 	}
 
 
-	bool Task::wait(unsigned long millis)
+	bool Task::wait(unsigned long millis) noexcept
 	{
 		LOG_DEBUG(_logger, "task pid=%d", _pi.dwProcessId);
 

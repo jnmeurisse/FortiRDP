@@ -41,12 +41,12 @@ namespace ui {
 		/**
 		 * Checks if the message id correspond to the received registration id.
 		*/
-		static inline bool isAsyncMessage(UINT messageId) { return messageId == _windowsMessageId; }
+		static inline bool isAsyncMessage(UINT messageId) noexcept { return messageId == _windowsMessageId; }
 
 		/**
 		 * Returns this message id
 		*/
-		inline UINT id() const { return _id; }
+		inline UINT id() const noexcept { return _id; }
 
 		/*******************************************/
 		/**** Requests sent to the main window  ****/

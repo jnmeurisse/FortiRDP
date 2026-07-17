@@ -15,7 +15,7 @@ namespace utl {
 
 	class UserCrt {
 	public:
-		UserCrt();
+		UserCrt() noexcept;
 		~UserCrt() = default;
 		UserCrt(UserCrt& other) = delete;
 

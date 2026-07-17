@@ -19,12 +19,12 @@ namespace utl {
 		 * 
 		 * The timer must be started by calling start.
 		*/
-		Timer();
+		Timer() noexcept;
 
 		/**
 		 * Constructs and starts the timer for the specified duration (ms).
 		*/
-		explicit Timer(uint32_t duration);
+		explicit Timer(uint32_t duration) noexcept;
 
 		/**
 		 * Destroys this timer.

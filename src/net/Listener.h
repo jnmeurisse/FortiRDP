@@ -76,7 +76,7 @@ namespace net {
 		/**
 		 * Returns the end point to which this listener was bound.
 		*/
-		inline const net::Endpoint& endpoint() const { return _endpoint; }
+		inline const net::Endpoint& endpoint() const noexcept { return _endpoint; }
 
 		/**
 		 * Returns true if the listener is ready to accept a connection.

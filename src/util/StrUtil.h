@@ -19,7 +19,7 @@
 namespace utl {
 	namespace priv {
 		struct comp {
-			bool operator() (const std::string& lhs, const std::string& rhs) const {
+			bool operator() (const std::string& lhs, const std::string& rhs) const noexcept {
 				return _stricmp(lhs.c_str(), rhs.c_str()) < 0;
 			}
 		};
@@ -37,13 +37,13 @@ namespace utl {
 		size_t split(const obfstring& str, const char delim, std::vector<obfstring>& parts);
 
 		// Performs a case insensitive string comparison.
-		bool iequal(std::string const& s1, std::string const& s2);
+		bool iequal(std::string const& s1, std::string const& s2) noexcept;
 
 		// Converts a string to an integer. The function returns true if the conversion
 		// succeeds. The value parameter remains untouched if an error was detected.
-		bool str2num(const std::string& numstr, const int radix, const long minval, const long maxval, long& value);
-		bool str2i(const std::string& numstr, int& value);
-		bool str2i(const std::wstring& numstr, int& value);
+		bool str2num(const std::string& numstr, const int radix, const long minval, const long maxval, long& value) noexcept;
+		bool str2i(const std::string& numstr, int& value) noexcept;
+		bool str2i(const std::wstring& numstr, int& value) noexcept;
 
 		// Trims string.
 		std::wstring trimright(const std::wstring& str);
@@ -67,8 +67,8 @@ namespace utl {
 		std::string upper(const std::string& str);
 
 		// "secure" erase the string (replace all characters by a space).
-		void serase(std::string& str);
-		void serase(std::wstring& str);
+		void serase(std::string& str) noexcept;
+		void serase(std::wstring& str) noexcept;
 
 		// Performs variables substitution.
 		std::wstring substvar(const std::wstring& str, const strimap& vars);
@@ -81,10 +81,10 @@ namespace utl {
 		std::string string_format(const char* fmt, va_list args);
 
 		// Converts wstring to utf8-string.
-		std::string wstr2str(const std::wstring& wstr);
-		void wstr2str(const std::wstring& wstr, std::string& out);
+		std::string wstr2str(const std::wstring& wstr) noexcept;
+		void wstr2str(const std::wstring& wstr, std::string& out) noexcept;
 
 		// Converts utf8-string to wstring.
-		std::wstring str2wstr(const std::string& str);
+		std::wstring str2wstr(const std::string& str) noexcept;
 	}
 }

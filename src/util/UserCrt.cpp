@@ -10,7 +10,7 @@
 
 namespace utl {
 
-	UserCrt::UserCrt():
+	UserCrt::UserCrt() noexcept :
 		crt(),
 		pk()
 	{

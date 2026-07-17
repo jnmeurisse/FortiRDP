@@ -15,7 +15,7 @@ namespace utl {
 
 	class CredentialStore {
 	public:
-		static CredentialStore& instance();
+		static CredentialStore& instance() noexcept;
 
 		bool save(const std::wstring& host, const Credential& credential);
 		bool load(const std::wstring& host, Credential& credential);

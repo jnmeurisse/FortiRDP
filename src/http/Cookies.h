@@ -81,7 +81,7 @@ namespace http {
 		/**
 		 * Returns the number of cookies in this collection.
 		*/
-		inline size_t size() const { return _cookies.size(); }
+		inline size_t size() const noexcept { return _cookies.size(); }
 
 		/**
 		 * Constructs a string representation of the cookies collection.
@@ -101,12 +101,12 @@ namespace http {
 		/**
 		 * Returns an iterator referring to the first element in the collection.
 		*/
-		inline const_iterator cbegin() const { return _cookies.cbegin(); }
+		inline const_iterator cbegin() const noexcept { return _cookies.cbegin(); }
 
 		/**
 		 * Returns an iterator referring to the last element in the collection.
 		*/
-		inline const_iterator cend() const { return _cookies.cend(); }
+		inline const_iterator cend() const noexcept { return _cookies.cend(); }
 
 	private:
 		cookiemap _cookies;

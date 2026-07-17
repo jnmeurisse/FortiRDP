@@ -43,7 +43,7 @@ namespace utl {
 		/**
 		 * Erases the string map.
 		*/
-		void serase();
+		void serase() noexcept;
 
 		/**
 		 * Adds a collection of named value pairs initialized from a named value pairs list.

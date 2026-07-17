@@ -58,7 +58,7 @@ namespace utl {
 		 * 
 		 * @param capacity The requested capacity for the queue (bytes)
 		 */
-		explicit PBufQueue(uint16_t capacity);
+		explicit PBufQueue(uint16_t capacity) noexcept;
 
 		/**
 		*  Copying a pbuf queue is not implemented.

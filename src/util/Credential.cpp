@@ -15,7 +15,7 @@ namespace utl {
 	}
 
 
-	void Credential::clear()
+	void Credential::clear() noexcept
 	{
 		username.clear();
 		str::serase(password);

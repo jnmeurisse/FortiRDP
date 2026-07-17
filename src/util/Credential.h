@@ -17,7 +17,7 @@ namespace utl {
 		 * Clears the username and password.  The password is cleared using
 		 * SecureZeroMemory function.
 		 */
-		void clear();
+		void clear() noexcept;
 
 		std::wstring username;
 		std::wstring password;

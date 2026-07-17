@@ -26,7 +26,7 @@ namespace ui {
 	public:
 		explicit RdpFile(const utl::Path& path);
 
-		inline bool empty() const { return _options_list.size() == 0; }
+		inline bool empty() const noexcept { return _options_list.size() == 0; }
 		bool read();
 		bool write();
 

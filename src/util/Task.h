@@ -17,7 +17,7 @@ namespace utl {
 	class Task final
 	{
 	public:
-		explicit Task(const std::wstring& path);
+		explicit Task(const std::wstring& path) noexcept;
 		~Task();
 
 		/**
@@ -40,7 +40,7 @@ namespace utl {
 		 * The function returns true if the task has finished and false if
 		 * the thread is still running after the specified time.
 		*/
-		bool wait(unsigned long millis);
+		bool wait(unsigned long millis) noexcept;
 
 		/**
 		 * Returns the task handle.
@@ -49,7 +49,7 @@ namespace utl {
 		 * yet started or if the start method failed.
 		 * 
 		*/
-		HANDLE get_handle() const { return _pi.hProcess; }
+		HANDLE get_handle() const noexcept { return _pi.hProcess; }
 
 	private:
 		// The class name.

@@ -10,13 +10,13 @@
 
 namespace utl {
 
-	Timer::Timer() :
+	Timer::Timer() noexcept :
 		Timer(0)
 	{
 	}
 
 
-	Timer::Timer(uint32_t duration) :
+	Timer::Timer(uint32_t duration) noexcept :
 		_logger(Logger::instance())
 	{
 		DEBUG_CTOR(_logger);

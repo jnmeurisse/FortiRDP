@@ -39,110 +39,110 @@ namespace ui {
 		/**
 		 * Returns the firewall address option.
 		*/
-		inline const std::wstring& firewall_address() const { return _fw_address; }
+		inline const std::wstring& firewall_address() const noexcept { return _fw_address; }
 
 		/**
 		 * Returns the host address option.
 		*/
-		inline const std::wstring& host_address() const { return _host_addres; }
+		inline const std::wstring& host_address() const noexcept { return _host_addres; }
 
 		/**
 		 * Returns the CA certificate filename option.
 		*/
-		inline const std::wstring& ca_cert_filename() const { return _ca_cert_filename; }
+		inline const std::wstring& ca_cert_filename() const noexcept { return _ca_cert_filename; }
 
 		/**
 		 * Returns the authentication method option.
 		*/
-		inline fw::AuthMethod auth_method() const { return _auth_method; }
+		inline fw::AuthMethod auth_method() const noexcept { return _auth_method; }
 
 		/**
 		 * Returns the user certificate filename option.
 		*/
-		inline const std::wstring& us_cert_filename() const { return _us_cert_filename; }
+		inline const std::wstring& us_cert_filename() const noexcept { return _us_cert_filename; }
 
 		/**
 		 * Returns the user name option.
 		*/
-		inline const std::wstring& username() const { return _username; }
+		inline const std::wstring& username() const noexcept { return _username; }
 
 		/**
 		 * Returns the application name including parameters option.
 		*/
-		inline const std::wstring& appname() const { return _app_name; }
+		inline const std::wstring& appname() const noexcept { return _app_name; }
 
 		/**
 		 * Returns true if the application name option is mstsc (remote desktop client).
 		*/
-		inline bool is_mstsc() const { return _app_name.compare(L"mstsc") == 0; }
+		inline bool is_mstsc() const noexcept { return _app_name.compare(L"mstsc") == 0; }
 
 		/**
 		 * Returns the remote desktop client configuration file name option.
 		*/
-		inline const std::wstring& rdp_filename() const { return _rdp_filename; }
+		inline const std::wstring& rdp_filename() const noexcept { return _rdp_filename; }
 
 		/**
 		 * Returns true if multiple clients option is specified.
 		*/
-		inline bool multi_clients() const { return _multi_clients; }
+		inline bool multi_clients() const noexcept { return _multi_clients; }
 
 		/**
 		 * Returns true if remote desktop client full screen mode option is enabled.
 		 * (only if app = mstsc)
 		*/
-		inline bool full_screen() const { return _full_screen; }
+		inline bool full_screen() const noexcept { return _full_screen; }
 
 		/**
 		 * Returns true if remote desktop client span mode option is enabled.
 		 * (only if app = mstsc)
 		*/
-		inline bool span_mode() const { return _span_mode; }
+		inline bool span_mode() const noexcept { return _span_mode; }
 
 		/**
 		 * Returns true if remote desktop client multi monitor mode option is enabled.
 		 * (only if app = mstsc)
 		*/
-		inline bool multimon_mode() const { return _multimon_mode; }
+		inline bool multimon_mode() const noexcept { return _multimon_mode; }
 
 		/**
 		 * Returns the screen size specified on the command line.
 		 * (only if app = mstsc)
 		 */
-		ScreenSize screen_size() const { return _screen_size; }
+		ScreenSize screen_size() const noexcept { return _screen_size; }
 
 		/**
 		 * Returns true if the remote desktop client admin console mode is enabled.
 		 * (only if app = mstsc)
 		*/
-		inline bool admin_console() const { return _admin_console; }
+		inline bool admin_console() const noexcept { return _admin_console; }
 
 		/**
 		 * Returns a local port to listen to.
 		 * If not specified or 0, the listener uses a random port number.
 		*/
-		inline uint16_t local_port() const { return _local_port; }
+		inline uint16_t local_port() const noexcept { return _local_port; }
 
 		/**
 		 * Returns false if Nagle algorithm must be disabled.
 		*/
-		inline bool tcp_nodelay() const { return _tcp_nodelay; }
+		inline bool tcp_nodelay() const noexcept { return _tcp_nodelay; }
 
 		/**
 		 * Returns true if deletion of last used username from mstsc login window
 		 * option is enabled.
 		 * (only if app = mstsc)
 		*/
-		inline bool clear_rdp_username() const { return _clear_lastuser; }
+		inline bool clear_rdp_username() const noexcept { return _clear_lastuser; }
 
 		/**
 		 * Returns if debug logs mode is enabled.
 		*/
-		inline bool verbose() const { return _verbose; }
+		inline bool verbose() const noexcept { return _verbose; }
 
 		/**
 		 * Returns if trace logs is enabled.
 		*/
-		inline bool trace() const { return _trace; }
+		inline bool trace() const noexcept { return _trace; }
 
 	private:
 		// Command line arguments.

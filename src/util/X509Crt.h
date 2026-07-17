@@ -32,7 +32,7 @@ namespace utl {
 		/**
 		 * Returns a reference to the certificate chain.
 		*/
-		inline mbedtls_x509_crt& get_crt() { return _crt; }
+		inline mbedtls_x509_crt& get_crt() noexcept { return _crt; }
 
 	private:
 		mbedtls_x509_crt _crt;

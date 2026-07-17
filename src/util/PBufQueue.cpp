@@ -13,7 +13,7 @@
 
 namespace utl {
 
-	PBufQueue::PBufQueue(uint16_t capacity) :
+	PBufQueue::PBufQueue(uint16_t capacity) noexcept :
 		_logger(Logger::instance()),
 		_capacity{ capacity },
 		_chain{ nullptr },
