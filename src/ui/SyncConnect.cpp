@@ -7,6 +7,9 @@
 */
 #include "SyncConnect.h"
 
+#include <array>
+#include <string>
+
 
 namespace ui {
 	SyncConnect::SyncConnect(HWND hwnd, fw::AuthMethod auth_method, fw::FirewallClient& portal_client) :
@@ -33,14 +36,15 @@ namespace ui {
 
 	bool SyncConnect::confirm_certificate(const mbedtls_x509_crt* crt, int status)
 	{
-		char buffer[4096];
-
-		mbedtls_x509_crt_verify_info(buffer, sizeof(buffer), " * ", status);
-		_logger.info(buffer);
-
+		std::array<char, 4096> buffer;
 		std::string message("The security certificate is not valid.\n");
-		message.append(buffer);
-		message.append("\n");
+
+		if (mbedtls_x509_crt_verify_info(buffer.data(), buffer.size(), " * ", status) >= 0) {
+			_logger.info(buffer.data());
+
+			message.append(buffer.data());
+			message.append("\n");
+		}
 
 		message.append("Security certificate problems may indicate an attempt to "
 			"intercept any data including passwords you send to the firewall.\n");
