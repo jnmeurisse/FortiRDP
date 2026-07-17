@@ -328,7 +328,7 @@ namespace utl {
 
 		std::string string_format(const char* fmt, va_list args)
 		{
-			size_t buffer_size = 256;
+			constexpr size_t buffer_size = 256;
 
 			while (true)
 			{
@@ -344,10 +344,11 @@ namespace utl {
 
 				// The string has been completely written only when n is non negative 
 				// and less than size.  The buffer contains a null terminated string.
-				if (n > 0 && n < buffer_size)
-					return buffer.data();
-				else
-					buffer_size *= 2;
+				if (n >= 0 && static_cast<size_t>(n) < buffer.size())
+					return std::string(buffer.data(), n);
+
+				// Allocate a buffer that is sufficiently large, including the terminating null character
+				buffer.resize(static_cast<size_t>(n) + 1);
 			}
 		}
 
