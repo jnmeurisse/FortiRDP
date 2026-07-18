@@ -917,10 +917,13 @@ namespace ui {
 	void ConnectDialog::onOutputInfoEvent(utl::LogQueue* pLogQueue)
 	{
 		if (pLogQueue) {
-			std::lock_guard<std::mutex> lock(pLogQueue->mutex());
+			while (true) {
+				auto message = pLogQueue->pop();
+				if (!message.first)
+					break;
 
-			while (pLogQueue->size() > 0)
-				writeInfo(utl::str::str2wstr(pLogQueue->pop()));
+				writeInfo(utl::str::str2wstr(message.second));
+			}
 		}
 	}
 

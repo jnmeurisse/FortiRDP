@@ -23,8 +23,6 @@ namespace ui {
 	void InfoLogWriter::write(utl::LogLevel level, int indent, const void* object, const std::string& text)
 	{
 		if (is_enabled(level)) {
-			std::lock_guard<std::mutex> lock(_logQueue.mutex());
-
 			_logQueue.push(text);
 			AsyncMessage::OutputInfoEvent->send_message(_hWnd, &_logQueue);
 		}
@@ -33,10 +31,7 @@ namespace ui {
 
 	void InfoLogWriter::flush()
 	{
-		std::lock_guard<std::mutex> lock(_logQueue.mutex());
-
-		if (_logQueue.size() > 0)
-			AsyncMessage::OutputInfoEvent->send_message(_hWnd, &_logQueue);
+		AsyncMessage::OutputInfoEvent->send_message(_hWnd, &_logQueue);
 	}
 
 }

@@ -14,6 +14,7 @@
 #include <queue>
 #include <string>
 #include <stack>
+#include <utility>
 
 
 #define PTR_VAL(ptr) (reinterpret_cast<std::uintptr_t>(ptr))
@@ -147,8 +148,6 @@ namespace utl {
 			const void* this_address, const char* class_name, const char* func_name) noexcept;
 		~LogScope();
 
-
-
 	private:
 		Logger& _logger;
 		const LogLevel _level;
@@ -204,11 +203,8 @@ namespace utl {
 	class LogQueue final
 	{
 	public:
-		inline size_t size() const noexcept { return _queue.size(); }
 		void push(const std::string& text);
-		std::string pop();
-
-		inline std::mutex& mutex() noexcept { return _mutex; }
+		std::pair<bool, std::string> pop();
 
 	private:
 		std::queue<std::string> _queue;

@@ -287,13 +287,15 @@ namespace utl {
 	}
 
 	
-	std::string LogQueue::pop()
+	std::pair<bool, std::string> LogQueue::pop()
 	{
 		std::lock_guard<std::mutex> lock(_mutex);
+		if (_queue.empty())
+			return std::make_pair(false, "");
 
 		std::string text = _queue.front();
 		_queue.pop();
-		return text;
+		return std::make_pair(true, text);
 	}
 
 }
