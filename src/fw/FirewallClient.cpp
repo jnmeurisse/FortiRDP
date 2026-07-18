@@ -93,8 +93,8 @@ namespace fw {
 
 			if (_logger.is_debug_enabled()) {
 				std::array<char, 4096> buffer = { 0 };
-				mbedtls_x509_crt_info(buffer.data(), buffer.size() - 1, "   ", get_peer_crt());
-				_logger.debug(buffer.data());
+				if (mbedtls_x509_crt_info(buffer.data(), buffer.size(), "   ", get_peer_crt()) > 0)
+					_logger.debug(buffer.data());
 			}
 
 			if (!confirm_crt(get_peer_crt(), crt_status)) {
