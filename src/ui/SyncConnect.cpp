@@ -39,7 +39,7 @@ namespace ui {
 		std::array<char, 4096> buffer;
 		std::string message("The security certificate is not valid.\n");
 
-		if (mbedtls_x509_crt_verify_info(buffer.data(), buffer.size(), " * ", status) >= 0) {
+		if (mbedtls_x509_crt_verify_info(buffer.data(), buffer.size(), " * ", status) > 0) {
 			_logger.info(buffer.data());
 
 			message.append(buffer.data());
