@@ -111,7 +111,7 @@ namespace net {
 		 * @return mbed_err The result of the configuration process. Returns 0 on success
 		 *                  or a specific error code from the mbedTLS library on failure.
 		 */
-		utl::mbed_err configure(const mbedtls_ssl_config& config, mbedtls_net_context& netctx);
+		utl::mbed_err configure(const mbedtls_ssl_config& config, mbedtls_net_context& netctx) noexcept;
 
 		/**
 		 * Cleans up the TLS context by freeing its resources.
@@ -120,19 +120,19 @@ namespace net {
 		 * calling this function, the context is ready for reconfiguration via the
 		 * `configure` method.
 		 */
-		void clear();
+		void clear() noexcept;
 
 		/**
 		 *  Sets host name to check against the received server certificate.
 		 * 
 		 */
-		utl::mbed_err set_hostname(const std::string& hostname);
+		utl::mbed_err set_hostname(const std::string& hostname) noexcept;
 
 		/**
 		 * Notifies the peer that the connection is being closed.
 		 *
 		 */
-		net::tls_close_status close_notify();
+		net::tls_close_status close_notify() noexcept;
 
 		/**
 		 * Performs the TLS handshake.
@@ -141,7 +141,7 @@ namespace net {
 		 * or an error occurs.
 		 *
 		 */
-		net::tls_handshake_status handshake();
+		net::tls_handshake_status handshake() noexcept;
 
 		/**
 		 * Receives data from the network context configured for this object.
@@ -152,7 +152,7 @@ namespace net {
 		 * This function returns a `rcv_status` value, which indicates the result of the
 		 * receive operation.
 		*/
-		net::rcv_status recv_data(unsigned char* buf, size_t len);
+		net::rcv_status recv_data(unsigned char* buf, size_t len) noexcept;
 
 		/**
 		 * Transmits data through the network context set during object configuration.
@@ -163,7 +163,7 @@ namespace net {
 		 * This method returns a `snd_status` value, which indicates the result of the
 		 * send operation.
 		 */
-		net::snd_status send_data(const unsigned char* buf, size_t len);
+		net::snd_status send_data(const unsigned char* buf, size_t len) noexcept;
 
 		/**
 		 * Returns the result of the certificate verification.
@@ -172,17 +172,17 @@ namespace net {
 		 * of this method is undefined until the connect method has been
 		 * executed.
 		*/
-		utl::mbed_err get_crt_check() const;
+		utl::mbed_err get_crt_check() const noexcept;
 
 		/**
 		 * Returns the cipher suite selected to encrypt the TLS communication.
 		*/
-		std::string get_ciphersuite() const;
+		std::string get_ciphersuite() const noexcept;
 
 		/**
 		 * Returns the TLS version.
 		*/
-		std::string get_tls_version() const;
+		std::string get_tls_version() const noexcept;
 
 		/**
 		 * Returns a pointer to the X509 certificate received from the TLS server.
@@ -190,7 +190,7 @@ namespace net {
 		 * The peer certificate is obtained during the connection.  This pointer
 		 * remains valid until the context is cleared.
 		*/
-		const mbedtls_x509_crt* get_peer_crt() const;
+		const mbedtls_x509_crt* get_peer_crt() const noexcept;
 
 	private:
 		mbedtls_ssl_context _sslctx;

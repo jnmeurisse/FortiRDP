@@ -27,7 +27,7 @@ namespace net {
 	}
 
 
-	size_t PortForwarders::delete_having_state(const state_check_cb& check_cb)
+	size_t PortForwarders::delete_having_state(const state_check_cb& check_cb) noexcept
 	{
 		size_t count = 0;
 
@@ -48,7 +48,7 @@ namespace net {
 	}
 
 
-	size_t PortForwarders::abort_all() const
+	size_t PortForwarders::abort_all() const noexcept
 	{
 		size_t counter = 0;
 		for (auto* pf : *this) {

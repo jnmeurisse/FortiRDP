@@ -17,8 +17,8 @@ namespace net {
 
 
 	// lwip callbacks
-	u32_t ppp_output_cb(ppp_pcb* pcb, struct pbuf* pbuf, void* ctx);
-	void ppp_link_status_cb(ppp_pcb* pcb, int err_code, void* ctx);
+	u32_t ppp_output_cb(ppp_pcb* pcb, struct pbuf* pbuf, void* ctx) noexcept;
+	void ppp_link_status_cb(ppp_pcb* pcb, int err_code, void* ctx) noexcept;
 
 
 	// Max Xmit idle time (in ms) before sending a PPP Keep alive packet
@@ -46,7 +46,7 @@ namespace net {
 	}
 
 
-	bool PPInterface::open()
+	bool PPInterface::open() noexcept
 	{
 		DEBUG_ENTER(_logger);
 
@@ -95,7 +95,7 @@ namespace net {
 	}
 
 
-	void PPInterface::close(bool nocarrier)
+	void PPInterface::close(bool nocarrier) noexcept
 	{
 		DEBUG_ENTER(_logger);
 
@@ -118,7 +118,7 @@ namespace net {
 	}
 
 
-	void PPInterface::release()
+	void PPInterface::release() noexcept
 	{
 		DEBUG_ENTER(_logger);
 
@@ -139,7 +139,7 @@ namespace net {
 	}
 
 
-	int PPInterface::netmask() const
+	int PPInterface::netmask() const noexcept
 	{
 		const ip4_addr_t *mask = netif_ip4_netmask(_pcb->netif);
 		int mask_size = 0;
@@ -162,13 +162,13 @@ namespace net {
 	}
 
 
-	int PPInterface::mtu() const
+	int PPInterface::mtu() const noexcept
 	{
 		return _pcb->netif->mtu;
 	}
 
 
-	bool PPInterface::send()
+	bool PPInterface::send() noexcept
 	{
 		TRACE_ENTER(_logger);
 		mbed_err rc = 0;
@@ -192,7 +192,7 @@ namespace net {
 	}
 
 
-	bool PPInterface::recv()
+	bool PPInterface::recv() noexcept
 	{
 		TRACE_ENTER(_logger);
 
@@ -247,7 +247,7 @@ namespace net {
 	}
 
 
-	void PPInterface::send_keep_alive()
+	void PPInterface::send_keep_alive() noexcept
 	{
 		if (_pcb && (_pcb->lcp_fsm.state == PPP_FSM_OPENED) && (sys_now() - last_xmit() > PPP_MAXIDLE)) {
 			ppossl_send_ka(_pcb);
@@ -255,7 +255,7 @@ namespace net {
 	}
 
 
-	int PPInterface::last_xmit() const
+	int PPInterface::last_xmit() const noexcept
 	{
 		auto pcbssl = static_cast<const pppossl_pcb *>(_pcb->link_ctx_cb);
 
@@ -263,7 +263,7 @@ namespace net {
 	}
 
 
-	u32_t ppp_output_cb(ppp_pcb *pcb, struct pbuf* pbuf, void *ctx)
+	u32_t ppp_output_cb(ppp_pcb *pcb, struct pbuf* pbuf, void *ctx) noexcept
 	{
 		LWIP_UNUSED_ARG(pcb);
 		auto pp_interface = static_cast<PPInterface *>(ctx);
@@ -272,7 +272,7 @@ namespace net {
 	}
 
 
-	void ppp_link_status_cb(ppp_pcb *pcb, int err_code, void *ctx)
+	void ppp_link_status_cb(ppp_pcb *pcb, int err_code, void *ctx) noexcept
 	{
 		LWIP_UNUSED_ARG(pcb);
 		auto pp_interface = static_cast<PPInterface*>(ctx);

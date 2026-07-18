@@ -12,7 +12,7 @@ namespace net {
 	using namespace utl;
 
 
-	OutputQueue::OutputQueue(uint16_t capacity) :
+	OutputQueue::OutputQueue(uint16_t capacity) noexcept:
 		PBufQueue(capacity),
 		_logger(Logger::instance())
 	{
@@ -26,7 +26,7 @@ namespace net {
 	}
 
 
-	utl::mbed_err OutputQueue::write(net::Socket& socket, size_t& written)
+	utl::mbed_err OutputQueue::write(net::Socket& socket, size_t& written) noexcept
 	{
 		TRACE_ENTER_FMT(_logger, "write to mbedtls socket=0x%012Ix, queue_size=%zu",
 			PTR_VAL(std::addressof(socket)),
@@ -71,7 +71,7 @@ namespace net {
 	}
 
 
-	utl::lwip_err OutputQueue::write(struct tcp_pcb* socket, size_t& written)
+	utl::lwip_err OutputQueue::write(struct tcp_pcb* socket, size_t& written) noexcept
 	{
 		TRACE_ENTER_FMT(_logger, "write to lwip socket=0x%012Ix, queue_size=%zu, sndbuf=%d, unsent=%d",
 			PTR_VAL(std::addressof(socket)),

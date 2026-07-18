@@ -43,7 +43,7 @@ namespace net {
 	}
 
 
-	net::rcv_status TcpSocket::read(unsigned char* buf, size_t len, const utl::Timer& timer)
+	net::rcv_status TcpSocket::read(unsigned char* buf, size_t len, const utl::Timer& timer) noexcept
 	{
 		TRACE_ENTER_FMT(_logger, "buffer=0x%012Ix size=%zu", PTR_VAL(buf), len);
 
@@ -89,7 +89,7 @@ namespace net {
 	}
 
 
-	net::snd_status TcpSocket::write(const unsigned char* buf, size_t len, const utl::Timer& timer)
+	net::snd_status TcpSocket::write(const unsigned char* buf, size_t len, const utl::Timer& timer) noexcept
 	{
 		TRACE_ENTER_FMT(_logger, "buffer=0x%012Ix size=%zu", PTR_VAL(buf), len);
 
@@ -135,21 +135,21 @@ namespace net {
 	}
 
 
-	net::rcv_status TcpSocket::recv_data(unsigned char* buf, size_t len)
+	net::rcv_status TcpSocket::recv_data(unsigned char* buf, size_t len) noexcept
 	{
 		TRACE_ENTER_FMT(_logger, "buffer=0x%012Ix size=%zu", PTR_VAL(buf), len);
 		return Socket::recv_data(buf, len);
 	}
 
 
-	net::snd_status TcpSocket::send_data(const unsigned char* buf, const size_t len)
+	net::snd_status TcpSocket::send_data(const unsigned char* buf, const size_t len) noexcept
 	{
 		TRACE_ENTER_FMT(_logger, "buffer=0x%012Ix size=%zu", PTR_VAL(buf), len);
 		return Socket::send_data(buf, len);
 	}
 
 
-	net::Socket::poll_status TcpSocket::poll(int rw, uint32_t timeout)
+	net::Socket::poll_status TcpSocket::poll(int rw, uint32_t timeout) noexcept
 	{
 		TRACE_ENTER_FMT(_logger, "read=%x write=%d timeout=%lu",
 			(rw & 1) != 0 ? 1 : 0,

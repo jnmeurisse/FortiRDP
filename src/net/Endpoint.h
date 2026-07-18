@@ -23,7 +23,7 @@ namespace net {
 		/**
 		 * Allocates a default endpoint mapped to 0.0.0.0:0.
 		*/
-		Endpoint() noexcept;
+		Endpoint();
 
 		/**
 		 * Allocates an endpoint from an address.
@@ -57,7 +57,7 @@ namespace net {
 		/**
 		 * Returns true if this end point is undefined.
 		*/
-		bool is_undef() const;
+		bool is_undef() const noexcept;
 
 	private:
 		std::string _hostname;

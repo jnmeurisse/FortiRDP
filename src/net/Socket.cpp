@@ -88,13 +88,13 @@ namespace net {
 	}
 
 
-	void Socket::close()
+	void Socket::close() noexcept
 	{
 		::mbedtls_net_close(&_netctx);
 	}
 
 
-	utl::mbed_err Socket::shutdown()
+	utl::mbed_err Socket::shutdown() noexcept
 	{
 		// Gracefully shutdown the connection and close the socket.
 		// The file descriptor is reset to -1 by the function.
@@ -104,7 +104,7 @@ namespace net {
 	}
 
 
-	utl::mbed_err Socket::set_blocking_mode(bool enable)
+	utl::mbed_err Socket::set_blocking_mode(bool enable) noexcept
 	{
 		mbed_err rc = MBEDTLS_ERR_NET_INVALID_CONTEXT;
 
@@ -121,7 +121,7 @@ namespace net {
 	}
 
 
-	utl::mbed_err Socket::set_nodelay(bool no_delay)
+	utl::mbed_err Socket::set_nodelay(bool no_delay) noexcept
 	{
 		mbed_err rc = MBEDTLS_ERR_NET_INVALID_CONTEXT;
 
@@ -141,7 +141,7 @@ namespace net {
 	}
 
 
-	net::rcv_status Socket::recv_data(unsigned char* buf, size_t len)
+	net::rcv_status Socket::recv_data(unsigned char* buf, size_t len) noexcept
 	{
 		rcv_status status { rcv_status_code::NETCTX_RCV_ERROR, MBEDTLS_ERR_NET_INVALID_CONTEXT, 0 };
 
@@ -171,7 +171,7 @@ namespace net {
 	}
 
 
-	net::snd_status Socket::send_data(const unsigned char* buf, size_t len)
+	net::snd_status Socket::send_data(const unsigned char* buf, size_t len) noexcept
 	{
 		snd_status status { snd_status_code::NETCTX_SND_ERROR, MBEDTLS_ERR_NET_INVALID_CONTEXT, 0 };
 
@@ -221,7 +221,7 @@ namespace net {
 	}
 
 
-	net::Socket::poll_status Socket::poll(int rw, uint32_t timeout)
+	net::Socket::poll_status Socket::poll(int rw, uint32_t timeout) noexcept
 	{
 		poll_status status { poll_status_code::NETCTX_POLL_ERROR, MBEDTLS_ERR_NET_INVALID_CONTEXT };
 
@@ -247,7 +247,7 @@ namespace net {
 	}
 
 
-	utl::mbed_err Socket::accept(net::Socket& client_socket)
+	utl::mbed_err Socket::accept(net::Socket& client_socket) noexcept
 	{
 		if (!is_connected())
 			return MBEDTLS_ERR_NET_INVALID_CONTEXT;

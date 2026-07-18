@@ -27,17 +27,17 @@ namespace net {
 		/**
 		 * Defines the CA certificates.
 		*/
-		void set_ca_crt(mbedtls_x509_crt& ca_crt);
+		void set_ca_crt(mbedtls_x509_crt& ca_crt) noexcept;
 
 		/**
 		 * Defines the client certificate.
 		*/
-		utl::mbed_err set_user_crt(mbedtls_x509_crt& own_crt, mbedtls_pk_context& own_key);
+		utl::mbed_err set_user_crt(mbedtls_x509_crt& own_crt, mbedtls_pk_context& own_key) noexcept;
 
 		/**
 		 * @return the mbedtls_ssl_config.
 		*/
-		const mbedtls_ssl_config* get_cfg() const;
+		const mbedtls_ssl_config* get_cfg() const noexcept;
 
 	private:
 		// The class name

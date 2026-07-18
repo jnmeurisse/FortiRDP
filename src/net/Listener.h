@@ -64,14 +64,14 @@ namespace net {
 		 *
 		 *
 		 */
-		utl::mbed_err accept(net::Socket& client_socket) override;
+		utl::mbed_err accept(net::Socket& client_socket) noexcept override ;
 
 		/**
 		 * Closes the listener.
 		 *
 		 * The listener stops immediately to listen for incoming connection.
 		*/
-		void close() override;
+		void close() noexcept override;
 
 		/**
 		 * Returns the end point to which this listener was bound.
@@ -81,7 +81,7 @@ namespace net {
 		/**
 		 * Returns true if the listener is ready to accept a connection.
 		*/
-		bool is_ready() const;
+		bool is_ready() const noexcept;
 
 	private:
 		// The class name

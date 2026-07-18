@@ -49,7 +49,7 @@ namespace net {
 		 *
 		 * @param enable If `true`, enables host name verification; if `false`, disables it.
 		 */
-		void set_hostname_verification(bool enable_verification);
+		void set_hostname_verification(bool enable_verification) noexcept;
 
 		/**
 		 * Initiates a connection to the specified endpoint.
@@ -71,12 +71,12 @@ namespace net {
 		 *
 		 * @return A `tls_handshake_status` indicating the result of the handshake.
 		 */
-		net::tls_handshake_status handshake(const utl::Timer& timer);
+		net::tls_handshake_status handshake(const utl::Timer& timer) noexcept;
 
 		/**
 		 * Closes gracefully the socket.
 		*/
-		utl::mbed_err shutdown() override;
+		utl::mbed_err shutdown() noexcept override;
 
 		/**
 		 * Returns the result of the certificate verification.
@@ -85,17 +85,17 @@ namespace net {
 		 * of this method is undefined until the connect method has been
 		 * executed.
 		*/
-		utl::mbed_err get_crt_check() const;
+		utl::mbed_err get_crt_check() const noexcept;
 
 		/**
 		 * Returns the cipher suite selected to encrypt the TLS communication.
 		*/
-		std::string get_ciphersuite() const;
+		std::string get_ciphersuite() const noexcept;
 
 		/**
 		 * Returns the TLS version.
 		*/
-		std::string get_tls_version() const;
+		std::string get_tls_version() const noexcept;
 
 		/**
 		 * Returns a pointer to the X509 certificate received from the TLS server.
@@ -103,7 +103,7 @@ namespace net {
 		 * The peer certificate is obtained during the connection.  This pointer
 		 * valid until this socket is closed.
 		*/
-		const mbedtls_x509_crt* get_peer_crt() const;
+		const mbedtls_x509_crt* get_peer_crt() const noexcept;
 
 		/**
 		 * Returns the TLS configuration used to initialize the socket.
@@ -111,19 +111,19 @@ namespace net {
 		 * @return A reference to the `TlsConfig` instance associated with
 		 *         this socket.
 		 */
-		const TlsConfig& get_tls_config() const;
+		const TlsConfig& get_tls_config() const noexcept;
 
 		/**
 		 * Receives data from the socket.
 		 * See Socket::recv_data
 		*/
-		net::rcv_status recv_data(unsigned char* buf, size_t len) override;
+		net::rcv_status recv_data(unsigned char* buf, size_t len) noexcept override;
 
 		/**
 		 * Sends data to the socket.
 		 * See Socket::send_data
 		*/
-		net::snd_status send_data(const unsigned char* buf, size_t len) override;
+		net::snd_status send_data(const unsigned char* buf, size_t len) noexcept override;
 
 	private:
 		// The class name

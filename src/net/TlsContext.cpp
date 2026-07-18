@@ -22,7 +22,7 @@ namespace net {
 	}
 
 
-	utl::mbed_err TlsContext::configure(const mbedtls_ssl_config& config, mbedtls_net_context& netctx)
+	utl::mbed_err TlsContext::configure(const mbedtls_ssl_config& config, mbedtls_net_context& netctx) noexcept
 	{
 		::mbedtls_ssl_set_bio(&_sslctx, &netctx, mbedtls_net_send, mbedtls_net_recv, nullptr);
 
@@ -30,19 +30,19 @@ namespace net {
 	}
 
 
-	void TlsContext::clear()
+	void TlsContext::clear() noexcept
 	{
 		::mbedtls_ssl_free(&_sslctx);
 	}
 
 
-	utl::mbed_err TlsContext::set_hostname(const std::string& hostname)
+	utl::mbed_err TlsContext::set_hostname(const std::string& hostname) noexcept
 	{
 		return ::mbedtls_ssl_set_hostname(&_sslctx, hostname.c_str());
 	}
 
 
-	net::tls_close_status TlsContext::close_notify()
+	net::tls_close_status TlsContext::close_notify() noexcept
 	{
 		tls_close_status status { close_status_code::SSLCTX_CLOSE_ERROR, MBEDTLS_ERR_SSL_BAD_INPUT_DATA };
 
@@ -67,7 +67,7 @@ namespace net {
 	}
 
 
-	net::tls_handshake_status TlsContext::handshake()
+	net::tls_handshake_status TlsContext::handshake() noexcept
 	{
 		tls_handshake_status status { hdk_status_code::SSLCTX_HDK_ERROR, MBEDTLS_ERR_SSL_BAD_INPUT_DATA };
 
@@ -101,7 +101,7 @@ namespace net {
 	}
 
 
-	net::rcv_status TlsContext::recv_data(unsigned char* buf, size_t len)
+	net::rcv_status TlsContext::recv_data(unsigned char* buf, size_t len) noexcept
 	{
 		rcv_status status { rcv_status_code::NETCTX_RCV_ERROR, MBEDTLS_ERR_SSL_BAD_INPUT_DATA, 0 };
 
@@ -133,7 +133,7 @@ namespace net {
 	}
 
 
-	net::snd_status TlsContext::send_data(const unsigned char* buf, size_t len)
+	net::snd_status TlsContext::send_data(const unsigned char* buf, size_t len) noexcept
 	{
 		snd_status status{ snd_status_code::NETCTX_SND_ERROR, MBEDTLS_ERR_SSL_BAD_INPUT_DATA, 0 };
 
@@ -161,25 +161,25 @@ namespace net {
 	}
 
 
-	utl::mbed_err TlsContext::get_crt_check() const
+	utl::mbed_err TlsContext::get_crt_check() const noexcept
 	{
 		return ::mbedtls_ssl_get_verify_result(&_sslctx);
 	}
 
 
-	std::string TlsContext::get_ciphersuite() const
+	std::string TlsContext::get_ciphersuite() const noexcept
 	{
 		return ::mbedtls_ssl_get_ciphersuite(&_sslctx);
 	}
 
 
-	std::string TlsContext::get_tls_version() const
+	std::string TlsContext::get_tls_version() const noexcept
 	{
 		return ::mbedtls_ssl_get_version(&_sslctx);
 	}
 
 
-	const mbedtls_x509_crt* TlsContext::get_peer_crt() const
+	const mbedtls_x509_crt* TlsContext::get_peer_crt() const noexcept
 	{
 		return ::mbedtls_ssl_get_peer_cert(&_sslctx);
 	}

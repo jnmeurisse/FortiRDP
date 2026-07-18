@@ -49,7 +49,7 @@ namespace net {
 		 * @return A value of type `rcv_status` indicating the status of the
 		 *         read operation.
 		 */
-		virtual net::rcv_status read(unsigned char* buf, size_t len, const utl::Timer& timer);
+		virtual net::rcv_status read(unsigned char* buf, size_t len, const utl::Timer& timer) noexcept;
 
 		/**
 		 * Writes a sequence of bytes to the socket.
@@ -65,26 +65,26 @@ namespace net {
 		 * @return A value of type `snd_status` indicating the status of the
 		 *         write operation.
 		 */
-		virtual net::snd_status write(const unsigned char* buf, size_t len, const utl::Timer& timer);
+		virtual net::snd_status write(const unsigned char* buf, size_t len, const utl::Timer& timer) noexcept;
 
 		/**
 		* Receives data from the socket.
 		* See Socket::recv_data
 		*/
-		net::rcv_status recv_data(unsigned char* buf, size_t len) override;
+		net::rcv_status recv_data(unsigned char* buf, size_t len) noexcept override;
 
 		/**
 		 * Sends data to the socket.
 		 * See Socket::send_data
 		*/
-		net::snd_status send_data(const unsigned char* buf, size_t len) override;
+		net::snd_status send_data(const unsigned char* buf, size_t len) noexcept override;
 
 	protected:
 		/**
 		 * Checks and waits for the socket to be ready for reading and/or writing data.
 		 * See base class.
 		*/
-		net::Socket::poll_status poll(int rw, uint32_t timeout) override;
+		net::Socket::poll_status poll(int rw, uint32_t timeout) noexcept override;
 
 	private:
 		// The class name.

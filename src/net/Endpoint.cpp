@@ -16,7 +16,7 @@ namespace net {
 	using namespace utl;
 
 
-	Endpoint::Endpoint() noexcept:
+	Endpoint::Endpoint():
 		_hostname("0.0.0.0"),
 		_port(0)
 	{
@@ -36,7 +36,7 @@ namespace net {
 	}
 
 
-	bool Endpoint::is_undef() const
+	bool Endpoint::is_undef() const noexcept
 	{
 		return (_hostname.compare("0.0.0.0") == 0) && (_port == 0);
 	}

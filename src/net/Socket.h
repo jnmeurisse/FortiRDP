@@ -151,12 +151,12 @@ namespace net {
 		/**
 		 * Closes the socket.
 		*/
-		virtual void close();
+		virtual void close() noexcept;
 
 		/**
 		 * Closes gracefully the socket.
 		*/
-		virtual utl::mbed_err shutdown();
+		virtual utl::mbed_err shutdown() noexcept;
 
 		/**
 		 * Enables or disables the blocking mode.
@@ -167,7 +167,7 @@ namespace net {
 		 * @return An error code of type `mbed_err` indicating the success or failure
 		 *         of changing the mode.
 		*/
-		utl::mbed_err set_blocking_mode(bool enable);
+		utl::mbed_err set_blocking_mode(bool enable) noexcept;
 
 		/**
 		 * Configures the no-delay option for the socket.
@@ -186,7 +186,7 @@ namespace net {
 		 * @return An error code of type `mbed_err` indicating the success or failure
 		 *         of setting the option.
 		 */
-		utl::mbed_err set_nodelay(bool no_delay);
+		utl::mbed_err set_nodelay(bool no_delay) noexcept;
 
 		/**
 		 * Receives data from the socket.
@@ -198,7 +198,7 @@ namespace net {
 		 * This function returns a value of type `rcv_status`, indicating the status
 		 * of the receive operation.
 		 */
-		virtual net::rcv_status recv_data(unsigned char* buf, size_t len);
+		virtual net::rcv_status recv_data(unsigned char* buf, size_t len) noexcept;
 
 		/**
 		 * Sends data to the socket.
@@ -209,7 +209,7 @@ namespace net {
 		 * This function returns a value of type `snd_status`, indicating the status
 		 * of the send operation.
 		 */
-		virtual net::snd_status send_data(const unsigned char* buf, size_t len);
+		virtual net::snd_status send_data(const unsigned char* buf, size_t len) noexcept;
 
 		/**
 		 * Returns true if the socket is connected.
@@ -297,7 +297,7 @@ namespace net {
 		 * @return A value of type `poll_status`, indicating the status of the
 		 *         polling operation (e.g., success, timeout, etc.).
 		 */
-		virtual Socket::poll_status poll(int rw, uint32_t timeout);
+		virtual Socket::poll_status poll(int rw, uint32_t timeout) noexcept;
 
 		/**
 		 * Accepts a new connection on the current socket and assigns it to the client socket.
@@ -314,7 +314,7 @@ namespace net {
 		 *                    not connected or the client socket is already connected.
 		 *                  - For other error codes, see mbedtls library documentation.
 		 */
-		virtual utl::mbed_err accept(net::Socket& client_socket);
+		virtual utl::mbed_err accept(net::Socket& client_socket) noexcept;
 
 	private:
 		// The class name.

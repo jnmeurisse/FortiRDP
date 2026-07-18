@@ -29,17 +29,17 @@ namespace net {
 		/**
 		 * Opens a PPP interface.
 		*/
-		bool open();
+		bool open() noexcept;
 
 		/**
 		 * Initiates the end of the PPP over SSL interface.
 		*/
-		void close(bool nocarrier);
+		void close(bool nocarrier) noexcept;
 
 		/**
 		 * Releases all resources.
 		*/
-		void release();
+		void release() noexcept;
 
 		/**
 		 * Returns true if the PPP interface is up.
@@ -65,7 +65,7 @@ namespace net {
 		/**
 		 * Returns the net mask assigned to this interface.
 		*/
-		int netmask() const;
+		int netmask() const noexcept;
 
 		/**
 		 * Returns the gateway IP address assigned to this interface.
@@ -75,7 +75,7 @@ namespace net {
 		/**
 		 * Returns the network MTU.
 		*/
-		int mtu() const;
+		int mtu() const noexcept;
 
 		/**
 		 * Writes PPP data available in the output queue to the tunnel.
@@ -84,7 +84,7 @@ namespace net {
 		 * to the socket. The function returns false if the socket was closed
 		 * or if an error occurred.
 		*/
-		bool send();
+		bool send() noexcept;
 
 		/**
 		 * Reads any data from the tunnel and pass it to the PPP stack.
@@ -93,7 +93,7 @@ namespace net {
 		 * from the socket. The function returns false if the socket was closed
 		 * or if an error occurred.
 		*/
-		bool recv();
+		bool recv() noexcept;
 
 		/**
 		 * Sends a keep alive packet.
@@ -102,16 +102,16 @@ namespace net {
 		 * during the last minute.  The keep alive packet is a LCP Discard
 		 * sent to the FortiGate PPP interface.
 		*/
-		void send_keep_alive();
+		void send_keep_alive() noexcept;
 
 	private:
-		friend u32_t ppp_output_cb(ppp_pcb *pcb, struct pbuf* pbuf, void *ctx);
-		friend void ppp_link_status_cb(ppp_pcb *pcb, int err_code, void *ctx);
+		friend u32_t ppp_output_cb(ppp_pcb *pcb, struct pbuf* pbuf, void *ctx) noexcept;
+		friend void ppp_link_status_cb(ppp_pcb *pcb, int err_code, void *ctx) noexcept;
 
 		/**
 		 * @return the last transmission timeout.
 		*/
-		int last_xmit() const;
+		int last_xmit() const noexcept;
 
 		// The class name
 		static const char* __class__;

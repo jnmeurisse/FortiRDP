@@ -27,7 +27,7 @@ namespace net {
 	}
 
 
-	void TlsSocket::set_hostname_verification(bool enable_verification)
+	void TlsSocket::set_hostname_verification(bool enable_verification) noexcept
 	{
 		_enable_hostname_verification = enable_verification;
 	}
@@ -56,7 +56,7 @@ namespace net {
 	}
 
 
-	net::tls_handshake_status TlsSocket::handshake(const utl::Timer& timer)
+	net::tls_handshake_status TlsSocket::handshake(const utl::Timer& timer) noexcept
 	{
 		DEBUG_ENTER(_logger);
 
@@ -103,7 +103,7 @@ namespace net {
 	}
 
 
-	utl::mbed_err TlsSocket::shutdown()
+	utl::mbed_err TlsSocket::shutdown() noexcept
     {
 		DEBUG_ENTER_FMT(_logger, "fd=%d", get_fd());
 		utl::mbed_err rc = 0;
@@ -140,44 +140,44 @@ namespace net {
 	}
 
 
-	utl::mbed_err TlsSocket::get_crt_check() const
+	utl::mbed_err TlsSocket::get_crt_check() const noexcept
 	{
 		return _tlsctx.get_crt_check();
 	}
 
 
-	std::string TlsSocket::get_ciphersuite() const
+	std::string TlsSocket::get_ciphersuite() const noexcept
 	{
 		return _tlsctx.get_ciphersuite();
 	}
 
 
-	std::string TlsSocket::get_tls_version() const
+	std::string TlsSocket::get_tls_version() const noexcept
 	{
 		return _tlsctx.get_tls_version();
 	}
 
 
-	const mbedtls_x509_crt* TlsSocket::get_peer_crt() const
+	const mbedtls_x509_crt* TlsSocket::get_peer_crt() const noexcept
 	{
 		return _tlsctx.get_peer_crt();
 	}
 
 
-	const TlsConfig& TlsSocket::get_tls_config() const
+	const TlsConfig& TlsSocket::get_tls_config() const noexcept
 	{
 		return _tlscfg;
 	}
 
 
-	net::rcv_status TlsSocket::recv_data(unsigned char* buf, const size_t len)
+	net::rcv_status TlsSocket::recv_data(unsigned char* buf, const size_t len) noexcept
 	{
 		TRACE_ENTER_FMT(_logger, "buffer=0x%012Ix size=%zu", PTR_VAL(buf), len);
 		return _tlsctx.recv_data(buf, len);
 	}
 
 
-	net::snd_status TlsSocket::send_data(const unsigned char* buf, const size_t len)
+	net::snd_status TlsSocket::send_data(const unsigned char* buf, const size_t len) noexcept
 	{
 		TRACE_ENTER_FMT(_logger, "buffer=0x%012Ix size=%zu", PTR_VAL(buf), len);
 		return _tlsctx.send_data(buf, len);

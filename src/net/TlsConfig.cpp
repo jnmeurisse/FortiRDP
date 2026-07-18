@@ -125,7 +125,7 @@ namespace net {
 	}
 
     
-	void TlsConfig::set_ca_crt(mbedtls_x509_crt& ca_crt)
+	void TlsConfig::set_ca_crt(mbedtls_x509_crt& ca_crt) noexcept
 	{
 		DEBUG_ENTER(_logger);
 
@@ -134,7 +134,7 @@ namespace net {
 	}
 
 
-	utl::mbed_err TlsConfig::set_user_crt(mbedtls_x509_crt& own_crt, mbedtls_pk_context& own_key)
+	utl::mbed_err TlsConfig::set_user_crt(mbedtls_x509_crt& own_crt, mbedtls_pk_context& own_key) noexcept
 	{
 		DEBUG_ENTER(_logger);
 
@@ -142,7 +142,7 @@ namespace net {
 	}
 
 
-	const mbedtls_ssl_config* TlsConfig::get_cfg() const
+	const mbedtls_ssl_config* TlsConfig::get_cfg() const noexcept
 	{
 		return &_ssl_config;
 	}
