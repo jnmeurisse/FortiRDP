@@ -330,10 +330,11 @@ namespace utl {
 		{
 			constexpr size_t buffer_size = 256;
 
+			std::vector<char> buffer(buffer_size);
+
 			while (true)
 			{
 				va_list args_copy;
-				std::vector<char> buffer(buffer_size);
 
 				va_copy(args_copy, args);
 				const int n = std::vsnprintf(buffer.data(), buffer_size, fmt, args_copy);
@@ -347,7 +348,8 @@ namespace utl {
 				if (n >= 0 && static_cast<size_t>(n) < buffer.size())
 					return std::string(buffer.data(), n);
 
-				// Allocate a buffer that is sufficiently large, including the terminating null character
+				// Allocate a buffer that is sufficiently large, including the terminating 
+				// null character.
 				buffer.resize(static_cast<size_t>(n) + 1);
 			}
 		}
