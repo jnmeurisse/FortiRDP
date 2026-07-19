@@ -15,10 +15,10 @@
 #include "http/HttpError.h"
 #include "util/StrUtil.h"
 #include "util/ErrUtil.h"
-#include <cstring>
-#include <cctype>
-#include <locale>
 #include <array>
+#include <cctype>
+#include <cstring>
+#include <locale>
 
 
 namespace http {
@@ -266,22 +266,22 @@ namespace http {
 			return false;
 
 		// read by chunk of 1024 bytes
-		unsigned char buffer[1024];
-		unsigned char out[1024];
+		std::array<unsigned char, 1024> buffer;
+		std::array<unsigned char, 1024> out;
 
 		do {
-			const size_t len = std::min(size, sizeof(buffer));
-			if (!read_buffer(socket, buffer, std::min(size, sizeof(buffer)), timer)) {
+			const size_t len = std::min(size, buffer.size());
+			if (!read_buffer(socket, buffer.data(), len, timer)) {
 				inflateEnd(&strm);
 				return false;
 			}
 
 			strm.avail_in = static_cast<uInt>(len);
-			strm.next_in = buffer;
+			strm.next_in = buffer.data();
 
 			do {
-				strm.avail_out = sizeof(out);
-				strm.next_out = out;
+				strm.avail_out = static_cast<uInt>(out.size());
+				strm.next_out = out.data();
 
 				switch (inflate(&strm, Z_NO_FLUSH)) {
 					case Z_NEED_DICT:
@@ -290,11 +290,11 @@ namespace http {
 						(void)inflateEnd(&strm);
 						return false;
 				}
-				const size_t have = sizeof(out) - strm.avail_out;
+				const size_t have = out.size() - strm.avail_out;
 
 				const size_t available_space = max_size - _body.size();
 				if (available_space > 0) {
-					_body.append(out, std::min(have, available_space));
+					_body.append(out.data(), std::min(have, available_space));
 				}
 			} while (strm.avail_out == 0);
 
