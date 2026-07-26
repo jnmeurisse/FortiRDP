@@ -112,7 +112,7 @@ namespace utl {
 		void remove_writer(LogWriter* writer);
 
 	private:
-		Logger::Logger() noexcept;
+		Logger() noexcept;
 		
 		// A list of writers.
 		std::list<LogWriter *> _writers;
