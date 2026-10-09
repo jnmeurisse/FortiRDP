@@ -40,8 +40,8 @@ namespace net {
 		_connect_timeout(false),
 		_fflush_timeout(false),
 		_rflush_timeout(false),
-		_reply_queue(8 * 1024),
-		_forward_queue(8 * 1024),
+		_reply_queue(32 * 1024),
+		_forward_queue(32 * 1024),
 		_forwarded_bytes(0)
 	{
 		DEBUG_CTOR(_logger);
