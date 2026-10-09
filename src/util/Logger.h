@@ -148,6 +148,8 @@ namespace utl {
 			const void* this_address, const char* class_name, const char* func_name) noexcept;
 		~LogScope();
 
+
+
 	private:
 		Logger& _logger;
 		const LogLevel _level;
