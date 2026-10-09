@@ -57,6 +57,11 @@ namespace net {
 		*/
 		utl::mbed_err connect(const Endpoint& ep, const utl::Timer& timer) override;
 
+        /**
+         * Closes the socket.
+        */
+        virtual void close() noexcept override;
+
 		/**
 		 * Performs the SSL/TLS handshake.
 		 *

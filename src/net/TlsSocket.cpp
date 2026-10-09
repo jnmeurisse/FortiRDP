@@ -45,15 +45,25 @@ namespace net {
 		if (rc)
 			goto terminate;
 
-		rc = _tlsctx.set_hostname(ep.hostname());
-		if (rc)
-			goto terminate;
+        if (_enable_hostname_verification) {
+            rc = _tlsctx.set_hostname(ep.hostname());
+        }
+        else {
+            rc = _tlsctx.set_hostname("");
+        }
 
 	terminate:
 		LOG_DEBUG(_logger, "fd=%d rc=%d", get_fd(), rc);
 			
 		return rc;
 	}
+
+
+    void TlsSocket::close() noexcept
+    {
+        _tlsctx.clear();
+        TcpSocket::close();
+    }
 
 
 	net::tls_handshake_status TlsSocket::handshake(const utl::Timer& timer) noexcept
