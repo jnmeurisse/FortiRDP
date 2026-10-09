@@ -13,6 +13,7 @@
 #include <iomanip>
 #include <mutex>
 #include <ostream>
+#include <stack>
 #include <thread>
 #include "util/StrUtil.h"
 
@@ -27,7 +28,6 @@ namespace utl {
 		static Logger logger;
 		return logger;
 	}
-
 
 
 	Logger::Logger() noexcept :
@@ -206,7 +206,6 @@ namespace utl {
 		if (_logger.is_enabled(_level))
 			_logger.log(_level, "< %s::%s", _class_name, _func_name);
 	}
-
 
 
 	LogWriter::LogWriter(LogLevel level) noexcept :
