@@ -22,24 +22,12 @@ namespace ui {
 	}
 
 
-	void PinCodeDialog::setText(const std::wstring& info)
-	{
-		_text = info;
-	}
-
-
-	const std::wstring& PinCodeDialog::getCode() const
-	{
-		return _code;
-	}
-
-
 	INT_PTR PinCodeDialog::onCreateDialogMessage(WPARAM wParam, LPARAM lParam)
 	{
 		LPARAM_UNUSED();
 
 		set_control_textlen(IDC_CODE, 128);
-		set_control_text(IDC_CODE_LABEL, _text);
+		set_control_text(IDC_CODE_PROMPT, header);
 		set_control_enable(IDOK, FALSE);
 
 		center_window();
@@ -62,7 +50,7 @@ namespace ui {
 
 		switch (control_id) {
 		case IDOK:
-			_code = get_control_text(IDC_CODE);
+			code = get_control_text(IDC_CODE);
 
 			close_dialog(TRUE);
 			break;
@@ -84,7 +72,7 @@ namespace ui {
 	{
 		LPARAM_UNUSED();
 
-		INT_PTR rc = FALSE;
+		const INT_PTR rc = FALSE;
 		if (control_id == IDC_CODE)
 			set_control_enable(IDOK, get_control_text(IDC_CODE).size() > 0);
 		return rc;

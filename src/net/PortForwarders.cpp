@@ -12,8 +12,8 @@ namespace net {
 	using namespace utl;
 
 
-	PortForwarders::PortForwarders() :
-		_logger(Logger::get_logger())
+	PortForwarders::PortForwarders() noexcept :
+		_logger(Logger::instance())
 	{
 		DEBUG_CTOR(_logger);
 	}
@@ -27,7 +27,7 @@ namespace net {
 	}
 
 
-	size_t PortForwarders::delete_having_state(const state_check_cb& check_cb)
+	size_t PortForwarders::delete_having_state(const state_check_cb& check_cb) noexcept
 	{
 		size_t count = 0;
 
@@ -48,7 +48,7 @@ namespace net {
 	}
 
 
-	size_t PortForwarders::abort_all() const
+	size_t PortForwarders::abort_all() const noexcept
 	{
 		size_t counter = 0;
 		for (auto* pf : *this) {

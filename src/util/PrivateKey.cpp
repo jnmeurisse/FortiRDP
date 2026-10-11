@@ -11,7 +11,7 @@
 namespace utl {
 
 
-	PrivateKey::PrivateKey()
+	PrivateKey::PrivateKey() noexcept
 	{
 		::mbedtls_ctr_drbg_init(&_ctr_drbg);
 		::mbedtls_pk_init(&_key);
@@ -24,7 +24,7 @@ namespace utl {
 	}
 
 
-	utl::mbed_err PrivateKey::load(const char* filename, const char* passcode)
+	utl::mbed_err PrivateKey::load(const char* filename, const char* passcode) noexcept
 	{
 		::mbedtls_pk_free(&_key);
 		::mbedtls_pk_init(&_key);

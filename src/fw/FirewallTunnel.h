@@ -40,14 +40,14 @@ namespace fw {
 		 * 
 		 * The function opens an encrypted TLS socket and starts the tunnel.
 		 */
-		bool start() override;
+		bool start() noexcept override;
 
 	private:
 		// The class name
 		static const char* __class__;
 
 		// A reference to the application logger.
-		utl::Logger* const _logger;
+		utl::Logger& _logger;
 
 		// The encrypted socket.
 		const http::HttpsClientPtr _tunnel_socket;

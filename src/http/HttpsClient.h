@@ -44,7 +44,7 @@ namespace http {
 		 * @return `true` if the timeouts are successfully set; `false` if the client is
 		 *         already connected and the timeouts cannot be changed.
 		 */
-		bool set_timeouts(uint32_t connect_timeout, uint32_t send_timeout, uint32_t receive_timeout);
+		bool set_timeouts(uint32_t connect_timeout, uint32_t send_timeout, uint32_t receive_timeout) noexcept;
 		
 		/**
 		 * Returns the endpoint to which this client is connected.
@@ -137,7 +137,7 @@ namespace http {
 		 * not provide these parameters, default values are used: 60 seconds for the
 		 * keep-alive timer and 100 requests for the request limit.
 		 */
-		bool is_reconnection_required() const;
+		bool is_reconnection_required() const noexcept;
 
 	private:
 		// The class name

@@ -7,6 +7,7 @@
 */
 #include "OptionsDialog.h"
 
+#include <array>
 #include "util/StrUtil.h"
 #include "resources/resource.h"
 
@@ -150,13 +151,13 @@ namespace ui {
 
 	bool OptionsDialog::select_file(std::wstring& filename)
 	{
-		wchar_t tmp[MAX_PATH] = { 0 };
+		std::array<wchar_t, MAX_PATH> tmp = { 0 };
 		OPENFILENAME ofn = { 0 };
 
 		ofn.lStructSize = sizeof(ofn);
 		ofn.hwndOwner = window_handle();
 		ofn.lpstrFilter = L"RDP Files\0*.rdp\0\0";
-		ofn.lpstrFile = tmp;
+		ofn.lpstrFile = tmp.data();
 		ofn.nMaxFile = MAX_PATH;
 		ofn.lpstrTitle = L"Select a rdp File";
 		ofn.Flags = OFN_DONTADDTORECENT | OFN_FILEMUSTEXIST | OFN_ENABLESIZING;

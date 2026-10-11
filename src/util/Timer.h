@@ -19,12 +19,12 @@ namespace utl {
 		 * 
 		 * The timer must be started by calling start.
 		*/
-		Timer();
+		Timer() noexcept;
 
 		/**
 		 * Constructs and starts the timer for the specified duration (ms).
 		*/
-		explicit Timer(uint32_t duration);
+		explicit Timer(uint32_t duration) noexcept;
 
 		/**
 		 * Destroys this timer.
@@ -51,7 +51,7 @@ namespace utl {
 		static const char* __class__;
 
 		// A reference to the application logger.
-		Logger* const _logger;
+		Logger& _logger;
 		
 		// End time of the timer.
 		uint64_t _due_time;

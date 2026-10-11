@@ -19,7 +19,7 @@ namespace utl {
 		_key_name(key_name),
 		_key()
 	{
-		LSTATUS rc = ::RegCreateKeyEx(
+		const LSTATUS rc = ::RegCreateKeyEx(
 			_root_key,
 			_key_name.c_str(),
 			0,
@@ -47,7 +47,7 @@ namespace utl {
 		DWORD data = 0;
 		DWORD size = sizeof(data);
 
-		LSTATUS rc = ::RegGetValue(
+		const LSTATUS rc = ::RegGetValue(
 			_root_key,
 			_key_name.c_str(),
 			value_name.c_str(),
@@ -75,7 +75,7 @@ namespace utl {
 
 	void RegKey::set_word(const std::wstring & value_name, DWORD value)
 	{
-		LSTATUS rc = ::RegSetValueEx(
+		const LSTATUS rc = ::RegSetValueEx(
 			_key,
 			value_name.c_str(),
 			0,
@@ -138,8 +138,8 @@ namespace utl {
 	
 	void RegKey::set_string(const std::wstring& value_name, const std::wstring& value)
 	{
-		size_t size = (value.length() + 1) * sizeof(wchar_t);
-		LSTATUS rc = ::RegSetValueEx(
+		const size_t size = (value.length() + 1) * sizeof(wchar_t);
+		const LSTATUS rc = ::RegSetValueEx(
 			_key,
 			value_name.c_str(),
 			0,
@@ -154,7 +154,7 @@ namespace utl {
 
 	void RegKey::del(const std::wstring& key_name)
 	{
-		LSTATUS rc = ::RegDeleteKey(
+		const LSTATUS rc = ::RegDeleteKey(
 			_key,
 			key_name.c_str());
 		if (rc != ERROR_SUCCESS)
@@ -164,7 +164,7 @@ namespace utl {
 
 	void RegKey::del_value(const std::wstring& value_name)
 	{
-		LSTATUS rc = ::RegDeleteValue(
+		const LSTATUS rc = ::RegDeleteValue(
 			_key,
 			value_name.c_str());
 

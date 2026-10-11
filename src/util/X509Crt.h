@@ -15,24 +15,24 @@ namespace utl {
 
 	class X509Crt {
 	public:
-		X509Crt();
+		X509Crt() noexcept;
 		~X509Crt();
 		X509Crt(X509Crt& other) = delete;
 		
 		/**
 		 * Loads one or more certificates and adds them to the list of certificates.
 		*/
-		utl::mbed_err load(const char* filename);
+		utl::mbed_err load(const char* filename) noexcept;
 
 		/**
 		 * Writes an informational string about the certificate into the buffer.
 		*/
-		utl::mbed_err get_info(char* buf, size_t size, const char* prefix) const;
+		utl::mbed_err get_info(char* buf, size_t size, const char* prefix) const noexcept;
 
 		/**
 		 * Returns a reference to the certificate chain.
 		*/
-		inline mbedtls_x509_crt& get_crt() { return _crt; }
+		inline mbedtls_x509_crt& get_crt() noexcept { return _crt; }
 
 	private:
 		mbedtls_x509_crt _crt;
@@ -51,6 +51,6 @@ namespace utl {
 	/**
 	 * Checks if the x509 is signed by a trusted CA stored in Windows.
 	*/
-	bool x509crt_is_trusted(const mbedtls_x509_crt* crt);
+	bool x509crt_is_trusted(const mbedtls_x509_crt* crt) noexcept;
 
 }

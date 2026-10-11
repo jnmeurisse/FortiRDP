@@ -11,6 +11,7 @@
 #include <cstdint>
 #include <functional>
 #include <memory>
+#include <mutex>
 #include <string>
 #include "fw/FirewallClient.h"
 #include "fw/FirewallTunnel.h"
@@ -18,7 +19,6 @@
 #include "net/Endpoint.h"
 #include "util/Event.h"
 #include "util/Logger.h"
-#include "util/Mutex.h"
 #include "util/Path.h"
 #include "util/Thread.h"
 #include "util/TaskInfo.h"
@@ -54,7 +54,7 @@ namespace ui {
 		/**
 		 * Initialize the user certificate.
 		*/
-		bool load_user_crt(const utl::Path& filename, ask_crt_passcode_fn ask_passcode);
+		bool load_user_crt(const utl::Path& filename, const ask_crt_passcode_fn& ask_passcode);
 
 		/**
 		 * Configure the authentication method.
@@ -96,21 +96,21 @@ namespace ui {
 		 * 
 		 * The method returns a null pointer if the client is not yet allocated.
 		*/
-		inline fw::FirewallClient* portal_client() const { return _portal_client.get(); };
+		inline fw::FirewallClient* portal_client() const noexcept { return _portal_client.get(); };
 
 		/**
 		 * Returns a reference to the tunnel.
 		 * 
 		 * The method returns a null pointer if the tunnel is not yet allocated.
 		*/
-		inline fw::FirewallTunnel* tunnel() const { return _tunnel.get(); }
+		inline fw::FirewallTunnel* tunnel() const noexcept { return _tunnel.get(); }
 
 	private:
 		// The class name.
 		static const char* __class__;
 
-		// The application logger.
-		utl::Logger* const _logger;
+		// A reference to the application logger.
+		utl::Logger& _logger;
 
 		// The list of actions performed by the AsyncController in a background thread.
 		enum ControllerAction {
@@ -126,7 +126,7 @@ namespace ui {
 		volatile ControllerAction _action;
 
 		// A mutex to serialize execution of actions.
-		utl::Mutex _mutex;
+		std::mutex _mutex;
 
 		// An event set to execute an action.
 		utl::Event _requestEvent;

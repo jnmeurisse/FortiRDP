@@ -47,23 +47,24 @@ namespace fw {
 	fw::portal_err FirewallClient::open(const confirm_crt_fn& confirm_crt)
 	{
 		DEBUG_ENTER(_logger);
-		utl::Mutex::Lock lock{ _mutex };
+
+		std::lock_guard<std::mutex> lock(_mutex);
 		http::Answer answer;
 
-		_logger->info(">> connecting to %s", host().to_string().c_str());
+		_logger.info(">> connecting to %s", host().to_string().c_str());
 
 		try {
 			HttpsClient::connect();
 		}
 		catch (const std::runtime_error& e) {
-			_logger->error("ERROR: failed to connect to %s", host().to_string().c_str());
-			_logger->error("ERROR: %s", e.what());
+			_logger.error("ERROR: failed to connect to %s", host().to_string().c_str());
+			_logger.error("ERROR: %s", e.what());
 
 			return portal_err::COMM_ERROR;
 		}
 
-		_logger->info(">> protocol : %s", get_tls_version().c_str());
-		_logger->info(">> cipher : %s", get_ciphersuite().c_str());
+		_logger.info(">> protocol : %s", get_tls_version().c_str());
+		_logger.info(">> cipher : %s", get_ciphersuite().c_str());
 
 		/*
 			Checks whether the server certificate is trusted.
@@ -84,16 +85,16 @@ namespace fw {
 		}
 
 		if (crt_status == 0) {
-			_logger->info(">> peer X.509 certificate valid");
+			_logger.info(">> peer X.509 certificate valid");
 
 		}
 		else {
-			_logger->info(">> peer X.509 certificate error");
+			_logger.info(">> peer X.509 certificate error");
 
-			if (_logger->is_debug_enabled()) {
+			if (_logger.is_debug_enabled()) {
 				std::array<char, 4096> buffer = { 0 };
-				mbedtls_x509_crt_info(buffer.data(), buffer.size() - 1, "   ", get_peer_crt());
-				_logger->debug(buffer.data());
+				if (mbedtls_x509_crt_info(buffer.data(), buffer.size(), "   ", get_peer_crt()) > 0)
+					_logger.debug(buffer.data());
 			}
 
 			if (!confirm_crt(get_peer_crt(), crt_status)) {
@@ -124,10 +125,10 @@ namespace fw {
 	}
 
 
-	void FirewallClient::log_http_error(const char* msg, const http::Answer& answer)
+	void FirewallClient::log_http_error(const char* msg, const http::Answer& answer) noexcept
 	{
-		_logger->error("ERROR: %s", msg);
-		_logger->error(
+		_logger.error("ERROR: %s", msg);
+		_logger.error(
 			"ERROR: %s (HTTP code %d)",
 			answer.get_reason_phrase().c_str(),
 			answer.get_status_code()
@@ -169,7 +170,7 @@ namespace fw {
 
 		int retcode;
 		if (!out_params.get_int("ret", retcode)) {
-			_logger->error("ERROR: invalid firewall answer, ret code missing");
+			_logger.error("ERROR: invalid firewall answer, ret code missing");
 			return portal_err::ACCESS_DENIED;
 		}
 
@@ -177,15 +178,16 @@ namespace fw {
 	}
 
 
-	fw::portal_err FirewallClient::login_basic(const ask_credentials_fn& ask_credential, const ask_pincode_fn& ask_code)
+	fw::portal_err FirewallClient::login_basic(const ask_credentials_fn& ask_credentials, const ask_pincode_fn& ask_code)
 	{
 		DEBUG_ENTER(_logger);
-		utl::Mutex::Lock lock{ _mutex };
+		std::lock_guard<std::mutex> lock(_mutex);
 
 		// Misc initializations.
 		http::Answer answer;
 		utl::StringMap params_query;
-		AuthCredentials credentials;
+		const std::wstring login_prompt{ L"Enter user name and password to access firewall " + utl::str::str2wstr(host().to_string())};
+		AuthCredentialRequest credentials_request(login_prompt, host());
 
 		/*
 			Fetch the login page. This operation obtains the cookies
@@ -214,31 +216,38 @@ namespace fw {
 		}
 
 		// Show login prompt and ask credentials.
-		_logger->info(">> auth mode : basic");
-		if (!ask_credential(credentials))
+		_logger.info(">> auth mode : basic");
+		if (!ask_credentials(credentials_request))
 			return portal_err::LOGIN_CANCELLED;
+
+		//.. convert to UTF8 username and password
+		std::string utf8_username;
+		std::string utf8_password;
+		utl::str::wstr2str(credentials_request.credentials.username, utf8_username);
+		utl::str::wstr2str(credentials_request.credentials.password, utf8_password);
 
 		// Prepare the HTML login form.
 		params_query.serase();
 		params_query.set("ajax", "1");
-		params_query.set("username", HttpsClient::encode_url(credentials.username));
+		params_query.set("username", HttpsClient::encode_url(utf8_username));
 		if (!_realm.empty())
 			params_query.set("realm", HttpsClient::encode_url(_realm));
-		params_query.set("credential", HttpsClient::encode_url(credentials.password));
+		params_query.set("credential", HttpsClient::encode_url(utf8_password));
 
 		// Safe erase password stored in memory.
-		utl::str::serase(credentials.password);
+		utl::str::serase(utf8_password);
+		credentials_request.clear();
 
 		// Loop until code returns with access denied, login canceled or an error
 		// is detected.
 		while (true) {
 			utl::StringMap params_result;
-			portal_err err = try_login_check(params_query, params_result);
+			const portal_err err = try_login_check(params_query, params_result);
 			if (err != portal_err::NONE)
 				return err;
 
 			// Get the result of the last authentication check.
-			int retcode = params_result.get_int_value("ret", -1);
+			const int retcode = params_result.get_int_value("ret", -1);
 
 			if (retcode == 0) {
 				// ********************************
@@ -248,12 +257,12 @@ namespace fw {
 				// Show the error message received from the firewall.
 				http::Url redir_url;
 				if (!get_redir_url(params_result, redir_url)) {
-					_logger->error("ERROR: invalid firewall answer, redir missing");
+					_logger.error("ERROR: invalid firewall answer, redir missing");
 				}
 
 				std::string msg = "access denied";
 				redir_url.get_query_map().get_str("err", msg);
-				_logger->error("ERROR: %s", msg.c_str());
+				_logger.error("ERROR: %s", msg.c_str());
 
 				return portal_err::ACCESS_DENIED;
 			}
@@ -268,7 +277,7 @@ namespace fw {
 				// the tunnel mode.
 				http::Url redir_url;
 				if (!get_redir_url(params_result, redir_url)) {
-					_logger->error("ERROR: invalid firewall answer, redir missing");
+					_logger.error("ERROR: invalid firewall answer, redir missing");
 				}
 
 				redir_url = make_url(redir_url.get_path(), redir_url.get_query());
@@ -293,22 +302,22 @@ namespace fw {
 					/*4: */ "Enter authentication code sent to SMS "
 				};
 
-				AuthCode code;
-				std::string device;
+				std::wstring mfa_prompt;
 
+				std::string device;
 				if (params_result.get_str("tokeninfo", device)) {
 					const int message_index = retcode - 2;
 					device = http::HttpsClient::decode_url(device);
-					code.prompt = messages[message_index] + device;
+					mfa_prompt = utl::str::str2wstr(messages[message_index] + device);
 				}
 				else {
-					code.prompt = "Enter authentication code";
+					mfa_prompt = L"Enter authentication code";
 				}
-				code.code = "";
-				if (!ask_code(code))
+				AuthCodeRequest mfa_code{ mfa_prompt, host() };
+				if (!ask_code(mfa_code))
 					return portal_err::LOGIN_CANCELLED;
 
-				params_query.set("code", code.code);
+				params_query.set("code", encode_url(utl::str::wstr2str(mfa_code.code)));
 				params_query.set("code2", "");
 				params_query.set("reqid", params_result.get_str_value("reqid", ""));
 				params_query.set("polid", params_result.get_str_value("polid", ""));
@@ -321,12 +330,12 @@ namespace fw {
 				// 5: FotiToken drifted, require next code
 				//    ** Never tested **
 				// ********************************
-				AuthCode code{ "Wait next code", "" };
-				if (!ask_code(code))
+				AuthCodeRequest next_code{ L"Wait next code", host()};
+				if (!ask_code(next_code))
 					return portal_err::LOGIN_CANCELLED;
 
 				params_query.set("code", "");
-				params_query.set("code2", code.code);
+				params_query.set("code2", encode_url(utl::str::wstr2str(next_code.code)));
 				params_query.set("reqid", params_result.get_str_value("reqid", ""));
 				params_query.set("polid", params_result.get_str_value("polid", ""));
 				params_query.set("grp", params_result.get_str_value("grp", ""));
@@ -339,17 +348,16 @@ namespace fw {
 				// ********************************
 				if (params_result.get_int_value("pass_renew", 0) == 1) {
 					// password renewal not supported.
-					_logger->error("ERROR: password expired");
+					_logger.error("ERROR: password expired");
 					return portal_err::LOGIN_CANCELLED;
 				}
 
 				// there is a challenge message
-				AuthCode challenge;
-
-				// .. assign a default prompt
-				challenge.prompt = params_result.get_str_value("chal_msg", "enter code");
+				const std::string chal_msg{ params_result.get_str_value("chal_msg", "enter code") };
 
 				// .. ask a code to the user
+				const std::wstring challenge_prompt{ utl::str::str2wstr(decode_url(chal_msg)) };
+				AuthCodeRequest challenge{ challenge_prompt, host() };
 				if (!ask_code(challenge))
 					return portal_err::LOGIN_CANCELLED;
 
@@ -370,12 +378,12 @@ namespace fw {
 						params_result.get_str_value("pid", "").c_str(),
 						params_result.get_str_value("is_chal_rsp", "").c_str()
 					));
-				params_query.set("credential2", challenge.code);
+				params_query.set("credential2", encode_url(utl::str::wstr2str(challenge.code)));
 			}
 			break;
 
 			default:
-				_logger->error("ERROR: unknown return code %d during authentication", retcode);
+				_logger.error("ERROR: unknown return code %d during authentication", retcode);
 				return portal_err::ACCESS_DENIED;
 			}
 
@@ -391,7 +399,7 @@ namespace fw {
 	fw::portal_err FirewallClient::login_saml(const ask_samlauth_fn& ask_samlauth)
 	{
 		DEBUG_ENTER(_logger);
-		utl::Mutex::Lock lock{ _mutex };
+		std::lock_guard<std::mutex> lock(_mutex);
 
 		std::string service_provider_crt;
 		if (!utl::X509crt_to_pem(get_peer_crt(), service_provider_crt))
@@ -407,7 +415,7 @@ namespace fw {
 			[this]() -> bool { return this->is_authenticated(); }
 		};
 
-		_logger->info(">> auth mode : saml");
+		_logger.info(">> auth mode : saml");
 		if (!ask_samlauth(saml_auth_info))
 			goto terminate;
 
@@ -421,13 +429,13 @@ namespace fw {
 	bool FirewallClient::logout()
 	{
 		DEBUG_ENTER(_logger);
-		utl::Mutex::Lock lock{ _mutex };
+		std::lock_guard<std::mutex> lock(_mutex);
 
 		http::Headers headers;
 		http::Answer answer;
 
 		const http::Url logout_url = make_url("/remote/logout");
-		bool ok = send_request(http::Request::GET_VERB, logout_url, "", headers, answer, 0);
+		const bool ok = send_request(http::Request::GET_VERB, logout_url, "", headers, answer, 0);
 
 		// Delete all session cookies
 		LOG_DEBUG(_logger, "clear cookie jar 0x%012Ix", PTR_VAL(std::addressof(_cookie_jar)));
@@ -440,7 +448,7 @@ namespace fw {
 	bool FirewallClient::get_info(fw::PortalInfo& portal_info)
 	{
 		DEBUG_ENTER(_logger);
-		utl::Mutex::Lock lock{ _mutex };
+		std::lock_guard<std::mutex> lock(_mutex);
 
 		if (!is_authenticated())
 			return false;
@@ -451,7 +459,7 @@ namespace fw {
 		const http::Url portal_url = make_url("/remote/portal", "access");
 		if (!send_request(http::Request::GET_VERB, portal_url, "", headers, answer, 0))
 		{
-			_logger->error("ERROR: get portal info failure");
+			_logger.error("ERROR: get portal info failure");
 			return false;
 		}
 
@@ -483,7 +491,7 @@ namespace fw {
 	bool FirewallClient::get_config(fw::SslvpnConfig& sslvpn_config)
 	{
 		DEBUG_ENTER(_logger);
-		utl::Mutex::Lock lock{ _mutex };
+		std::lock_guard<std::mutex> lock(_mutex);
 
 		if (!is_authenticated())
 			return false;
@@ -498,7 +506,7 @@ namespace fw {
 		const http::Url vpninfo_url = make_url("/remote/fortisslvpn_xml");
 		if (!send_request(http::Request::GET_VERB, vpninfo_url, "", headers, answer, 0))
 		{
-			_logger->error("ERROR: get portal configuration failure");
+			_logger.error("ERROR: get portal configuration failure");
 			return false;
 		}
 
@@ -511,16 +519,16 @@ namespace fw {
 		const std::string data(body.cbegin(), body.cend());
 
 		pugi::xml_document doc;
-		pugi::xml_parse_result parse_result = doc.load_string(data.c_str());
+		const pugi::xml_parse_result parse_result = doc.load_string(data.c_str());
 
 		if (parse_result.status != pugi::xml_parse_status::status_ok) {
-			_logger->error("ERROR: portal configuration - XML parse error");
+			_logger.error("ERROR: portal configuration - XML parse error");
 			return false;
 		}
 
 		const pugi::xml_node& root = doc.child("sslvpn-tunnel");
 		if (root.empty()) {
-			_logger->error("ERROR: portal configuration - XML decode error");
+			_logger.error("ERROR: portal configuration - XML decode error");
 			return false;
 		}
 
@@ -570,8 +578,8 @@ namespace fw {
 				connect();
 			}
 			catch (const std::runtime_error& e) {
-				_logger->error("ERROR: failed to connect to %s", host().to_string().c_str());
-				_logger->error("ERROR: %s", e.what());
+				_logger.error("ERROR: failed to connect to %s", host().to_string().c_str());
+				_logger.error("ERROR: %s", e.what());
 
 				return false;
 			}
@@ -593,7 +601,7 @@ namespace fw {
 				and costly full-chain validation operations.
 			*/
 			if (_peer_crt_digest != CrtDigest(get_peer_crt())) {
-				_logger->error("ERROR: invalid certificate digest");
+				_logger.error("ERROR: invalid certificate digest");
 
 				return false;
 			}
@@ -603,8 +611,8 @@ namespace fw {
 			HttpsClient::send_request(request);
 		}
 		catch (const std::runtime_error& e) {
-			_logger->error("ERROR: failed to send HTTP request to %s", host().to_string().c_str());
-			_logger->error("ERROR: %s", e.what());
+			_logger.error("ERROR: failed to send HTTP request to %s", host().to_string().c_str());
+			_logger.error("ERROR: %s", e.what());
 
 			return false;
 		}
@@ -613,8 +621,8 @@ namespace fw {
 			recv_answer(answer);
 		}
 		catch (const std::runtime_error& e) {
-			_logger->error("ERROR: failed to receive HTTP data from %s", host().to_string().c_str());
-			_logger->error("ERROR: %s", e.what());
+			_logger.error("ERROR: failed to receive HTTP data from %s", host().to_string().c_str());
+			_logger.error("ERROR: %s", e.what());
 
 			return false;
 		}
@@ -714,7 +722,7 @@ namespace fw {
 		DEBUG_ENTER(_logger);
 
 		if (allow_redir < 0) {
-			_logger->error("ERROR: Redirect failed");
+			_logger.error("ERROR: Redirect failed");
 			return false;
 		}
 

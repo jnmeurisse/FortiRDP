@@ -15,7 +15,7 @@ namespace http {
 	using namespace utl;
 
 
-	void Cookies::clear()
+	void Cookies::clear() noexcept
 	{
 		_cookies.clear();
 	}
@@ -34,7 +34,7 @@ namespace http {
 	const Cookies& Cookies::add(const Cookie& cookie)
 	{
 		// Check if the name exists in this collection. 
-		auto it = _cookies.find(cookie.get_name());
+		const auto it = _cookies.find(cookie.get_name());
 
 		if (it != _cookies.end()) {
 			// If yes, update the value
@@ -49,7 +49,7 @@ namespace http {
 	}
 
 
-	void Cookies::remove(const std::string& name)
+	void Cookies::remove(const std::string& name) noexcept
 	{
 		_cookies.erase(name);
 	}

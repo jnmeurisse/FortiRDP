@@ -42,7 +42,7 @@
     <ClCompile Include="..\..\src\ui\ConnectDialog.cpp">
       <Filter>sources\ui</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\ui\CredentialDialog.cpp">
+    <ClCompile Include="..\..\src\ui\LoginDialog.cpp">
       <Filter>sources\ui</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\ui\Dialog.cpp">
@@ -177,9 +177,6 @@
     <ClCompile Include="..\..\src\util\Logger.cpp">
       <Filter>sources\utl</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\util\Mutex.cpp">
-      <Filter>sources\utl</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\util\ObfuscatedString.cpp">
       <Filter>sources\utl</Filter>
     </ClCompile>
@@ -231,7 +228,10 @@
     <ClCompile Include="..\..\src\util\XGetopt.cpp">
       <Filter>sources\utl</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\util\gzip.cpp">
+    <ClCompile Include="..\..\src\util\CredentialStore.cpp">
+      <Filter>sources\utl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\util\Credential.cpp">
       <Filter>sources\utl</Filter>
     </ClCompile>
   </ItemGroup>
@@ -254,7 +254,7 @@
     <ClInclude Include="..\..\src\ui\ConnectDialog.h">
       <Filter>sources\ui</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\ui\CredentialDialog.h">
+    <ClInclude Include="..\..\src\ui\LoginDialog.h">
       <Filter>sources\ui</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\ui\Dialog.h">
@@ -410,9 +410,6 @@
     <ClInclude Include="..\..\src\util\Logger.h">
       <Filter>sources\utl</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\util\Mutex.h">
-      <Filter>sources\utl</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\util\ObfuscatedString.h">
       <Filter>sources\utl</Filter>
     </ClInclude>
@@ -467,7 +464,10 @@
     <ClInclude Include="..\..\src\util\XGetopt.h">
       <Filter>sources\utl</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\util\gzip.h">
+    <ClInclude Include="..\..\src\util\CredentialStore.h">
+      <Filter>sources\utl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\util\Credential.h">
       <Filter>sources\utl</Filter>
     </ClInclude>
   </ItemGroup>

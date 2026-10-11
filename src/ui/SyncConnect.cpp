@@ -7,6 +7,9 @@
 */
 #include "SyncConnect.h"
 
+#include <array>
+#include <string>
+
 
 namespace ui {
 	SyncConnect::SyncConnect(HWND hwnd, fw::AuthMethod auth_method, fw::FirewallClient& portal_client) :
@@ -33,14 +36,15 @@ namespace ui {
 
 	bool SyncConnect::confirm_certificate(const mbedtls_x509_crt* crt, int status)
 	{
-		char buffer[4096];
-
-		mbedtls_x509_crt_verify_info(buffer, sizeof(buffer), " * ", status);
-		_logger->info(buffer);
-
+		std::array<char, 4096> buffer;
 		std::string message("The security certificate is not valid.\n");
-		message.append(buffer);
-		message.append("\n");
+
+		if (mbedtls_x509_crt_verify_info(buffer.data(), buffer.size(), " * ", status) > 0) {
+			_logger.info(buffer.data());
+
+			message.append(buffer.data());
+			message.append("\n");
+		}
 
 		message.append("Security certificate problems may indicate an attempt to "
 			"intercept any data including passwords you send to the firewall.\n");
@@ -51,13 +55,13 @@ namespace ui {
 	}
 
 
-	bool SyncConnect::ask_credentials(fw::AuthCredentials& credentials)
+	bool SyncConnect::ask_credentials(fw::AuthCredentialRequest& credential)
 	{
-		return AsyncMessage::ShowCredentialsDialogRequest->send_message(_hwnd, &credentials) == TRUE;
+		return AsyncMessage::ShowCredentialDialogRequest->send_message(_hwnd, &credential) == TRUE;
 	}
 
 
-	bool SyncConnect::ask_pincode(fw::AuthCode& code2fa)
+	bool SyncConnect::ask_pincode(fw::AuthCodeRequest& code2fa)
 	{
 		return AsyncMessage::ShowPinCodeDialogRequest->send_message(_hwnd, &code2fa) == TRUE;
 	}
@@ -97,18 +101,18 @@ namespace ui {
 				case fw::AuthMethod::BASIC:
 				case fw::AuthMethod::DEFAULT:
 				{
-					auto ask_credentials_callback = [this](fw::AuthCredentials& credential) {
+					auto ask_credential_callback = [this](fw::AuthCredentialRequest& credential) {
 						return ask_credentials(credential);
 					};
 
-					auto ask_pincode_callback = [this](fw::AuthCode& code) {
+					auto ask_pincode_callback = [this](fw::AuthCodeRequest& code) {
 						return ask_pincode(code);
 					};
 
 					// Loop while user enter wrong credentials.
 					fw::portal_err rc;
 					do {
-						rc = _portal_client.login_basic(ask_credentials_callback, ask_pincode_callback);
+						rc = _portal_client.login_basic(ask_credential_callback, ask_pincode_callback);
 						if (rc != fw::portal_err::NONE) {
 							if (rc != fw::portal_err::LOGIN_CANCELLED) {
 								showErrorMessageDialog(L"Login error");
@@ -148,9 +152,9 @@ namespace ui {
 					goto exit;
 				}
 
-				_logger->info(">> portal info");
-				_logger->info("     user: %s", portal_info.user.c_str());
-				_logger->info("     group: %s", portal_info.group.c_str());
+				_logger.info(">> portal info");
+				_logger.info("     user: %s", portal_info.user.c_str());
+				_logger.info("     group: %s", portal_info.group.c_str());
 			}
 		}
 
@@ -160,7 +164,7 @@ namespace ui {
 			_portal_client.is_authenticated();
 
 		if (!connected)
-			_logger->info(">> disconnected");
+			_logger.info(">> disconnected");
 
 		return connected;
 	}

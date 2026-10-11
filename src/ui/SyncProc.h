@@ -29,8 +29,8 @@ namespace ui {
 		void run();
 
 	protected:
-		// The logger.
-		utl::Logger* const _logger;
+		// A reference to the application logger.
+		utl::Logger& _logger;
 
 		// The recipient window of the user event message.
 		const HWND _hwnd;

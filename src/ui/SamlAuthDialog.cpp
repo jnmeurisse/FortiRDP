@@ -86,7 +86,7 @@ namespace ui {
 
 	SamlAuthDialog::SamlAuthDialog(HINSTANCE hInstance, HWND hParent, fw::AuthSamlInfo* pSamlInfo) :
 		ModalDialog(hInstance, hParent, IDD_SAMLAUTH_DIALOG),
-		_logger(utl::Logger::get_logger()),
+		_logger(utl::Logger::instance()),
 		_web_controller(),
 		_can_close(false),
 		_last_saml_error(saml_err::NONE),
@@ -94,9 +94,9 @@ namespace ui {
 	{
 		DEBUG_CTOR(_logger);
 
-		HRESULT hr = ::CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
+		const HRESULT hr = ::CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
 		if (FAILED(hr)) {
-			_logger->error("ERROR: CoInitializeEx error=%x", hr);
+			_logger.error("ERROR: CoInitializeEx error=%x", hr);
 			throw utl::win_err(hr);
 		}
 	}
@@ -122,7 +122,7 @@ namespace ui {
 		auto web_core_created = [this](HRESULT result, ICoreWebView2Controller* controller) {
 			if (FAILED(result)) {
 				_last_saml_error = ui::saml_err::WEBVIEW_ERROR;
-				_logger->error("ERROR: unable to create WebView2 controller hr=%x", result);
+				_logger.error("ERROR: unable to create WebView2 controller hr=%x", result);
 
 				close_dialog(false);
 			}
@@ -136,7 +136,7 @@ namespace ui {
 
 					// Set up WebView bounds
 					RECT webview_bounds = get_client_rect();
-					RECT status_rect = get_control_rect(IDC_SAML_STATUS);
+					const RECT status_rect = get_control_rect(IDC_SAML_STATUS);
 					webview_bounds.bottom -= (status_rect.bottom - status_rect.top);
 					hr = _web_controller->put_Bounds(webview_bounds);
 					if (FAILED(hr))
@@ -238,9 +238,9 @@ namespace ui {
 						throw webview2_error(hr, "Navigate");
 
 				}
-				catch (webview2_error& e) {
+				catch (const webview2_error& e) {
 					_last_saml_error = ui::saml_err::WEBVIEW_ERROR;
-					_logger->error(
+					_logger.error(
 						"ERROR: unable to create WebView2 SAML dialog hr=%x function=%s",
 						e.error,
 						e.what()
@@ -255,20 +255,20 @@ namespace ui {
 		auto web_env_created = [this, web_core_created](HRESULT result, ICoreWebView2Environment* env) {
 			if (FAILED(result)) {
 				_last_saml_error = ui::saml_err::WEBVIEW_ERROR;
-				_logger->error("ERROR: unable to create WebView2 environment hr=%x", result);
+				_logger.error("ERROR: unable to create WebView2 environment hr=%x", result);
 
 				close_dialog(false);
 			}
 			else {
 				// Create WebView2 controller
-				HRESULT hr = env->CreateCoreWebView2Controller(
+				const HRESULT hr = env->CreateCoreWebView2Controller(
 					window_handle(),
 					Callback<ICoreWebView2CreateCoreWebView2ControllerCompletedHandler>(web_core_created).Get()
 				);
 
 				if (FAILED(hr)) {
 					_last_saml_error = ui::saml_err::WEBVIEW_ERROR;
-					_logger->error("ERROR: unable to create WebView2 SAML dialog hr=%x", hr);
+					_logger.error("ERROR: unable to create WebView2 SAML dialog hr=%x", hr);
 
 					close_dialog(false);
 				}
@@ -282,7 +282,7 @@ namespace ui {
 
 
 		set_control_text(IDC_SAML_STATUS, L"Initializing a web browser");
-		HRESULT hr = CreateCoreWebView2EnvironmentWithOptions(
+		const HRESULT hr = CreateCoreWebView2EnvironmentWithOptions(
 			nullptr,
 			app_data_path.c_str(),
 			nullptr,
@@ -291,7 +291,7 @@ namespace ui {
 
 		if (FAILED(hr)) {
 			_last_saml_error = ui::saml_err::WEBVIEW_ERROR;
-			_logger->error("ERROR: unable to create WebView2 SAML dialog hr=%x", hr);
+			_logger.error("ERROR: unable to create WebView2 SAML dialog hr=%x", hr);
 
 			close_dialog(false);
 		}
@@ -309,7 +309,7 @@ namespace ui {
 			if (_can_close) {
 				// Close this dialog
 				_last_saml_error = ui::saml_err::LOGIN_CANCELLED;
-				_logger->error("ERROR: SAML login cancelled");
+				_logger.error("ERROR: SAML login cancelled");
 
 				close_dialog(false);
 			}
@@ -328,12 +328,12 @@ namespace ui {
 		TRACE_ENTER(_logger);
 		if (!sender || !args) {
 			_last_saml_error = ui::saml_err::WEBVIEW_ERROR;
-			_logger->error("ERROR: invalid argument in onWebViewNavigationStarting");
+			_logger.error("ERROR: invalid argument in onWebViewNavigationStarting");
 
 		}
 		else {
 			wil::unique_cotaskmem_string uri;
-			HRESULT hr = args->get_Uri(&uri);
+			const HRESULT hr = args->get_Uri(&uri);
 			if (FAILED(hr))
 				return S_FALSE;
 			set_control_text(IDC_SAML_STATUS, uri.get());
@@ -354,7 +354,7 @@ namespace ui {
 
 		if (!sender || !args) {
 			_last_saml_error = ui::saml_err::WEBVIEW_ERROR;
-			_logger->error("ERROR: invalid argument in onWebViewNavigationCompleted");
+			_logger.error("ERROR: invalid argument in onWebViewNavigationCompleted");
 
 		}
 		else {
@@ -388,14 +388,14 @@ namespace ui {
 					case COREWEBVIEW2_WEB_ERROR_STATUS_DISCONNECTED:
 					case COREWEBVIEW2_WEB_ERROR_STATUS_CANNOT_CONNECT:
 					case COREWEBVIEW2_WEB_ERROR_STATUS_HOST_NAME_NOT_RESOLVED:
-						_logger->error("ERROR: SAML connection failed. %s (%d).",
+						_logger.error("ERROR: SAML connection failed. %s (%d).",
 							web_error_status_message(web_error_status),
 							web_error_status);
 						_last_saml_error = ui::saml_err::COMM_ERROR;
 						break;
 
 					case COREWEBVIEW2_WEB_ERROR_STATUS_OPERATION_CANCELED:
-						_logger->error("ERROR: SAML connection failed. %s (%d).",
+						_logger.error("ERROR: SAML connection failed. %s (%d).",
 							web_error_status_message(web_error_status),
 							web_error_status);
 						_last_saml_error = ui::saml_err::LOGIN_CANCELLED;
@@ -406,14 +406,14 @@ namespace ui {
 					case COREWEBVIEW2_WEB_ERROR_STATUS_UNEXPECTED_ERROR:
 					case COREWEBVIEW2_WEB_ERROR_STATUS_VALID_AUTHENTICATION_CREDENTIALS_REQUIRED:
 					case COREWEBVIEW2_WEB_ERROR_STATUS_VALID_PROXY_AUTHENTICATION_REQUIRED:
-						_logger->error("ERROR: SAML connection failed. %s (%d).",
+						_logger.error("ERROR: SAML connection failed. %s (%d).",
 							web_error_status_message(web_error_status),
 							web_error_status);
 						_last_saml_error = ui::saml_err::HTTP_ERROR;
 						break;
 
 					default:
-						_logger->error("ERROR: SAML connection failed. %s.", web_error_status_message(web_error_status));
+						_logger.error("ERROR: SAML connection failed. %s.", web_error_status_message(web_error_status));
 						_last_saml_error = ui::saml_err::HTTP_ERROR;
 						break;
 					}
@@ -436,9 +436,9 @@ namespace ui {
 					}
 				}
 			}
-			catch (webview2_error& e) {
+			catch (const webview2_error& e) {
 				_last_saml_error = ui::saml_err::WEBVIEW_ERROR;
-				_logger->error(
+				_logger.error(
 					"ERROR: WebView2 Navigate callback error hr=%x function=%s",
 					e.error,
 					e.what()
@@ -455,12 +455,12 @@ namespace ui {
 		TRACE_ENTER(_logger);
 		if (!sender || !args) {
 			_last_saml_error = ui::saml_err::WEBVIEW_ERROR;
-			_logger->error("ERROR: invalid argument in onSourceChanged");
+			_logger.error("ERROR: invalid argument in onSourceChanged");
 
 		}
 		else {
 			wil::unique_cotaskmem_string uri;
-			HRESULT hr = sender->get_Source(&uri);
+			const HRESULT hr = sender->get_Source(&uri);
 			if (FAILED(hr))
 				return S_FALSE;
 			set_control_text(IDC_SAML_STATUS, uri.get());
@@ -478,7 +478,7 @@ namespace ui {
 		TRACE_ENTER(_logger);
 		if (!sender || !args) {
 			_last_saml_error = ui::saml_err::WEBVIEW_ERROR;
-			_logger->error("ERROR: invalid argument in %s", __func__);
+			_logger.error("ERROR: invalid argument in %s", __func__);
 		}
 		else {
 			try {
@@ -516,9 +516,9 @@ namespace ui {
 					}
 				}
 			}
-			catch (webview2_error& e) {
+			catch (const webview2_error& e) {
 				_last_saml_error = ui::saml_err::WEBVIEW_ERROR;
-				_logger->error(
+				_logger.error(
 					"ERROR: WebView2 Certificate Error callback error hr=%x function=%s",
 					e.error,
 					e.what()
@@ -602,7 +602,7 @@ namespace ui {
 
 		if (FAILED(result)) {
 			_last_saml_error = ui::saml_err::WEBVIEW_ERROR;
-			_logger->error("ERROR: unable to create WebView2 environment hr=%x", result);
+			_logger.error("ERROR: unable to create WebView2 environment hr=%x", result);
 		}
 		else {
 			try {
@@ -644,7 +644,7 @@ namespace ui {
 			}
 			catch (webview2_error& e) {
 				_last_saml_error = ui::saml_err::WEBVIEW_ERROR;
-				_logger->error(
+				_logger.error(
 					"ERROR: WebView2 onCookiesAvailable callback error hr=%x function=%s",
 					e.error,
 					e.what()

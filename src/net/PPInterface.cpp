@@ -17,8 +17,8 @@ namespace net {
 
 
 	// lwip callbacks
-	u32_t ppp_output_cb(ppp_pcb* pcb, struct pbuf* pbuf, void* ctx);
-	void ppp_link_status_cb(ppp_pcb* pcb, int err_code, void* ctx);
+	u32_t ppp_output_cb(ppp_pcb* pcb, struct pbuf* pbuf, void* ctx) noexcept;
+	void ppp_link_status_cb(ppp_pcb* pcb, int err_code, void* ctx) noexcept;
 
 
 	// Max Xmit idle time (in ms) before sending a PPP Keep alive packet
@@ -26,7 +26,7 @@ namespace net {
 
 
 	PPInterface::PPInterface(net::TlsSocket& tunnel, utl::Counters& counters) :
-		_logger(Logger::get_logger()),
+		_logger(Logger::instance()),
 		_tunnel(tunnel),
 		_counters(counters),
 		_nif(),
@@ -46,17 +46,17 @@ namespace net {
 	}
 
 
-	bool PPInterface::open()
+	bool PPInterface::open() noexcept
 	{
 		DEBUG_ENTER(_logger);
 
 		if (!_tunnel.is_connected()) {
-			_logger->error("ERROR: %s - tunnel not connected");
+			_logger.error("ERROR: %s - tunnel not connected");
 			return false;
 		}
 
 		if (_pcb) {
-			_logger->error("ERROR: %s already initialized");
+			_logger.error("ERROR: %s already initialized");
 			return false;
 		}
 		
@@ -66,7 +66,7 @@ namespace net {
 		// Create a PPP over the SSLVPN connection.
 		_pcb = ::pppossl_create(&_nif, ppp_output_cb, ppp_link_status_cb, this);
 		if (_pcb == nullptr) {
-			_logger->error("ERROR: pppossl_create - memory allocation failure");
+			_logger.error("ERROR: pppossl_create - memory allocation failure");
 			return false;
 		}
 
@@ -85,7 +85,7 @@ namespace net {
 			::ppp_free(_pcb);
 			_pcb = nullptr;
 
-			_logger->error("ERROR: %s - connect failure (%s)",
+			_logger.error("ERROR: %s - connect failure (%s)",
 				__class__,
 				ppp_errmsg(rc_con).c_str()
 			);
@@ -95,11 +95,11 @@ namespace net {
 	}
 
 
-	void PPInterface::close(bool nocarrier)
+	void PPInterface::close(bool nocarrier) noexcept
 	{
 		DEBUG_ENTER(_logger);
 
-		if (_logger->is_debug_enabled())
+		if (_logger.is_debug_enabled())
 			::stats_display();
 
 		if (!dead()) {
@@ -107,7 +107,7 @@ namespace net {
 			const ppp_err rc = ::ppp_close(_pcb, nocarrier? 1 : 0);
 
 			if (rc != PPPERR_NONE) {
-				_logger->error("ERROR: %s - close failure (%s)",
+				_logger.error("ERROR: %s - close failure (%s)",
 					__class__,
 					ppp_errmsg(rc).c_str()
 				);
@@ -118,13 +118,13 @@ namespace net {
 	}
 
 
-	void PPInterface::release()
+	void PPInterface::release() noexcept
 	{
 		DEBUG_ENTER(_logger);
 
 		if (_pcb) {
 			if (_pcb->phase != PPP_PHASE_DEAD) {
-				_logger->error("ERROR: %s - active interface released", __class__);
+				_logger.error("ERROR: %s - active interface released", __class__);
 			}
 
 			::ppp_free(_pcb);
@@ -139,7 +139,7 @@ namespace net {
 	}
 
 
-	int PPInterface::netmask() const
+	int PPInterface::netmask() const noexcept
 	{
 		const ip4_addr_t *mask = netif_ip4_netmask(_pcb->netif);
 		int mask_size = 0;
@@ -162,13 +162,13 @@ namespace net {
 	}
 
 
-	int PPInterface::mtu() const
+	int PPInterface::mtu() const noexcept
 	{
 		return _pcb->netif->mtu;
 	}
 
 
-	bool PPInterface::send()
+	bool PPInterface::send() noexcept
 	{
 		TRACE_ENTER(_logger);
 		mbed_err rc = 0;
@@ -182,7 +182,7 @@ namespace net {
 				_counters.sent += written;
 			}
 			else {
-				_logger->error("ERROR: %s - tunnel send failure (%d)", __class__, rc);
+				_logger.error("ERROR: %s - tunnel send failure (%d)", __class__, rc);
 			}
 		}
 
@@ -192,7 +192,7 @@ namespace net {
 	}
 
 
-	bool PPInterface::recv()
+	bool PPInterface::recv() noexcept
 	{
 		TRACE_ENTER(_logger);
 
@@ -215,7 +215,7 @@ namespace net {
 			// PPP data available, pass it to the lwIP stack.
 			const ppp_err ppp_rc = ::pppossl_input(_pcb, buffer.data(), status.rbytes);
 			if (ppp_rc) {
-				_logger->error("ERROR: %s - input failure (%s)",
+				_logger.error("ERROR: %s - input failure (%s)",
 					__class__,
 					ppp_errmsg(ppp_rc).c_str());
 
@@ -236,8 +236,8 @@ namespace net {
 		case rcv_status_code::NETCTX_RCV_ERROR:
 		default:
 			rc = false;
-			_logger->error("ERROR: %s - tunnel receive failure", __class__);
-			_logger->error(mbed_errmsg(status.rc).c_str());
+			_logger.error("ERROR: %s - tunnel receive failure", __class__);
+			_logger.error(mbed_errmsg(status.rc).c_str());
 			break;
 		}
 
@@ -247,7 +247,7 @@ namespace net {
 	}
 
 
-	void PPInterface::send_keep_alive()
+	void PPInterface::send_keep_alive() noexcept
 	{
 		if (_pcb && (_pcb->lcp_fsm.state == PPP_FSM_OPENED) && (sys_now() - last_xmit() > PPP_MAXIDLE)) {
 			ppossl_send_ka(_pcb);
@@ -255,7 +255,7 @@ namespace net {
 	}
 
 
-	int PPInterface::last_xmit() const
+	int PPInterface::last_xmit() const noexcept
 	{
 		auto pcbssl = static_cast<const pppossl_pcb *>(_pcb->link_ctx_cb);
 
@@ -263,7 +263,7 @@ namespace net {
 	}
 
 
-	u32_t ppp_output_cb(ppp_pcb *pcb, struct pbuf* pbuf, void *ctx)
+	u32_t ppp_output_cb(ppp_pcb *pcb, struct pbuf* pbuf, void *ctx) noexcept
 	{
 		LWIP_UNUSED_ARG(pcb);
 		auto pp_interface = static_cast<PPInterface *>(ctx);
@@ -272,21 +272,21 @@ namespace net {
 	}
 
 
-	void ppp_link_status_cb(ppp_pcb *pcb, int err_code, void *ctx)
+	void ppp_link_status_cb(ppp_pcb *pcb, int err_code, void *ctx) noexcept
 	{
 		LWIP_UNUSED_ARG(pcb);
 		auto pp_interface = static_cast<PPInterface*>(ctx);
 
 		if (err_code) {
-			Logger* const logger = pp_interface->_logger;
+			Logger& logger = pp_interface->_logger;
 
 			if (err_code == PPPERR_USER) {
 				// The PPP interface is now down.
-				logger->trace("ppp_link_status_cb interface 0x%012Ix is down", PTR_VAL(pp_interface));
+				logger.trace("ppp_link_status_cb interface 0x%012Ix is down", PTR_VAL(pp_interface));
 			} 
 			else
 			{
-				logger->error("ERROR: PPInterface - link error (%s)", ppp_errmsg(err_code).c_str());
+				logger.error("ERROR: PPInterface - link error (%s)", ppp_errmsg(err_code).c_str());
 			}
 		} 
 

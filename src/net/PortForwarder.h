@@ -200,7 +200,7 @@ namespace net {
 		inline bool has_pending_tcp_segment() const noexcept { return _local_client->unsent != nullptr; }
 
 		// A reference to the application logger.
-		utl::Logger* const _logger;
+		utl::Logger& _logger;
 
 		// The current state of the forwarder.
 		State _state;

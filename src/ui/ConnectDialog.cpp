@@ -10,14 +10,15 @@
 #include <algorithm>
 #include <stdexcept>
 #include <system_error>
+#include <mutex>
 #include <vector>
 #include "ui/AboutDialog.h"
 #include "ui/AsyncMessage.h"
-#include "ui/CredentialDialog.h"
+#include "ui/LoginDialog.h"
 #include "ui/OptionsDialog.h"
 #include "ui/PinCodeDialog.h"
 #include "ui/SamlAuthDialog.h"
-#include "util/Mutex.h"
+#include "util/CredentialStore.h"
 #include "util/StrUtil.h"
 #include "util/SysUtil.h"
 #include "resources/resource.h"
@@ -35,7 +36,7 @@ namespace ui {
 
 	ConnectDialog::ConnectDialog(HINSTANCE hInstance, const ui::CmdlineParams& params) :
 		ModelessDialog(hInstance, NULL_HWND, IDD_CONNECT_DIALOG),
-		_logger(utl::Logger::get_logger()),
+		_logger(utl::Logger::instance()),
 		_params(params),
 		_settings(),
 		_writer(window_handle(), utl::LogLevel::LL_INFO)
@@ -78,7 +79,7 @@ namespace ui {
 
 		// Link a new log writer to the logger. This log writer sends OutputInfoMessage
 		// to this dialog window.
-		_logger->add_writer(&_writer);
+		_logger.add_writer(&_writer);
 
 		// Configure the maximum length for address text fields.
 		set_control_textlen(IDC_ADDR_FW, MAX_ADDR_LENGTH);
@@ -149,7 +150,7 @@ namespace ui {
 		_controller->terminate();
 		_controller->wait(1000);
 
-		_logger->remove_writer(&_writer);
+		_logger.remove_writer(&_writer);
 	}
 
 
@@ -179,7 +180,7 @@ namespace ui {
 
 	void ConnectDialog::clearInfo()
 	{
-		utl::Mutex::Lock lock{ _msg_mutex };
+		std::lock_guard<std::mutex> lock(_msg_mutex);
 
 		_msg_buffer.clear();
 		set_control_text(IDC_STATUSTEXT, L"");
@@ -188,7 +189,8 @@ namespace ui {
 
 	void ConnectDialog::writeInfo(const std::wstring& message)
 	{
-		utl::Mutex::Lock lock{ _msg_mutex };
+		std::lock_guard<std::mutex> lock(_msg_mutex);
+
 		const int max_lines = std::max(get_control_text_max_lines(IDC_STATUSTEXT) - 2, MAX_INFO_MESSAGE);
 
 		// Add the new message and remove old one.
@@ -339,26 +341,26 @@ namespace ui {
 			}
 
 			if (!utl::Path::exists(user_crt)) {
-				std::wstring message{ L"User certificate file not found : " + user_crt.to_string() };
+				const std::wstring message{ L"User certificate file not found : " + user_crt.to_string() };
 				showErrorMessageDialog(message);
 				return;
 			}
 
 			auto ask_password = [this](std::string& passcode) {
-				PinCodeDialog codeDialog{ instance_handle(), window_handle() };
-				codeDialog.setText(L"Enter your user certificate password");
+				PinCodeDialog pin_code_dialog{ instance_handle(), window_handle() };
+				pin_code_dialog.header = L"Enter your user certificate password";
 
-				const bool modal_result = codeDialog.show_modal() == TRUE;
+				const bool modal_result = pin_code_dialog.show_modal() == TRUE;
 				if (modal_result) {
 					// Returns code to caller
-					passcode = str::wstr2str(codeDialog.getCode());
+					passcode = utl::str::wstr2str(pin_code_dialog.code);
 				}
 
 				return modal_result;
 			};
 
 			if (!_controller->load_user_crt(user_crt, ask_password)) {
-				std::wstring message{ L"User certificate file not loaded" };
+				const std::wstring message{ L"User certificate file not loaded" };
 				showErrorMessageDialog(message);
 				return;
 			}
@@ -395,31 +397,45 @@ namespace ui {
 	}
 
 
-	void ConnectDialog::showCredentialsDialog(fw::AuthCredentials* pCredentials)
+	void ConnectDialog::showLoginDialog(fw::AuthCredentialRequest* pCredentialsRequest)
 	{
 		using namespace utl;
 
 		DEBUG_ENTER(_logger);
+		const std::wstring& hostname{ str::str2wstr(pCredentialsRequest->endpoint.to_string()) };
 
-		CredentialDialog credentialDialog(instance_handle(), window_handle());
-		const std::string message{
-			"Enter user name and password to access firewall " +
-			_controller->portal_client()->host().hostname()
-		};
-		credentialDialog.setText(str::str2wstr(message));
-		credentialDialog.setUsername(_username);
 
-		const bool modal_result = credentialDialog.show_modal() == TRUE;
-		if (modal_result && pCredentials) {
+		LoginDialog login_dialog(instance_handle(), window_handle());
+		login_dialog.header = pCredentialsRequest->prompt;
+
+		// Try to initialize the username and password from the credential store.
+		if (CredentialStore::instance().load(hostname, login_dialog.credential)) {
+			// We succeeded, the save password checkbox is checked.
+			login_dialog.save_password = true;
+		}
+		else {
+			// The username and password are not stored in the credential store.
+			// Assign the default username without password.
+			login_dialog.credential.username = _username;
+			login_dialog.credential.password.clear();
+			login_dialog.save_password = false;
+		}
+
+		const bool modal_result = login_dialog.show_modal() == TRUE;
+		if (modal_result) {
 			// Returns user name and password to caller
-			_username = credentialDialog.getUsername();
-			pCredentials->username = str::wstr2str(_username);
-			pCredentials->password = str::wstr2str(credentialDialog.getPassword());
+			pCredentialsRequest->credentials = login_dialog.credential;
 
 			// Save user name in last usage registry but only if not specified on
 			// the command line.
 			if (_params.username().empty())
 				_settings.set_username(_username);
+
+			// Save or remove the password.
+			if (login_dialog.save_password)
+				CredentialStore::instance().save(hostname, pCredentialsRequest->credentials);
+			else
+				CredentialStore::instance().remove(hostname);
 		}
 
 		::ReplyMessage(modal_result);
@@ -438,22 +454,19 @@ namespace ui {
 	}
 
 
-	void ConnectDialog::showPinCodeDialog(fw::AuthCode* pCode)
+	void ConnectDialog::showPinCodeDialog(fw::AuthCodeRequest* pCodeRequest)
 	{
 		using namespace utl;
 
 		DEBUG_ENTER(_logger);
 
-		PinCodeDialog codeDialog{ instance_handle(), window_handle() };
-		const std::string message = (!pCode)
-			? "Enter code to access firewall " + _controller->portal_client()->host().hostname()
-			: pCode->prompt;
-		codeDialog.setText(str::str2wstr(message));
+		PinCodeDialog pin_code_dialog{ instance_handle(), window_handle() };
+		pin_code_dialog.header = pCodeRequest->prompt;
 
-		const bool modal_result = codeDialog.show_modal() == TRUE;
-		if (modal_result && pCode) {
+		const bool modal_result = pin_code_dialog.show_modal() == TRUE;
+		if (modal_result) {
 			// Returns code to caller.
-			pCode->code = str::wstr2str(codeDialog.getCode());
+			pCodeRequest->code = pin_code_dialog.code;
 		}
 
 		::ReplyMessage(modal_result);
@@ -782,7 +795,7 @@ namespace ui {
 				rdp_server.del_value(L"UsernameHint");
 			}
 			catch (const std::system_error& err) {
-				_logger->debug("ERROR: ClearRdpHistory %s", err.what());
+				_logger.debug("ERROR: ClearRdpHistory %s", err.what());
 			}
 		}
 
@@ -803,7 +816,7 @@ namespace ui {
 				}
 			}
 			catch (const std::system_error& err) {
-				_logger->debug("ERROR: ClearRdpHistory %s", err.what());
+				_logger.debug("ERROR: ClearRdpHistory %s", err.what());
 			}
 		}
 	}
@@ -824,7 +837,7 @@ namespace ui {
 			if (_params.host_address().empty())
 				_settings.set_host_address(getHostAddress());
 
-			_logger->info(">> successfully logged in portal %s", _firewall_endpoint.to_string().c_str());
+			_logger.info(">> successfully logged in portal %s", _firewall_endpoint.to_string().c_str());
 
 			// create the tunnel.
 			_controller->create_tunnel(
@@ -904,9 +917,13 @@ namespace ui {
 	void ConnectDialog::onOutputInfoEvent(utl::LogQueue* pLogQueue)
 	{
 		if (pLogQueue) {
-			utl::Mutex::Lock lock{ pLogQueue->mutex() };
-			while (pLogQueue->size() > 0)
-				writeInfo(utl::str::str2wstr(pLogQueue->pop()));
+			while (true) {
+				auto message = pLogQueue->pop();
+				if (!message.first)
+					break;
+
+				writeInfo(utl::str::str2wstr(message.second));
+			}
 		}
 	}
 
@@ -915,12 +932,12 @@ namespace ui {
 	{
 		INT_PTR rc = TRUE;
 
-		if (eventId == AsyncMessage::ShowCredentialsDialogRequest->id()) {
-			showCredentialsDialog(static_cast<fw::AuthCredentials*>(param));
+		if (eventId == AsyncMessage::ShowCredentialDialogRequest->id()) {
+			showLoginDialog(static_cast<fw::AuthCredentialRequest*>(param));
 
 		}
 		else if (eventId == AsyncMessage::ShowPinCodeDialogRequest->id()) {
-			showPinCodeDialog(static_cast<fw::AuthCode*>(param));
+			showPinCodeDialog(static_cast<fw::AuthCodeRequest*>(param));
 
 		}
 		else if (eventId == AsyncMessage::ShowSamlAuthDialogRequest->id()) {
@@ -938,18 +955,18 @@ namespace ui {
 
 		}
 		else if (eventId == AsyncMessage::DisconnectFromFirewallRequest->id()) {
-			disconnectFromFirewall(param != 0);
+			disconnectFromFirewall(param != nullptr);
 
 		}
 		else if (eventId == AsyncMessage::ConnectedEvent->id()) {
-			onConnectedEvent(param != 0);
+			onConnectedEvent(param != nullptr);
 		}
 		else if (eventId == AsyncMessage::DisconnectedEvent->id()) {
-			onDisconnectedEvent(param != 0);
+			onDisconnectedEvent(param != nullptr);
 
 		}
 		else if (eventId == AsyncMessage::TunnelListeningEvent->id()) {
-			onTunnelListeningEvent(param != 0);
+			onTunnelListeningEvent(param != nullptr);
 
 		}
 		else if (eventId == AsyncMessage::OutputInfoEvent->id()) {

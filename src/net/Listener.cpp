@@ -13,7 +13,7 @@ namespace net {
 	using namespace utl;
 
 
-	Listener::Listener() :
+	Listener::Listener() noexcept :
 		Socket(),
 		_endpoint()
 	{
@@ -43,7 +43,7 @@ namespace net {
 		// Get the port that has been assigned during the bind.
 		uint16_t bind_port;
 		if (!Socket::get_port(bind_port)) {
-			_logger->error("ERROR: get_port error %d", ::WSAGetLastError());
+			_logger.error("ERROR: get_port error %d", ::WSAGetLastError());
 
 			rc = MBEDTLS_ERR_NET_BIND_FAILED;
 			goto terminate;
@@ -52,7 +52,7 @@ namespace net {
 
 		// Set the socket in non blocking mode.
 		if (Socket::set_blocking_mode(false) != 0) {
-			_logger->error("ERROR: set_blocking error %d", ::WSAGetLastError());
+			_logger.error("ERROR: set_blocking error %d", ::WSAGetLastError());
 
 			rc = MBEDTLS_ERR_NET_BIND_FAILED;
 			goto terminate;
@@ -65,7 +65,7 @@ terminate:
 	}
 
 
-	utl::mbed_err Listener::accept(net::Socket& client_socket)
+	utl::mbed_err Listener::accept(net::Socket& client_socket) noexcept
 	{
 		DEBUG_ENTER_FMT(_logger, "fd=%d", get_fd());
 
@@ -77,14 +77,14 @@ terminate:
 	}
 
 
-	void Listener::close()
+	void Listener::close() noexcept
 	{
 		DEBUG_ENTER_FMT(_logger, "fd=%d", get_fd());
 		Socket::close();
 	}
 
 
-	bool Listener::is_ready() const
+	bool Listener::is_ready() const noexcept
 	{
 		int opt_val;
 		int opt_len = sizeof(opt_val);

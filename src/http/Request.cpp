@@ -27,7 +27,7 @@ namespace http {
 
 
 	Request::Request(const std::string& verb, const http::Url& url, const http::Cookies& cookie_jar) :
-		_logger(Logger::get_logger()),
+		_logger(Logger::instance()),
 		_cookies(cookie_jar),
 		_verb(verb),
 		_url(url),
@@ -44,7 +44,7 @@ namespace http {
 	}
 
 
-	void Request::clear()
+	void Request::clear() noexcept
 	{
 		DEBUG_ENTER(_logger);
 

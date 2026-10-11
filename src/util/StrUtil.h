@@ -19,7 +19,7 @@
 namespace utl {
 	namespace priv {
 		struct comp {
-			bool operator() (const std::string& lhs, const std::string& rhs) const {
+			bool operator() (const std::string& lhs, const std::string& rhs) const noexcept {
 				return _stricmp(lhs.c_str(), rhs.c_str()) < 0;
 			}
 		};
@@ -67,8 +67,8 @@ namespace utl {
 		std::string upper(const std::string& str);
 
 		// "secure" erase the string (replace all characters by a space).
-		void serase(std::string& str);
-		void serase(std::wstring& str);
+		void serase(std::string& str) noexcept;
+		void serase(std::wstring& str) noexcept;
 
 		// Performs variables substitution.
 		std::wstring substvar(const std::wstring& str, const strimap& vars);
@@ -82,6 +82,7 @@ namespace utl {
 
 		// Converts wstring to utf8-string.
 		std::string wstr2str(const std::wstring& wstr);
+		void wstr2str(const std::wstring& wstr, std::string& out);
 
 		// Converts utf8-string to wstring.
 		std::wstring str2wstr(const std::string& str);

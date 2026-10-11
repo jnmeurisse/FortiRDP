@@ -125,7 +125,7 @@ namespace utl {
 		}
 
 
-		static bool icheq(unsigned char a, unsigned char b)
+		static bool icheq(unsigned char a, unsigned char b) noexcept
 		{
 			return std::tolower(a) == std::tolower(b);
 		}
@@ -227,17 +227,17 @@ namespace utl {
 		}
 
 
-		void serase(std::string& str)
+		void serase(std::string& str) noexcept
 		{
-			for (char& c : str)
-				c = ' ';
+			if (!str.empty())
+				SecureZeroMemory(&str[0], str.size());
 		}
 
 
-		void serase(std::wstring& str)
+		void serase(std::wstring& str) noexcept
 		{
-			for (wchar_t& c : str)
-				c = ' ';
+			if (!str.empty())
+				SecureZeroMemory(&str[0], str.size() * sizeof(wchar_t));
 		}
 
 
@@ -328,12 +328,13 @@ namespace utl {
 
 		std::string string_format(const char* fmt, va_list args)
 		{
-			size_t buffer_size = 256;
+			constexpr size_t buffer_size = 256;
+
+			std::vector<char> buffer(buffer_size);
 
 			while (true)
 			{
 				va_list args_copy;
-				std::vector<char> buffer(buffer_size);
 
 				va_copy(args_copy, args);
 				const int n = std::vsnprintf(buffer.data(), buffer_size, fmt, args_copy);
@@ -344,35 +345,50 @@ namespace utl {
 
 				// The string has been completely written only when n is non negative 
 				// and less than size.  The buffer contains a null terminated string.
-				if (n > 0 && n < buffer_size)
-					return buffer.data();
-				else
-					buffer_size *= 2;
+				if (n >= 0 && static_cast<size_t>(n) < buffer.size())
+					return std::string(buffer.data(), n);
+
+				// Allocate a buffer that is sufficiently large, including the terminating 
+				// null character.
+				buffer.resize(static_cast<size_t>(n) + 1);
 			}
 		}
 
 
 		std::string wstr2str(const std::wstring& wstr)
 		{
-			if (wstr.empty()) return {};
+			std::string result;
+			wstr2str(wstr, result);
 
-			const int size = ::WideCharToMultiByte(
-				CP_UTF8, 0,
-				wstr.data(), (int)wstr.size(),
-				nullptr, 0,
-				nullptr, nullptr
-			);
+			return result;
+		}
 
-			std::vector<char> result(size, 0);
 
-			::WideCharToMultiByte(
-				CP_UTF8, 0,
-				wstr.data(), (int)wstr.size(),
-				result.data(), (int)result.size(),
-				nullptr, nullptr
-			);
+		void wstr2str(const std::wstring& wstr, std::string& out)
+		{
+			if (wstr.empty()) {
+				out.clear();
+			}
+			else {
+				// Determine the required buffer size for UTF-8
+				const int size = ::WideCharToMultiByte(
+					CP_UTF8, 0,
+					wstr.data(), (int)wstr.size(),
+					nullptr, 0,
+					nullptr, nullptr
+				);
 
-			return std::string(result.data(), result.size());
+				// Allocate enough memory
+				out.assign(size, '\0');
+
+				// Perform the actual conversion
+				::WideCharToMultiByte(
+					CP_UTF8, 0,
+					wstr.data(), (int)wstr.size(),
+					&out[0], (int)out.size(),
+					nullptr, nullptr
+				);
+			}
 		}
 
 
@@ -391,4 +407,5 @@ namespace utl {
 			return std::wstring(result.data(), result.size());
 		}
 	}
+
 }

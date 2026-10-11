@@ -52,7 +52,7 @@ namespace ui {
 				for (int i = 0; i < 5 && wait; i++) {
 					if (!_tunnel->wait(5 * 1000)) {
 						if (i == 0)
-							_logger->info(">> waiting for tunnel to shutdown...");
+							_logger.info(">> waiting for tunnel to shutdown...");
 					}
 					else {
 						wait = false;
@@ -60,7 +60,7 @@ namespace ui {
 				}
 
 				if (wait) {
-					_logger->error("ERROR: unable to shutdown the tunnel");
+					_logger.error("ERROR: unable to shutdown the tunnel");
 				}
 			}
 		}
@@ -68,7 +68,7 @@ namespace ui {
 		// Make sure the socket is disconnected from the portal.
 		const utl::mbed_err rc = _portal_client.shutdown();
 		if (rc)
-			_logger->error("ERROR: close notify error (%d)", rc);
+			_logger.error("ERROR: close notify error (%d)", rc);
 
 		return stopped;
 	}

@@ -27,7 +27,7 @@ namespace utl {
 	}
 
 
-	void StringMap::serase()
+	void StringMap::serase() noexcept
 	{
 		for (auto iter = _strmap.begin(); iter != _strmap.end(); ++iter) {
 			str::serase(iter->second);
@@ -82,7 +82,7 @@ namespace utl {
 	bool StringMap::get_str(const std::string& name, std::string& value) const
 	{
 		bool found = false;
-		strimap::const_iterator it{ _strmap.find(name) };
+		const strimap::const_iterator it{ _strmap.find(name) };
 
 		if (it != _strmap.end()) {
 			value = it->second;

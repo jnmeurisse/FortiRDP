@@ -11,11 +11,11 @@
 #include <list>
 #include <string>
 #include <memory>
+#include <mutex>
 #include <chrono>
 #include "fw/AuthTypes.h"
 #include "net/Endpoint.h"
 #include "util/Logger.h"
-#include "util/Mutex.h"
 #include "util/TaskInfo.h"
 #include "ui/CmdlineParams.h"
 #include "ui/RegistrySettings.h"
@@ -55,8 +55,8 @@ namespace ui {
 		// The class name.
 		static const char* __class__;
 
-		// The application logger.
-		utl::Logger* const _logger;
+		// A reference to the application logger.
+		utl::Logger& _logger;
 
 		// Command line parameters.
 		const ui::CmdlineParams _params;
@@ -98,7 +98,7 @@ namespace ui {
 		HBRUSH _bg_brush;
 		HFONT _msg_font;
 		std::list<std::wstring> _msg_buffer;
-		utl::Mutex _msg_mutex;
+		std::mutex _msg_mutex;
 
 		void connect(bool clear_log);
 		void disconnect();
@@ -119,9 +119,9 @@ namespace ui {
 		void showAboutDialog();
 		void showOptionsDialog();
 		void showErrorMessageDialog(const std::wstring& text);
-		void showCredentialsDialog(fw::AuthCredentials* pCredential);
+		void showLoginDialog(fw::AuthCredentialRequest* pCredentialsRequest);
 		void showSamlDialog(fw::AuthSamlInfo* pSamlInfo);
-		void showPinCodeDialog(fw::AuthCode* pCode);
+		void showPinCodeDialog(fw::AuthCodeRequest* pCodeRequest);
 		void showInvalidCertificateDialog(const std::wstring& text);
 		void disconnectFromFirewall(bool success);
 

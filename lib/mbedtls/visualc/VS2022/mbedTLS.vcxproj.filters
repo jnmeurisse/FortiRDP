@@ -489,6 +489,9 @@
     <ClInclude Include="..\..\library\cipher_invasive.h">
       <Filter>headers</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\library\psa_crypto_random.h">
+      <Filter>headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\library\aes.c">
@@ -813,6 +816,9 @@
       <Filter>sources</Filter>
     </ClCompile>
     <ClCompile Include="..\..\library\x509write_csr.c">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\library\psa_crypto_random.c">
       <Filter>sources</Filter>
     </ClCompile>
   </ItemGroup>

@@ -7,6 +7,7 @@
 */
 #pragma once
 
+#include <mutex>
 #include <functional>
 #include <string>
 #include <mbedtls/x509_crt.h>
@@ -20,7 +21,6 @@
 #include "fw/CrtDigest.h"
 #include "fw/FirewallTunnel.h"
 #include "net/Endpoint.h"
-#include "util/Mutex.h"
 #include "util/StringMap.h"
 
 
@@ -56,8 +56,8 @@ namespace fw {
 
 	// Callback definitions
 	using confirm_crt_fn = std::function<bool (const mbedtls_x509_crt*, int)>;
-	using ask_credentials_fn = std::function<bool (AuthCredentials&)>;
-	using ask_pincode_fn = std::function<bool (AuthCode&)>;
+	using ask_credentials_fn = std::function<bool (AuthCredentialRequest&)>;
+	using ask_pincode_fn = std::function<bool (AuthCodeRequest&)>;
 	using ask_samlauth_fn = std::function<bool (AuthSamlInfo&)>;
 
 
@@ -99,7 +99,7 @@ namespace fw {
 		 * password renewal, and challenges. It uses two callback functions to ask the
 		 * user for credentials and a 2FA code when needed.
 		 *
-		 * @param ask_credentials_fn ask_credential A callback function used to prompt
+		 * @param ask_credentials_fn ask_credentials A callback function used to prompt
 		 *                           the user for the username and password.
 		 * @param ask_pincode_fn ask_code A callback function used to prompt the user
 		 *                               for the 2FA code or challenge response.
@@ -112,7 +112,7 @@ namespace fw {
 		 *         - portal_err::CERT_UNTRUSTED if certificate verification fails.
 		 *         - portal_err::LOGIN_CANCELLED if the login is canceled by the user.
 		 */
-		fw::portal_err login_basic(const ask_credentials_fn& ask_credential, const ask_pincode_fn& ask_code);
+		fw::portal_err login_basic(const ask_credentials_fn& ask_credentials, const ask_pincode_fn& ask_code);
 
 		/**
 		 * Performs SAML-based authentication with the portal server.
@@ -206,13 +206,13 @@ namespace fw {
 		http::Cookies _cookie_jar;
 
 		// Mutex to serialize calls.
-		utl::Mutex _mutex;
+		std::mutex _mutex;
 
 		// The fortiGate realm.
 		const std::string _realm;
 
 		// Logs an HTTP error message.
-		void log_http_error(const char* msg, const http::Answer& answer);
+		void log_http_error(const char* msg, const http::Answer& answer) noexcept;
 
 		// Sends a send_request and wait for a response.
 		bool send_and_receive(http::Request& request, http::Answer& answer);

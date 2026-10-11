@@ -74,7 +74,7 @@ namespace net {
 
 
 	TlsConfig::TlsConfig() :
-		_logger(Logger::get_logger())
+		_logger(Logger::instance())
 	{
 		DEBUG_CTOR(_logger);
 		::mbedtls_entropy_init(&_entropy_ctx);
@@ -99,13 +99,13 @@ namespace net {
 		// configured or disabled.
 		for (int idx = 0; default_ciphers[idx] != 0; idx++) {
 			if (!::mbedtls_ssl_ciphersuite_from_id(default_ciphers[idx]))
-				_logger->error("INTERNAL ERROR: missing cipher index=%d id=%d", idx, default_ciphers[idx]);
+				_logger.error("INTERNAL ERROR: missing cipher index=%d id=%d", idx, default_ciphers[idx]);
 		}
 #endif
 
-		if (_logger->is_trace_enabled()) {
+		if (_logger.is_trace_enabled()) {
 			// define a debug callback
-			::mbedtls_ssl_conf_dbg(&_ssl_config, mbedtls_debug_fn, _logger);
+			::mbedtls_ssl_conf_dbg(&_ssl_config, mbedtls_debug_fn, &_logger);
 #ifndef _DEBUG
 			::mbedtls_debug_set_threshold(0);
 #else
@@ -125,7 +125,7 @@ namespace net {
 	}
 
     
-	void TlsConfig::set_ca_crt(mbedtls_x509_crt& ca_crt)
+	void TlsConfig::set_ca_crt(mbedtls_x509_crt& ca_crt) noexcept
 	{
 		DEBUG_ENTER(_logger);
 
@@ -134,7 +134,7 @@ namespace net {
 	}
 
 
-	utl::mbed_err TlsConfig::set_user_crt(mbedtls_x509_crt& own_crt, mbedtls_pk_context& own_key)
+	utl::mbed_err TlsConfig::set_user_crt(mbedtls_x509_crt& own_crt, mbedtls_pk_context& own_key) noexcept
 	{
 		DEBUG_ENTER(_logger);
 
@@ -142,7 +142,7 @@ namespace net {
 	}
 
 
-	const mbedtls_ssl_config* TlsConfig::get_cfg() const
+	const mbedtls_ssl_config* TlsConfig::get_cfg() const noexcept
 	{
 		return &_ssl_config;
 	}

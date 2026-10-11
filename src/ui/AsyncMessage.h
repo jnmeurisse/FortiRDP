@@ -41,12 +41,12 @@ namespace ui {
 		/**
 		 * Checks if the message id correspond to the received registration id.
 		*/
-		static inline bool isAsyncMessage(UINT messageId) { return messageId == _windowsMessageId; }
+		static inline bool isAsyncMessage(UINT messageId) noexcept { return messageId == _windowsMessageId; }
 
 		/**
 		 * Returns this message id
 		*/
-		inline UINT id() const { return _id; }
+		inline UINT id() const noexcept { return _id; }
 
 		/*******************************************/
 		/**** Requests sent to the main window  ****/
@@ -59,9 +59,9 @@ namespace ui {
 		*/
 		static AsyncMessagePtr ShowInvalidCertificateDialogRequest;
 
-		/* request to display a dialog that ask for credentials.
+		/* request to display a dialog that ask for credential.
 		*/
-		static AsyncMessagePtr ShowCredentialsDialogRequest;
+		static AsyncMessagePtr ShowCredentialDialogRequest;
 
 		/* request to display a dialog that ask for an additional code (pin code
 		 * for example).
@@ -100,8 +100,8 @@ namespace ui {
 	protected:
 		explicit AsyncMessage(UINT eventNumber);
 
-		// The application logger.
-		utl::Logger* const _logger;
+		// A reference to the application logger.
+		utl::Logger& _logger;
 
 		// Global message identifier assigned by windows for all AsyncMessages.
 		static UINT _windowsMessageId;

@@ -17,7 +17,7 @@
 
 namespace utl {
 	
-	X509Crt::X509Crt()
+	X509Crt::X509Crt() noexcept
 	{
 		::mbedtls_x509_crt_init(&_crt);
 	}
@@ -29,15 +29,15 @@ namespace utl {
 	}
 
 
-	utl::mbed_err X509Crt::load(const char* filename)
+	utl::mbed_err X509Crt::load(const char* filename) noexcept
 	{
 		return ::mbedtls_x509_crt_parse_file(&_crt, filename);
 	}
 
 
-	utl::mbed_err X509Crt::get_info(char* buf, size_t size, const char* prefix) const
+	utl::mbed_err X509Crt::get_info(char* buf, size_t size, const char* prefix) const noexcept
 	{
-		mbed_err errnum = ::mbedtls_x509_crt_info(buf, size, prefix, &_crt);
+		const mbed_err errnum = ::mbedtls_x509_crt_info(buf, size, prefix, &_crt);
 
 		return errnum >= 0 ? 0 : errnum;
 	}
@@ -76,7 +76,8 @@ namespace utl {
 	}
 
 
-	static DWORD WinVerifySslCert(PCCERT_CONTEXT certContext) {
+	static DWORD WinVerifySslCert(PCCERT_CONTEXT certContext) noexcept 
+	{
 		DWORD errorStatus = (DWORD) - 1;
 
 		static char* usage[3] = {
@@ -92,7 +93,7 @@ namespace utl {
 		chainParameter.RequestedUsage.Usage.rgpszUsageIdentifier = usage;
 
 		// Try offline revocation check
-		DWORD flags = CERT_CHAIN_REVOCATION_CHECK_CACHE_ONLY;
+		constexpr DWORD flags = CERT_CHAIN_REVOCATION_CHECK_CACHE_ONLY;
 
 		PCCERT_CHAIN_CONTEXT chainContext = nullptr;
 		if (::CertGetCertificateChain(NULL, certContext, nullptr, nullptr, &chainParameter, flags, nullptr, &chainContext) &&
@@ -105,7 +106,7 @@ namespace utl {
 	}
 
 
-	bool x509crt_is_trusted(const mbedtls_x509_crt* crt)
+	bool x509crt_is_trusted(const mbedtls_x509_crt* crt) noexcept
 	{
 		bool status = false;
 

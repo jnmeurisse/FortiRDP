@@ -64,7 +64,7 @@ namespace utl {
 		do {
 			std::vector<wchar_t> buffer(buffer_size);
 
-			int rc = ::GetModuleFileName(hModule, buffer.data(), static_cast<DWORD>(buffer.size()));
+			const int rc = ::GetModuleFileName(hModule, buffer.data(), static_cast<DWORD>(buffer.size()));
 			if (rc == buffer.size() && ::GetLastError() == ERROR_INSUFFICIENT_BUFFER)
 				buffer_size += 1024;
 			else if (rc == 0)

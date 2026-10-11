@@ -57,7 +57,7 @@ namespace net {
 		/**
 		 * Returns true if this end point is undefined.
 		*/
-		bool is_undef() const;
+		bool is_undef() const noexcept;
 
 	private:
 		std::string _hostname;

@@ -46,7 +46,7 @@ namespace http {
 		 *
 		 *  This function erases all headers and body.
 		*/
-		void clear();
+		void clear() noexcept;
 
 		/**
 		 * Sets the body of the HTTP request.
@@ -72,7 +72,7 @@ namespace http {
 		/**
 		 * Returns the request's headers
 		*/
-		inline http::Headers& headers() { return _headers; }
+		inline http::Headers& headers() noexcept { return _headers; }
 		
 		/**
 		 * Sends this HTTP request to the server.
@@ -107,7 +107,7 @@ namespace http {
 		static const char* __class__;
 
 		// A reference to the application logger.
-		utl::Logger* const _logger;
+		utl::Logger& _logger;
 
 		// All cookies (a reference to the cookie jar).
 		const http::Cookies& _cookies;

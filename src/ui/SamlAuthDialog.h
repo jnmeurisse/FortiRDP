@@ -43,8 +43,8 @@ namespace ui {
 		// The class name.
 		static const char* __class__;
 
-		// The application logger.
-		utl::Logger* const _logger;
+		// A reference to the application logger.
+		utl::Logger& _logger;
 
 		// SAML authentication configuration.
 		fw::AuthSamlInfo& _saml_auth_info;

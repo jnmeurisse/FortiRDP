@@ -50,15 +50,17 @@ namespace utl {
 
 	obfstring& obfstring::append(const char* str, size_t n)
 	{
-		const size_t old_size = _obfuscated_text.size();
+		if (str && n > 0) {
+			const size_t old_size = _obfuscated_text.size();
 
-		// Extend the buffer to hold the concatenated string.
-		_obfuscated_text.resize(old_size + n, 0x00);
+			// Extend the buffer to hold the concatenated string.
+			_obfuscated_text.resize(old_size + n, 0x00);
 
-		// Concatenate : obfuscate the string that it is appended.
-		char *p = &_obfuscated_text[old_size];
-		for (int index = 0; index < n; index++, p++) {
-			*p = encode(str[index], _key);
+			// Concatenate : obfuscate the string that it is appended.
+			char* p = &_obfuscated_text[old_size];
+			for (int index = 0; index < n; index++, p++) {
+				*p = encode(str[index], _key);
+			}
 		}
 
 		return *this;
@@ -94,14 +96,14 @@ namespace utl {
 	}
 
 
-	void obfstring::clear()
+	void obfstring::clear() noexcept
 	{
 		_key = obfstring::create_obfuscation_key();
 		_obfuscated_text.clear();
 	}
 
 	
-	size_t obfstring::find(const char ch) const
+	size_t obfstring::find(const char ch) const noexcept
 	{	
 		return _obfuscated_text.find(encode(ch, _key));
 	}
@@ -131,7 +133,7 @@ namespace utl {
 	}
 
 	
-	std::string obfstring::uncrypt() const
+	std::string obfstring::uncrypt() const noexcept
 	{
 		std::string plain_text(_obfuscated_text);
 
@@ -144,14 +146,17 @@ namespace utl {
 
 	void obfstring::uncrypt(char* buffer, size_t size, size_t offset) const noexcept
 	{
-		for (int index = 0; (index < _obfuscated_text.size()) && (index + offset < size); index++)
-			buffer[offset + index] = decode(_obfuscated_text[index], _key);
+		if (buffer) {
+			for (int index = 0; (index < _obfuscated_text.size()) && (index + offset < size); index++)
+				buffer[offset + index] = decode(_obfuscated_text[index], _key);
+		}
 	}
 
 
 	uint8_t obfstring::create_obfuscation_key() noexcept
 	{
-		clock_t value = std::clock();
+		const clock_t value = std::clock();
+
 		return (value % 7) + 1;
 	}
 
